@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+String role = '';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -6,40 +10,85 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedNavigation = 0;
-
-  void _onNavigationSelected(int index) {
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      _selectedNavigation = index;
+      role = preferences.getString("role");
+      print("Dashboard : $role");
     });
+  }
+
+  signOut() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setBool("islogin", false);
+    await preferences.setString("role", null);
+    await Future.delayed(const Duration(seconds: 2), () {});
+    SystemNavigator.pop();
+  }
+
+  handleLogout() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Logout"),
+      content: Container(
+        child: Text("Do you want to close app?"),
+      ),
+      actions: [
+        TextButton(
+          child: Text('Ok'),
+          onPressed: () => signOut(),
+        ),
+        TextButton(
+          child: Text('Cancel'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+
+    showDialog(context: context, builder: (context) => alert);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
   }
 
   @override
   Widget build(BuildContext context) {
-    final listPage = <Widget>[Text('Home'), Text('Agenda'), Text('Report')];
-
-    final _navbarItems = <BottomNavigationBarItem>[
-      BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('Home')),
-      BottomNavigationBarItem(
-          icon: Icon(Icons.view_agenda), title: Text('Agenda')),
-      BottomNavigationBarItem(icon: Icon(Icons.report), title: Text('Report'))
-    ];
-
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('Sample New'),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 100,
+                padding: EdgeInsets.symmetric(vertical: 35, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                ),
+                child: Text(
+                  'Digitalisasi data anda dengan sales force',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Segoe ui',
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        body: Center(
-          child: listPage[_selectedNavigation],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: _navbarItems,
-          currentIndex: _selectedNavigation,
-          selectedItemColor: Colors.blueAccent,
-          unselectedItemColor: Colors.grey,
-          onTap: _onNavigationSelected,
-        ),
+        // Center(
+        //   child: GestureDetector(
+        //     onTap: () {
+        //       handleLogout();
+        //     },
+        //     child: Text(
+        //       role
+        //     ),
+        //   ),
+        // ),
       ),
       debugShowCheckedModeBanner: false,
     );

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/login/login_view.dart';
 import 'package:sample/src/app/widgets/newintro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,9 +18,27 @@ class _SplashScreenState extends State<SplashScreen> {
   Future checkIntro() async{
     SharedPreferences pref = await SharedPreferences.getInstance();
     bool _check = (pref.getBool('check') ?? false);
+    bool _isLogin = (pref.getBool('islogin') ?? false);
 
     if (_check) {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+      if (_isLogin)
+      {
+        String role = pref.getString("role");
+        if (role == 'admin') {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => AdminScreen()));
+        } 
+        else if(role == 'sales') {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => HomeScreen()));
+        }
+        else {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+        }
+      }      
+      else {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+      }
     }
     else
     {

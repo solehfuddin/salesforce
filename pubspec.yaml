@@ -29,7 +29,9 @@ dependencies:
   change_app_package_name: ^0.1.2
   curved_navigation_bar: ^0.3.2
   google_fonts: ^1.1.0
+  fluttertoast: ^8.0.8
   tinycolor: ^1.0.2
+  http: ^0.12.2
 
 dev_dependencies:
   flutter_test:
