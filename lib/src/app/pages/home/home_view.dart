@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/entry/newcust_view.dart';
 // import 'package:flutter/services.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,6 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(context: context, builder: (context) => alert);
   }
 
+  handleEntryCust(){
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewcustScreen()));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,40 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
           physics: ClampingScrollPhysics(),
           slivers: [
             _areaHeader(screenHeight),
+            _areaPoint(screenHeight),
+            _areaMenu(screenHeight),
           ],
         ),
-        // body: SingleChildScrollView(
-        //   child: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.stretch,
-        //     children: [
-        //       Container(
-        //         width: 100,
-        //         padding: EdgeInsets.symmetric(vertical: 35, horizontal: 10),
-        //         decoration: BoxDecoration(
-        //           color: Colors.green,
-        //         ),
-        //         child: Text(
-        //           'Digitalisasi data anda dengan sales force',
-        //           style: TextStyle(
-        //             fontSize: 18,
-        //             fontFamily: 'Segoe ui',
-        //             color: Colors.white,
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        // Center(
-        //   child: GestureDetector(
-        //     onTap: () {
-        //       handleLogout();
-        //     },
-        //     child: Text(
-        //       role
-        //     ),
-        //   ),
-        // ),
       ),
       debugShowCheckedModeBanner: false,
     );
@@ -180,6 +155,263 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             SizedBox(height: screenHeight * 0.02),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _areaMenu(double screenHeight) {
+    return SliverToBoxAdapter(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        // color: Colors.orange,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                GestureDetector(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/entry_customer_new.png',
+                          width: 50,
+                          height: 50,
+                        ),
+                        SizedBox(
+                          height: screenHeight * 0.015,
+                        ),
+                        Text(
+                          'Customer',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Segoe ui',
+                              color: Colors.black54),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    handleEntryCust();
+                  },
+                ),
+                GestureDetector(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/e_contract_new.png',
+                          width: 50,
+                          height: 50,
+                        ),
+                        SizedBox(
+                          height: screenHeight * 0.015,
+                        ),
+                        Text(
+                          'E-Contract',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Segoe ui',
+                              color: Colors.black54),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    handleComing();
+                  },
+                ),
+                GestureDetector(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/performance_new.png',
+                          width: 50,
+                          height: 50,
+                        ),
+                        SizedBox(
+                          height: screenHeight * 0.015,
+                        ),
+                        Text(
+                          'Performance',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Segoe ui',
+                              color: Colors.black54),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    handleComing();
+                  },
+                ),
+                GestureDetector(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/agenda_menu_new.png',
+                          width: 50,
+                          height: 50,
+                        ),
+                        SizedBox(
+                          height: screenHeight * 0.015,
+                        ),
+                        Text(
+                          'Agenda',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Segoe ui',
+                              color: Colors.black54),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    handleComing();
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _areaPoint(double screenHeight) {
+    return SliverToBoxAdapter(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        // color: Colors.orange,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Points',
+                            style: TextStyle(
+                              fontFamily: 'Segoe ui',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(
+                            height: screenHeight * 0.01,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '0',
+                                style: TextStyle(
+                                  fontFamily: 'Segoe ui',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Image.asset(
+                                'assets/images/point.png',
+                                width: 24,
+                                height: 24,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      handleComing();
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Reward',
+                            style: TextStyle(
+                              fontFamily: 'Segoe ui',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(
+                            height: screenHeight * 0.01,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Detail',
+                                style: TextStyle(
+                                  fontFamily: 'Segoe ui',
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Image.asset(
+                                'assets/images/reward.png',
+                                width: 24,
+                                height: 24,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      handleComing();
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

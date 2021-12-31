@@ -32,6 +32,7 @@ dependencies:
   fluttertoast: ^8.0.8
   tinycolor: ^1.0.2
   http: ^0.12.2
+  datetime_picker_formfield: ^2.0.0
 
 dev_dependencies:
   flutter_test:
