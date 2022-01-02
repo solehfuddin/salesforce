@@ -70,8 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(context: context, builder: (context) => alert);
   }
 
-  handleEntryCust(){
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewcustScreen()));
+  handleEntryCust() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => NewcustScreen()));
   }
 
   @override
@@ -92,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _areaHeader(screenHeight),
             _areaPoint(screenHeight),
             _areaMenu(screenHeight),
+            _areaBanner(screenHeight),
           ],
         ),
       ),
@@ -117,7 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  // 'SALES APP',
                   'Hi, $username',
                   style: TextStyle(
                     color: Colors.white,
@@ -414,6 +415,93 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _areaBanner(double screenHeight) {
+    return SliverToBoxAdapter(
+      child: GestureDetector(
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Get rewarded with Challenges',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Segoe ui',
+                  color: Colors.black,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Container(
+                padding: EdgeInsets.all(8),
+                height: screenHeight * 0.18,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.black12,
+                  ),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Image.asset(
+                      'assets/images/espresso.png',
+                      width: 50,
+                      height: 70,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Win a Coffe Challenge 5 Customers ..',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe ui',
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Ends on 14 Jan 2022',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Accept this challenge',
+                          style: TextStyle(
+                            color: Colors.blue[800],
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        onTap: () {
+          handleComing();
+        },
       ),
     );
   }
