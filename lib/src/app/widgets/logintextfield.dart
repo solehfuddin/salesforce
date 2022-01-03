@@ -31,12 +31,12 @@ class LoginTextfield extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
-                labelText: labelText,
+                // labelText: labelText,
                 hintText: hintText,
                 hintStyle: TextStyle(
                   color: MyColors.desciptionColor,
                   fontSize: 14,
-                  fontFamily: 'Segoe ui',
+                  // fontFamily: 'Segoe ui',
                 ),
                 errorText: validate ? 'Value must be filled' : null,
               ),

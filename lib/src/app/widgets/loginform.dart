@@ -108,12 +108,13 @@ class _LoginFormState extends State<LoginForm> {
                           left: MediaQuery.of(context).size.width / 7,
                           bottom: 15),
                       child: Text(
-                        "SALES FORCE",
+                        "e-SALES",
                         style: TextStyle(
-                          fontSize: 26,
+                          fontSize: 36,
                           color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          // fontFamily: 'Segoe ui',
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
                     ),
@@ -122,7 +123,7 @@ class _LoginFormState extends State<LoginForm> {
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: <Widget>[
-                    LoginTextfield(30, 0, "Username", "Username ...",
+                    LoginTextfield(30, 0, "USERNAME", "USERNAME",
                         textUsername, _isUsername),
                   ],
                 ),
@@ -130,7 +131,7 @@ class _LoginFormState extends State<LoginForm> {
                   alignment: Alignment.bottomRight,
                   children: <Widget>[
                     PasswordTextField(
-                        0, 30, "Password ...", textPassword, _isPassword),
+                        0, 30, "PASSWORD", textPassword, _isPassword),
                     Padding(
                       padding: EdgeInsets.only(right: 50, top: 30),
                       child: Row(
@@ -149,36 +150,54 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: 25,
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.only(
+            //     bottom: 25,
+            //   ),
+            // ),
+            SizedBox(height: 80,),
             Container(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.topRight,
               child: Container(
-                padding: EdgeInsets.only(left: 23),
+                padding: EdgeInsets.only(right: 35),
                 // child: roundedRectButton("Login", signInGradients, false),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: StadiumBorder(),
-                    primary: Colors.green,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-                  ),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Segoe ui',
-                    ),
-                  ),
+                // child: ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     shape: StadiumBorder(),
+                //     primary: Colors.green,
+                //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                //   ),
+                //   child: Text(
+                //     'Login',
+                //     style: TextStyle(
+                //       color: Colors.white,
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //       fontFamily: 'Segoe ui',
+                //     ),
+                //   ),
+                //   onPressed: () {
+                //     setState(() {
+                //       check();
+                //     });
+                //   },
+                // ),
+                child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
                       check();
                     });
                   },
+                  icon: Icon(Icons.login, size: 33,),
+                  label: Text(''),
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.deepOrange[600],
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                      elevation: 0.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      )),
                 ),
               ),
             ),

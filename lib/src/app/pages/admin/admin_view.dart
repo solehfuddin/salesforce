@@ -551,9 +551,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Image.asset(
-                          'assets/images/e_contract_new.png',
-                          width: 30,
-                          height: 30,
+                          'assets/images/digital_sign.png',
+                          width: 40,
+                          height: 40,
                         ),
                         SizedBox(
                           width: 8,

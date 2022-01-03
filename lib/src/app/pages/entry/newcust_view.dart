@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:io' as Io;
+
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,16 +32,58 @@ class _NewcustScreenState extends State<NewcustScreen> {
   String _chosenValue;
   String _chosenBilling;
   final format = DateFormat("yyyy-MM-dd");
+  String base64Image;
+  File tmpFile;
+  String errMessage = 'Error Uploading Image';
+ 
+  Future chooseImage() async {
+      var imgFile = await ImagePicker().getImage(source: ImageSource.camera);
+      setState(() {
+       tmpFile = File(imgFile.path);
+       base64Image = base64Encode(Io.File(imgFile.path).readAsBytesSync());
+
+       print(imgFile.path);
+       print(base64Image);
+      });
+  }
+
+   Widget showImage() {
+    return Center(
+        // child: tmpFile == null ? Text('No image selected.') : Image.file(tmpFile),
+        child: tmpFile == null ? Text('No image selected.') :Text(tmpFile.path),
+    );
+
+    // return FutureBuilder<File>(
+    //   future: testImg,
+    //   builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+    //     if (snapshot.connectionState == ConnectionState.done &&
+    //         null != snapshot.data) {
+    //       // tmpFile = snapshot.data;
+    //       base64Image = base64Encode(snapshot.data.readAsBytesSync());
+    //       return Flexible(
+    //         child: Image.file(
+    //           snapshot.data,
+    //           fit: BoxFit.fill,
+    //         ),
+    //       );
+    //     } else if (null != snapshot.error) {
+    //       return const Text(
+    //         'Error Picking Image',
+    //         textAlign: TextAlign.center,
+    //       );
+    //     } else {
+    //       return const Text(
+    //         'No Image Selected',
+    //         textAlign: TextAlign.center,
+    //       );
+    //     }
+    //   },
+    // );
+  }
 
   saveData() async {
     // textUsername.text.isEmpty ? _isUsername = true : _isUsername = false;
     // textPassword.text.isEmpty ? _isPassword = true : _isPassword = false;
-
-    // print(textUsername.text);
-    // print(textPassword.text);
-
-    // username = textUsername.text;
-    // password = textPassword.text;
     var url = 'http://timurrayalab.com/salesforce/server/api/customers';
     var response = await http.post(
       url,
@@ -54,6 +101,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         'telp_usaha': textTelpOptik.text,
         'email_usaha': textEmailOptik.text,
         'nama_pj': textPicOptik.text,
+        'upload_identitas' : base64Image,
       },
     );
     print('Response status: ${response.statusCode}');
@@ -436,7 +484,44 @@ class _NewcustScreenState extends State<NewcustScreen> {
                       keyboardType: TextInputType.multiline,
                       minLines: 1,
                       maxLines: 3,
-                      controller: textCatatan),
+                      controller: textCatatan,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    'D. DOKUMEN PELENGKAP',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontFamily: 'Segoe ui',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.blue,
+                        shape: StadiumBorder(),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                      ),
+                      child: Text(
+                        'Pilih KTP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Segoe ui',
+                        ),
+                      ),
+                      onPressed: () {
+                        chooseImage();
+                      },
+                    ),
+                  showImage(),
                   SizedBox(
                     height: 20,
                   ),

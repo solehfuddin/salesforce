@@ -48,12 +48,12 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
             child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
-                labelText: "Password",
+                // labelText: "PASSWORD",
                 hintText: widget.hintText,
                 hintStyle: TextStyle(
                   color: MyColors.desciptionColor,
                   fontSize: 14,
-                  fontFamily: 'Segoe ui',
+                  // fontFamily: 'Segoe ui',
                 ),
                 errorText: widget.validate ? 'Value must be filled' : null,
                 suffixIcon: GestureDetector(

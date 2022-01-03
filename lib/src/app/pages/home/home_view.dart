@@ -93,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _areaHeader(screenHeight),
             _areaPoint(screenHeight),
             _areaMenu(screenHeight),
+            _areaFeature(screenHeight),
             _areaBanner(screenHeight),
           ],
         ),
@@ -423,14 +424,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverToBoxAdapter(
       child: GestureDetector(
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 'Get rewarded with Challenges',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 23,
                   fontFamily: 'Segoe ui',
                   color: Colors.black,
                   fontWeight: FontWeight.w700,
@@ -502,6 +503,107 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () {
           handleComing();
         },
+      ),
+    );
+  }
+
+  SliverPadding _areaFeature(double screenHeight) {
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 10,
+      ),
+      sliver: SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Digital signed',
+              style: TextStyle(
+                fontSize: 23,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            GestureDetector(
+              child: Container(
+                padding: EdgeInsets.all(
+                  15,
+                ),
+                height: screenHeight * 0.18,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: Colors.black26,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Image.asset(
+                          'assets/images/digital_sign.png',
+                          width: 40,
+                          height: 40,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Set digital signed easily to save your',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Segoe ui',
+                              ),
+                            ),
+                            Text(
+                              'time when approved new customer',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Segoe ui',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Container(
+                      height: 2,
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Center(
+                      child: Text(
+                        'View Details',
+                        style: TextStyle(
+                          color: Colors.blue[700],
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Segoe ui',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () => handleComing(),
+            ),
+          ],
+        ),
       ),
     );
   }
