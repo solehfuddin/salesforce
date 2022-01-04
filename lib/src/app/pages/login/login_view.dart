@@ -17,7 +17,7 @@ class _LoginState extends State<Login> {
         children: <Widget>[
           BackgroundLogin(),
           Padding(
-            padding: const EdgeInsets.only(top: 20.0),
+            padding: const EdgeInsets.only(top: 40.0),
             child: LoginForm(),
           ),
         ],

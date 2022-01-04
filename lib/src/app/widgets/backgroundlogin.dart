@@ -22,15 +22,18 @@ class _BackgroundLogin extends State<BackgroundLogin> {
       backgroundColor: Colors.white,
       body: Column(
         children: <Widget>[
+          SizedBox(
+            height: 50,
+          ),
           Stack(
             alignment: Alignment.bottomRight,
             children: <Widget>[
-              WaveHeader(
-                customColor: customColor,
-              ),
+              // WaveHeader(
+              //   customColor: customColor,
+              // ),
               Image.asset(
                 'assets/images/newlogin.png',
-                width: MediaQuery.of(context).size.width / 1.54,
+                width: MediaQuery.of(context).size.width / 1.74,
                 fit: BoxFit.cover,
               ),
             ],

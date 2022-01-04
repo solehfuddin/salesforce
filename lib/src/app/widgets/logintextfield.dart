@@ -13,10 +13,9 @@ class LoginTextfield extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: 40, bottom: 0),
+    return Center(
       child: Container(
-        width: MediaQuery.of(context).size.width - 40,
+        width: MediaQuery.of(context).size.width - 70,
         child: Material(
           elevation: 10,
           color: Colors.white,
@@ -24,10 +23,11 @@ class LoginTextfield extends StatelessWidget {
             borderRadius: BorderRadius.only(
               bottomRight: Radius.circular(bottomRight),
               topRight: Radius.circular(topRight),
+              topLeft: Radius.circular(topRight),
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.only(left: 33, right: 20, top: 10, bottom: 10),
+            padding: EdgeInsets.only(left: 33, right: 20, top: 7, bottom: 7),
             child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -37,6 +37,7 @@ class LoginTextfield extends StatelessWidget {
                   color: MyColors.desciptionColor,
                   fontSize: 14,
                   // fontFamily: 'Segoe ui',
+                  fontFamily: 'Montserrat',
                 ),
                 errorText: validate ? 'Value must be filled' : null,
               ),

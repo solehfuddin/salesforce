@@ -91,47 +91,50 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
+          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 6),
         ),
         Column(
           children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width / 7,
-                          bottom: 15),
-                      child: Text(
-                        "e-SALES",
-                        style: TextStyle(
-                          fontSize: 36,
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.w600,
-                          // fontFamily: 'Segoe ui',
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                // Stack(
+                //   alignment: Alignment.center,
+                //   children: <Widget>[
+                //     Padding(
+                //       padding: EdgeInsets.only(
+                //           left: MediaQuery.of(context).size.width / 7,
+                //           bottom: 15),
+                //       child: Text(
+                //         "e-SALES",
+                //         style: TextStyle(
+                //           fontSize: 36,
+                //           color: Colors.blueAccent,
+                //           fontWeight: FontWeight.w700,
+                //           // fontFamily: 'Segoe ui',
+                //           fontFamily: 'Montserrat',
+                //           fontStyle: FontStyle.italic,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: <Widget>[
-                    LoginTextfield(30, 0, "USERNAME", "USERNAME",
-                        textUsername, _isUsername),
+                    LoginTextfield(15, 0, "USERNAME", "USERNAME", textUsername,
+                        _isUsername),
                   ],
                 ),
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: <Widget>[
                     PasswordTextField(
-                        0, 30, "PASSWORD", textPassword, _isPassword),
+                        0, 15, "PASSWORD", textPassword, _isPassword),
                     Padding(
                       padding: EdgeInsets.only(right: 50, top: 30),
                       child: Row(
@@ -155,7 +158,9 @@ class _LoginFormState extends State<LoginForm> {
             //     bottom: 25,
             //   ),
             // ),
-            SizedBox(height: 80,),
+            SizedBox(
+              height: 30,
+            ),
             Container(
               alignment: Alignment.topRight,
               child: Container(
@@ -188,7 +193,10 @@ class _LoginFormState extends State<LoginForm> {
                       check();
                     });
                   },
-                  icon: Icon(Icons.login, size: 33,),
+                  icon: Icon(
+                    Icons.login,
+                    size: 33,
+                  ),
                   label: Text(''),
                   style: ElevatedButton.styleFrom(
                       primary: Colors.deepOrange[600],
@@ -198,6 +206,36 @@ class _LoginFormState extends State<LoginForm> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       )),
+                ),
+              ),
+            ),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 20, bottom: 2),
+              child: Text(
+                "e-SALES",
+                style: TextStyle(
+                  fontSize: 23,
+                  color: MyColors.bgColor,
+                  fontWeight: FontWeight.w700,
+                  // fontFamily: 'Segoe ui',
+                  fontFamily: 'Montserrat',
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 50, bottom: 35),
+              child: Text(
+                'v 1.0',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Segoe ui',
                 ),
               ),
             ),

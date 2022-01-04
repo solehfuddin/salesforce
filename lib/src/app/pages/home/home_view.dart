@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
+import 'package:sample/src/app/pages/signed/signed_view.dart';
 // import 'package:flutter/services.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 String role = '';
 String username = '';
+String userUpper = '';
+var ttd;
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,9 +21,112 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       role = preferences.getString("role");
       username = preferences.getString("username");
+      userUpper = username.toUpperCase();
+      ttd = preferences.getString("ttd");
 
       print("Dashboard : $role");
     });
+  }
+
+  handleSigned() {
+    AlertDialog alert = AlertDialog(
+      title: Center(
+        child: Text(
+          "Digital Signed",
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: 'Segoe ui',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      content: Container(
+        padding: EdgeInsets.only(top: 20,),
+        height: 150,
+        child: Column(
+          children: [
+            Center(
+              child: Image.asset(
+                'assets/images/digital_sign.png',
+                width: 60,
+                height: 60,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Center(
+              child: Text(
+                "Setup digital signed easily to save your",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                "time when approve new customer",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                primary: Colors.orange[800],
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: Text(
+                'Next time',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Segoe ui',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                primary: Colors.indigo[600],
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: Text(
+                'Setup now',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Segoe ui',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop('dialog');
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignedScreen()));
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+
+    showDialog(context: context, builder: (context) => alert);
   }
 
   handleComing() {
@@ -51,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
             child: Text(
-              'Kembali',
+              'Ok',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -71,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   handleEntryCust() {
-    Navigator.of(context)
+    ttd == null ? handleSigned() : Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => NewcustScreen()));
   }
 
@@ -120,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Hi, $username',
+                  'HI, $userUpper',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 25.0,
@@ -148,10 +254,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Column(
               children: [
                 Text(
-                  'Digitalisasi data customer, monitoring e-kontrak dan kinerja menjadi lebih mudah dan efisien',
+                  // 'Digitalisasi data customer, monitoring e-kontrak dan kinerja menjadi lebih mudah dan efisien',
+                  'Digitalize customer data, e-contract monitoring and task more easily and efficient',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 15.0,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -167,7 +276,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverToBoxAdapter(
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        // color: Colors.orange,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

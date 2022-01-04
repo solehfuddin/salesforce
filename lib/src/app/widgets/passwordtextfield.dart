@@ -15,12 +15,7 @@ class PasswordTextField extends StatefulWidget {
 }
 
 class _PasswordTextFieldState extends State<PasswordTextField> {
-  // final double topRight;
-  // final double bottomRight;
-  // final String hintText;
   bool _isHidePass = true;
-
-  // _PasswordTextFieldState(this.topRight, this.bottomRight, this.hintText, this._isHidePass);
   
   void _tooglePassVisibility() {
     setState(() {
@@ -30,21 +25,21 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: 40, bottom: 0),
+    return Center(
       child: Container(
-        width: MediaQuery.of(context).size.width - 40,
+        width: MediaQuery.of(context).size.width - 70,
         child: Material(
           elevation: 10,
           color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomRight: Radius.circular(widget.bottomRight),
+              bottomLeft: Radius.circular(widget.bottomRight),
               topRight: Radius.circular(widget.topRight),
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.only(left: 33, right: 20, top: 10, bottom: 10),
+            padding: EdgeInsets.only(left: 33, right: 20, top: 7, bottom: 7),
             child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
