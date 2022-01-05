@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:signature/signature.dart';
 
 class NewcustScreen extends StatefulWidget {
   @override
@@ -33,52 +34,55 @@ class _NewcustScreenState extends State<NewcustScreen> {
   String _chosenBilling;
   final format = DateFormat("yyyy-MM-dd");
   String base64Image;
-  File tmpFile;
+  File tmpFile, tmpSiupFile;
   String errMessage = 'Error Uploading Image';
- 
-  Future chooseImage() async {
-      var imgFile = await ImagePicker().getImage(source: ImageSource.camera);
-      setState(() {
-       tmpFile = File(imgFile.path);
-       base64Image = base64Encode(Io.File(imgFile.path).readAsBytesSync());
 
-       print(imgFile.path);
-       print(base64Image);
-      });
+  final SignatureController _signController = SignatureController(
+    penStrokeWidth: 3,
+    penColor: Colors.black,
+    exportBackgroundColor: Colors.white,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _signController.addListener(() => print('Value changed'));
   }
 
-   Widget showImage() {
-    return Center(
-        // child: tmpFile == null ? Text('No image selected.') : Image.file(tmpFile),
-        child: tmpFile == null ? Text('No image selected.') :Text(tmpFile.path),
-    );
+  Future chooseImage() async {
+    var imgFile = await ImagePicker().getImage(source: ImageSource.camera);
+    setState(() {
+      tmpFile = File(imgFile.path);
+      base64Image = base64Encode(Io.File(imgFile.path).readAsBytesSync());
 
-    // return FutureBuilder<File>(
-    //   future: testImg,
-    //   builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-    //     if (snapshot.connectionState == ConnectionState.done &&
-    //         null != snapshot.data) {
-    //       // tmpFile = snapshot.data;
-    //       base64Image = base64Encode(snapshot.data.readAsBytesSync());
-    //       return Flexible(
-    //         child: Image.file(
-    //           snapshot.data,
-    //           fit: BoxFit.fill,
-    //         ),
-    //       );
-    //     } else if (null != snapshot.error) {
-    //       return const Text(
-    //         'Error Picking Image',
-    //         textAlign: TextAlign.center,
-    //       );
-    //     } else {
-    //       return const Text(
-    //         'No Image Selected',
-    //         textAlign: TextAlign.center,
-    //       );
-    //     }
-    //   },
-    // );
+      print(imgFile.path);
+      print(base64Image);
+    });
+  }
+
+  Future chooseSiup() async {
+    var imgFile = await ImagePicker().getImage(source: ImageSource.camera);
+    setState(() {
+      tmpSiupFile = File(imgFile.path);
+      base64Image = base64Encode(Io.File(imgFile.path).readAsBytesSync());
+
+      print(imgFile.path);
+      print(base64Image);
+    });
+  }
+
+  Widget showKtp() {
+    return Center(
+      // child: tmpFile == null ? Text('No image selected.') : Image.file(tmpFile),
+      child: tmpFile == null ? Text('Gambar belum dipilih') : Text(tmpFile.path),
+    );
+  }
+
+  Widget showSiup() {
+    return Center(
+      // child: tmpFile == null ? Text('No image selected.') : Image.file(tmpFile),
+      child: tmpFile == null ? Text('Gambar belum dipilih') : Text(tmpSiupFile.path),
+    );
   }
 
   saveData() async {
@@ -101,7 +105,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         'telp_usaha': textTelpOptik.text,
         'email_usaha': textEmailOptik.text,
         'nama_pj': textPicOptik.text,
-        'upload_identitas' : base64Image,
+        'upload_identitas': base64Image,
       },
     );
     print('Response status: ${response.statusCode}');
@@ -473,18 +477,18 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     height: 10,
                   ),
                   TextFormField(
-                      textCapitalization: TextCapitalization.characters,
-                      decoration: InputDecoration(
-                        hintText: 'Catatan',
-                        labelText: 'Catatan',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: InputDecoration(
+                      hintText: 'Catatan',
+                      labelText: 'Catatan',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      keyboardType: TextInputType.multiline,
-                      minLines: 1,
-                      maxLines: 3,
-                      controller: textCatatan,
+                    ),
+                    keyboardType: TextInputType.multiline,
+                    minLines: 1,
+                    maxLines: 3,
+                    controller: textCatatan,
                   ),
                   SizedBox(
                     height: 20,
@@ -501,12 +505,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   SizedBox(
                     height: 10,
                   ),
-                  ElevatedButton(
+                  showKtp(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Center(
+                    child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         primary: Colors.blue,
                         shape: StadiumBorder(),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
                       child: Text(
                         'Pilih KTP',
@@ -521,9 +530,58 @@ class _NewcustScreenState extends State<NewcustScreen> {
                         chooseImage();
                       },
                     ),
-                  showImage(),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  showSiup(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.blue,
+                        shape: StadiumBorder(),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      ),
+                      child: Text(
+                        'Pilih SIUP / SITU',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Segoe ui',
+                        ),
+                      ),
+                      onPressed: () {
+                        chooseSiup();
+                      },
+                    ),
+                  ),
                   SizedBox(
                     height: 20,
+                  ),
+                  Text(
+                    'E. TTD CUSTOMER',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontFamily: 'Segoe ui',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Signature(
+                    controller: _signController,
+                    height: 150,
+                    backgroundColor: Colors.blueGrey.shade50,
+                  ),
+                  SizedBox(
+                    height: 10,
                   ),
                   Center(
                     child: ElevatedButton(

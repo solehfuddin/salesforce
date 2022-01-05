@@ -1,14 +1,18 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
-// import 'package:flutter/services.dart';
+import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
+import 'package:sample/src/app/widgets/headerdashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+String id = '';
 String role = '';
 String username = '';
+String divisi = '';
 String userUpper = '';
-var ttd;
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -19,172 +23,29 @@ class _HomeScreenState extends State<HomeScreen> {
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
+      id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
       userUpper = username.toUpperCase();
-      ttd = preferences.getString("ttd");
+      divisi = preferences.getString("divisi");
 
       print("Dashboard : $role");
     });
-  }
-
-  handleSigned() {
-    AlertDialog alert = AlertDialog(
-      title: Center(
-        child: Text(
-          "Digital Signed",
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      content: Container(
-        padding: EdgeInsets.only(top: 20,),
-        height: 150,
-        child: Column(
-          children: [
-            Center(
-              child: Image.asset(
-                'assets/images/digital_sign.png',
-                width: 60,
-                height: 60,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Center(
-              child: Text(
-                "Setup digital signed easily to save your",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            Center(
-              child: Text(
-                "time when approve new customer",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                primary: Colors.orange[800],
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              child: Text(
-                'Next time',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Segoe ui',
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                primary: Colors.indigo[600],
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              child: Text(
-                'Setup now',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Segoe ui',
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignedScreen()));
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-
-    showDialog(context: context, builder: (context) => alert);
-  }
-
-  handleComing() {
-    AlertDialog alert = AlertDialog(
-      title: Center(
-        child: Text(
-          "Coming Soon",
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      content: Container(
-        child: Image.asset(
-          'assets/images/coming_soon.png',
-          width: 80,
-          height: 80,
-        ),
-      ),
-      actions: [
-        Center(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: StadiumBorder(),
-              primary: Colors.indigo[600],
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              'Ok',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Segoe ui',
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      ],
-    );
-
-    showDialog(context: context, builder: (context) => alert);
-  }
-
-  handleEntryCust() {
-    ttd == null ? handleSigned() : Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => NewcustScreen()));
   }
 
   @override
   void initState() {
     super.initState();
     getRole();
+  }
+
+  checkSigned() async {
+    String ttd = await getTtdValid(id, context);
+    print(ttd);
+    ttd == null
+        ? handleSigned(context)
+        : Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => NewcustScreen()));
   }
 
   @override
@@ -196,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: CustomScrollView(
           physics: ClampingScrollPhysics(),
           slivers: [
-            _areaHeader(screenHeight),
+            areaHeader(screenHeight, userUpper, context),
             _areaPoint(screenHeight),
             _areaMenu(screenHeight),
             _areaFeature(screenHeight),
@@ -205,70 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       debugShowCheckedModeBanner: false,
-    );
-  }
-
-  SliverToBoxAdapter _areaHeader(double screenHeight) {
-    return SliverToBoxAdapter(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        decoration: BoxDecoration(
-          color: Colors.green[500],
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(30),
-            bottomRight: Radius.circular(30),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'HI, $userUpper',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    handleComing();
-                  },
-                  icon: Icon(Icons.account_circle),
-                  label: Text('Profile'),
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.blueGrey[600],
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                      elevation: 0.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      )),
-                ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.03),
-            Column(
-              children: [
-                Text(
-                  // 'Digitalisasi data customer, monitoring e-kontrak dan kinerja menjadi lebih mudah dan efisien',
-                  'Digitalize customer data, e-contract monitoring and task more easily and efficient',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 15.0,
-                    fontFamily: 'Montserrat',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.02),
-          ],
-        ),
-      ),
     );
   }
 
@@ -310,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   onTap: () {
-                    handleEntryCust();
+                    checkSigned();
                   },
                 ),
                 GestureDetector(
@@ -338,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   onTap: () {
-                    handleComing();
+                    handleComing(context);
                   },
                 ),
                 GestureDetector(
@@ -366,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   onTap: () {
-                    handleComing();
+                    handleComing(context);
                   },
                 ),
                 GestureDetector(
@@ -394,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   onTap: () {
-                    handleComing();
+                    handleComing(context);
                   },
                 ),
               ],
@@ -464,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     onTap: () {
-                      handleComing();
+                      handleComing(context);
                     },
                   ),
                 ),
@@ -516,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     onTap: () {
-                      handleComing();
+                      handleComing(context);
                     },
                   ),
                 ),
@@ -609,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         onTap: () {
-          handleComing();
+          handleComing(context);
         },
       ),
     );
@@ -708,7 +505,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              onTap: () => handleComing(),
+              // onTap: () => handleComing(context),
+              onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => SignedScreen())),
             ),
           ],
         ),

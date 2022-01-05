@@ -6,8 +6,6 @@ import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/login/login_view.dart';
 import 'package:sample/src/app/widgets/newintro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'home.dart';
-// import 'navbar.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -24,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (_isLogin)
       {
         String role = pref.getString("role");
+
         if (role == 'admin') {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => AdminScreen()));

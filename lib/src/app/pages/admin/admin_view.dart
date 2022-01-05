@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:sample/src/app/pages/signed/signed_view.dart';
+import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
+import 'package:sample/src/app/widgets/headerdashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+String id = '';
 String role = '';
 String username = '';
+String divisi = '';
+String userUpper = '';
+var ttd;
 
 class AdminScreen extends StatefulWidget {
   @override
@@ -21,85 +27,23 @@ class _AdminScreenState extends State<AdminScreen> {
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
+      id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
+      userUpper = username.toUpperCase();
+      divisi = preferences.getString("divisi");
+
+      checkSigned();
     });
   }
 
-  signOut() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setBool("islogin", false);
-    await preferences.setString("role", null);
-    await Future.delayed(const Duration(seconds: 1), () {});
-    SystemNavigator.pop();
-  }
-
-  handleComing() {
-    AlertDialog alert = AlertDialog(
-      title: Center(
-        child: Text(
-          "Coming Soon",
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      content: Container(
-        child: Image.asset(
-          'assets/images/coming_soon.png',
-          width: 80,
-          height: 80,
-        ),
-      ),
-      actions: [
-        Center(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: StadiumBorder(),
-              primary: Colors.indigo[600],
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              'Kembali',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Segoe ui',
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      ],
-    );
-
-    showDialog(context: context, builder: (context) => alert);
-  }
-
-  handleLogout() {
-    AlertDialog alert = AlertDialog(
-      title: Text("Logout"),
-      content: Container(
-        child: Text("Do you want to close app?"),
-      ),
-      actions: [
-        TextButton(
-          child: Text('Ok'),
-          onPressed: () => signOut(),
-        ),
-        TextButton(
-          child: Text('Cancel'),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
-    );
-
-    showDialog(context: context, builder: (context) => alert);
+  checkSigned() async {
+    String ttd = await getTtdValid(id, context);
+    print(ttd);
+    if (ttd == null)
+    {
+      handleSigned(context);
+    }
   }
 
   @override
@@ -112,74 +56,13 @@ class _AdminScreenState extends State<AdminScreen> {
         body: CustomScrollView(
           physics: ClampingScrollPhysics(),
           slivers: [
-            _areaHeader(screenHeight),
+            areaHeader(screenHeight, userUpper, context),
             _areaCounter(),
             _areaFeature(screenHeight),
           ],
         ),
       ),
       debugShowCheckedModeBanner: false,
-    );
-  }
-
-  SliverToBoxAdapter _areaHeader(double screenHeight) {
-    return SliverToBoxAdapter(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        decoration: BoxDecoration(
-          color: Colors.green[500],
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(30),
-            bottomRight: Radius.circular(30),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Hi, $username',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    handleComing();
-                  },
-                  icon: Icon(Icons.account_circle),
-                  label: Text('Profile'),
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.blueGrey[600],
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                      elevation: 0.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      )),
-                ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.03),
-            Column(
-              children: [
-                Text(
-                  'Digitalisasi data customer, monitoring e-kontrak dan kinerja menjadi lebih mudah dan efisien',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 15.0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.02),
-          ],
-        ),
-      ),
     );
   }
 
@@ -255,7 +138,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(),
+                    onTap: () => handleComing(context),
                   ),
                 ),
                 SizedBox(
@@ -310,7 +193,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(),
+                    onTap: () => handleComing(context),
                   ),
                 ),
               ],
@@ -377,7 +260,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(),
+                    onTap: () => handleComing(context),
                   ),
                 ),
                 SizedBox(
@@ -439,7 +322,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(),
+                    onTap: () => handleComing(context),
                   ),
                 ),
                 SizedBox(
@@ -501,7 +384,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(),
+                    onTap: () => handleComing(context),
                   ),
                 ),
               ],
@@ -605,7 +488,8 @@ class _AdminScreenState extends State<AdminScreen> {
                   ],
                 ),
               ),
-              onTap: () => handleComing(),
+              onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => SignedScreen())),
             ),
           ],
         ),
