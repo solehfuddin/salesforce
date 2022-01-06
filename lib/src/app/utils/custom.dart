@@ -8,6 +8,9 @@ import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:signature/signature.dart';
+
+String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
 login(String user, String pass, BuildContext context) async {
   var url = 'http://timurrayalab.com/salesforce/server/api/auth/login';
@@ -268,6 +271,9 @@ handleStatus(BuildContext context, String msg, bool status) {
           ),
           onPressed: () {
             Navigator.of(context).pop();
+            if (status) {
+              Navigator.pop(context);
+            }
           },
         ),
       ),
@@ -286,3 +292,40 @@ Future<String> getTtdValid(String idUser, BuildContext context) async {
 
   return ttd;
 }
+
+handleDigitalSigned(
+    SignatureController signController, BuildContext context, String id) async {
+  if (signController.isNotEmpty) {
+    var data = await signController.toPngBytes();
+    String signedImg = base64Encode(data);
+    print(signedImg);
+    print(id);
+
+    var url = 'http://timurrayalab.com/salesforce/server/api/users/update';
+    var response = await http.post(
+      url,
+      body: {
+        'id': id,
+        'ttd': signedImg,
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    var res = json.decode(response.body);
+    final bool sts = res['status'];
+    final String msg = res['message'];
+
+    handleStatus(context, capitalize(msg), sts);
+  } else {
+    Fluttertoast.showToast(
+        msg: 'Please signed the form',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16);
+  }
+}
+

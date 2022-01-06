@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
-import 'package:http/http.dart' as http;
 
 class SignedScreen extends StatefulWidget {
   @override
@@ -86,43 +84,6 @@ class _SignedScreenState extends State<SignedScreen> {
       );
     } else {
       return Container();
-    }
-  }
-
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
-
-  uploadImg() async {
-    if (_signController.isNotEmpty) {
-      var data = await _signController.toPngBytes();
-      String signedImg = base64Encode(data);
-      print(signedImg);
-      print(id);
-
-      var url = 'http://timurrayalab.com/salesforce/server/api/users/update';
-      var response = await http.post(
-        url,
-        body: {
-          'id': id,
-          'ttd': signedImg,
-        },
-      );
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      var res = json.decode(response.body);
-      final bool sts = res['status'];
-      final String msg = res['message'];
-
-      handleStatus(context, capitalize(msg), sts);
-    } else {
-      Fluttertoast.showToast(
-          msg: 'Please signed the form',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16);
     }
   }
 
@@ -245,7 +206,7 @@ class _SignedScreenState extends State<SignedScreen> {
                         ),
                       ),
                       onPressed: () {
-                        uploadImg();
+                        handleDigitalSigned(_signController, context, id);
                       },
                     ),
                   ],

@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -46,6 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ? handleSigned(context)
         : Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => NewcustScreen()));
+  }
+
+  checkCustomer() {
+    Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => CustomerScreen()));
   }
 
   @override
@@ -135,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   onTap: () {
-                    handleComing(context);
+                    checkCustomer();
                   },
                 ),
                 GestureDetector(
