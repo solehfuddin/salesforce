@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   checkCustomer() {
     Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => CustomerScreen()));
+            .push(MaterialPageRoute(builder: (context) => CustomerScreen(int.parse(id))));
   }
 
   @override

@@ -184,8 +184,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     textPicOptik.text.isEmpty ? _isNamaPic = true : _isNamaPic = false;
 
     tmpName == null ? _isFotoKtp = true : _isFotoKtp = false;
-    if (base64ImageSiup == null)
-    {
+    if (base64ImageSiup == null) {
       base64ImageSiup = kosong;
     }
 
@@ -248,7 +247,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         signedImage = base64Encode(data);
         print(signedImage);
 
-        if (base64ImageSiup == null){
+        if (base64ImageSiup == null) {
           base64ImageSiup = 'kosong';
         }
 
@@ -829,7 +828,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 15,
           ),
           Signature(
             controller: _signController,
@@ -837,7 +836,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
             backgroundColor: Colors.blueGrey.shade50,
           ),
           SizedBox(
-            height: 30,
+            height: 15,
+          ),
+          Text(
+            'Dengan menandatangani dokumen ini secara elektronik, saya setuju bahwa tanda tangan tersebut akan sama validnya dengan tanda tangan tulisan sesuai hukum setempat',
+            style: TextStyle(
+                fontSize: 13,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w500,
+                color: Colors.black87),
+            textAlign: TextAlign.justify,
+          ),
+          SizedBox(
+            height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
