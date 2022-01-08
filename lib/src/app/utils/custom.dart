@@ -9,6 +9,7 @@ import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
+import 'package:intl/intl.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -329,3 +330,9 @@ handleDigitalSigned(
   }
 }
 
+convertDateIndo(String tgl) {
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+  DateTime date = dateFormat.parse(tgl);
+
+  return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+}
