@@ -20,8 +20,26 @@ class _CustomerScreenState extends State<CustomerScreen> {
   String id = '';
   String role = '';
   String username = '';
-  String _chosenBilling;
+  String search = '';
+  String namaKedua,
+      jabatanKedua,
+      alamatKedua,
+      telpKedua,
+      faxKedua,
+      ttdPertama,
+      ttdKedua;
+  String _chosenNikon, _chosenLeinz, _chosenOriental, _chosenMoe;
   final format = DateFormat("yyyy-MM-dd");
+  TextEditingController textValNikon = new TextEditingController();
+  TextEditingController textValLeinz = new TextEditingController();
+  TextEditingController textValOriental = new TextEditingController();
+  TextEditingController textValMoe = new TextEditingController();
+  TextEditingController textTanggal = new TextEditingController();
+  bool _isValNikon = false;
+  bool _isValLeinz = false;
+  bool _isValOriental = false;
+  bool _isValMoe = false;
+  bool _isTanggal = false;
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -61,6 +79,94 @@ class _CustomerScreenState extends State<CustomerScreen> {
     return list;
   }
 
+  Future<List<Customer>> getCustomerBySeach(String input) async {
+    List<Customer> list;
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/customers/search?search=$input';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+      print("List Size: ${list.length}");
+    }
+
+    return list;
+  }
+
+  checkInput() async {
+    if (_chosenNikon == null) {
+      _chosenNikon = 'Cash & Carry';
+    }
+
+    if (_chosenLeinz == null) {
+      _chosenLeinz = 'Cash & Carry';
+    }
+
+    if (_chosenOriental == null) {
+      _chosenOriental = 'Cash & Carry';
+    }
+
+    if (_chosenMoe == null) {
+      _chosenMoe = 'Cash & Carry';
+    }
+
+    textTanggal.text.isEmpty ? _isTanggal = true : _isTanggal = false;
+    textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
+    textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
+    textValOriental.text.isEmpty
+        ? _isValOriental = true
+        : _isValOriental = false;
+    textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
+
+    if (!_isTanggal &&
+        !_isValNikon &&
+        !_isValLeinz &&
+        !_isValOriental &&
+        !_isValMoe) {
+      var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
+      var response = await http.post(
+        url,
+        body: {
+          'nama_pertama': username,
+          'jabatan_pertama': role,
+          'nama_kedua': namaKedua,
+          'jabatan_kedua': jabatanKedua,
+          'alamat_kedua': alamatKedua,
+          'telp_kedua': telpKedua,
+          'fax_kedua': faxKedua,
+          'tp_nikon': textValNikon.text,
+          'tp_leinz': textValLeinz.text,
+          'tp_oriental': textValOriental.text,
+          'tp_moe': textValMoe.text,
+          'pembayaran_nikon': _chosenNikon,
+          'pembayaran_leinz': _chosenLeinz,
+          'pembayaran_oriental': _chosenOriental,
+          'pembayaran_moe': _chosenMoe,
+          'start_contract': textTanggal.text,
+          // 'ttd_pertama': ttdPertama,
+          'ttd_kedua': ttdKedua,
+          'created_by': id,
+        },
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
+
+      handleStatus(context, capitalize(msg), sts);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,6 +203,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
             color: Colors.white,
             height: 80,
             child: TextField(
+              textInputAction: TextInputAction.search,
               autocorrect: true,
               decoration: InputDecoration(
                 hintText: 'Pencarian data ...',
@@ -114,14 +221,20 @@ class _CustomerScreenState extends State<CustomerScreen> {
                   borderSide: BorderSide(color: Colors.blue, width: 2),
                 ),
               ),
+              onSubmitted: (value) {
+                setState(() {
+                  search = value;
+                });
+              },
             ),
           ),
-          // Center(child: CircularProgressIndicator()),
           Expanded(
             child: SizedBox(
               height: 100,
               child: FutureBuilder(
-                  future: getCustomerById(widget.idOuter),
+                  future: search.isNotEmpty
+                      ? getCustomerBySeach(search)
+                      : getCustomerById(widget.idOuter),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
@@ -288,6 +401,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         ),
                         context: context,
                         builder: (context) {
+                          ttdKedua = customer[position].ttdCustomer;
+
                           return StatefulBuilder(builder:
                               (BuildContext context, StateSetter modalState) {
                             return SingleChildScrollView(
@@ -504,7 +619,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         width: 15,
                                       ),
                                       Text(
-                                        customer[position].nama,
+                                        namaKedua = customer[position].nama,
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontFamily: 'Montserrat',
@@ -533,7 +648,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         width: 2,
                                       ),
                                       Text(
-                                        'Owner',
+                                        jabatanKedua = 'Owner',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontFamily: 'Montserrat',
@@ -562,7 +677,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         width: 29,
                                       ),
                                       Text(
-                                        customer[position].noTlp,
+                                        telpKedua = customer[position].noTlp,
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontFamily: 'Montserrat',
@@ -591,9 +706,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         width: 34,
                                       ),
                                       Text(
-                                        customer[position].fax.isEmpty
-                                            ? '-'
-                                            : customer[position].fax,
+                                        faxKedua =
+                                            customer[position].fax.isEmpty
+                                                ? '-'
+                                                : customer[position].fax,
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontFamily: 'Montserrat',
@@ -623,7 +739,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                       ),
                                       Expanded(
                                         child: Text(
-                                          customer[position].alamat,
+                                          alamatKedua =
+                                              customer[position].alamat,
                                           overflow: TextOverflow.fade,
                                           style: TextStyle(
                                               fontSize: 14,
@@ -663,11 +780,15 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           vertical: 3,
                                           horizontal: 15,
                                         ),
+                                        errorText: _isValNikon
+                                            ? 'Data wajib diisi'
+                                            : null,
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5),
                                         ),
                                       ),
+                                      controller: textValNikon,
                                     ),
                                   ),
                                   Container(
@@ -684,11 +805,15 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           vertical: 3,
                                           horizontal: 15,
                                         ),
+                                        errorText: _isValLeinz
+                                            ? 'Data wajib diisi'
+                                            : null,
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5),
                                         ),
                                       ),
+                                      controller: textValLeinz,
                                     ),
                                   ),
                                   Container(
@@ -705,11 +830,15 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           vertical: 3,
                                           horizontal: 15,
                                         ),
+                                        errorText: _isValOriental
+                                            ? 'Data wajib diisi'
+                                            : null,
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5),
                                         ),
                                       ),
+                                      controller: textValOriental,
                                     ),
                                   ),
                                   Container(
@@ -726,11 +855,15 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           vertical: 3,
                                           horizontal: 15,
                                         ),
+                                        errorText: _isValMoe
+                                            ? 'Data wajib diisi'
+                                            : null,
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5),
                                         ),
                                       ),
+                                      controller: textValMoe,
                                     ),
                                   ),
                                   SizedBox(
@@ -793,7 +926,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           child: DropdownButton(
                                             underline: SizedBox(),
                                             isExpanded: true,
-                                            value: _chosenBilling,
+                                            value: _chosenNikon,
                                             style: TextStyle(
                                                 color: Colors.black54),
                                             items: [
@@ -811,7 +944,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                             }).toList(),
                                             onChanged: (String value) {
                                               modalState(() {
-                                                _chosenBilling = value;
+                                                _chosenNikon = value;
                                               });
                                             },
                                           ),
@@ -862,7 +995,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           child: DropdownButton(
                                             underline: SizedBox(),
                                             isExpanded: true,
-                                            value: _chosenBilling,
+                                            value: _chosenLeinz,
                                             style: TextStyle(
                                                 color: Colors.black54),
                                             items: [
@@ -880,7 +1013,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                             }).toList(),
                                             onChanged: (String value) {
                                               modalState(() {
-                                                _chosenBilling = value;
+                                                _chosenLeinz = value;
                                               });
                                             },
                                           ),
@@ -931,7 +1064,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           child: DropdownButton(
                                             underline: SizedBox(),
                                             isExpanded: true,
-                                            value: _chosenBilling,
+                                            value: _chosenOriental,
                                             style: TextStyle(
                                                 color: Colors.black54),
                                             items: [
@@ -949,7 +1082,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                             }).toList(),
                                             onChanged: (String value) {
                                               modalState(() {
-                                                _chosenBilling = value;
+                                                _chosenOriental = value;
                                               });
                                             },
                                           ),
@@ -1000,7 +1133,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           child: DropdownButton(
                                             underline: SizedBox(),
                                             isExpanded: true,
-                                            value: _chosenBilling,
+                                            value: _chosenMoe,
                                             style: TextStyle(
                                                 color: Colors.black54),
                                             items: [
@@ -1018,7 +1151,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                             }).toList(),
                                             onChanged: (String value) {
                                               modalState(() {
-                                                _chosenBilling = value;
+                                                _chosenMoe = value;
                                               });
                                             },
                                           ),
@@ -1055,7 +1188,11 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           borderRadius:
                                               BorderRadius.circular(5),
                                         ),
+                                        errorText: _isTanggal
+                                            ? 'Data wajib diisi'
+                                            : null,
                                       ),
+                                      controller: textTanggal,
                                       format: format,
                                       onShowPicker: (context, currentValue) {
                                         return showDatePicker(
@@ -1093,7 +1230,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        Navigator.pop(context);
+                                        // Navigator.pop(context);
+                                        modalState(() {
+                                          checkInput();
+                                        });
                                       },
                                     ),
                                   ),
