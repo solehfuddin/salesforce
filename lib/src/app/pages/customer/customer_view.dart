@@ -49,6 +49,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
       username = preferences.getString("username");
 
       print("Dashboard : $role");
+      getTtdSales(int.parse(id));
     });
   }
 
@@ -56,6 +57,21 @@ class _CustomerScreenState extends State<CustomerScreen> {
   void initState() {
     super.initState();
     getRole();
+  }
+
+  getTtdSales(int input) async {
+    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      ttdPertama = data['data'][0]['ttd'];
+      print(ttdPertama);
+    }
   }
 
   Future<List<Customer>> getCustomerById(int input) async {
@@ -150,12 +166,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
           'pembayaran_oriental': _chosenOriental,
           'pembayaran_moe': _chosenMoe,
           'start_contract': textTanggal.text,
-          // 'ttd_pertama': ttdPertama,
+          'ttd_pertama': ttdPertama,
           'ttd_kedua': ttdKedua,
           'created_by': id,
         },
       );
 
+      print('ttd 1 : $ttdPertama');
+      print('ttd 2 : $ttdKedua');
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
@@ -411,7 +429,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.all(20),
+                                    padding: EdgeInsets.only(
+                                      top: 35,
+                                      bottom: 15,
+                                    ),
                                     child: Center(
                                       child: Text(
                                         'Perjanjian Kerjasama Pembelian',
