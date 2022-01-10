@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
 
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -872,25 +873,33 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   _signController.clear();
                 },
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
-                  primary: Colors.blue[700],
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
+              ArgonButton(
+                height: 40,
+                width: 100,
+                borderRadius: 30.0,
+                color: Colors.blue[700],
                 child: Text(
-                  'Simpan',
+                  "Simpan",
                   style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700),
+                ),
+                loader: Container(
+                  padding: EdgeInsets.all(8),
+                  child: CircularProgressIndicator(
                     color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Segoe ui',
                   ),
                 ),
-                onPressed: () {
-                  setState(() {
-                    checkEntry();
-                  });
+                onTap: (startLoading, stopLoading, btnState) {
+                  if (btnState == ButtonState.Idle) {
+                    setState(() {
+                      startLoading();
+                      waitingLoad();
+                      checkEntry();
+                      // stopLoading();
+                    });
+                  }
                 },
               ),
             ],

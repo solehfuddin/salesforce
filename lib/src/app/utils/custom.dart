@@ -13,6 +13,10 @@ import 'package:intl/intl.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
+waitingLoad() async {
+  await Future.delayed(Duration(seconds: 2));
+}
+
 login(String user, String pass, BuildContext context) async {
   var url = 'http://timurrayalab.com/salesforce/server/api/auth/login';
   var response =

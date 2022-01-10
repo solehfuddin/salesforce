@@ -1,7 +1,8 @@
 class Customer {
   String id, nama, agama, tempatLahir, tanggalLahir, alamat, noTlp, fax, noIdentitas, uploadIdentitas,
   namaUsaha, alamatUsaha, tlpUsaha, faxUsaha, emailUsaha, namaPj, sistemPembayaran, kreditLimit, 
-  uploadDokumen, ttdCustomer, namaSalesman, namaArManager, note, createdBy, dateAdded;
+  uploadDokumen, ttdCustomer, ttdArManager, ttdSalesManager, namaSalesman, namaArManager, note, 
+  econtract, status, createdBy, dateAdded;
 
   Customer.fromJson(Map json): 
     id = json['id'],
@@ -24,9 +25,13 @@ class Customer {
     kreditLimit = json['kredit_limit'],
     uploadDokumen = json['upload_dokumen'],
     ttdCustomer = json['ttd_customer'],
+    ttdArManager = json['ttd_ar_manager'],
+    ttdSalesManager = json['ttd_sales_manager'],
     namaSalesman = json['nama_salesman'],
     namaArManager = json['nama_ar_manager'],
     note = json['note'],
+    econtract = json['e_contract'],
+    status = json['status'],
     createdBy = json['created_by'],
     dateAdded = json['date_added'];
 
@@ -52,9 +57,13 @@ class Customer {
       'kredit_limit' : kreditLimit,
       'upload_dokumen' : uploadDokumen,
       'ttd_customer' : ttdCustomer,
+      'ttd_ar_manager' : ttdArManager,
+      'ttd_sales_manager' : ttdSalesManager,
       'nama_salesman' : namaSalesman,
       'nama_ar_manager' : namaArManager,
       'note' : note,
+      'status': status,
+      'e_contract' : econtract,
       'created_by' : createdBy,
       'date_added' : dateAdded
     };
