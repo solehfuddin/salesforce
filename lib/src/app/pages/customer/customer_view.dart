@@ -650,7 +650,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                     style: ElevatedButton.styleFrom(
                       shape: StadiumBorder(),
                       primary: Colors.blue[700],
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     ),
                     child: Text(
                       'Selesai',

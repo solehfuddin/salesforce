@@ -340,3 +340,12 @@ convertDateIndo(String tgl) {
 
   return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
 }
+
+String convertToIdr(dynamic number, int decimalDigit) {
+  NumberFormat currencyFormatter = NumberFormat.currency(
+    locale: 'id',
+    symbol: 'Rp ',
+    decimalDigits: decimalDigit,
+  );
+  return currencyFormatter.format(number);
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/approval/waiting_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
@@ -40,8 +41,7 @@ class _AdminScreenState extends State<AdminScreen> {
   checkSigned() async {
     String ttd = await getTtdValid(id, context);
     print(ttd);
-    if (ttd == null)
-    {
+    if (ttd == null) {
       handleSigned(context);
     }
   }
@@ -260,7 +260,8 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(context),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => WaitingApprovalScreen())),
                   ),
                 ),
                 SizedBox(
