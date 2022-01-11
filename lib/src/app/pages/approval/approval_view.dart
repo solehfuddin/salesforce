@@ -38,7 +38,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'Customer Disetujui',
+          'Approved Customer',
           style: TextStyle(
             color: Colors.black54,
             fontSize: 18,

@@ -38,7 +38,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'Customer Disetujui',
+          'Reject Customer',
           style: TextStyle(
             color: Colors.black54,
             fontSize: 18,
