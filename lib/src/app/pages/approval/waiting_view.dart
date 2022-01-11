@@ -111,7 +111,39 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
-    ;
+
+    var response = await http.post(
+      url,
+      body: !isAr
+          ? {
+              'id_customer': idCust,
+              'ttd_sales_manager': ttd,
+              'nama_sales_manager': username,
+            }
+          : {
+              'id_customer': idCust,
+              'ttd_ar_manager': ttd,
+              'nama_ar_manager': username,
+            },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    var res = json.decode(response.body);
+    final bool sts = res['status'];
+    final String msg = res['message'];
+
+    setState(() {});
+
+    handleStatus(context, capitalize(msg), sts);
+  }
+
+  rejectCustomer(bool isAr, String idCust, String ttd) async {
+    var url = !isAr
+        ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectSM'
+        : 'http://timurrayalab.com/salesforce/server/api/approval/rejectAM';
+
     var response = await http.post(
       url,
       body: !isAr
@@ -1008,8 +1040,9 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                             setState(() {
                               startLoading();
                               waitingLoad();
-                              // checkInput();
-                              // stopLoading();
+                              divisi == "AR"
+                              ? rejectCustomer(true, customer[position].id, ttdPertama,)
+                              : rejectCustomer(false, customer[position].id, ttdPertama,);
                             });
                           }
                         },
@@ -1046,9 +1079,9 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                               waitingLoad();
                               divisi == "AR"
                                   ? approveCustomer(
-                                      true, customer[position].id, ttdPertama)
+                                      true, customer[position].id, ttdPertama,)
                                   : approveCustomer(
-                                      false, customer[position].id, ttdPertama);
+                                      false, customer[position].id, ttdPertama,);
                             });
                           }
                         },

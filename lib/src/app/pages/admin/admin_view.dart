@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/approval/approval_view.dart';
+import 'package:sample/src/app/pages/approval/rejected_view.dart';
 import 'package:sample/src/app/pages/approval/waiting_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/headerdashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 String id = '';
 String role = '';
@@ -19,6 +24,10 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  int totalWaiting = 0;
+  int totalApproved = 0;
+  int totalRejected = 0;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +43,10 @@ class _AdminScreenState extends State<AdminScreen> {
       userUpper = username.toUpperCase();
       divisi = preferences.getString("divisi");
 
+      divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
+      getApprovedData();
+      getRejectedData();
+
       checkSigned();
     });
   }
@@ -43,6 +56,61 @@ class _AdminScreenState extends State<AdminScreen> {
     print(ttd);
     if (ttd == null) {
       handleSigned(context);
+    }
+  }
+
+  getWaitingData(bool isAr) async {
+    var url = !isAr
+        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvalSM?ttd_sales_manager=0'
+        : 'http://timurrayalab.com/salesforce/server/api/customers/approvalAM?ttd_ar_manager=0';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      totalWaiting = data['count'];
+      print('Waiting : $totalWaiting');
+
+      setState(() {});
+    }
+  }
+
+  getApprovedData() async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/customers/approved';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      totalApproved = data['count'];
+      print('Approve : $totalApproved');
+
+      setState(() {});
+    }
+  }
+
+  getRejectedData() async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/customers/rejected';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      totalRejected = data['count'];
+      print('Rejected : $totalRejected');
+
+      setState(() {});
     }
   }
 
@@ -223,7 +291,7 @@ class _AdminScreenState extends State<AdminScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '3',
+                                totalWaiting.toString(),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -260,8 +328,11 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => WaitingApprovalScreen())),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => WaitingApprovalScreen(),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -286,7 +357,7 @@ class _AdminScreenState extends State<AdminScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '10',
+                                totalApproved.toString(),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -323,7 +394,11 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(context),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ApprovedScreen(),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -348,7 +423,7 @@ class _AdminScreenState extends State<AdminScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '0',
+                                totalRejected.toString(),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -385,7 +460,11 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => handleComing(context),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => RejectedScreen(),
+                      ),
+                    ),
                   ),
                 ),
               ],

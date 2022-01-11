@@ -2,7 +2,7 @@ class Customer {
   String id, nama, agama, tempatLahir, tanggalLahir, alamat, noTlp, fax, noIdentitas, uploadIdentitas,
   namaUsaha, alamatUsaha, tlpUsaha, faxUsaha, emailUsaha, namaPj, sistemPembayaran, kreditLimit, 
   uploadDokumen, ttdCustomer, ttdArManager, ttdSalesManager, namaSalesman, namaArManager, note, 
-  econtract, status, createdBy, dateAdded;
+  econtract, status, createdBy, dateAdded, dateSM, dateAM;
 
   Customer.fromJson(Map json): 
     id = json['id'],
@@ -33,7 +33,9 @@ class Customer {
     econtract = json['e_contract'],
     status = json['status'],
     createdBy = json['created_by'],
-    dateAdded = json['date_added'];
+    dateAdded = json['date_added'],
+    dateSM = json['date_approved_sm'],
+    dateAM = json['date_approved_am'];
 
   Map toJson(){
     return {
@@ -65,7 +67,9 @@ class Customer {
       'status': status,
       'e_contract' : econtract,
       'created_by' : createdBy,
-      'date_added' : dateAdded
+      'date_added' : dateAdded,
+      'date_approved_sm' : dateSM,
+      'date_approved_am' : dateAM,
     };
   }
 }

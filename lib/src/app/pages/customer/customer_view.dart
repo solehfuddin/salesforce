@@ -310,7 +310,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
                     height: 100,
                     decoration: BoxDecoration(
                       border: Border(
-                        left: BorderSide(color: Colors.red[700], width: 5),
+                        left: BorderSide(
+                            color: customer[position].status == "Pending"
+                                ? Colors.grey[600]
+                                : customer[position].status == "Accepted"
+                                    ? Colors.blue[600]
+                                    : Colors.red[600],
+                            width: 5),
                       ),
                     ),
                     child: Container(
@@ -392,7 +398,11 @@ class _CustomerScreenState extends State<CustomerScreen> {
                               horizontal: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.red[600],
+                              color: customer[position].status == "Pending"
+                                  ? Colors.grey[600]
+                                  : customer[position].status == "Accepted"
+                                      ? Colors.blue[600]
+                                      : Colors.red[600],
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -462,7 +472,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         horizontal: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.red[600],
+                        color: customer[position].status == "Pending" ? Colors.grey[600] 
+                                : customer[position].status == "Accepted" ? Colors.blue[600] : Colors.red[600],
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -570,7 +581,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         Text(
                           customer[position].ttdSalesManager == "0"
                               ? 'Menunggu Persetujuan Sales Manager'
-                              : 'Disetujui oleh Sales Manager',
+                              : customer[position].ttdSalesManager == "1"
+                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}' 
+                              : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
                           style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Segoe ui',
@@ -630,7 +643,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         Text(
                           customer[position].ttdSalesManager == "0"
                               ? 'Menunggu Persetujuan AR Manager'
-                              : 'Disetujui oleh AR Manager',
+                              : customer[position].ttdSalesManager == "1"
+                              ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}' 
+                              : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
                           style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Segoe ui',
