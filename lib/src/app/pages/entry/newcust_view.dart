@@ -165,7 +165,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  checkEntry() async {
+  checkEntry(Function stop) async {
     textNamaUser.text.isEmpty ? _isNamaUser = true : _isNamaUser = false;
     textTempatLahir.text.isEmpty
         ? _isTempatLahir = true
@@ -241,8 +241,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
         !_isNamaPic) {
       if (_isFotoKtp) {
         handleStatus(context, 'Silahkan foto ktp terlebih dahulu', false);
+        stop();
       } else if (_signController.isEmpty) {
         handleStatus(context, 'Silahkan tanda tangan terlebih dahulu', false);
+        stop();
       } else {
         var data = await _signController.toPngBytes();
         signedImage = base64Encode(data);
@@ -251,11 +253,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
         if (base64ImageSiup == null) {
           base64ImageSiup = 'kosong';
         }
-
+        stop();
         simpanData();
       }
     } else {
       handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
+      stop();
     }
   }
 
@@ -896,7 +899,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     setState(() {
                       startLoading();
                       waitingLoad();
-                      checkEntry();
+                      checkEntry(stopLoading);
                       // stopLoading();
                     });
                   }

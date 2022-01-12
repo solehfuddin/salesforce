@@ -49,7 +49,9 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         elevation: 0.0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.pop(context);
+          },
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sample/src/domain/entities/customer.dart';
@@ -188,7 +190,16 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         elevation: 0.0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (role == 'admin') {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => AdminScreen()));
+            } 
+            else if(role == 'sales') {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => HomeScreen()));
+            }
+          },
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,

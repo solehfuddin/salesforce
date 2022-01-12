@@ -118,7 +118,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
     return list;
   }
 
-  checkInput() async {
+  checkInput(Function stop) async {
     if (_chosenNikon == null) {
       _chosenNikon = 'Cash & Carry';
     }
@@ -184,8 +184,32 @@ class _CustomerScreenState extends State<CustomerScreen> {
       final bool sts = res['status'];
       final String msg = res['message'];
 
+      if (sts)
+      {
+        simpanDiskon(idCustomer);
+      }
+
       handleStatus(context, capitalize(msg), sts);
+      stop();
+      setState(() {});
     }
+    else
+    {
+      stop();
+    }
+  }
+
+  simpanDiskon(String idCust) async {
+    var url = 'http://timurrayalab.com/salesforce/server/api/discount/defaultDiskon';
+    var response = await http.post(
+      url,
+      body: {
+        'id_customer': idCust,
+      },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
   }
 
   @override
@@ -1492,10 +1516,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
                     ),
                     onTap: (startLoading, stopLoading, btnState) {
                       if (btnState == ButtonState.Idle) {
-                        setState(() {
+                        modalState(() {
                           startLoading();
                           waitingLoad();
-                          checkInput();
+                          checkInput(stopLoading);
                           // stopLoading();
                         });
                       }

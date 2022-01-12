@@ -328,7 +328,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ],
                       ),
                     ),
-                    onTap: () => Navigator.of(context).push(
+                    onTap: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) => WaitingApprovalScreen(),
                       ),
