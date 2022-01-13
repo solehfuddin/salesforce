@@ -42,6 +42,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
   bool _isValOriental = false;
   bool _isValMoe = false;
   bool _isTanggal = false;
+  var thisYear, nextYear;
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -49,6 +50,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
       id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
+
+      var formatter = new DateFormat('yyyy');
+      thisYear = formatter.format(DateTime.now());
+      nextYear = int.parse(thisYear) + 1;
+
+      print('This Year : $thisYear');
+      print('Next Year : $nextYear');
 
       print("Dashboard : $role");
       getTtdSales(int.parse(id));
@@ -1483,7 +1491,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                           context: context,
                           firstDate: DateTime(1900),
                           initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(2100));
+                          lastDate: DateTime(nextYear));
                     },
                   ),
                 ),
