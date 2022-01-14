@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 
@@ -95,7 +96,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Future chooseImage() async {
-    var imgFile = await ImagePicker().getImage(source: ImageSource.camera);
+    var imgFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      imageQuality: 25,
+    );
     setState(() {
       if (imgFile != null) {
         tmpFile = File(imgFile.path);
@@ -109,7 +113,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Future chooseSiup() async {
-    var imgFile = await ImagePicker().getImage(source: ImageSource.camera);
+    var imgFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      imageQuality: 25,
+    );
     setState(() {
       if (imgFile != null) {
         tmpSiupFile = File(imgFile.path);
@@ -253,8 +260,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
         if (base64ImageSiup == null) {
           base64ImageSiup = 'kosong';
         }
-        stop();
-        simpanData();
+        simpanData(stop);
+
+        // stop();
+        // print(kreditLimit.replaceAll('.', ''));
       }
     } else {
       handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
@@ -262,32 +271,32 @@ class _NewcustScreenState extends State<NewcustScreen> {
     }
   }
 
-  simpanData() async {
+  simpanData(Function stop) async {
     var url = 'http://timurrayalab.com/salesforce/server/api/customers';
     var response = await http.post(
       url,
       body: {
-        'nama': namaUser,
-        'agama': _chosenValue,
-        'tempat_lahir': tempatLahir,
+        'nama': namaUser.toUpperCase(),
+        'agama': _chosenValue.toUpperCase(),
+        'tempat_lahir': tempatLahir.toUpperCase(),
         'tanggal_lahir': tanggalLahir,
-        'alamat': alamat,
+        'alamat': alamat.toUpperCase(),
         'no_telp': tlpHp,
         'fax': fax,
         'no_identitas': noIdentitas,
         'upload_identitas': base64ImageKtp,
-        'nama_usaha': namaOptik,
-        'alamat_usaha': alamatUsaha,
+        'nama_usaha': namaOptik.toUpperCase(),
+        'alamat_usaha': alamatUsaha.toUpperCase(),
         'telp_usaha': tlpUsaha,
         'fax_usaha': faxUsaha,
         'email_usaha': emailUsaha,
-        'nama_pj': namaPic,
+        'nama_pj': namaPic.toUpperCase(),
         'sistem_pembayaran': sistemPembayaran,
-        'kredit_limit': kreditLimit,
+        'kredit_limit': kreditLimit.replaceAll('.', ''),
         'upload_dokumen': base64ImageSiup,
         'ttd_customer': signedImage,
-        'nama_salesman': username,
-        'note': note,
+        'nama_salesman': username.toUpperCase(),
+        'note': note.toUpperCase(),
         'created_by': id,
       },
     );
@@ -299,6 +308,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     final bool sts = res['status'];
     final String msg = res['message'];
 
+    stop();
     handleStatus(context, capitalize(msg), sts);
   }
 
@@ -365,8 +375,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Nama',
-              labelText: 'Nama Optik/Dr/RS/Klinik/PT/dll',
+              hintText: 'Nama *',
+              labelText: 'Nama Optik/Dr/RS/Klinik/PT/dll *',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -481,7 +491,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               hintText: 'Nomor SIM/KTP',
-              labelText: 'Nomor SIM/KTPk',
+              labelText: 'Nomor SIM/KTP',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -706,6 +716,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 borderRadius: BorderRadius.circular(5),
               ),
             ),
+            inputFormatters: [ThousandsSeparatorInputFormatter()],
             minLines: 1,
             maxLines: 3,
             controller: textKreditLimit,
