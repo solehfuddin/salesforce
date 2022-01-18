@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,12 +37,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
   TextEditingController textValLeinz = new TextEditingController();
   TextEditingController textValOriental = new TextEditingController();
   TextEditingController textValMoe = new TextEditingController();
-  TextEditingController textTanggal = new TextEditingController();
+  TextEditingController textTanggalSt = new TextEditingController();
+  TextEditingController textTanggalEd = new TextEditingController();
   bool _isValNikon = false;
   bool _isValLeinz = false;
   bool _isValOriental = false;
   bool _isValMoe = false;
-  bool _isTanggal = false;
+  bool _isTanggalSt = false;
+  bool _isTanggalEd = false;
   var thisYear, nextYear;
 
   getRole() async {
@@ -143,7 +146,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
       _chosenMoe = 'Cash & Carry';
     }
 
-    textTanggal.text.isEmpty ? _isTanggal = true : _isTanggal = false;
+    textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
+    textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
     textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
     textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
     textValOriental.text.isEmpty
@@ -151,7 +155,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
         : _isValOriental = false;
     textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
 
-    if (!_isTanggal &&
+    if (!_isTanggalSt &&
+        !_isTanggalEd &&
         !_isValNikon &&
         !_isValLeinz &&
         !_isValOriental &&
@@ -168,15 +173,16 @@ class _CustomerScreenState extends State<CustomerScreen> {
           'alamat_kedua': alamatKedua,
           'telp_kedua': telpKedua,
           'fax_kedua': faxKedua,
-          'tp_nikon': textValNikon.text,
-          'tp_leinz': textValLeinz.text,
-          'tp_oriental': textValOriental.text,
-          'tp_moe': textValMoe.text,
+          'tp_nikon': textValNikon.text.replaceAll('.', ''),
+          'tp_leinz': textValLeinz.text.replaceAll('.', ''),
+          'tp_oriental': textValOriental.text.replaceAll('.', ''),
+          'tp_moe': textValMoe.text.replaceAll('.', ''),
           'pembayaran_nikon': _chosenNikon,
           'pembayaran_leinz': _chosenLeinz,
           'pembayaran_oriental': _chosenOriental,
           'pembayaran_moe': _chosenMoe,
-          'start_contract': textTanggal.text,
+          'start_contract': textTanggalSt.text,
+          'end_contract': textTanggalEd.text,
           'ttd_pertama': ttdPertama,
           'ttd_kedua': ttdKedua,
           'created_by': id,
@@ -194,6 +200,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
 
       if (sts)
       {
+        textTanggalSt.clear();
+        textTanggalEd.clear();
+        textValLeinz.clear();
+        textValMoe.clear();
+        textValNikon.clear();
+        textValOriental.clear();
+
         simpanDiskon(idCustomer);
       }
 
@@ -673,9 +686,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
                           ),
                         ),
                         Text(
-                          customer[position].ttdSalesManager == "0"
+                          customer[position].ttdArManager == "0"
                               ? 'Menunggu Persetujuan AR Manager'
-                              : customer[position].ttdSalesManager == "1"
+                              : customer[position].ttdArManager == "1"
                               ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}' 
                               : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
                           style: TextStyle(
@@ -1112,6 +1125,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                    inputFormatters: [ThousandsSeparatorInputFormatter()],
                     controller: textValNikon,
                   ),
                 ),
@@ -1134,6 +1148,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                    inputFormatters: [ThousandsSeparatorInputFormatter()],
                     controller: textValLeinz,
                   ),
                 ),
@@ -1156,6 +1171,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                    inputFormatters: [ThousandsSeparatorInputFormatter()],
                     controller: textValOriental,
                   ),
                 ),
@@ -1178,6 +1194,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                    inputFormatters: [ThousandsSeparatorInputFormatter()],
                     controller: textValMoe,
                   ),
                 ),
@@ -1477,14 +1494,39 @@ class _CustomerScreenState extends State<CustomerScreen> {
                   ),
                   child: DateTimeField(
                     decoration: InputDecoration(
-                      hintText: 'Tanggal Berlaku',
-                      labelText: 'Tanggal Berlaku',
+                      hintText: 'Tanggal Mulai',
+                      labelText: 'Tanggal Mulai',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      errorText: _isTanggal ? 'Data wajib diisi' : null,
+                      errorText: _isTanggalSt ? 'Data wajib diisi' : null,
                     ),
-                    controller: textTanggal,
+                    controller: textTanggalSt,
+                    format: format,
+                    onShowPicker: (context, currentValue) {
+                      return showDatePicker(
+                          context: context,
+                          firstDate: DateTime(1900),
+                          initialDate: currentValue ?? DateTime.now(),
+                          lastDate: DateTime(nextYear));
+                    },
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 5,
+                  ),
+                  child: DateTimeField(
+                    decoration: InputDecoration(
+                      hintText: 'Tanggal Berakhir',
+                      labelText: 'Tanggal Berakhir',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      errorText: _isTanggalEd ? 'Data wajib diisi' : null,
+                    ),
+                    controller: textTanggalEd,
                     format: format,
                     onShowPicker: (context, currentValue) {
                       return showDatePicker(

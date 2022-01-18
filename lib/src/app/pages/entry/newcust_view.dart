@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
+import 'package:sample/src/app/widgets/newcustwidget/areabadanusaha.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 
@@ -70,6 +71,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isNamaPic = false;
   bool _isEmailValid = true;
   bool _isFotoKtp = false;
+  Map<String, TextEditingController> myMap;
 
   final SignatureController _signController = SignatureController(
     penStrokeWidth: 3,
@@ -82,6 +84,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
     super.initState();
     getRole();
     _signController.addListener(() => print('Value changed'));
+
+    myMap = {'nama': textNamaOptik};
   }
 
   getRole() async {
@@ -236,6 +240,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
       print(signedImage);
     }
 
+    print(textNamaOptik.text);
+
     if (!_isNamaUser &&
         !_isTempatLahir &&
         !_isTanggalLahir &&
@@ -342,6 +348,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _areaBadanUsaha(),
+            // areaBadanUsaha(myMap),
             _areaDataPribadi(),
             _areaDataTambahan(),
             _areaDokumenPelengkap(),
@@ -372,26 +379,79 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 15,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Nama Optik/Dr/RS/Klinik/PT/dll',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+               Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Nama *',
-              labelText: 'Nama Optik/Dr/RS/Klinik/PT/dll *',
+              hintText: 'Optik Timur',
+              // labelText: 'Nama Optik/Dr/RS/Klinik/PT/dll',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
               errorText: _isNamaOptik ? 'Data wajib diisi' : null,
+              // errorText: textNamaOptik.text.isEmpty ? 'Data wajib diisi' : null,
             ),
             controller: textNamaOptik,
           ),
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Alamat',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+               Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Alamat',
-              labelText: 'Alamat',
+              hintText: 'Jl Kebangsaan no 57 Jakarta',
+              // labelText: 'Alamat',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -405,11 +465,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Nomor Telp',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: 'Telp',
-              labelText: 'Telp',
+              hintText: '02112XXX',
+              // labelText: 'Telp',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -420,11 +506,23 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Text(
+            'Nomor Fax',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: 'Fax',
-              labelText: 'Fax',
+              hintText: '02112XXX',
+              // labelText: 'Fax',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -434,11 +532,23 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Text(
+            'Alamat Email',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.none,
             decoration: InputDecoration(
-              hintText: 'Email',
-              labelText: 'Email',
+              hintText: 'nama@email.com',
+              // labelText: 'Email',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -449,11 +559,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Nama Penanggung Jawab di tempat',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Nama Penanggung Jawab di tempat',
-              labelText: 'Nama Penanggung Jawab di tempat',
+              hintText: 'John Doe',
+              // labelText: 'Nama Penanggung Jawab di tempat',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -487,11 +623,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 15,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Nomor SIM/KTP',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: 'Nomor SIM/KTP',
-              labelText: 'Nomor SIM/KTP',
+              hintText: '317210XXXXXXXXXXX',
+              // labelText: 'Nomor SIM/KTP',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -502,11 +664,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Nama Pelanggan/Pemilik',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Nama Pelanggan/Pemilik',
-              labelText: 'Nama Pelanggan/Pemilik',
+              hintText: 'John Doe',
+              // labelText: 'Nama Pelanggan/Pemilik',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -516,6 +704,18 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
           SizedBox(
             height: 10,
+          ),
+          Text(
+            'Agama',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -559,11 +759,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Tempat Lahir',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Tempat Lahir',
-              labelText: 'Tempat Lahir',
+              hintText: 'Jakarta',
+              // labelText: 'Tempat Lahir',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -574,10 +800,36 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Tanggal Lahir',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           DateTimeField(
             decoration: InputDecoration(
-              hintText: 'Tanggal Lahir',
-              labelText: 'Tanggal Lahir',
+              hintText: 'yyyy-mm-dd',
+              // labelText: 'Tanggal Lahir',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -596,11 +848,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Alamat Tempat Tinggal',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Alamat Tempat Tinggal',
-              labelText: 'Alamat Tempat Tinggal',
+              hintText: 'Jl Kebangsaan no 57 Jakarta',
+              // labelText: 'Alamat Tempat Tinggal',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -614,11 +892,37 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Telp / Hp',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: 'Telp / Hp',
-              labelText: 'Telp / Hp',
+              hintText: '0857XXXXXXXX',
+              // labelText: 'Telp / Hp',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -628,6 +932,18 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
           SizedBox(
             height: 10,
+          ),
+          Text(
+            'Fax',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -668,6 +984,18 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Text(
+            'Jenis Pembayaran',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             decoration: BoxDecoration(
@@ -707,11 +1035,23 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Text(
+            'Kredit Limit',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: 'Kredit Limit',
-              labelText: 'Kredit Limit',
+              hintText: 'XX.XXX.XXX',
+              // labelText: 'Kredit Limit',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -724,11 +1064,23 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: 10,
           ),
+          Text(
+            'Catatan',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Catatan',
-              labelText: 'Catatan',
+              hintText: 'Isi catatan',
+              // labelText: 'Catatan',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
