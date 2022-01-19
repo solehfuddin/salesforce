@@ -1,12 +1,10 @@
 import 'dart:convert';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:sample/src/app/econtract/econtract_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,28 +21,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
   String role = '';
   String username = '';
   String search = '';
-  String idCustomer,
-      namaKedua,
-      jabatanKedua,
-      alamatKedua,
-      telpKedua,
-      faxKedua,
-      ttdPertama,
-      ttdKedua;
-  String _chosenNikon, _chosenLeinz, _chosenOriental, _chosenMoe;
-  final format = DateFormat("yyyy-MM-dd");
-  TextEditingController textValNikon = new TextEditingController();
-  TextEditingController textValLeinz = new TextEditingController();
-  TextEditingController textValOriental = new TextEditingController();
-  TextEditingController textValMoe = new TextEditingController();
-  TextEditingController textTanggalSt = new TextEditingController();
-  TextEditingController textTanggalEd = new TextEditingController();
-  bool _isValNikon = false;
-  bool _isValLeinz = false;
-  bool _isValOriental = false;
-  bool _isValMoe = false;
-  bool _isTanggalSt = false;
-  bool _isTanggalEd = false;
   var thisYear, nextYear;
 
   getRole() async {
@@ -62,7 +38,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
       print('Next Year : $nextYear');
 
       print("Dashboard : $role");
-      getTtdSales(int.parse(id));
     });
   }
 
@@ -70,21 +45,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
   void initState() {
     super.initState();
     getRole();
-  }
-
-  getTtdSales(int input) async {
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
-
-    print('Response status: ${response.statusCode}');
-
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
-
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
-    }
   }
 
   Future<List<Customer>> getCustomerById(int input) async {
@@ -127,110 +87,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
     }
 
     return list;
-  }
-
-  checkInput(Function stop) async {
-    if (_chosenNikon == null) {
-      _chosenNikon = 'Cash & Carry';
-    }
-
-    if (_chosenLeinz == null) {
-      _chosenLeinz = 'Cash & Carry';
-    }
-
-    if (_chosenOriental == null) {
-      _chosenOriental = 'Cash & Carry';
-    }
-
-    if (_chosenMoe == null) {
-      _chosenMoe = 'Cash & Carry';
-    }
-
-    textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
-    textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
-    textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
-    textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
-    textValOriental.text.isEmpty
-        ? _isValOriental = true
-        : _isValOriental = false;
-    textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
-
-    if (!_isTanggalSt &&
-        !_isTanggalEd &&
-        !_isValNikon &&
-        !_isValLeinz &&
-        !_isValOriental &&
-        !_isValMoe) {
-      var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-      var response = await http.post(
-        url,
-        body: {
-          'id_customer': idCustomer,
-          'nama_pertama': username,
-          'jabatan_pertama': role,
-          'nama_kedua': namaKedua,
-          'jabatan_kedua': jabatanKedua,
-          'alamat_kedua': alamatKedua,
-          'telp_kedua': telpKedua,
-          'fax_kedua': faxKedua,
-          'tp_nikon': textValNikon.text.replaceAll('.', ''),
-          'tp_leinz': textValLeinz.text.replaceAll('.', ''),
-          'tp_oriental': textValOriental.text.replaceAll('.', ''),
-          'tp_moe': textValMoe.text.replaceAll('.', ''),
-          'pembayaran_nikon': _chosenNikon,
-          'pembayaran_leinz': _chosenLeinz,
-          'pembayaran_oriental': _chosenOriental,
-          'pembayaran_moe': _chosenMoe,
-          'start_contract': textTanggalSt.text,
-          'end_contract': textTanggalEd.text,
-          'ttd_pertama': ttdPertama,
-          'ttd_kedua': ttdKedua,
-          'created_by': id,
-        },
-      );
-
-      print('ttd 1 : $ttdPertama');
-      print('ttd 2 : $ttdKedua');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      var res = json.decode(response.body);
-      final bool sts = res['status'];
-      final String msg = res['message'];
-
-      if (sts)
-      {
-        textTanggalSt.clear();
-        textTanggalEd.clear();
-        textValLeinz.clear();
-        textValMoe.clear();
-        textValNikon.clear();
-        textValOriental.clear();
-
-        simpanDiskon(idCustomer);
-      }
-
-      handleStatus(context, capitalize(msg), sts);
-      stop();
-      setState(() {});
-    }
-    else
-    {
-      stop();
-    }
-  }
-
-  simpanDiskon(String idCust) async {
-    var url = 'http://timurrayalab.com/salesforce/server/api/discount/defaultDiskon';
-    var response = await http.post(
-      url,
-      body: {
-        'id_customer': idCust,
-      },
-    );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
   }
 
   @override
@@ -466,7 +322,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
                   ),
                   onTap: () {
                     customer[position].econtract == "0"
-                        ? formContract(customer, position)
+                        ? Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    EcontractScreen(customer, position)))
                         : formWaiting(customer, position);
                   },
                 ),
@@ -483,261 +342,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
 
   formWaiting(List<Customer> customer, int position) {
     return showModalBottomSheet(
-        elevation: 2,
-        backgroundColor: Colors.white,
-        isScrollControlled: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-          ),
-        ),
-        context: context,
-        builder: (context) {
-          return Container(
-            padding: EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      customer[position].namaUsaha,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 5,
-                        horizontal: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: customer[position].status == "Pending" ? Colors.grey[600] 
-                                : customer[position].status == "Accepted" ? Colors.blue[600] : Colors.red[600],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        customer[position].status,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontFamily: 'Segoe ui',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Text(
-                  'Pengajuan e-kontrak berhasil',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Segoe ui',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.green[600],
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Segoe ui',
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(
-                  height: 3,
-                ),
-                Divider(
-                  color: Colors.black54,
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  'Detail Status',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontFamily: 'Segoe ui',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    SizedBox(
-                      width: 50,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black54),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'SM',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'Segoe ui',
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Text(
-                            'Sales Manager',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'Segoe ui',
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          customer[position].ttdSalesManager == "0"
-                              ? 'Menunggu Persetujuan Sales Manager'
-                              : customer[position].ttdSalesManager == "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}' 
-                              : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Segoe ui',
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    SizedBox(
-                      width: 50,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5,
-                          horizontal: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black54),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          'AM',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontFamily: 'Segoe ui',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AR Manager',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontFamily: 'Segoe ui',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Text(
-                          customer[position].ttdArManager == "0"
-                              ? 'Menunggu Persetujuan AR Manager'
-                              : customer[position].ttdArManager == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}' 
-                              : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Segoe ui',
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: StadiumBorder(),
-                      primary: Colors.blue[700],
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                    child: Text(
-                      'Selesai',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Segoe ui',
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
-  formContract(List<Customer> customer, int position) {
-    return showModalBottomSheet(
       elevation: 2,
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -749,840 +353,247 @@ class _CustomerScreenState extends State<CustomerScreen> {
       ),
       context: context,
       builder: (context) {
-        ttdKedua = customer[position].ttdCustomer;
-        idCustomer = customer[position].id;
-
-        return StatefulBuilder(
-            builder: (BuildContext context, StateSetter modalState) {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(
-                    top: 35,
-                    bottom: 15,
+        return Container(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    customer[position].namaUsaha,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Segoe ui',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  child: Center(
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: customer[position].status == "Pending"
+                          ? Colors.grey[600]
+                          : customer[position].status == "Accepted"
+                              ? Colors.blue[600]
+                              : Colors.red[600],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Text(
-                      'Perjanjian Kerjasama Pembelian',
+                      customer[position].status,
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 13,
                         fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Pihak Pertama',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Nama : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Text(
-                      username,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Jabatan : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 2,
-                    ),
-                    Text(
-                      role,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Telp : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 29,
-                    ),
-                    Text(
-                      '021-4610154',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Fax : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 34,
-                    ),
-                    Text(
-                      '021-4610151-52',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Alamat : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 7,
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Jl. Rawa Kepiting No. 4 Kawasan Industri Pulogadung, Jakarta Timur',
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Pihak Kedua',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Nama : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Text(
-                      namaKedua = customer[position].nama,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Jabatan : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 2,
-                    ),
-                    Text(
-                      jabatanKedua = 'Owner',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Telp : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 29,
-                    ),
-                    Text(
-                      telpKedua = customer[position].noTlp,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Fax : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 34,
-                    ),
-                    Text(
-                      faxKedua = customer[position].fax.isEmpty
-                          ? '-'
-                          : customer[position].fax,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Alamat : ',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      width: 7,
-                    ),
-                    Expanded(
-                      child: Text(
-                        alamatKedua = customer[position].alamat,
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Target Pembelian yang disepakati : ',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Lensa Nikon',
-                      labelText: 'Lensa Nikon',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 3,
-                        horizontal: 15,
-                      ),
-                      errorText: _isValNikon ? 'Data wajib diisi' : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    inputFormatters: [ThousandsSeparatorInputFormatter()],
-                    controller: textValNikon,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Lensa Leinz',
-                      labelText: 'Lensa Leinz',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 3,
-                        horizontal: 15,
-                      ),
-                      errorText: _isValLeinz ? 'Data wajib diisi' : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    inputFormatters: [ThousandsSeparatorInputFormatter()],
-                    controller: textValLeinz,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Lensa Oriental',
-                      labelText: 'Lensa Oriental',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 3,
-                        horizontal: 15,
-                      ),
-                      errorText: _isValOriental ? 'Data wajib diisi' : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    inputFormatters: [ThousandsSeparatorInputFormatter()],
-                    controller: textValOriental,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Lensa Moe',
-                      labelText: 'Lensa Moe',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 3,
-                        horizontal: 15,
-                      ),
-                      errorText: _isValMoe ? 'Data wajib diisi' : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    inputFormatters: [ThousandsSeparatorInputFormatter()],
-                    controller: textValMoe,
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Jangka waktu pembayaran : ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: Text(
-                          'Lensa Nikon : ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white70,
-                            border: Border.all(color: Colors.black54),
-                            borderRadius: BorderRadius.circular(5)),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 20,
-                        ),
-                        child: DropdownButton(
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          value: _chosenNikon,
-                          style: TextStyle(color: Colors.black54),
-                          items: [
-                            'Cash & Carry',
-                            'Transfer',
-                            'Deposit',
-                            'Bulanan',
-                          ].map((e) {
-                            return DropdownMenuItem(
-                              value: e,
-                              child: Text(e,
-                                  style: TextStyle(color: Colors.black54)),
-                            );
-                          }).toList(),
-                          onChanged: (String value) {
-                            modalState(() {
-                              _chosenNikon = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: Text(
-                          'Lensa Leinz : ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white70,
-                            border: Border.all(color: Colors.black54),
-                            borderRadius: BorderRadius.circular(5)),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 20,
-                        ),
-                        child: DropdownButton(
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          value: _chosenLeinz,
-                          style: TextStyle(color: Colors.black54),
-                          items: [
-                            'Cash & Carry',
-                            'Transfer',
-                            'Deposit',
-                            'Bulanan',
-                          ].map((e) {
-                            return DropdownMenuItem(
-                              value: e,
-                              child: Text(e,
-                                  style: TextStyle(color: Colors.black54)),
-                            );
-                          }).toList(),
-                          onChanged: (String value) {
-                            modalState(() {
-                              _chosenLeinz = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: Text(
-                          'Lensa Oriental : ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white70,
-                            border: Border.all(color: Colors.black54),
-                            borderRadius: BorderRadius.circular(5)),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 20,
-                        ),
-                        child: DropdownButton(
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          value: _chosenOriental,
-                          style: TextStyle(color: Colors.black54),
-                          items: [
-                            'Cash & Carry',
-                            'Transfer',
-                            'Deposit',
-                            'Bulanan',
-                          ].map((e) {
-                            return DropdownMenuItem(
-                              value: e,
-                              child: Text(e,
-                                  style: TextStyle(color: Colors.black54)),
-                            );
-                          }).toList(),
-                          onChanged: (String value) {
-                            modalState(() {
-                              _chosenOriental = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: Text(
-                          'Lensa Moe : ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white70,
-                            border: Border.all(color: Colors.black54),
-                            borderRadius: BorderRadius.circular(5)),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 20,
-                        ),
-                        child: DropdownButton(
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          value: _chosenMoe,
-                          style: TextStyle(color: Colors.black54),
-                          items: [
-                            'Cash & Carry',
-                            'Transfer',
-                            'Deposit',
-                            'Bulanan',
-                          ].map((e) {
-                            return DropdownMenuItem(
-                              value: e,
-                              child: Text(e,
-                                  style: TextStyle(color: Colors.black54)),
-                            );
-                          }).toList(),
-                          onChanged: (String value) {
-                            modalState(() {
-                              _chosenMoe = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Terhitung sejak tanggal : ',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  child: DateTimeField(
-                    decoration: InputDecoration(
-                      hintText: 'Tanggal Mulai',
-                      labelText: 'Tanggal Mulai',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      errorText: _isTanggalSt ? 'Data wajib diisi' : null,
-                    ),
-                    controller: textTanggalSt,
-                    format: format,
-                    onShowPicker: (context, currentValue) {
-                      return showDatePicker(
-                          context: context,
-                          firstDate: DateTime(1900),
-                          initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(nextYear));
-                    },
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  child: DateTimeField(
-                    decoration: InputDecoration(
-                      hintText: 'Tanggal Berakhir',
-                      labelText: 'Tanggal Berakhir',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      errorText: _isTanggalEd ? 'Data wajib diisi' : null,
-                    ),
-                    controller: textTanggalEd,
-                    format: format,
-                    onShowPicker: (context, currentValue) {
-                      return showDatePicker(
-                          context: context,
-                          firstDate: DateTime(1900),
-                          initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(nextYear));
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  alignment: Alignment.centerRight,
-                  child: ArgonButton(
-                    height: 40,
-                    width: 100,
-                    borderRadius: 30.0,
-                    color: Colors.blue[700],
-                    child: Text(
-                      "Simpan",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700),
-                    ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8),
-                      child: CircularProgressIndicator(
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        modalState(() {
-                          startLoading();
-                          waitingLoad();
-                          checkInput(stopLoading);
-                          // stopLoading();
-                        });
-                      }
-                    },
                   ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Text(
+                'Pengajuan e-kontrak berhasil',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green[600],
                 ),
-                SizedBox(
-                  height: 10,
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
                 ),
-              ],
-            ),
-          );
-        });
+              ),
+              SizedBox(
+                height: 3,
+              ),
+              Divider(
+                color: Colors.black54,
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                'Detail Status',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  SizedBox(
+                    width: 50,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'SM',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: 'Segoe ui',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Text(
+                          'Sales Manager',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: 'Segoe ui',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        customer[position].ttdSalesManager == "0"
+                            ? 'Menunggu Persetujuan Sales Manager'
+                            : customer[position].ttdSalesManager == "1"
+                                ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
+                                : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  SizedBox(
+                    width: 50,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        'AM',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AR Manager',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        customer[position].ttdArManager == "0"
+                            ? 'Menunggu Persetujuan AR Manager'
+                            : customer[position].ttdArManager == "1"
+                                ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
+                                : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: StadiumBorder(),
+                    primary: Colors.blue[700],
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: Text(
+                    'Selesai',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Segoe ui',
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
+        );
       },
     );
   }
