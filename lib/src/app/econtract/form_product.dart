@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:sample/src/domain/entities/proddiv.dart';
+import 'package:sample/src/domain/entities/product.dart';
 
-class FormItemDisc extends StatefulWidget {
-  FormItemDisc({Key key, this.proddiv, this.index}) : super(key: key);
+class FormItemProduct extends StatefulWidget {
+  FormItemProduct({Key key, this.product, this.index}) : super(key: key);
 
   final index;
-  Proddiv proddiv;
-  final state = _FormItemDiscState();
+  Product product;
+  final state = _FormItemProductState();
 
   @override
-  _FormItemDiscState createState() {
-    return state;
+  _FormItemProductState createState() {
+    return state; 
   }
 
   TextEditingController _discvalController = TextEditingController();
 }
 
-class _FormItemDiscState extends State<FormItemDisc> {
+class _FormItemProductState extends State<FormItemProduct> {
   final formKey = GlobalKey<FormState>();
   bool _isChecked = false;
   bool _isDisabled = false;
@@ -34,8 +34,8 @@ class _FormItemDiscState extends State<FormItemDisc> {
               vertical: 5,
             ),
             child: Text(
-              widget.proddiv.alias,
-              // 'ALL LENSA REGULER',
+              // widget.product.proddesc,
+              'Hybrid',
               style: TextStyle(
                 fontSize: 14,
                 fontFamily: 'Montserrat',

@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sample/src/app/econtract/form_disc.dart';
+import 'package:sample/src/app/econtract/multiform_disc.dart';
+import 'package:sample/src/app/econtract/multiproduct_disc.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -48,6 +50,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   bool _isValMoe = false;
   bool _isTanggalSt = false;
   bool _isTanggalEd = false;
+  bool _isRegularDisc = false;
   var thisYear, nextYear;
 
   getRole() async {
@@ -91,6 +94,26 @@ class _EcontractScreenState extends State<EcontractScreen> {
       ttdPertama = data['data'][0]['ttd'];
       print(ttdPertama);
     }
+  }
+
+  Future<List<Proddiv>> getProdDiv() async {
+    List<Proddiv> list;
+    var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      list = rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
+      print("List Size: ${list.length}");
+    }
+
+    return list;
   }
 
   checkInput(Function stop) async {
@@ -212,7 +235,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
         elevation: 0.0,
         centerTitle: true,
         leading: IconButton(
-          // onPressed: () => Navigator.of(context).pop(),
           onPressed: () => Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                   builder: (context) => CustomerScreen(int.parse(id)))),
@@ -993,47 +1015,18 @@ class _EcontractScreenState extends State<EcontractScreen> {
             SizedBox(
               height: 20,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Kontrak Diskon Divisi : ',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-                  child: Ink(
-                    decoration: const ShapeDecoration(
-                      color: Colors.lightBlue,
-                      shape: CircleBorder(),
-                    ),
-                    child: IconButton(
-                      constraints: BoxConstraints(
-                        maxHeight: 28,
-                        maxWidth: 28,
-                      ),
-                      icon: const Icon(Icons.add),
-                      iconSize: 13,
-                      color: Colors.white,
-                      onPressed: () {},
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 10,
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
+              ),
+              child: Text(
+                'Kontrak Diskon Reguler : ',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600),
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1043,10 +1036,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 5,
+                      vertical: 2,
                     ),
                     child: Text(
-                      'Produk',
+                      'All Lensa Reguler',
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: 'Montserrat',
@@ -1055,49 +1048,31 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 100,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
-                    ),
-                    child: Text(
-                      'Regular',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 2,
                   ),
-                ),
-                SizedBox(
-                  width: 100,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
-                    ),
-                    child: Text(
-                      'Diskon',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                  child: Checkbox(
+                    value: this._isRegularDisc,
+                    onChanged: (bool value) {
+                      setState(() {
+                        this._isRegularDisc = value;
+                      });
+                    },
+                  ), //C
                 ),
               ],
             ),
             SizedBox(
-              height: 5,
-            ),
-            FormItemDisc(),
-            SizedBox(
               height: 20,
             ),
+            _isRegularDisc
+                ? SizedBox(
+                    height: 5,
+                  )
+                : MultiFormDisc(),
+            MultiProductDisc(),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,
