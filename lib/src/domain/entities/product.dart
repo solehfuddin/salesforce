@@ -2,6 +2,8 @@ class Product {
   String categoryid, proddiv, prodcat, proddesc, status;
   bool ischecked = false;
 
+  Product(this.categoryid, this.proddiv, this.prodcat, this.proddesc, this.status);
+
   Product.fromJson(Map json):
     categoryid = json['category_id'],
     proddiv = json['prod_div'],

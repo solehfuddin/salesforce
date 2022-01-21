@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:sample/src/app/econtract/form_disc.dart';
+import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:http/http.dart' as http;
 

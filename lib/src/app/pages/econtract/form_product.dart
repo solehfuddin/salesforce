@@ -34,8 +34,8 @@ class _FormItemProductState extends State<FormItemProduct> {
               vertical: 5,
             ),
             child: Text(
-              // widget.product.proddesc,
-              'Hybrid',
+              widget.product.proddesc,
+              // 'Hybrid',
               style: TextStyle(
                 fontSize: 14,
                 fontFamily: 'Montserrat',
