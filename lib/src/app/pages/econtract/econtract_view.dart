@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/multiform_disc.dart';
 import 'package:sample/src/app/pages/econtract/multiproduct_disc.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
@@ -25,6 +26,7 @@ class EcontractScreen extends StatefulWidget {
 }
 
 class _EcontractScreenState extends State<EcontractScreen> {
+  final globalKey = GlobalKey();
   String id = '';
   String role = '';
   String username = '';
@@ -52,6 +54,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
   bool _isTanggalEd = false;
   bool _isRegularDisc = false;
   var thisYear, nextYear;
+  int formLen;
+
+  callback(newVal){
+    setState(() {
+      formLen = newVal;
+    });
+  }
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -116,93 +125,104 @@ class _EcontractScreenState extends State<EcontractScreen> {
     return list;
   }
 
+  // checkInput(Function stop) async {
+  //   if (_chosenNikon == null) {
+  //     _chosenNikon = 'Cash & Carry';
+  //   }
+
+  //   if (_chosenLeinz == null) {
+  //     _chosenLeinz = 'Cash & Carry';
+  //   }
+
+  //   if (_chosenOriental == null) {
+  //     _chosenOriental = 'Cash & Carry';
+  //   }
+
+  //   if (_chosenMoe == null) {
+  //     _chosenMoe = 'Cash & Carry';
+  //   }
+
+  //   textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
+  //   textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
+  //   textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
+  //   textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
+  //   textValOriental.text.isEmpty
+  //       ? _isValOriental = true
+  //       : _isValOriental = false;
+  //   textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
+
+  //   if (!_isTanggalSt &&
+  //       !_isTanggalEd &&
+  //       !_isValNikon &&
+  //       !_isValLeinz &&
+  //       !_isValOriental &&
+  //       !_isValMoe) {
+      // var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
+      // var response = await http.post(
+      //   url,
+      //   body: {
+      //     'id_customer': idCustomer,
+      //     'nama_pertama': username,
+      //     'jabatan_pertama': role,
+      //     'nama_kedua': namaKedua,
+      //     'jabatan_kedua': jabatanKedua,
+      //     'alamat_kedua': alamatKedua,
+      //     'telp_kedua': telpKedua,
+      //     'fax_kedua': faxKedua,
+      //     'tp_nikon': textValNikon.text.replaceAll('.', ''),
+      //     'tp_leinz': textValLeinz.text.replaceAll('.', ''),
+      //     'tp_oriental': textValOriental.text.replaceAll('.', ''),
+      //     'tp_moe': textValMoe.text.replaceAll('.', ''),
+      //     'pembayaran_nikon': _chosenNikon,
+      //     'pembayaran_leinz': _chosenLeinz,
+      //     'pembayaran_oriental': _chosenOriental,
+      //     'pembayaran_moe': _chosenMoe,
+      //     'start_contract': textTanggalSt.text,
+      //     'end_contract': textTanggalEd.text,
+      //     'ttd_pertama': ttdPertama,
+      //     'ttd_kedua': ttdKedua,
+      //     'created_by': id,
+      //   },
+      // );
+
+  //     print('ttd 1 : $ttdPertama');
+  //     print('ttd 2 : $ttdKedua');
+  //     print('Response status: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
+
+      // var res = json.decode(response.body);
+      // final bool sts = res['status'];
+      // final String msg = res['message'];
+
+  //     if (sts) {
+  //       textTanggalSt.clear();
+  //       textTanggalEd.clear();
+  //       textValLeinz.clear();
+  //       textValMoe.clear();
+  //       textValNikon.clear();
+  //       textValOriental.clear();
+
+  //       simpanDiskon(idCustomer);
+  //     }
+
+  //     handleStatus(context, capitalize(msg), sts);
+  //     stop();
+  //     setState(() {});
+  //   } else {
+  //     stop();
+  //   }
+  // }
+
   checkInput(Function stop) async {
-    if (_chosenNikon == null) {
-      _chosenNikon = 'Cash & Carry';
-    }
+    MultiFormDisc formDisc = MultiFormDisc(key: globalKey);
+    formDisc.onSave();
 
-    if (_chosenLeinz == null) {
-      _chosenLeinz = 'Cash & Carry';
-    }
-
-    if (_chosenOriental == null) {
-      _chosenOriental = 'Cash & Carry';
-    }
-
-    if (_chosenMoe == null) {
-      _chosenMoe = 'Cash & Carry';
-    }
-
-    textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
-    textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
-    textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
-    textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
-    textValOriental.text.isEmpty
-        ? _isValOriental = true
-        : _isValOriental = false;
-    textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
-
-    if (!_isTanggalSt &&
-        !_isTanggalEd &&
-        !_isValNikon &&
-        !_isValLeinz &&
-        !_isValOriental &&
-        !_isValMoe) {
-      var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-      var response = await http.post(
-        url,
-        body: {
-          'id_customer': idCustomer,
-          'nama_pertama': username,
-          'jabatan_pertama': role,
-          'nama_kedua': namaKedua,
-          'jabatan_kedua': jabatanKedua,
-          'alamat_kedua': alamatKedua,
-          'telp_kedua': telpKedua,
-          'fax_kedua': faxKedua,
-          'tp_nikon': textValNikon.text.replaceAll('.', ''),
-          'tp_leinz': textValLeinz.text.replaceAll('.', ''),
-          'tp_oriental': textValOriental.text.replaceAll('.', ''),
-          'tp_moe': textValMoe.text.replaceAll('.', ''),
-          'pembayaran_nikon': _chosenNikon,
-          'pembayaran_leinz': _chosenLeinz,
-          'pembayaran_oriental': _chosenOriental,
-          'pembayaran_moe': _chosenMoe,
-          'start_contract': textTanggalSt.text,
-          'end_contract': textTanggalEd.text,
-          'ttd_pertama': ttdPertama,
-          'ttd_kedua': ttdKedua,
-          'created_by': id,
-        },
-      );
-
-      print('ttd 1 : $ttdPertama');
-      print('ttd 2 : $ttdKedua');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      var res = json.decode(response.body);
-      final bool sts = res['status'];
-      final String msg = res['message'];
-
-      if (sts) {
-        textTanggalSt.clear();
-        textTanggalEd.clear();
-        textValLeinz.clear();
-        textValMoe.clear();
-        textValNikon.clear();
-        textValOriental.clear();
-
-        simpanDiskon(idCustomer);
-      }
-
-      handleStatus(context, capitalize(msg), sts);
-      stop();
-      setState(() {});
-    } else {
-      stop();
-    }
+    // List<FormItemDisc> item = formDisc.getFormGroup();
+    // print(item.length);
+    print('Total list : $formLen');
+    stop();
   }
+
 
   simpanDiskon(String idCust) async {
     var url =
@@ -1071,8 +1091,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ? SizedBox(
                     height: 5,
                   )
-                : MultiFormDisc(),
-            MultiProductDisc(),
+                : MultiFormDisc(myCallback: callback),
+            _isRegularDisc
+                ? SizedBox(
+                    height: 5,
+                  )
+                : MultiProductDisc(),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,

@@ -1,16 +1,28 @@
 import 'dart:convert';
 
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:http/http.dart' as http;
 
 class MultiFormDisc extends StatefulWidget {
+  MultiFormDisc({Key key, this.myCallback}) : super(key: key);
+  // onSave() => createState().onSaveMultiForm();
+  Function(int) myCallback;
+  final state = _MultiFormDiscState();
+
   @override
-  _MultiFormDiscState createState() => _MultiFormDiscState();
+  _MultiFormDiscState createState() {
+    return state;
+  }
+
+  void onSave() => state.onSaveMulti();
+  List<FormItemDisc> getFormGroup() => state.getFormGroup();
 }
 
 class _MultiFormDiscState extends State<MultiFormDisc> {
+  List<FormItemDisc> formDisc = List.empty(growable: true);
   List<Proddiv> proddivs = List.empty(growable: true);
   List<Proddiv> itemProdDiv;
   Map<String, String> selectMapProddiv = {"": ""};
@@ -33,19 +45,112 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
     }
   }
 
-  getSelectedProddiv() {
-    selectMapProddiv.clear();
-    proddivs.clear();
+  // getSelectedProddiv() {
+  //   selectMapProddiv.clear();
+  //   proddivs.clear();
 
-    itemProdDiv.forEach((item) {
-      if (item.ischecked) {
-        selectMapProddiv[item.proddiv] = item.alias;
-        setState(() {
-          proddivs.add(Proddiv(item.alias, item.proddiv));
-        });
-      }
+  //   itemProdDiv.forEach((item) {
+  //     if (item.ischecked) {
+  //       selectMapProddiv[item.proddiv] = item.alias;
+  //       setState(() {
+  //         proddivs.add(Proddiv(item.alias, item.proddiv));
+  //       });
+  //     }
+  //   });
+  //   print(selectMapProddiv);
+  // }
+
+  getSelectedProddiv() {
+    setState(() {
+      selectMapProddiv.clear();
+      // proddivs.clear();
+
+      itemProdDiv.forEach((item) {
+        if (item.ischecked) {
+          selectMapProddiv[item.proddiv] = item.alias;
+          Proddiv itemProddiv = Proddiv(item.alias, item.proddiv);
+          formDisc.add(FormItemDisc(
+            index: formDisc.length,
+            proddiv: itemProddiv,
+          ));
+        }
+      });
     });
-    print(selectMapProddiv);
+  }
+
+  onSaveMultiForm(Function stop) {
+    bool allValid = true;
+
+    formDisc
+        .forEach((element) => allValid = (allValid && element.isValidated()));
+
+    if (allValid) {
+      widget.myCallback(formDisc.length);
+
+      for (int i = 0; i < formDisc.length; i++) {
+        FormItemDisc item = formDisc[i];
+        // debugPrint("Proddiv: ${item.proddiv.proddiv}");
+        // debugPrint("Alias: ${item.proddiv.alias}");
+        // debugPrint("Diskon: ${item.proddiv.diskon}");
+        postMulti(item.proddiv.proddiv, item.proddiv.diskon);
+      }
+    } else {
+      print("Form is Not Valid");
+    }
+
+    print("Test submit form");
+    stop();
+  }
+
+  void onSaveMulti() {
+    bool allValid = true;
+
+    formDisc
+        .forEach((element) => allValid = (allValid && element.isValidated()));
+
+    if (allValid) {
+      widget.myCallback(formDisc.length);
+      for (int i = 0; i < formDisc.length; i++) {
+        FormItemDisc item = formDisc[i];
+        // debugPrint("Proddiv: ${item.proddiv.proddiv}");
+        // debugPrint("Alias: ${item.proddiv.alias}");
+        // debugPrint("Diskon: ${item.proddiv.diskon}");
+        postMulti(item.proddiv.proddiv, item.proddiv.diskon);
+      }
+    } else {
+      print("Form is Not Valid");
+    }
+
+    print("Test submit form");
+  }
+
+  List<FormItemDisc> getFormGroup() {
+    bool allValid = true;
+    formDisc
+        .forEach((element) => allValid = (allValid && element.isValidated()));
+
+    return formDisc;
+  }
+
+  postMulti(String proddiv, String diskon) async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
+    var response = await http.post(
+      url,
+      body: {
+        'id_customer': '9999',
+        'prod_div[]': proddiv,
+        'discount[]': diskon,
+      },
+    );
+
+    var res = json.decode(response.body);
+    final bool sts = res['status'];
+    final String msg = res['message'];
+
+    if (sts) {
+      print('Diskon terkirim');
+    }
   }
 
   @override
@@ -203,19 +308,55 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
         ),
         Container(
           height: 150,
-          child: proddivs.length <= 0
-              ? Center(
-                  child: Text('Tambahkan item prod div'),
+          child: formDisc.isNotEmpty
+              ? ListView.builder(
+                  itemCount: formDisc.length,
+                  itemBuilder: (_, index) {
+                    return formDisc[index];
+                  },
                 )
-              : ListView.builder(
-                  itemCount: proddivs.length,
-                  itemBuilder: (_, index) => FormItemDisc(
-                    proddiv: proddivs[index],
-                  ),
+              : Center(
+                  child: Text('Tambahkan item prod div'),
                 ),
+          // child: proddivs.length <= 0
+          // ? Center(
+          //     child: Text('Tambahkan item prod div'),
+          //   )
+          // : ListView.builder(
+          //     itemCount: proddivs.length,
+          //     itemBuilder: (_, index) => FormItemDisc(
+          //       index: proddivs.length,
+          //       proddiv: proddivs[index],
+          //     ),
+          //       ),
         ),
         SizedBox(
           height: 20,
+        ),
+        ArgonButton(
+          height: 40,
+          width: 100,
+          borderRadius: 30.0,
+          color: Colors.blue[700],
+          child: Text(
+            "Simpan",
+            style: TextStyle(
+                color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+          ),
+          loader: Container(
+            padding: EdgeInsets.all(8),
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          ),
+          onTap: (startLoading, stopLoading, btnState) {
+            if (btnState == ButtonState.Idle) {
+              setState(() {
+                startLoading();
+                onSaveMultiForm(stopLoading);
+              });
+            }
+          },
         ),
       ],
     );
