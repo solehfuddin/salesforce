@@ -1,5 +1,6 @@
 class Product {
   String categoryid, proddiv, prodcat, proddesc, status;
+  String diskon;
   bool ischecked = false;
 
   Product(this.categoryid, this.proddiv, this.prodcat, this.proddesc, this.status);

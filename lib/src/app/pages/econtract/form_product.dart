@@ -14,6 +14,7 @@ class FormItemProduct extends StatefulWidget {
   }
 
   TextEditingController _discvalController = TextEditingController();
+  bool isValidated() => state.validate();
 }
 
 class _FormItemProductState extends State<FormItemProduct> {
@@ -23,71 +24,82 @@ class _FormItemProductState extends State<FormItemProduct> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: 200,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 5,
+    return Form(
+      key: formKey,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: 200,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 5,
+              ),
+              child: Text(
+                widget.product.proddesc,
+                // 'Hybrid',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            child: Text(
-              widget.product.proddesc,
-              // 'Hybrid',
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
+          ),
+          SizedBox(
+            width: 100,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 5,
+              ),
+              child: Checkbox(
+                value: this._isChecked,
+                onChanged: (bool value) {
+                  setState(() {
+                    this._isChecked = value;
+                    this._isDisabled = value;
+                    widget.product.ischecked = value;
+                  });
+                },
               ),
             ),
           ),
-        ),
-        SizedBox(
-          width: 100,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 5,
-            ),
-            child: Checkbox(
-              value: this._isChecked,
-              onChanged: (bool value) {
-                setState(() {
-                  this._isChecked = value;
-                  this._isDisabled = value;
-                });
-              },
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 100,
-          height: 42,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 5,
-            ),
-            child: TextFormField(
-              enabled: _isDisabled,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: '0',
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
+          SizedBox(
+            width: 100,
+            height: 42,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 5,
               ),
-              textAlign: TextAlign.center,
-              controller: widget._discvalController,
+              child: TextFormField(
+                enabled: _isDisabled,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: '0',
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                textAlign: TextAlign.center,
+                controller: widget._discvalController,
+                onChanged: (value) => widget.product.diskon = value,
+                onSaved: (value) => widget.product.diskon = value,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  bool validate() {
+    formKey.currentState.save();
+    return true;
   }
 }

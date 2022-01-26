@@ -3,7 +3,7 @@ class Proddiv {
   String diskon;
   bool ischecked = false;
 
-  Proddiv(this.alias, this.proddiv);
+  Proddiv(this.alias, this.proddiv, this.diskon);
 
   Proddiv.fromJson(Map json): 
     proddiv = json['prod_div'],

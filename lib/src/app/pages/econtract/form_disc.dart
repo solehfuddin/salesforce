@@ -60,6 +60,7 @@ class _FormItemDiscState extends State<FormItemDisc> {
                   setState(() {
                     this._isChecked = value;
                     this._isDisabled = value;
+                    widget.proddiv.ischecked = value;
                   });
                 },
               ),
@@ -98,11 +99,6 @@ class _FormItemDiscState extends State<FormItemDisc> {
   }
 
   bool validate() {
-    //Validate Form Fields
-    // bool validate = formKey.currentState.validate();
-    // if (validate) formKey.currentState.save();
-    // return validate;
-
     formKey.currentState.save();
     return true;
   }

@@ -4,13 +4,13 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
-import 'package:sample/src/app/pages/econtract/multiform_disc.dart';
-import 'package:sample/src/app/pages/econtract/multiproduct_disc.dart';
+import 'package:sample/src/app/pages/econtract/form_product.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
+import 'package:sample/src/domain/entities/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -27,6 +27,15 @@ class EcontractScreen extends StatefulWidget {
 
 class _EcontractScreenState extends State<EcontractScreen> {
   final globalKey = GlobalKey();
+  List<FormItemDisc> formDisc = List.empty(growable: true);
+  List<FormItemProduct> formProduct = List.empty(growable: true);
+  List<String> tmpDiv = List.empty(growable: true);
+  List<String> tmpProduct = List.empty(growable: true);
+  List<Proddiv> itemProdDiv;
+  List<Product> itemProduct;
+  Map<String, String> selectMapProddiv = {"": ""};
+  Map<String, String> selectMapProduct = {"": ""};
+  String search = '';
   String id = '';
   String role = '';
   String username = '';
@@ -56,7 +65,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   var thisYear, nextYear;
   int formLen;
 
-  callback(newVal){
+  callback(newVal) {
     setState(() {
       formLen = newVal;
     });
@@ -84,10 +93,81 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
+  getItemProdDiv() async {
+    var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      itemProdDiv =
+          rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
+      print("List Size: ${itemProdDiv.length}");
+    }
+  }
+
+  Future<List<Product>> getSearchProduct(String input) async {
+    List<Product> list;
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/product/search?search=$input';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      list = rest.map<Product>((json) => Product.fromJson(json)).toList();
+      itemProduct =
+          rest.map<Product>((json) => Product.fromJson(json)).toList();
+      print("List Size: ${list.length}");
+      print("Product Size: ${itemProduct.length}");
+    }
+
+    return list;
+  }
+
+  getSelectedItem() {
+    selectMapProduct.clear();
+
+    if (itemProduct != null) {
+      itemProduct.forEach((item) {
+        if (item.ischecked) {
+          selectMapProduct[item.proddiv] = item.proddesc;
+          Product itemProduct = Product(item.categoryid, item.proddiv,
+              item.prodcat, item.proddesc, item.status);
+          if (!tmpProduct.contains(item.proddesc)) {
+            tmpProduct.add(item.proddesc);
+            tmpProduct.forEach((element) {
+              print(element);
+            });
+
+            setState(() {
+              formProduct.add(FormItemProduct(
+                index: formProduct.length,
+                product: itemProduct,
+              ));
+            });
+          }
+        }
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     getRole();
+    getItemProdDiv();
+    getSearchProduct('');
   }
 
   getTtdSales(int input) async {
@@ -102,6 +182,33 @@ class _EcontractScreenState extends State<EcontractScreen> {
     if (sts) {
       ttdPertama = data['data'][0]['ttd'];
       print(ttdPertama);
+    }
+  }
+
+  getSelectedProddiv() {
+    selectMapProddiv.clear();
+
+    if (itemProdDiv != null) {
+      itemProdDiv.forEach((item) {
+        if (item.ischecked) {
+          selectMapProddiv[item.proddiv] = item.alias;
+          Proddiv itemProddiv = Proddiv(item.alias, item.proddiv, item.diskon);
+
+          if (!tmpDiv.contains(item.proddiv)) {
+            tmpDiv.add(item.proddiv);
+            tmpDiv.forEach((element) {
+              print(element);
+            });
+
+            setState(() {
+              formDisc.add(FormItemDisc(
+                index: formDisc.length,
+                proddiv: itemProddiv,
+              ));
+            });
+          }
+        }
+      });
     }
   }
 
@@ -157,42 +264,42 @@ class _EcontractScreenState extends State<EcontractScreen> {
   //       !_isValLeinz &&
   //       !_isValOriental &&
   //       !_isValMoe) {
-      // var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-      // var response = await http.post(
-      //   url,
-      //   body: {
-      //     'id_customer': idCustomer,
-      //     'nama_pertama': username,
-      //     'jabatan_pertama': role,
-      //     'nama_kedua': namaKedua,
-      //     'jabatan_kedua': jabatanKedua,
-      //     'alamat_kedua': alamatKedua,
-      //     'telp_kedua': telpKedua,
-      //     'fax_kedua': faxKedua,
-      //     'tp_nikon': textValNikon.text.replaceAll('.', ''),
-      //     'tp_leinz': textValLeinz.text.replaceAll('.', ''),
-      //     'tp_oriental': textValOriental.text.replaceAll('.', ''),
-      //     'tp_moe': textValMoe.text.replaceAll('.', ''),
-      //     'pembayaran_nikon': _chosenNikon,
-      //     'pembayaran_leinz': _chosenLeinz,
-      //     'pembayaran_oriental': _chosenOriental,
-      //     'pembayaran_moe': _chosenMoe,
-      //     'start_contract': textTanggalSt.text,
-      //     'end_contract': textTanggalEd.text,
-      //     'ttd_pertama': ttdPertama,
-      //     'ttd_kedua': ttdKedua,
-      //     'created_by': id,
-      //   },
-      // );
+  // var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
+  // var response = await http.post(
+  //   url,
+  //   body: {
+  //     'id_customer': idCustomer,
+  //     'nama_pertama': username,
+  //     'jabatan_pertama': role,
+  //     'nama_kedua': namaKedua,
+  //     'jabatan_kedua': jabatanKedua,
+  //     'alamat_kedua': alamatKedua,
+  //     'telp_kedua': telpKedua,
+  //     'fax_kedua': faxKedua,
+  //     'tp_nikon': textValNikon.text.replaceAll('.', ''),
+  //     'tp_leinz': textValLeinz.text.replaceAll('.', ''),
+  //     'tp_oriental': textValOriental.text.replaceAll('.', ''),
+  //     'tp_moe': textValMoe.text.replaceAll('.', ''),
+  //     'pembayaran_nikon': _chosenNikon,
+  //     'pembayaran_leinz': _chosenLeinz,
+  //     'pembayaran_oriental': _chosenOriental,
+  //     'pembayaran_moe': _chosenMoe,
+  //     'start_contract': textTanggalSt.text,
+  //     'end_contract': textTanggalEd.text,
+  //     'ttd_pertama': ttdPertama,
+  //     'ttd_kedua': ttdKedua,
+  //     'created_by': id,
+  //   },
+  // );
 
   //     print('ttd 1 : $ttdPertama');
   //     print('ttd 2 : $ttdKedua');
   //     print('Response status: ${response.statusCode}');
   //     print('Response body: ${response.body}');
 
-      // var res = json.decode(response.body);
-      // final bool sts = res['status'];
-      // final String msg = res['message'];
+  // var res = json.decode(response.body);
+  // final bool sts = res['status'];
+  // final String msg = res['message'];
 
   //     if (sts) {
   //       textTanggalSt.clear();
@@ -214,15 +321,95 @@ class _EcontractScreenState extends State<EcontractScreen> {
   // }
 
   checkInput(Function stop) async {
-    MultiFormDisc formDisc = MultiFormDisc(key: globalKey);
-    formDisc.onSave();
+    bool allValid = true;
 
-    // List<FormItemDisc> item = formDisc.getFormGroup();
-    // print(item.length);
-    print('Total list : $formLen');
+    formDisc
+        .forEach((element) => allValid = (allValid && element.isValidated()));
+
+    if (allValid) {
+      for (int i = 0; i < formDisc.length; i++) {
+        FormItemDisc item = formDisc[i];
+        if (item.proddiv.ischecked) {
+          debugPrint("Proddiv: ${item.proddiv.proddiv}");
+          debugPrint("Alias: ${item.proddiv.alias}");
+          debugPrint("Diskon: ${item.proddiv.diskon}");
+          debugPrint("Is Checked : ${item.proddiv.ischecked}");
+          postMultiDiv(item.proddiv.proddiv, item.proddiv.diskon);
+        }
+      }
+    } else {
+      print("Form is Not Valid");
+    }
+
+    formProduct
+        .forEach((element) => allValid = (allValid && element.isValidated()));
+
+    if (allValid) {
+      for (int i = 0; i < formProduct.length; i++) {
+        FormItemProduct item = formProduct[i];
+        if (item.product.ischecked) {
+          debugPrint("Category Id: ${item.product.categoryid}");
+          debugPrint("Proddiv: ${item.product.proddiv}");
+          debugPrint("Prodcat: ${item.product.prodcat}");
+          debugPrint("Proddesc: ${item.product.proddesc}");
+          debugPrint("Diskon: ${item.product.diskon}");
+
+          postMultiItem(item.product.categoryid, item.product.proddiv,
+              item.product.prodcat, item.product.proddesc, item.product.diskon);
+        }
+      }
+    } else {
+      print("Form is Not Valid");
+    }
+
     stop();
   }
 
+  postMultiDiv(String proddiv, String diskon) async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
+    var response = await http.post(
+      url,
+      body: {
+        'id_customer': '9999',
+        'prod_div[]': proddiv,
+        'discount[]': diskon,
+      },
+    );
+
+    var res = json.decode(response.body);
+    final bool sts = res['status'];
+    final String msg = res['message'];
+
+    if (sts) {
+      print(msg);
+    }
+  }
+
+  postMultiItem(String categoryId, String prodDiv, String prodCat,
+      String prodDesc, String disc) async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
+    var response = await http.post(
+      url,
+      body: {
+        'id_customer': '9999',
+        'category_id[]': categoryId,
+        'prod_div[]': prodDiv,
+        'prodcat[]': prodCat,
+        'prodcat_description[]': prodDesc,
+        'discount[]': disc,
+      },
+    );
+
+    var res = json.decode(response.body);
+    final bool sts = res['status'];
+    final String msg = res['message'];
+
+    if (sts) {
+      print(msg);
+    }
+  }
 
   simpanDiskon(String idCust) async {
     var url =
@@ -1078,6 +1265,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     onChanged: (bool value) {
                       setState(() {
                         this._isRegularDisc = value;
+                        formDisc.clear();
+                        formProduct.clear();
+                        tmpDiv.clear();
+                        tmpProduct.clear();
                       });
                     },
                   ), //C
@@ -1091,12 +1282,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ? SizedBox(
                     height: 5,
                   )
-                : MultiFormDisc(myCallback: callback),
+                : areaMultiFormDiv(),
             _isRegularDisc
                 ? SizedBox(
                     height: 5,
                   )
-                : MultiProductDisc(),
+                : areaMultiFormProduct(),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,
@@ -1138,6 +1329,403 @@ class _EcontractScreenState extends State<EcontractScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget dialogProddiv(List<Proddiv> item) {
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        title: Text('Pilih ProdDiv'),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                getSelectedProddiv();
+                Navigator.pop(context);
+              },
+              child: Text("Submit")),
+        ],
+        content: Container(
+          width: double.minPositive,
+          height: 300,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: item.length,
+            itemBuilder: (BuildContext context, int index) {
+              String _key = item[index].alias;
+              return CheckboxListTile(
+                value: item[index].ischecked,
+                title: Text(_key),
+                onChanged: (bool val) {
+                  setState(() {
+                    item[index].ischecked = val;
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget customProduct() {
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        title: Text('Pilih Item'),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                getSelectedItem();
+                Navigator.pop(context);
+              },
+              child: Text("Submit")),
+        ],
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 350,
+              padding: EdgeInsets.symmetric(
+                horizontal: 5,
+                vertical: 10,
+              ),
+              color: Colors.white,
+              height: 80,
+              child: TextField(
+                textInputAction: TextInputAction.search,
+                autocorrect: true,
+                decoration: InputDecoration(
+                  hintText: 'Pencarian data ...',
+                  prefixIcon: Icon(Icons.search),
+                  hintStyle: TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.white70,
+                  contentPadding: EdgeInsets.symmetric(vertical: 3),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.grey, width: 2),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(color: Colors.blue, width: 2),
+                  ),
+                ),
+                onSubmitted: (value) {
+                  setState(() {
+                    search = value;
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: SizedBox(
+                height: 100,
+                child: FutureBuilder(
+                    future: search.isNotEmpty
+                        ? getSearchProduct(search)
+                        : getSearchProduct(''),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Center(child: CircularProgressIndicator());
+                        default:
+                          return snapshot.data != null
+                              ? listItemWidget(itemProduct)
+                              : Center(
+                                  child: Text('Data tidak ditemukan'),
+                                );
+                      }
+                    }),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget listItemWidget(List<Product> item) {
+    return StatefulBuilder(builder: (context, setState) {
+      return Container(
+          width: double.minPositive,
+          height: 350,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: item.length,
+            itemBuilder: (BuildContext context, int index) {
+              String _key = item[index].proddesc;
+              return CheckboxListTile(
+                value: item[index].ischecked,
+                title: Text(_key),
+                onChanged: (bool val) {
+                  setState(() {
+                    item[index].ischecked = val;
+                  });
+                },
+              );
+            },
+          ));
+    });
+  }
+
+  Widget areaMultiFormDiv() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
+              ),
+              child: Text(
+                'Kontrak Diskon Divisi : ',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  constraints: BoxConstraints(
+                    maxHeight: 28,
+                    maxWidth: 28,
+                  ),
+                  icon: const Icon(Icons.add),
+                  iconSize: 13,
+                  color: Colors.white,
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return dialogProddiv(itemProdDiv);
+                        });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: 200,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                child: Text(
+                  'Produk',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                child: Text(
+                  'Regular',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                child: Text(
+                  'Diskon',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          height: 150,
+          child: formDisc.isNotEmpty
+              ? ListView.builder(
+                  itemCount: formDisc.length,
+                  itemBuilder: (_, index) {
+                    return formDisc[index];
+                  },
+                )
+              : Center(
+                  child: Text('Tambahkan item prod div'),
+                ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+      ],
+    );
+  }
+
+  Widget areaMultiFormProduct() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
+              ),
+              child: Text(
+                'Kontrak Diskon Khusus : ',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  constraints: BoxConstraints(
+                    maxHeight: 28,
+                    maxWidth: 28,
+                  ),
+                  icon: const Icon(Icons.add),
+                  iconSize: 13,
+                  color: Colors.white,
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          // return customProduct(itemProduct);
+                          return customProduct();
+                        });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: 200,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                child: Text(
+                  'Produk',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                child: Text(
+                  'Regular',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                child: Text(
+                  'Diskon',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          height: 150,
+          child: formProduct.isNotEmpty
+              ? ListView.builder(
+                  itemCount: formProduct.length,
+                  itemBuilder: (_, index) {
+                    return formProduct[index];
+                  },
+                )
+              : Center(
+                  child: Text('Tambahkan item'),
+                ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+      ],
     );
   }
 }

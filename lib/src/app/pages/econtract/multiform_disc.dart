@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 
 class MultiFormDisc extends StatefulWidget {
   MultiFormDisc({Key key, this.myCallback}) : super(key: key);
-  // onSave() => createState().onSaveMultiForm();
   Function(int) myCallback;
   final state = _MultiFormDiscState();
 
@@ -16,15 +15,12 @@ class MultiFormDisc extends StatefulWidget {
   _MultiFormDiscState createState() {
     return state;
   }
-
-  void onSave() => state.onSaveMulti();
-  List<FormItemDisc> getFormGroup() => state.getFormGroup();
 }
 
 class _MultiFormDiscState extends State<MultiFormDisc> {
   List<FormItemDisc> formDisc = List.empty(growable: true);
-  List<Proddiv> proddivs = List.empty(growable: true);
   List<Proddiv> itemProdDiv;
+  List<String> tmpDiv = List.empty(growable: true);
   Map<String, String> selectMapProddiv = {"": ""};
 
   getItemProdDiv() async {
@@ -45,34 +41,26 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
     }
   }
 
-  // getSelectedProddiv() {
-  //   selectMapProddiv.clear();
-  //   proddivs.clear();
-
-  //   itemProdDiv.forEach((item) {
-  //     if (item.ischecked) {
-  //       selectMapProddiv[item.proddiv] = item.alias;
-  //       setState(() {
-  //         proddivs.add(Proddiv(item.alias, item.proddiv));
-  //       });
-  //     }
-  //   });
-  //   print(selectMapProddiv);
-  // }
-
   getSelectedProddiv() {
     setState(() {
       selectMapProddiv.clear();
-      // proddivs.clear();
 
       itemProdDiv.forEach((item) {
         if (item.ischecked) {
           selectMapProddiv[item.proddiv] = item.alias;
-          Proddiv itemProddiv = Proddiv(item.alias, item.proddiv);
-          formDisc.add(FormItemDisc(
-            index: formDisc.length,
-            proddiv: itemProddiv,
-          ));
+          Proddiv itemProddiv = Proddiv(item.alias, item.proddiv, item.diskon);
+          if (!tmpDiv.contains(item.proddiv))
+          {
+            tmpDiv.add(item.proddiv);
+            tmpDiv.forEach((element) { print(element); });
+
+            setState(() {
+                formDisc.add(FormItemDisc(
+                  index: formDisc.length,
+                  proddiv: itemProddiv,
+              ));
+            });
+          }
         }
       });
     });
@@ -89,10 +77,12 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
 
       for (int i = 0; i < formDisc.length; i++) {
         FormItemDisc item = formDisc[i];
-        // debugPrint("Proddiv: ${item.proddiv.proddiv}");
-        // debugPrint("Alias: ${item.proddiv.alias}");
-        // debugPrint("Diskon: ${item.proddiv.diskon}");
-        postMulti(item.proddiv.proddiv, item.proddiv.diskon);
+        if (item.proddiv.ischecked) {
+          debugPrint("Proddiv: ${item.proddiv.proddiv}");
+          debugPrint("Alias: ${item.proddiv.alias}");
+          debugPrint("Diskon: ${item.proddiv.diskon}");
+          // postMulti(item.proddiv.proddiv, item.proddiv.diskon);
+        }
       }
     } else {
       print("Form is Not Valid");
@@ -100,36 +90,6 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
 
     print("Test submit form");
     stop();
-  }
-
-  void onSaveMulti() {
-    bool allValid = true;
-
-    formDisc
-        .forEach((element) => allValid = (allValid && element.isValidated()));
-
-    if (allValid) {
-      widget.myCallback(formDisc.length);
-      for (int i = 0; i < formDisc.length; i++) {
-        FormItemDisc item = formDisc[i];
-        // debugPrint("Proddiv: ${item.proddiv.proddiv}");
-        // debugPrint("Alias: ${item.proddiv.alias}");
-        // debugPrint("Diskon: ${item.proddiv.diskon}");
-        postMulti(item.proddiv.proddiv, item.proddiv.diskon);
-      }
-    } else {
-      print("Form is Not Valid");
-    }
-
-    print("Test submit form");
-  }
-
-  List<FormItemDisc> getFormGroup() {
-    bool allValid = true;
-    formDisc
-        .forEach((element) => allValid = (allValid && element.isValidated()));
-
-    return formDisc;
   }
 
   postMulti(String proddiv, String diskon) async {
@@ -149,7 +109,7 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
     final String msg = res['message'];
 
     if (sts) {
-      print('Diskon terkirim');
+      print(msg);
     }
   }
 
@@ -318,17 +278,6 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
               : Center(
                   child: Text('Tambahkan item prod div'),
                 ),
-          // child: proddivs.length <= 0
-          // ? Center(
-          //     child: Text('Tambahkan item prod div'),
-          //   )
-          // : ListView.builder(
-          //     itemCount: proddivs.length,
-          //     itemBuilder: (_, index) => FormItemDisc(
-          //       index: proddivs.length,
-          //       proddiv: proddivs[index],
-          //     ),
-          //       ),
         ),
         SizedBox(
           height: 20,
