@@ -232,95 +232,95 @@ class _EcontractScreenState extends State<EcontractScreen> {
     return list;
   }
 
-  // checkInput(Function stop) async {
-  //   if (_chosenNikon == null) {
-  //     _chosenNikon = 'Cash & Carry';
-  //   }
-
-  //   if (_chosenLeinz == null) {
-  //     _chosenLeinz = 'Cash & Carry';
-  //   }
-
-  //   if (_chosenOriental == null) {
-  //     _chosenOriental = 'Cash & Carry';
-  //   }
-
-  //   if (_chosenMoe == null) {
-  //     _chosenMoe = 'Cash & Carry';
-  //   }
-
-  //   textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
-  //   textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
-  //   textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
-  //   textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
-  //   textValOriental.text.isEmpty
-  //       ? _isValOriental = true
-  //       : _isValOriental = false;
-  //   textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
-
-  //   if (!_isTanggalSt &&
-  //       !_isTanggalEd &&
-  //       !_isValNikon &&
-  //       !_isValLeinz &&
-  //       !_isValOriental &&
-  //       !_isValMoe) {
-  // var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-  // var response = await http.post(
-  //   url,
-  //   body: {
-  //     'id_customer': idCustomer,
-  //     'nama_pertama': username,
-  //     'jabatan_pertama': role,
-  //     'nama_kedua': namaKedua,
-  //     'jabatan_kedua': jabatanKedua,
-  //     'alamat_kedua': alamatKedua,
-  //     'telp_kedua': telpKedua,
-  //     'fax_kedua': faxKedua,
-  //     'tp_nikon': textValNikon.text.replaceAll('.', ''),
-  //     'tp_leinz': textValLeinz.text.replaceAll('.', ''),
-  //     'tp_oriental': textValOriental.text.replaceAll('.', ''),
-  //     'tp_moe': textValMoe.text.replaceAll('.', ''),
-  //     'pembayaran_nikon': _chosenNikon,
-  //     'pembayaran_leinz': _chosenLeinz,
-  //     'pembayaran_oriental': _chosenOriental,
-  //     'pembayaran_moe': _chosenMoe,
-  //     'start_contract': textTanggalSt.text,
-  //     'end_contract': textTanggalEd.text,
-  //     'ttd_pertama': ttdPertama,
-  //     'ttd_kedua': ttdKedua,
-  //     'created_by': id,
-  //   },
-  // );
-
-  //     print('ttd 1 : $ttdPertama');
-  //     print('ttd 2 : $ttdKedua');
-  //     print('Response status: ${response.statusCode}');
-  //     print('Response body: ${response.body}');
-
-  // var res = json.decode(response.body);
-  // final bool sts = res['status'];
-  // final String msg = res['message'];
-
-  //     if (sts) {
-  //       textTanggalSt.clear();
-  //       textTanggalEd.clear();
-  //       textValLeinz.clear();
-  //       textValMoe.clear();
-  //       textValNikon.clear();
-  //       textValOriental.clear();
-
-  //       simpanDiskon(idCustomer);
-  //     }
-
-  //     handleStatus(context, capitalize(msg), sts);
-  //     stop();
-  //     setState(() {});
-  //   } else {
-  //     stop();
-  //   }
-  // }
-
   checkInput(Function stop) async {
+    if (_chosenNikon == null) {
+      _chosenNikon = 'Cash & Carry';
+    }
+
+    if (_chosenLeinz == null) {
+      _chosenLeinz = 'Cash & Carry';
+    }
+
+    if (_chosenOriental == null) {
+      _chosenOriental = 'Cash & Carry';
+    }
+
+    if (_chosenMoe == null) {
+      _chosenMoe = 'Cash & Carry';
+    }
+
+    textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
+    textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
+    textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
+    textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
+    textValOriental.text.isEmpty
+        ? _isValOriental = true
+        : _isValOriental = false;
+    textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
+
+    if (!_isTanggalSt &&
+        !_isTanggalEd &&
+        !_isValNikon &&
+        !_isValLeinz &&
+        !_isValOriental &&
+        !_isValMoe) {
+  var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
+  var response = await http.post(
+    url,
+    body: {
+      'id_customer': idCustomer,
+      'nama_pertama': username,
+      'jabatan_pertama': role,
+      'nama_kedua': namaKedua,
+      'jabatan_kedua': jabatanKedua,
+      'alamat_kedua': alamatKedua,
+      'telp_kedua': telpKedua,
+      'fax_kedua': faxKedua,
+      'tp_nikon': textValNikon.text.replaceAll('.', ''),
+      'tp_leinz': textValLeinz.text.replaceAll('.', ''),
+      'tp_oriental': textValOriental.text.replaceAll('.', ''),
+      'tp_moe': textValMoe.text.replaceAll('.', ''),
+      'pembayaran_nikon': _chosenNikon,
+      'pembayaran_leinz': _chosenLeinz,
+      'pembayaran_oriental': _chosenOriental,
+      'pembayaran_moe': _chosenMoe,
+      'start_contract': textTanggalSt.text,
+      'end_contract': textTanggalEd.text,
+      'ttd_pertama': ttdPertama,
+      'ttd_kedua': ttdKedua,
+      'created_by': id,
+    },
+  );
+
+      print('ttd 1 : $ttdPertama');
+      print('ttd 2 : $ttdKedua');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+  var res = json.decode(response.body);
+  final bool sts = res['status'];
+  final String msg = res['message'];
+
+      if (sts) {
+        textTanggalSt.clear();
+        textTanggalEd.clear();
+        textValLeinz.clear();
+        textValMoe.clear();
+        textValNikon.clear();
+        textValOriental.clear();
+
+        _isRegularDisc ? simpanDiskon(idCustomer) : multipleInputDiskon();
+      }
+
+      handleStatus(context, capitalize(msg), sts);
+      stop();
+      setState(() {});
+    } else {
+      stop();
+    }
+  }
+
+  multipleInputDiskon() async {
     bool allValid = true;
 
     formDisc
@@ -334,7 +334,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Alias: ${item.proddiv.alias}");
           debugPrint("Diskon: ${item.proddiv.diskon}");
           debugPrint("Is Checked : ${item.proddiv.ischecked}");
-          postMultiDiv(item.proddiv.proddiv, item.proddiv.diskon);
+          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon);
         }
       }
     } else {
@@ -354,24 +354,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Proddesc: ${item.product.proddesc}");
           debugPrint("Diskon: ${item.product.diskon}");
 
-          postMultiItem(item.product.categoryid, item.product.proddiv,
+          postMultiItem(idCustomer, item.product.categoryid, item.product.proddiv,
               item.product.prodcat, item.product.proddesc, item.product.diskon);
         }
       }
     } else {
       print("Form is Not Valid");
     }
-
-    stop();
   }
 
-  postMultiDiv(String proddiv, String diskon) async {
+  postMultiDiv(String idCust, String proddiv, String diskon) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
     var response = await http.post(
       url,
       body: {
-        'id_customer': '9999',
+        'id_customer': idCust,
         'prod_div[]': proddiv,
         'discount[]': diskon,
       },
@@ -386,14 +384,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
-  postMultiItem(String categoryId, String prodDiv, String prodCat,
+  postMultiItem(String idCust, String categoryId, String prodDiv, String prodCat,
       String prodDesc, String disc) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
     var response = await http.post(
       url,
       body: {
-        'id_customer': '9999',
+        'id_customer': idCust,
         'category_id[]': categoryId,
         'prod_div[]': prodDiv,
         'prodcat[]': prodCat,
@@ -413,7 +411,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   simpanDiskon(String idCust) async {
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/defaultDiskon';
+        'http://timurrayalab.com/salesforce/server/api/discount/defaultDiscount';
     var response = await http.post(
       url,
       body: {

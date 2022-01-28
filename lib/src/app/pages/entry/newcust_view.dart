@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
-import 'package:sample/src/app/widgets/newcustwidget/areabadanusaha.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 
@@ -348,7 +347,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _areaBadanUsaha(),
-            // areaBadanUsaha(myMap),
             _areaDataPribadi(),
             _areaDataTambahan(),
             _areaDokumenPelengkap(),

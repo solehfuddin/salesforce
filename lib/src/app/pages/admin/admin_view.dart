@@ -1,13 +1,14 @@
 import 'dart:convert';
 
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:sample/src/app/pages/approval/approval_view.dart';
-import 'package:sample/src/app/pages/approval/rejected_view.dart';
-import 'package:sample/src/app/pages/approval/waiting_view.dart';
-import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/widgets/areacounter.dart';
+import 'package:sample/src/app/widgets/areafeature.dart';
+import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
-import 'package:sample/src/app/widgets/headerdashboard.dart';
+import 'package:sample/src/app/widgets/areaheader.dart';
+import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -32,6 +33,8 @@ class _AdminScreenState extends State<AdminScreen> {
   void initState() {
     super.initState();
     getRole();
+    getApprovedData();
+    getRejectedData();
   }
 
   getRole() async {
@@ -42,10 +45,7 @@ class _AdminScreenState extends State<AdminScreen> {
       username = preferences.getString("username");
       userUpper = username.toUpperCase();
       divisi = preferences.getString("divisi");
-
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
-      getApprovedData();
-      getRejectedData();
 
       checkSigned();
     });
@@ -57,6 +57,27 @@ class _AdminScreenState extends State<AdminScreen> {
     if (ttd == null) {
       handleSigned(context);
     }
+  }
+
+  Future<List<Monitoring>> getMonitoringData() async {
+    List<Monitoring> list;
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      list = rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
+      print("List Size: ${list.length}");
+    }
+
+    return list;
   }
 
   getWaitingData(bool isAr) async {
@@ -125,8 +146,101 @@ class _AdminScreenState extends State<AdminScreen> {
           physics: ClampingScrollPhysics(),
           slivers: [
             areaHeader(screenHeight, userUpper, context),
-            _areaCounter(),
-            _areaFeature(screenHeight),
+            areaCounter(totalWaiting.toString(), totalApproved.toString(),
+                totalRejected.toString(), context),
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 10,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Monitoring Contract',
+                      style: TextStyle(
+                        fontSize: 23,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    SizedBox(
+                      height: 400,
+                      child: FutureBuilder(
+                          future: getMonitoringData(),
+                          builder: (context, snapshot) {
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.waiting:
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              default:
+                                return snapshot.data != null
+                                    ? listViewWidget(
+                                        snapshot.data, snapshot.data.length)
+                                    : Column(
+                                        children: [
+                                          Center(
+                                            child: Image.asset(
+                                              'assets/images/not_found.png',
+                                              width: 300,
+                                              height: 300,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Data tidak ditemukan',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.red[600],
+                                              fontFamily: 'Montserrat',
+                                            ),
+                                          )
+                                        ],
+                                      );
+                            }
+                          }),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Center(
+                      child: ArgonButton(
+                        height: 40,
+                        width: 130,
+                        borderRadius: 30.0,
+                        color: Colors.blue[600],
+                        child: Text(
+                          "More Data",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        loader: Container(
+                          padding: EdgeInsets.all(8),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onTap: (startLoading, stopLoading, btnState) {
+                          if (btnState == ButtonState.Idle) {
+                            // setState(() {
+                            //   startLoading();
+                            // });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            areaFeature(screenHeight, context),
           ],
         ),
       ),
@@ -134,446 +248,102 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
-  SliverPadding _areaCounter() {
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 20,
-      ),
-      sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Statistics',
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
+  Widget listViewWidget(List<Monitoring> item, int len) {
+    return Container(
+      child: ListView.builder(
+          itemCount: len,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 15,
+          ),
+          itemBuilder: (context, position) {
+            return Container(
+              margin: EdgeInsets.symmetric(vertical: 7,),
+              padding: EdgeInsets.all(
+                15,
               ),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.black26,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text(
-                              'New Customer',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Segoe ui',
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Center(
-                            child: Text(
-                              '50',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.green[700],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () => handleComing(context),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.black26,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text(
-                              'Total Customer',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Segoe ui',
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Center(
-                            child: Text(
-                              '18.750',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.deepOrange[300],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () => handleComing(context),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.black26,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                totalWaiting.toString(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Segoe ui',
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios_outlined,
-                                size: 13,
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            'Waiting',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[600],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => WaitingApprovalScreen(),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.black26,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                totalApproved.toString(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Segoe ui',
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios_outlined,
-                                size: 13,
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            'Approved',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.blue[600],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ApprovedScreen(),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.black26,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                totalRejected.toString(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Segoe ui',
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios_outlined,
-                                size: 13,
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            'Rejected',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.red[700],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => RejectedScreen(),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  SliverPadding _areaFeature(double screenHeight) {
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 10,
-      ),
-      sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Digital signed',
-              style: TextStyle(
-                fontSize: 23,
-                fontFamily: 'Segoe ui',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            GestureDetector(
-              child: Container(
-                padding: EdgeInsets.all(
-                  15,
-                ),
-                height: screenHeight * 0.18,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    color: Colors.black26,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Image.asset(
-                          'assets/images/digital_sign.png',
-                          width: 40,
-                          height: 40,
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Set digital signed easily to save your',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'Segoe ui',
-                              ),
-                            ),
-                            Text(
-                              'time when approved new customer',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'Segoe ui',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    Container(
-                      height: 2,
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Center(
-                      child: Text(
-                        'View Details',
-                        style: TextStyle(
-                          color: Colors.blue[700],
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Segoe ui',
-                        ),
-                      ),
-                    ),
-                  ],
+              height: 110,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(
+                  color: Colors.black26,
                 ),
               ),
-              onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SignedScreen())),
-            ),
-          ],
-        ),
-      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item[position].namaUsaha,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Segoe Ui',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Status',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 2,
+                          ),
+                          Text(
+                            'Active',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Segoe Ui',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.orange[800],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'End Contract',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 2,
+                          ),
+                          Text(
+                            convertDateIndo(item[position].endDateContract),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Segoe Ui',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
     );
   }
 }
