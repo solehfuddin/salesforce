@@ -39,6 +39,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   String id = '';
   String role = '';
   String username = '';
+  String name = '';
   String idCustomer,
       namaKedua,
       jabatanKedua,
@@ -77,6 +78,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
       id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
+      name = preferences.getString("name");
 
       var formatter = new DateFormat('yyyy');
       thisYear = formatter.format(DateTime.now());
@@ -269,7 +271,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     url,
     body: {
       'id_customer': idCustomer,
-      'nama_pertama': username,
+      // 'nama_pertama': username,
+      'nama_pertama': name,
       'jabatan_pertama': role,
       'nama_kedua': namaKedua,
       'jabatan_kedua': jabatanKedua,
@@ -487,7 +490,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   width: 15,
                 ),
                 Text(
-                  username,
+                  // username,
+                  name,
                   style: TextStyle(
                       fontSize: 14,
                       fontFamily: 'Montserrat',
@@ -515,6 +519,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   width: 2,
                 ),
                 Text(
+                  // capitalize(role),
                   role,
                   style: TextStyle(
                       fontSize: 14,

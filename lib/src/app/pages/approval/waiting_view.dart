@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/domain/entities/contract.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:http/http.dart' as http;
@@ -23,6 +24,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
   String tpNikon, tpLeinz, tpOriental, tpMoe;
   String pembNikon, pembLeinz, pembOriental, pembMoe;
   String tglKontrak;
+  Contract itemContract;
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -81,6 +83,34 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     return list;
   }
 
+  // getCustomerContract(int idCust) async {
+  //   var url =
+  //       'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+  //   var response = await http.get(url);
+
+  //   print('Response status: ${response.statusCode}');
+
+  //   var data = json.decode(response.body);
+  //   final bool sts = data['status'];
+
+  //   if (sts) {
+  //     var rest = data['data'];
+  //     print(rest);
+
+  //     tpNikon = rest[0]['tp_nikon'];
+  //     tpLeinz = rest[0]['tp_leinz'];
+  //     tpOriental = rest[0]['tp_oriental'];
+  //     tpMoe = rest[0]['tp_moe'];
+
+  //     pembNikon = rest[0]['pembayaran_nikon'];
+  //     pembLeinz = rest[0]['pembayaran_leinz'];
+  //     pembOriental = rest[0]['pembayaran_oriental'];
+  //     pembMoe = rest[0]['pembayaran_moe'];
+
+  //     tglKontrak = convertDateIndo(rest[0]['start_contract']);
+  //   }
+  // }
+
   getCustomerContract(int idCust) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
@@ -94,18 +124,9 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     if (sts) {
       var rest = data['data'];
       print(rest);
+      itemContract = Contract.fromJson(rest[0]);
 
-      tpNikon = rest[0]['tp_nikon'];
-      tpLeinz = rest[0]['tp_leinz'];
-      tpOriental = rest[0]['tp_oriental'];
-      tpMoe = rest[0]['tp_moe'];
-
-      pembNikon = rest[0]['pembayaran_nikon'];
-      pembLeinz = rest[0]['pembayaran_leinz'];
-      pembOriental = rest[0]['pembayaran_oriental'];
-      pembMoe = rest[0]['pembayaran_moe'];
-
-      tglKontrak = convertDateIndo(rest[0]['start_contract']);
+      formContract(itemContract);
     }
   }
 
@@ -263,7 +284,6 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
             vertical: 8,
           ),
           itemBuilder: (context, position) {
-            getCustomerContract(int.parse(customer[position].id));
             return Card(
               elevation: 2,
               child: ClipPath(
@@ -374,7 +394,11 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     ),
                   ),
                   onTap: () {
-                    formContract(customer, position);
+                    // formContract(customer, position);
+                    setState(() {
+                      getCustomerContract(int.parse(customer[position].id));
+                      // formContract(itemContract);
+                    });  
                   },
                 ),
                 clipper: ShapeBorderClipper(
@@ -388,7 +412,732 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     );
   }
 
-  formContract(List<Customer> customer, int position) {
+  // formContract(List<Customer> customer, int position) {
+  //   return showModalBottomSheet(
+  //     elevation: 2,
+  //     backgroundColor: Colors.white,
+  //     isScrollControlled: true,
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.only(
+  //         topLeft: Radius.circular(15),
+  //         topRight: Radius.circular(15),
+  //       ),
+  //     ),
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //           builder: (BuildContext context, StateSetter modalState) {
+  //         return SingleChildScrollView(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Container(
+  //                 padding: EdgeInsets.only(
+  //                   top: 35,
+  //                   bottom: 15,
+  //                 ),
+  //                 child: Center(
+  //                   child: Text(
+  //                     'Perjanjian Kerjasama Pembelian',
+  //                     style: TextStyle(
+  //                       fontSize: 20,
+  //                       fontFamily: 'Segoe ui',
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //               Container(
+  //                 padding: EdgeInsets.symmetric(
+  //                   horizontal: 20,
+  //                   vertical: 8,
+  //                 ),
+  //                 child: Text(
+  //                   'Pihak Pertama',
+  //                   style: TextStyle(
+  //                     fontSize: 16,
+  //                     fontFamily: 'Montserrat',
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                   textAlign: TextAlign.start,
+  //                 ),
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Nama : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 15,
+  //                   ),
+  //                   Text(
+  //                     // username,
+  //                     customer[position].namaSales,
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Jabatan : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 2,
+  //                   ),
+  //                   Text(
+  //                     // role,
+  //                     customer[position].jabatanSales,
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Telp : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 29,
+  //                   ),
+  //                   Text(
+  //                     '021-4610154',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Fax : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 34,
+  //                   ),
+  //                   Text(
+  //                     '021-4610151-52',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Alamat : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 7,
+  //                   ),
+  //                   Expanded(
+  //                     child: Text(
+  //                       'Jl. Rawa Kepiting No. 4 Kawasan Industri Pulogadung, Jakarta Timur',
+  //                       overflow: TextOverflow.fade,
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 10,
+  //               ),
+  //               Container(
+  //                 padding: EdgeInsets.symmetric(
+  //                   horizontal: 20,
+  //                   vertical: 8,
+  //                 ),
+  //                 child: Text(
+  //                   'Pihak Kedua',
+  //                   style: TextStyle(
+  //                     fontSize: 16,
+  //                     fontFamily: 'Montserrat',
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                   textAlign: TextAlign.start,
+  //                 ),
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Nama : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 15,
+  //                   ),
+  //                   Text(
+  //                     customer[position].nama,
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Jabatan : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 2,
+  //                   ),
+  //                   Text(
+  //                     'Owner',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Telp : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 29,
+  //                   ),
+  //                   Text(
+  //                     customer[position].noTlp,
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Fax : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 34,
+  //                   ),
+  //                   Text(
+  //                     customer[position].fax.isEmpty
+  //                         ? '-'
+  //                         : customer[position].fax,
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   Text(
+  //                     'Alamat : ',
+  //                     style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontFamily: 'Montserrat',
+  //                         fontWeight: FontWeight.w500),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 7,
+  //                   ),
+  //                   Expanded(
+  //                     child: Text(
+  //                       customer[position].alamat,
+  //                       overflow: TextOverflow.fade,
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 15,
+  //               ),
+  //               Container(
+  //                 padding: EdgeInsets.symmetric(
+  //                   horizontal: 20,
+  //                   vertical: 8,
+  //                 ),
+  //                 child: Text(
+  //                   'Target Pembelian yang disepakati : ',
+  //                   style: TextStyle(
+  //                       fontSize: 16,
+  //                       fontFamily: 'Montserrat',
+  //                       fontWeight: FontWeight.w600),
+  //                 ),
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Target Lensa Nikon : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       convertToIdr(int.parse(tpNikon), 0),
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Target Lensa Leinz : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       convertToIdr(int.parse(tpLeinz), 0),
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Target Lensa Oriental : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       convertToIdr(int.parse(tpOriental), 0),
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Target Lensa Moe : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       convertToIdr(int.parse(tpMoe), 0),
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 15,
+  //               ),
+  //               Container(
+  //                 padding: EdgeInsets.symmetric(
+  //                   horizontal: 20,
+  //                   vertical: 8,
+  //                 ),
+  //                 child: Text(
+  //                   'Jangka waktu pembayaran : ',
+  //                   style: TextStyle(
+  //                     fontSize: 16,
+  //                     fontFamily: 'Montserrat',
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                 ),
+  //               ),
+  //               SizedBox(
+  //                 height: 8,
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Jangka Waktu Nikon : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       pembNikon,
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Jangka Waktu Leinz : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       pembLeinz,
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Jangka Waktu Oriental : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       pembOriental,
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 20,
+  //                   ),
+  //                   SizedBox(
+  //                     width: 180,
+  //                     child: Text(
+  //                       'Jangka Waktu Moe : ',
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       pembMoe,
+  //                       style: TextStyle(
+  //                           fontSize: 14,
+  //                           fontFamily: 'Montserrat',
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 20,
+  //               ),
+  //               Container(
+  //                 padding: EdgeInsets.symmetric(
+  //                   horizontal: 20,
+  //                   vertical: 8,
+  //                 ),
+  //                 child: Text(
+  //                   'Terhitung sejak tanggal : $tglKontrak',
+  //                   style: TextStyle(
+  //                       fontSize: 16,
+  //                       fontFamily: 'Montserrat',
+  //                       fontWeight: FontWeight.w600),
+  //                 ),
+  //               ),
+  //               SizedBox(
+  //                 height: 20,
+  //               ),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Container(
+  //                     padding: EdgeInsets.symmetric(
+  //                       horizontal: 20,
+  //                       vertical: 5,
+  //                     ),
+  //                     alignment: Alignment.centerRight,
+  //                     child: ArgonButton(
+  //                       height: 40,
+  //                       width: 100,
+  //                       borderRadius: 30.0,
+  //                       color: Colors.red[700],
+  //                       child: Text(
+  //                         "Reject",
+  //                         style: TextStyle(
+  //                             color: Colors.white,
+  //                             fontSize: 14,
+  //                             fontWeight: FontWeight.w700),
+  //                       ),
+  //                       loader: Container(
+  //                         padding: EdgeInsets.all(8),
+  //                         child: CircularProgressIndicator(
+  //                           color: Colors.white,
+  //                         ),
+  //                       ),
+  //                       onTap: (startLoading, stopLoading, btnState) {
+  //                         if (btnState == ButtonState.Idle) {
+  //                           setState(() {
+  //                             startLoading();
+  //                             waitingLoad();
+  //                             divisi == "AR"
+  //                             ? rejectCustomer(true, customer[position].id, ttdPertama,)
+  //                             : rejectCustomer(false, customer[position].id, ttdPertama,);
+  //                           });
+  //                         }
+  //                       },
+  //                     ),
+  //                   ),
+  //                   Container(
+  //                     padding: EdgeInsets.symmetric(
+  //                       horizontal: 20,
+  //                       vertical: 5,
+  //                     ),
+  //                     alignment: Alignment.centerRight,
+  //                     child: ArgonButton(
+  //                       height: 40,
+  //                       width: 100,
+  //                       borderRadius: 30.0,
+  //                       color: Colors.blue[600],
+  //                       child: Text(
+  //                         "Approve",
+  //                         style: TextStyle(
+  //                             color: Colors.white,
+  //                             fontSize: 14,
+  //                             fontWeight: FontWeight.w700),
+  //                       ),
+  //                       loader: Container(
+  //                         padding: EdgeInsets.all(8),
+  //                         child: CircularProgressIndicator(
+  //                           color: Colors.white,
+  //                         ),
+  //                       ),
+  //                       onTap: (startLoading, stopLoading, btnState) {
+  //                         if (btnState == ButtonState.Idle) {
+  //                           setState(() {
+  //                             startLoading();
+  //                             waitingLoad();
+  //                             divisi == "AR"
+  //                                 ? approveCustomer(
+  //                                     true, customer[position].id, ttdPertama,)
+  //                                 : approveCustomer(
+  //                                     false, customer[position].id, ttdPertama,);
+  //                           });
+  //                         }
+  //                       },
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(
+  //                 height: 10,
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       });
+  //     },
+  //   );
+  // }
+
+  formContract(Contract item) {
     return showModalBottomSheet(
       elevation: 2,
       backgroundColor: Colors.white,
@@ -456,7 +1205,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       width: 15,
                     ),
                     Text(
-                      username,
+                      // username,
+                      item.namaPertama,
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Montserrat',
@@ -484,7 +1234,9 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       width: 2,
                     ),
                     Text(
-                      role,
+                      // role,
+                      // customer[position].jabatanSales,
+                      item.jabatanPertama,
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Montserrat',
@@ -614,7 +1366,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       width: 15,
                     ),
                     Text(
-                      customer[position].nama,
+                      // customer[position].nama,
+                      item.namaKedua,
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Montserrat',
@@ -670,7 +1423,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       width: 29,
                     ),
                     Text(
-                      customer[position].noTlp,
+                      // customer[position].noTlp,
+                      item.telpKedua,
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Montserrat',
@@ -698,9 +1452,10 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       width: 34,
                     ),
                     Text(
-                      customer[position].fax.isEmpty
+                      // customer[position].fax.isEmpty
+                      item.faxKedua.isNotEmpty
                           ? '-'
-                          : customer[position].fax,
+                          : item.faxKedua,
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Montserrat',
@@ -729,7 +1484,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     ),
                     Expanded(
                       child: Text(
-                        customer[position].alamat,
+                        // customer[position].alamat,
+                        item.alamatKedua,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
                             fontSize: 14,
@@ -774,7 +1530,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        convertToIdr(int.parse(tpNikon), 0),
+                        // convertToIdr(int.parse(tpNikon), 0),
+                        convertToIdr(int.parse(item.tpNikon), 0),
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -802,7 +1559,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        convertToIdr(int.parse(tpLeinz), 0),
+                        // convertToIdr(int.parse(tpLeinz), 0),
+                        convertToIdr(int.parse(item.tpLeinz), 0),
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -830,7 +1588,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        convertToIdr(int.parse(tpOriental), 0),
+                        // convertToIdr(int.parse(tpOriental), 0),
+                        convertToIdr(int.parse(item.tpOriental), 0),
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -858,7 +1617,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        convertToIdr(int.parse(tpMoe), 0),
+                        // convertToIdr(int.parse(tpMoe), 0),
+                        convertToIdr(int.parse(item.tpMoe), 0),
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -906,7 +1666,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        pembNikon,
+                        // pembNikon,
+                        item.pembNikon,
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -934,7 +1695,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        pembLeinz,
+                        // pembLeinz,
+                        item.pembLeinz,
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -962,7 +1724,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        pembOriental,
+                        // pembOriental,
+                        item.pembOriental,
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -990,7 +1753,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        pembMoe,
+                        // pembMoe,
+                        item.pembMoe,
                         style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'Montserrat',
@@ -1007,12 +1771,27 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     horizontal: 20,
                     vertical: 8,
                   ),
-                  child: Text(
-                    'Terhitung sejak tanggal : $tglKontrak',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Terhitung sejak tanggal : ${convertDateIndo(item.startContract)}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        'Berakhir pada tanggal : ${convertDateIndo(item.endContract)}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -1052,8 +1831,10 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                               startLoading();
                               waitingLoad();
                               divisi == "AR"
-                              ? rejectCustomer(true, customer[position].id, ttdPertama,)
-                              : rejectCustomer(false, customer[position].id, ttdPertama,);
+                              // ? rejectCustomer(true, customer[position].id, ttdPertama,)
+                              // : rejectCustomer(false, customer[position].id, ttdPertama,);
+                              ? rejectCustomer(true, item.idCustomer, ttdPertama,)
+                              : rejectCustomer(false, item.idCustomer, ttdPertama,);
                             });
                           }
                         },
@@ -1089,10 +1870,14 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                               startLoading();
                               waitingLoad();
                               divisi == "AR"
+                                  // ? approveCustomer(
+                                  //     true, customer[position].id, ttdPertama,)
+                                  // : approveCustomer(
+                                  //     false, customer[position].id, ttdPertama,);
                                   ? approveCustomer(
-                                      true, customer[position].id, ttdPertama,)
+                                      true, item.idCustomer, ttdPertama,)
                                   : approveCustomer(
-                                      false, customer[position].id, ttdPertama,);
+                                      false, item.idCustomer, ttdPertama,);
                             });
                           }
                         },

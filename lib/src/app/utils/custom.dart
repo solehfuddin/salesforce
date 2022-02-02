@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
+import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 import 'package:intl/intl.dart';
@@ -27,23 +28,35 @@ login(String user, String pass, BuildContext context) async {
   var data = json.decode(response.body);
   final bool sts = data['status'];
   final String msg = data['message'];
+  final int code = response.statusCode;
 
-  if (sts) {
-    final String id = data['data']['id'];
-    final String name = data['data']['name'];
-    final String username = data['data']['username'];
-    final String accstatus = data['data']['status'];
-    final String role = data['data']['role'];
-    final String divisi = data['data']['divisi'];
+  if (code == 200) {
+    if (sts) {
+      final String id = data['data']['id'];
+      final String name = data['data']['name'];
+      final String username = data['data']['username'];
+      final String accstatus = data['data']['status'];
+      final String role = data['data']['role'];
+      final String divisi = data['data']['divisi'];
 
-    savePref(id, name, username, accstatus, role, divisi);
+      savePref(id, name, username, accstatus, role, divisi);
 
-    if (role == 'admin') {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminScreen()));
+      if (role == 'admin') {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => AdminScreen()));
+      } else {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => HomeScreen()));
+      }
     } else {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomeScreen()));
+      Fluttertoast.showToast(
+          msg: msg,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16);
     }
   } else {
     Fluttertoast.showToast(
@@ -286,6 +299,645 @@ handleStatus(BuildContext context, String msg, bool status) {
   );
 
   showDialog(context: context, builder: (context) => alert);
+}
+
+viewDetailContract(BuildContext context, List<Customer> customer, int position,
+    String username, String role) {
+  return showModalBottomSheet(
+    elevation: 2,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(15),
+        topRight: Radius.circular(15),
+      ),
+    ),
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+          builder: (BuildContext context, StateSetter modalState) {
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                  top: 35,
+                  bottom: 15,
+                ),
+                child: Center(
+                  child: Text(
+                    'Perjanjian Kerjasama Pembelian',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Segoe ui',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Text(
+                  'Pihak Pertama',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Nama : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    username,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Jabatan : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Text(
+                    role,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Telp : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 29,
+                  ),
+                  Text(
+                    '021-4610154',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Fax : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 34,
+                  ),
+                  Text(
+                    '021-4610151-52',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Alamat : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Expanded(
+                    child: Text(
+                      'Jl. Rawa Kepiting No. 4 Kawasan Industri Pulogadung, Jakarta Timur',
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Text(
+                  'Pihak Kedua',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Nama : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    customer[position].nama,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Jabatan : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Text(
+                    'Owner',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Telp : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 29,
+                  ),
+                  Text(
+                    customer[position].noTlp,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Fax : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 34,
+                  ),
+                  Text(
+                    customer[position].fax.isEmpty
+                        ? '-'
+                        : customer[position].fax,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Alamat : ',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Expanded(
+                    child: Text(
+                      customer[position].alamat,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Text(
+                  'Target Pembelian yang disepakati : ',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600),
+                ),
+              ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Target Lensa Nikon : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         convertToIdr(int.parse(tpNikon), 0),
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Target Lensa Leinz : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         convertToIdr(int.parse(tpLeinz), 0),
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Target Lensa Oriental : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         convertToIdr(int.parse(tpOriental), 0),
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Target Lensa Moe : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         convertToIdr(int.parse(tpMoe), 0),
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // SizedBox(
+              //   height: 15,
+              // ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(
+              //     horizontal: 20,
+              //     vertical: 8,
+              //   ),
+              //   child: Text(
+              //     'Jangka waktu pembayaran : ',
+              //     style: TextStyle(
+              //       fontSize: 16,
+              //       fontFamily: 'Montserrat',
+              //       fontWeight: FontWeight.w600,
+              //     ),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 8,
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Jangka Waktu Nikon : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         pembNikon,
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Jangka Waktu Leinz : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         pembLeinz,
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Jangka Waktu Oriental : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         pembOriental,
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     SizedBox(
+              //       width: 20,
+              //     ),
+              //     SizedBox(
+              //       width: 180,
+              //       child: Text(
+              //         'Jangka Waktu Moe : ',
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w500),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       flex: 1,
+              //       child: Text(
+              //         pembMoe,
+              //         style: TextStyle(
+              //             fontSize: 14,
+              //             fontFamily: 'Montserrat',
+              //             fontWeight: FontWeight.w600),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // SizedBox(
+              //   height: 20,
+              // ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(
+              //     horizontal: 20,
+              //     vertical: 8,
+              //   ),
+              //   child: Text(
+              //     'Terhitung sejak tanggal : $tglKontrak',
+              //     style: TextStyle(
+              //         fontSize: 16,
+              //         fontFamily: 'Montserrat',
+              //         fontWeight: FontWeight.w600),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 20,
+              // ),
+            ],
+          ),
+        );
+      });
+    },
+  );
 }
 
 Future<String> getTtdValid(String idUser, BuildContext context) async {

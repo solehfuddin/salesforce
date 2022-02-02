@@ -249,101 +249,104 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Widget listViewWidget(List<Monitoring> item, int len) {
-    return Container(
-      child: ListView.builder(
-          itemCount: len,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 15,
-          ),
-          itemBuilder: (context, position) {
-            return Container(
-              margin: EdgeInsets.symmetric(vertical: 7,),
-              padding: EdgeInsets.all(
-                15,
-              ),
-              height: 110,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                  color: Colors.black26,
+    return InkWell(
+      child: Container(
+        child: ListView.builder(
+            itemCount: len,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 5,
+              vertical: 15,
+            ),
+            itemBuilder: (context, position) {
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: 7,),
+                padding: EdgeInsets.all(
+                  15,
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item[position].namaUsaha,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'Segoe Ui',
-                      fontWeight: FontWeight.w600,
+                height: 110,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.black26,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item[position].namaUsaha,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Segoe Ui',
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Status',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[800],
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Status',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[800],
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 2,
-                          ),
-                          Text(
-                            'Active',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Segoe Ui',
-                              fontWeight: FontWeight.w600,
-                              color: Colors.orange[800],
+                            SizedBox(
+                              height: 2,
                             ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'End Contract',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[800],
+                            Text(
+                              'Active',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Segoe Ui',
+                                fontWeight: FontWeight.w600,
+                                color: Colors.orange[800],
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 2,
-                          ),
-                          Text(
-                            convertDateIndo(item[position].endDateContract),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Segoe Ui',
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black54,
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'End Contract',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[800],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            Text(
+                              convertDateIndo(item[position].endDateContract),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Segoe Ui',
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+      ),
+      // onTap: viewDetailContract(context, ),
     );
   }
 }
