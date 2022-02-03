@@ -337,7 +337,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Alias: ${item.proddiv.alias}");
           debugPrint("Diskon: ${item.proddiv.diskon}");
           debugPrint("Is Checked : ${item.proddiv.ischecked}");
-          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon);
+          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon, item.proddiv.alias);
         }
       }
     } else {
@@ -366,7 +366,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
-  postMultiDiv(String idCust, String proddiv, String diskon) async {
+  postMultiDiv(String idCust, String proddiv, String diskon, String alias) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
     var response = await http.post(
@@ -375,6 +375,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
         'id_customer': idCust,
         'prod_div[]': proddiv,
         'discount[]': diskon,
+        'prodcat_description[]' : alias,
       },
     );
 

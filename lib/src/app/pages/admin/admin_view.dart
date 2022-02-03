@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
-import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
+import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -16,8 +17,10 @@ String id = '';
 String role = '';
 String username = '';
 String divisi = '';
+String ttdPertama;
 String userUpper = '';
 var ttd;
+Contract itemContract;
 
 class AdminScreen extends StatefulWidget {
   @override
@@ -48,7 +51,23 @@ class _AdminScreenState extends State<AdminScreen> {
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
 
       checkSigned();
+      getTtd(int.parse(id));
     });
+  }
+
+  getTtd(int input) async {
+    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      ttdPertama = data['data'][0]['ttd'];
+      print(ttdPertama);
+    }
   }
 
   checkSigned() async {
@@ -57,6 +76,30 @@ class _AdminScreenState extends State<AdminScreen> {
     if (ttd == null) {
       handleSigned(context);
     }
+  }
+
+  getCustomerContract(int idCust) async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      itemContract = Contract.fromJson(rest[0]);
+
+      openDialog();
+    }
+  }
+
+  openDialog() async {
+    await formContract(itemContract, divisi);
+    setState((){});
   }
 
   Future<List<Monitoring>> getMonitoringData() async {
@@ -110,10 +153,10 @@ class _AdminScreenState extends State<AdminScreen> {
     final bool sts = data['status'];
 
     if (sts) {
-      totalApproved = data['count'];
-      print('Approve : $totalApproved');
-
-      setState(() {});
+      setState(() {
+        totalApproved = data['count'];
+        print('Approve : $totalApproved');
+      });
     }
   }
 
@@ -128,10 +171,10 @@ class _AdminScreenState extends State<AdminScreen> {
     final bool sts = data['status'];
 
     if (sts) {
-      totalRejected = data['count'];
-      print('Rejected : $totalRejected');
-
-      setState(() {});
+      setState(() {
+        totalRejected = data['count'];
+        print('Rejected : $totalRejected');
+      });
     }
   }
 
@@ -248,17 +291,34 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
+  formContract(Contract item, String div) {
+    return showModalBottomSheet(
+        elevation: 2,
+        backgroundColor: Colors.white,
+        isScrollControlled: true,
+        context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(15),
+            topRight: Radius.circular(15),
+          ),
+        ),
+        builder: (context) {
+          return DetailContract(item, div, ttdPertama, username, true);
+        });
+  }
+
   Widget listViewWidget(List<Monitoring> item, int len) {
-    return InkWell(
-      child: Container(
-        child: ListView.builder(
-            itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 15,
-            ),
-            itemBuilder: (context, position) {
-              return Container(
+    return Container(
+      child: ListView.builder(
+          itemCount: len,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 15,
+          ),
+          itemBuilder: (context, position) {
+            return InkWell(
+              child: Container(
                 margin: EdgeInsets.symmetric(vertical: 7,),
                 padding: EdgeInsets.all(
                   15,
@@ -343,10 +403,14 @@ class _AdminScreenState extends State<AdminScreen> {
                     ),
                   ],
                 ),
-              );
-            }),
-      ),
-      // onTap: viewDetailContract(context, ),
+              ),
+              onTap: () {
+                setState(() {
+                  getCustomerContract(int.parse(item[position].idCustomer));
+                });
+              },
+            );
+          }),
     );
   }
 }
