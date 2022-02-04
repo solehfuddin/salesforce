@@ -1642,7 +1642,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          // return customProduct(itemProduct);
                           return customProduct();
                         });
                   },
