@@ -7,18 +7,9 @@ import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
-import 'package:sample/src/domain/entities/contract.dart';
+import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
-String id = '';
-String role = '';
-String username = '';
-String divisi = '';
-String ttdPertama;
-String userUpper = '';
-var ttd;
-Contract itemContract;
 
 class AdminScreen extends StatefulWidget {
   @override
@@ -26,9 +17,17 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  String id = '';
+  String role = '';
+  String username = '';
+  String divisi = '';
+  String ttdPertama;
+  String userUpper = '';
+  bool _isLoading = true;
   int totalWaiting = 0;
   int totalApproved = 0;
   int totalRejected = 0;
+  List<Monitoring> listMonitoring = List.empty(growable: true);
 
   @override
   void initState() {
@@ -50,6 +49,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
       checkSigned();
       getTtd(int.parse(id));
+      getMonitoringData();
     });
   }
 
@@ -131,6 +131,45 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
+  getMonitoringData() async {
+    _isLoading = true;
+
+    await Future.delayed(Duration(seconds: 1));
+    if (listMonitoring.length > 0) listMonitoring.clear();
+
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      listMonitoring =
+          rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
+      print("List Size: ${listMonitoring.length}");
+    }
+
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
+      getMonitoringData();
+      getApprovedData();
+      getRejectedData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -138,15 +177,26 @@ class _AdminScreenState extends State<AdminScreen> {
       home: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(),
-        body: CustomScrollView(
-          physics: ClampingScrollPhysics(),
-          slivers: [
-            areaHeader(screenHeight, userUpper, context),
-            areaCounter(totalWaiting.toString(), totalApproved.toString(),
-                totalRejected.toString(), context),
-            areaMonitoring(400),
-            areaFeature(screenHeight, context),
-          ],
+        body: RefreshIndicator(
+          child: CustomScrollView(
+            physics: ClampingScrollPhysics(),
+            slivers: [
+              areaHeader(screenHeight, userUpper, context),
+              areaCounter(totalWaiting.toString(), totalApproved.toString(),
+                  totalRejected.toString(), context),
+              areaHeaderMonitoring(),
+              _isLoading
+                  ? areaLoading()
+                  : listMonitoring.length > 0
+                      ? areaMonitoring(
+                          listMonitoring, context, ttdPertama, username, divisi)
+                      : areaMonitoringNotFound(context),
+              areaButtonMonitoring(
+                  context, listMonitoring.length > 0 ? true : false),
+              areaFeature(screenHeight, context),
+            ],
+          ),
+          onRefresh: _refreshData,
         ),
       ),
       debugShowCheckedModeBanner: false,

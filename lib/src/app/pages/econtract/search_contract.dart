@@ -122,9 +122,18 @@ class _SearchContractState extends State<SearchContract> {
     setState((){});
   }
 
+  Future<void> _refreshData() async{
+    setState(() {
+      search.isNotEmpty
+                      ? getMonitoringBySearch(search)
+                      : getMonitoringData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
@@ -245,108 +254,114 @@ class _SearchContractState extends State<SearchContract> {
   }
 
   Widget listViewWidget(List<Monitoring> item, int len) {
-    return Container(
-      child: ListView.builder(
-          itemCount: len,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 15,
-          ),
-          itemBuilder: (context, position) {
-            return InkWell(
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 7,),
-                padding: EdgeInsets.all(
-                  15,
-                ),
-                height: 110,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: Colors.black26,
+    return RefreshIndicator(
+      child: Container(
+        child: ListView.builder(
+            itemCount: len,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 5,
+              vertical: 15,
+            ),
+            shrinkWrap: true,
+            itemBuilder: (context, position) {
+              return InkWell(
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 7,),
+                  padding: EdgeInsets.all(
+                    15,
+                  ),
+                  height: 110,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: Colors.black26,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item[position].namaUsaha,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Segoe Ui',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Status',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              Text(
+                                // 'Active',
+                                capitalize(
+                                        item[position].status.toLowerCase()),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'Segoe Ui',
+                                  fontWeight: FontWeight.w600,
+                                  color: item[position].status == "ACTIVE" ?  Colors.orange[800] : Colors.red[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'End Contract',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              Text(
+                                convertDateIndo(item[position].endDateContract),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'Segoe Ui',
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item[position].namaUsaha,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Segoe Ui',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Status',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            Text(
-                              'Active',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'Segoe Ui',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.orange[800],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'End Contract',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            Text(
-                              convertDateIndo(item[position].endDateContract),
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'Segoe Ui',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              onTap: () {
-                item[position].idCustomer != null ?
-                getCustomerContract(int.parse(item[position].idCustomer))
-                : handleStatus(context, 'Id customer tidak ditemukan', false) ;
-              },
-            );
-          }),
+                onTap: () {
+                  item[position].idCustomer != null ?
+                  getCustomerContract(int.parse(item[position].idCustomer))
+                  : handleStatus(context, 'Id customer tidak ditemukan', false) ;
+                },
+              );
+            }),
+      ),
+      onRefresh: _refreshData,
     );
   }
 }

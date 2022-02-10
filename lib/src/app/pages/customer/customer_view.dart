@@ -89,6 +89,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
     return list;
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      search.isNotEmpty
+                      ? getCustomerBySeach(search)
+                      : getCustomerById(widget.idOuter);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,148 +203,151 @@ class _CustomerScreenState extends State<CustomerScreen> {
   }
 
   Widget listViewWidget(List<Customer> customer, int len) {
-    return Container(
-      child: ListView.builder(
-          itemCount: len,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 8,
-          ),
-          itemBuilder: (context, position) {
-            return Card(
-              elevation: 2,
-              child: ClipPath(
-                child: InkWell(
-                  child: Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                            color: customer[position].status == "Pending"
-                                ? Colors.grey[600]
-                                : customer[position].status == "Accepted"
-                                    ? Colors.blue[600]
-                                    : Colors.red[600],
-                            width: 5),
-                      ),
-                    ),
+    return RefreshIndicator(
+      child: Container(
+        child: ListView.builder(
+            itemCount: len,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 5,
+              vertical: 8,
+            ),
+            itemBuilder: (context, position) {
+              return Card(
+                elevation: 2,
+                child: ClipPath(
+                  child: InkWell(
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                customer[position].namaUsaha,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Segoe ui',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Tgl entry : ',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  SizedBox(
-                                    width: 40,
-                                  ),
-                                  Text(
-                                    'Pemilik : ',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    convertDateIndo(
-                                        customer[position].dateAdded),
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  SizedBox(
-                                    width: 25,
-                                  ),
-                                  Text(
-                                    customer[position].nama,
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 5,
-                              horizontal: 10,
-                            ),
-                            decoration: BoxDecoration(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(
                               color: customer[position].status == "Pending"
                                   ? Colors.grey[600]
                                   : customer[position].status == "Accepted"
                                       ? Colors.blue[600]
                                       : Colors.red[600],
-                              borderRadius: BorderRadius.circular(10),
+                              width: 5),
+                        ),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  customer[position].namaUsaha,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Segoe ui',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Tgl entry : ',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    SizedBox(
+                                      width: 40,
+                                    ),
+                                    Text(
+                                      'Pemilik : ',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      convertDateIndo(
+                                          customer[position].dateAdded),
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    SizedBox(
+                                      width: 25,
+                                    ),
+                                    Text(
+                                      customer[position].nama,
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              customer[position].status,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Segoe ui',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 5,
+                                horizontal: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: customer[position].status == "Pending"
+                                    ? Colors.grey[600]
+                                    : customer[position].status == "Accepted"
+                                        ? Colors.blue[600]
+                                        : Colors.red[600],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                customer[position].status,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Segoe ui',
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                    onTap: () {
+                      customer[position].econtract == "0"
+                          ? Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      EcontractScreen(customer, position)))
+                          : formWaiting(customer, position);
+                    },
                   ),
-                  onTap: () {
-                    customer[position].econtract == "0"
-                        ? Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    EcontractScreen(customer, position)))
-                        : formWaiting(customer, position);
-                  },
-                ),
-                clipper: ShapeBorderClipper(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3),
+                  clipper: ShapeBorderClipper(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3),
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
+      onRefresh: _refreshData,
     );
   }
 

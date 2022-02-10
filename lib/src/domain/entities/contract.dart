@@ -1,7 +1,7 @@
 class Contract {
   String idContract, idCustomer, namaPertama, jabatanPertama, alamatPertama, telpPertama, faxPertama,
   namaKedua, jabatanKedua, alamatKedua, telpKedua, faxKedua, tpNikon, tpLeinz, tpOriental, tpMoe, 
-  pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract;
+  pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, status;
 
   Contract.fromJson(Map json):
     idContract = json['id'],
@@ -25,7 +25,8 @@ class Contract {
     pembOriental = json['pembayaran_oriental'],
     pembMoe = json['pembayaran_moe'],
     startContract = json['start_contract'],
-    endContract = json['end_contract'];
+    endContract = json['end_contract'],
+    status = json['status'];
 
   Contract(
     this.idContract,
@@ -49,7 +50,8 @@ class Contract {
     this.pembOriental,
     this.pembMoe,
     this.startContract,
-    this.endContract
+    this.endContract,
+    this.status
   );
 
   factory Contract.singleJson(dynamic json){
@@ -75,7 +77,8 @@ class Contract {
       json['pembayaran_oriental'] as String,
       json['pembayaran_moe'] as String,
       json['start_contract'] as String,
-      json['end_contract'] as String
+      json['end_contract'] as String,
+      json['status'] as String
     );
   }
 }

@@ -106,6 +106,14 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     setState((){});
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      divisi == "AR"
+                      ? getCustomerData(true)
+                      : getCustomerData(false);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,137 +195,140 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
   }
 
   Widget listViewWidget(List<Customer> customer, int len) {
-    return Container(
-      child: ListView.builder(
-          itemCount: len,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 8,
-          ),
-          itemBuilder: (context, position) {
-            return Card(
-              elevation: 2,
-              child: ClipPath(
-                child: InkWell(
-                  child: Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(color: Colors.grey[600], width: 5),
-                      ),
-                    ),
+    return RefreshIndicator(
+      child: Container(
+        child: ListView.builder(
+            itemCount: len,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 5,
+              vertical: 8,
+            ),
+            itemBuilder: (context, position) {
+              return Card(
+                elevation: 2,
+                child: ClipPath(
+                  child: InkWell(
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 8,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: Colors.grey[600], width: 5),
+                        ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                customer[position].namaUsaha,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  customer[position].namaUsaha,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Segoe ui',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Tgl entry : ',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    SizedBox(
+                                      width: 40,
+                                    ),
+                                    Text(
+                                      'Pemilik : ',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      convertDateIndo(
+                                          customer[position].dateAdded),
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    SizedBox(
+                                      width: 25,
+                                    ),
+                                    Text(
+                                      customer[position].nama,
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 5,
+                                horizontal: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.teal[400],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                customer[position].namaSalesman.length > 0
+                                    ? capitalize(customer[position].namaSalesman)
+                                    : 'Admin',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 12,
                                   fontFamily: 'Segoe ui',
                                   fontWeight: FontWeight.w600,
+                                  color: Colors.white,
                                 ),
                               ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Tgl entry : ',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  SizedBox(
-                                    width: 40,
-                                  ),
-                                  Text(
-                                    'Pemilik : ',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    convertDateIndo(
-                                        customer[position].dateAdded),
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  SizedBox(
-                                    width: 25,
-                                  ),
-                                  Text(
-                                    customer[position].nama,
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 5,
-                              horizontal: 10,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.teal[400],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              customer[position].namaSalesman.length > 0
-                                  ? capitalize(customer[position].namaSalesman)
-                                  : 'Admin',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Segoe ui',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                    onTap: () {
+                      setState(() {
+                        getCustomerContract(int.parse(customer[position].id));
+                      });
+                    },
                   ),
-                  onTap: () {
-                    setState(() {
-                      getCustomerContract(int.parse(customer[position].id));
-                    });
-                  },
-                ),
-                clipper: ShapeBorderClipper(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3),
+                  clipper: ShapeBorderClipper(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3),
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
+      onRefresh: _refreshData,
     );
   }
 
