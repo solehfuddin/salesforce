@@ -22,6 +22,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
   String username = '';
   String search = '';
   var thisYear, nextYear;
+  int _count = 10;
+  List<Customer> customerList = List.empty(growable: true);
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -45,10 +47,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
   void initState() {
     super.initState();
     getRole();
+    getCustomerById(widget.idOuter);
   }
 
-  Future<List<Customer>> getCustomerById(int input) async {
-    List<Customer> list;
+  getCustomerById(int input) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/customers/getBySales?created_by=$input';
     var response = await http.get(url);
@@ -61,15 +63,32 @@ class _CustomerScreenState extends State<CustomerScreen> {
     if (sts) {
       var rest = data['data'];
       print(rest);
-      list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      customerList =
+          rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+      print("List Size: ${customerList.length}");
+    }
+  }
+
+  Future<List<Customer>> getCustomerByIdLimit(int count) async {
+    return Future.delayed(Duration(seconds: 3), () => getData(customerList));
+  }
+
+  List<Customer> getData(List<Customer> item) {
+    List<Customer> local = List.empty(growable: true);
+
+    for (int i = 0; i < item.length; i++) {
+      if (i < _count) {
+        local.add(item[i]);
+      }
     }
 
-    return list;
+    print('Lokal size : ${local.length}');
+    return local.toList();
   }
 
   Future<List<Customer>> getCustomerBySeach(String input) async {
     List<Customer> list;
+
     var url =
         'http://timurrayalab.com/salesforce/server/api/customers/search?search=$input';
     var response = await http.get(url);
@@ -91,9 +110,10 @@ class _CustomerScreenState extends State<CustomerScreen> {
 
   Future<void> _refreshData() async {
     setState(() {
+      _count = 10;
       search.isNotEmpty
-                      ? getCustomerBySeach(search)
-                      : getCustomerById(widget.idOuter);
+          ? getCustomerBySeach(search)
+          : getCustomerByIdLimit(_count);
     });
   }
 
@@ -164,16 +184,28 @@ class _CustomerScreenState extends State<CustomerScreen> {
               child: FutureBuilder(
                   future: search.isNotEmpty
                       ? getCustomerBySeach(search)
-                      : getCustomerById(widget.idOuter),
+                      : getCustomerByIdLimit(_count),
                   builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return snapshot.data != null
-                            ? listViewWidget(
-                                snapshot.data, snapshot.data.length)
-                            : Column(
+                    final data = snapshot.data;
+                    final controller = ScrollController();
+                    controller.addListener(() {
+                      final position = controller.offset /
+                          controller.position.maxScrollExtent;
+                      if (position >= 0.8) {
+                        if (snapshot.data.length == _count &&
+                            _count < customerList.length) {
+                          setState(() {
+                            _count += 5;
+                          });
+                        }
+                      }
+                    });
+                    if (data == null) {
+                      return Center(child: CircularProgressIndicator());
+                    } else {
+                      if (customerList.length < 1)
+                      {
+                        return Column(
                                 children: [
                                   Center(
                                     child: Image.asset(
@@ -193,6 +225,12 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                   )
                                 ],
                               );
+                      }
+                      else
+                      {
+                        return listViewWidget(
+                          snapshot.data, snapshot.data.length, controller);
+                      }
                     }
                   }),
             ),
@@ -202,10 +240,12 @@ class _CustomerScreenState extends State<CustomerScreen> {
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len) {
+  Widget listViewWidget(
+      List<Customer> customer, int len, ScrollController controller) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
+            controller: controller,
             itemCount: len,
             padding: const EdgeInsets.symmetric(
               horizontal: 5,
