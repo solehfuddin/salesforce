@@ -62,10 +62,15 @@ android {
    }
 
     buildTypes {
+        debug {
+            buildConfigField 'boolean', 'UPDATE_ENABLED', 'false'
+        }
+
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             //signingConfig signingConfigs.debug
+            buildConfigField 'boolean', 'UPDATE_ENABLED', 'true'
             signingConfig signingConfigs.release
         }
     }
