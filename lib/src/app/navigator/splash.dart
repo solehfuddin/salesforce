@@ -51,9 +51,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkUpdate() {
-    if(_updateInfo.updateAvailability == UpdateAvailability.updateAvailable)
+    if(_updateInfo.updateAvailable == true)
     {
-      // ignore: invalid_return_type_for_catch_error
       InAppUpdate.performImmediateUpdate().catchError((e) => handleStatus(context, e.toString(), false));
     }
   }
