@@ -1,9 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RejectedScreen extends StatefulWidget {
   @override
@@ -11,10 +15,32 @@ class RejectedScreen extends StatefulWidget {
 }
 
 class _RejectedScreenState extends State<RejectedScreen> {
+  String id = '';
+  String role = '';
+  String username = '';
+  String divisi = '';
+  String ttdPertama;
+  Contract itemContract;
+
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      username = preferences.getString("username");
+      divisi = preferences.getString("divisi");
+
+      getTtd(int.parse(id));
+
+      print("Dashboard : $role");
+    });
+  }
+  
   Future<List<Customer>> getCustomerData(bool isAr) async {
     List<Customer> list;
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/rejected';
+    var url = !isAr
+       ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
+       : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -32,10 +58,50 @@ class _RejectedScreenState extends State<RejectedScreen> {
     return list;
   }
 
+  getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      itemContract = Contract.fromJson(rest[0]);
+      await formRejected(context, listCust, pos, idCust: itemContract.idCustomer, div: divisi, username: username, ttd: ttdPertama);
+      setState((){});
+    }
+  }
+
+  getTtd(int input) async {
+    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      ttdPertama = data['data'][0]['ttd'];
+      print(ttdPertama);
+    }
+  }
+
   Future<void> _refreshData() async {
     setState(() {
-      getCustomerData(false);
+      divisi == "AR" ? getCustomerData(true): getCustomerData(false);
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
   }
 
   @override
@@ -55,7 +121,15 @@ class _RejectedScreenState extends State<RejectedScreen> {
         elevation: 0.0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (role == 'admin') {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => AdminScreen()));
+            } else if (role == 'sales') {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => HomeScreen()));
+            }
+          },
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
@@ -70,7 +144,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
             child: SizedBox(
               height: 100,
               child: FutureBuilder(
-                  future: getCustomerData(false),
+                  future: divisi == "AR" ? getCustomerData(true): getCustomerData(false),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
@@ -233,7 +307,9 @@ class _RejectedScreenState extends State<RejectedScreen> {
                         ),
                       ),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      getCustomerContract(customer, position, int.parse(customer[position].id));
+                    },
                   ),
                   clipper: ShapeBorderClipper(
                     shape: RoundedRectangleBorder(

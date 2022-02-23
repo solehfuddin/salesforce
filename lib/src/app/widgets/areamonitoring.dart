@@ -71,7 +71,7 @@ SliverPadding areaHeaderMonitoring() {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15,
-      vertical: 0,
+      vertical: 5,
     ),
     sliver: SliverToBoxAdapter(
       child: Column(
@@ -79,7 +79,7 @@ SliverPadding areaHeaderMonitoring() {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              'Monitoring Contract',
+              'Kontrak segera berakhir',
               style: TextStyle(
                 fontSize: 23,
                 fontFamily: 'Segoe ui',
@@ -192,7 +192,7 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
                 borderRadius: 30.0,
                 color: Colors.blue[600],
                 child: Text(
-                  "More Data",
+                  "Selengkapnya",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -265,7 +265,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
@@ -286,12 +286,12 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                 ],
               ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'End Contract',
+                    'Sisa Kontrak',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
@@ -301,12 +301,13 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                     height: 2,
                   ),
                   Text(
-                    convertDateIndo(item[index].endDateContract),
+                    // convertDateIndo(item[index].endDateContract),
+                    getEndDays(input: item[index].endDateContract),
                     style: TextStyle(
                       fontSize: 16,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
-                      color: Colors.black54,
+                      color: Colors.red[700],
                     ),
                   ),
                 ],

@@ -19,7 +19,7 @@ SliverToBoxAdapter areaHeader(double screenHeight, String userUpper, BuildContex
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'HI, $userUpper',
+                  'HAI, $userUpper',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 25.0,
@@ -31,7 +31,7 @@ SliverToBoxAdapter areaHeader(double screenHeight, String userUpper, BuildContex
                     handleComing(context);
                   },
                   icon: Icon(Icons.account_circle),
-                  label: Text('Profile'),
+                  label: Text('Profil'),
                   style: ElevatedButton.styleFrom(
                       primary: Colors.blueGrey[600],
                       padding:
@@ -47,8 +47,8 @@ SliverToBoxAdapter areaHeader(double screenHeight, String userUpper, BuildContex
             Column(
               children: [
                 Text(
-                  // 'Digitalisasi data customer, monitoring e-kontrak dan kinerja menjadi lebih mudah dan efisien',
-                  'Digitalize customer data, e-contract monitoring and task more easily and efficient',
+                  'Digitalisasi data customer, monitoring kontrak dan kinerja agar lebih mudah dan efisien',
+                  //'Digitalize customer data, e-contract monitoring and task more easily and efficient',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 15.0,

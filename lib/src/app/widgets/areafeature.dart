@@ -12,7 +12,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Digital signed',
+              'Tanda tangan digital',
               style: TextStyle(
                 fontSize: 23,
                 fontFamily: 'Segoe ui',
@@ -51,14 +51,16 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Set digital signed easily to save your',
+                              // 'Set digital signed easily to save your',
+                              'Tanda tangan digital untuk memudahkan',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
                             Text(
-                              'time when approved new customer',
+                              // 'time when approved new customer',
+                              'proses pengajuan kustomer baru',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Segoe ui',
@@ -82,7 +84,8 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                     ),
                     Center(
                       child: Text(
-                        'View Details',
+                        // 'View Details',
+                        'Selengkapnya',
                         style: TextStyle(
                           color: Colors.blue[700],
                           fontSize: 16,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
+import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 import 'package:intl/intl.dart';
@@ -346,11 +348,676 @@ handleDigitalSigned(
   }
 }
 
+formWaiting(BuildContext context, List<Customer> customer, int position) {
+  return showModalBottomSheet(
+    elevation: 2,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(15),
+        topRight: Radius.circular(15),
+      ),
+    ),
+    context: context,
+    builder: (context) {
+      return Container(
+        padding: EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  customer[position].namaUsaha,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'Segoe ui',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 5,
+                    horizontal: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: customer[position].status == "Pending"
+                        ? Colors.grey[600]
+                        : customer[position].status == "Accepted"
+                            ? Colors.blue[600]
+                            : Colors.red[600],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    customer[position].status,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: 'Segoe ui',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              customer[position].status == "Pending"
+                  ? 'Pengajuan e-kontrak sedang diproses'
+                  : customer[position].status == "Accepted"
+                      ? 'Pengajuan e-kontrak diterima'
+                      : 'Pengajuan e-kontrak ditolak',
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w600,
+                color: customer[position].status == "Pending"
+                    ? Colors.grey[600]
+                    : customer[position].status == "Accepted"
+                        ? Colors.green[600]
+                        : Colors.red[700],
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(
+              height: 3,
+            ),
+            Divider(
+              color: Colors.black54,
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Detail Status',
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                SizedBox(
+                  width: 50,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black54),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'SM',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Sales Manager',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      customer[position].ttdSalesManager == "0"
+                          ? 'Menunggu Persetujuan Sales Manager'
+                          : customer[position].ttdSalesManager == "1"
+                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
+                              : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                SizedBox(
+                  width: 50,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black54),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      'AM',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AR Manager',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      customer[position].ttdArManager == "0"
+                          ? 'Menunggu Persetujuan AR Manager'
+                          : customer[position].ttdArManager == "1"
+                              ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
+                              : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ArgonButton(
+                  height: 40,
+                  width: 120,
+                  borderRadius: 30.0,
+                  color: Colors.blue[700],
+                  child: Text(
+                    "Unduh Data",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  loader: Container(
+                    padding: EdgeInsets.all(8),
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: (startLoading, stopLoading, btnState) {
+                    if (btnState == ButtonState.Idle) {
+                      startLoading();
+                      waitingLoad();
+
+                      // stopLoading();
+                    }
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: StadiumBorder(),
+                    primary: Colors.red[800],
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: Text(
+                    'Tutup',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Segoe ui',
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+approveCustomerReject(BuildContext context, bool isAr, String idCust,
+    String ttd, String username) async {
+  var url = !isAr
+      ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
+      : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
+
+  var response = await http.post(
+    url,
+    body: !isAr
+        ? {
+            'id_customer': idCust,
+            'ttd_sales_manager': ttd,
+            'nama_sales_manager': username,
+          }
+        : {
+            'id_customer': idCust,
+            'ttd_ar_manager': ttd,
+            'nama_ar_manager': username,
+          },
+  );
+
+  print('Response status: ${response.statusCode}');
+  print('Response body: ${response.body}');
+
+  var res = json.decode(response.body);
+  final bool sts = res['status'];
+  final String msg = res['message'];
+
+  handleStatus(context, capitalize(msg), sts);
+}
+
+formRejected(BuildContext context, List<Customer> customer, int position,
+    {String div, ttd, idCust, username}) {
+  return showModalBottomSheet(
+    elevation: 2,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(15),
+        topRight: Radius.circular(15),
+      ),
+    ),
+    context: context,
+    builder: (context) {
+      return Container(
+        padding: EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  customer[position].namaUsaha,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'Segoe ui',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 5,
+                    horizontal: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: customer[position].status == "Pending"
+                        ? Colors.grey[600]
+                        : customer[position].status == "Accepted"
+                            ? Colors.blue[600]
+                            : Colors.red[600],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    customer[position].status,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: 'Segoe ui',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              customer[position].status == "Pending"
+                  ? 'Pengajuan e-kontrak sedang diproses'
+                  : customer[position].status == "Accepted"
+                      ? 'Pengajuan e-kontrak diterima'
+                      : 'Pengajuan e-kontrak ditolak',
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w600,
+                color: customer[position].status == "Pending"
+                    ? Colors.grey[600]
+                    : customer[position].status == "Accepted"
+                        ? Colors.green[600]
+                        : Colors.red[700],
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(
+              height: 3,
+            ),
+            Divider(
+              color: Colors.black54,
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Detail Status',
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Segoe ui',
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                SizedBox(
+                  width: 50,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black54),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'SM',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Sales Manager',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      customer[position].ttdSalesManager == "0"
+                          ? 'Menunggu Persetujuan Sales Manager'
+                          : customer[position].ttdSalesManager == "1"
+                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
+                              : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                SizedBox(
+                  width: 50,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black54),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      'AM',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AR Manager',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      customer[position].ttdArManager == "0"
+                          ? 'Menunggu Persetujuan AR Manager'
+                          : customer[position].ttdArManager == "1"
+                              ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
+                              : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Center(
+              child: Text(
+                'Apakah anda ingin menyetujui kontrak optik ini?',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange[800],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ArgonButton(
+                  height: 40,
+                  width: 100,
+                  borderRadius: 30.0,
+                  color: Colors.blue[700],
+                  child: Text(
+                    "Approve",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  loader: Container(
+                    padding: EdgeInsets.all(8),
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: (startLoading, stopLoading, btnState) {
+                    if (btnState == ButtonState.Idle) {
+                      startLoading();
+                      waitingLoad();
+                      div == "AR"
+                          ? approveCustomerReject(
+                              context, true, idCust, ttd, username)
+                          : approveCustomerReject(
+                              context, false, idCust, ttd, username);
+                      // stopLoading();
+                    }
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: StadiumBorder(),
+                    primary: Colors.red[800],
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: Text(
+                    'Tutup',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Segoe ui',
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 convertDateIndo(String tgl) {
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
   DateTime date = dateFormat.parse(tgl);
 
   return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+}
+
+convertDateWithMonth(String tgl) {
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+  DateTime date = dateFormat.parse(tgl);
+
+  List<String> months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Des'
+  ];
+
+  return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()}";
 }
 
 String convertToIdr(dynamic number, int decimalDigit) {
@@ -360,4 +1027,17 @@ String convertToIdr(dynamic number, int decimalDigit) {
     decimalDigits: decimalDigit,
   );
   return currencyFormatter.format(number);
+}
+
+int counterTwoDays(DateTime from, DateTime to) {
+  from = DateTime(from.year, from.month, from.day);
+  to = DateTime(to.year, to.month, to.day);
+  return (to.difference(from).inHours / 24).round();
+}
+
+String getEndDays({String input}) {
+  DateTime now = DateTime.now();
+  DateTime compare = DateTime.parse(input);
+
+  return '${counterTwoDays(now, compare)} Hari';
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApprovedScreen extends StatefulWidget {
   @override
@@ -11,10 +12,46 @@ class ApprovedScreen extends StatefulWidget {
 }
 
 class _ApprovedScreenState extends State<ApprovedScreen> {
+  String id = '';
+  String role = '';
+  String username = '';
+  String divisi = '';
+  String ttdPertama;
+
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      username = preferences.getString("username");
+      divisi = preferences.getString("divisi");
+
+      getTtd(int.parse(id));
+
+      print("Dashboard : $role");
+    });
+  }
+
+  getTtd(int input) async {
+    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      ttdPertama = data['data'][0]['ttd'];
+      print(ttdPertama);
+    }
+  }
+
   Future<List<Customer>> getCustomerData(bool isAr) async {
     List<Customer> list;
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/approved';
+    var url = !isAr
+       ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
+       : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -34,8 +71,14 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
 
   Future<void> _refreshData() async {
     setState(() {
-      getCustomerData(false);
+      divisi == "AR" ? getCustomerData(true): getCustomerData(false);
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
   }
 
   @override
@@ -72,7 +115,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
             child: SizedBox(
               height: 100,
               child: FutureBuilder(
-                  future: getCustomerData(false),
+                  future: divisi == "AR" ? getCustomerData(true): getCustomerData(false),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
@@ -235,7 +278,9 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                         ),
                       ),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      formWaiting(context, customer, position);
+                    },
                   ),
                   clipper: ShapeBorderClipper(
                     shape: RoundedRectangleBorder(

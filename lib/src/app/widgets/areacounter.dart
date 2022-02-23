@@ -15,7 +15,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Statistics',
+              'Statistik',
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
@@ -43,7 +43,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                         children: [
                           Center(
                             child: Text(
-                              'New Customer',
+                              'Kustomer Baru',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -98,7 +98,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                         children: [
                           Center(
                             child: Text(
-                              'Total Customer',
+                              'Total Kustomer',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -178,7 +178,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                             height: 4,
                           ),
                           Text(
-                            'Waiting',
+                            'Menunggu',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black,
@@ -244,7 +244,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                             height: 4,
                           ),
                           Text(
-                            'Approved',
+                            'Diterima',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black,
@@ -310,7 +310,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                             height: 4,
                           ),
                           Text(
-                            'Rejected',
+                            'Ditolak',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black,
@@ -330,7 +330,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                         ],
                       ),
                     ),
-                    onTap: () => Navigator.of(context).push(
+                    onTap: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) => RejectedScreen(),
                       ),

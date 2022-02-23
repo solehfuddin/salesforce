@@ -27,7 +27,7 @@ SliverToBoxAdapter areaPoint(double screenHeight, BuildContext context) {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Points',
+                            'Poin',
                             style: TextStyle(
                               fontFamily: 'Segoe ui',
                               fontSize: 15,
@@ -79,7 +79,7 @@ SliverToBoxAdapter areaPoint(double screenHeight, BuildContext context) {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Reward',
+                            'Penghargaan',
                             style: TextStyle(
                               fontFamily: 'Segoe ui',
                               fontSize: 15,
@@ -93,7 +93,7 @@ SliverToBoxAdapter areaPoint(double screenHeight, BuildContext context) {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Detail',
+                                'Lebih lanjut',
                                 style: TextStyle(
                                   fontFamily: 'Segoe ui',
                                   fontSize: 17,

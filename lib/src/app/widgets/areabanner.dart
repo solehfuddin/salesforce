@@ -10,7 +10,8 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Get rewarded with Challenges',
+                // 'Get rewarded with Challenges',
+                'Dapatkan hadiah menarik',
                 style: TextStyle(
                   fontSize: 23,
                   fontFamily: 'Segoe ui',
@@ -46,7 +47,7 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Win a Coffe Challenge 5 Customers ..',
+                          'Gratis kopi, misi 5 kustomer baru ..',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -57,7 +58,7 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context) {
                           height: 10,
                         ),
                         Text(
-                          'Ends on 14 Jan 2022',
+                          'Berakhir pada 28 Feb 2022',
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -66,7 +67,7 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context) {
                           height: 10,
                         ),
                         Text(
-                          'Accept this challenge',
+                          'Ikuti misi',
                           style: TextStyle(
                             color: Colors.blue[800],
                             fontSize: 14,

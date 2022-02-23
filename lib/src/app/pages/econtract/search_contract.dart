@@ -326,7 +326,7 @@ class _SearchContractState extends State<SearchContract> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'End Contract',
+                                'Sisa Kontrak',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: 'Montserrat',
@@ -338,12 +338,13 @@ class _SearchContractState extends State<SearchContract> {
                                 height: 2,
                               ),
                               Text(
-                                convertDateIndo(item[position].endDateContract),
+                                // convertDateIndo(item[position].endDateContract),
+                                getEndDays(input: item[position].endDateContract),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black54,
+                                  color: Colors.red[700],
                                 ),
                               ),
                             ],

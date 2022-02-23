@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
+import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
@@ -17,7 +18,8 @@ checkCustomer(String id, BuildContext context) {
       MaterialPageRoute(builder: (context) => CustomerScreen(int.parse(id))));
 }
 
-SliverToBoxAdapter areaMenu(double screenHeight, BuildContext context, String idSales) {
+SliverToBoxAdapter areaMenu(
+    double screenHeight, BuildContext context, String idSales) {
   return SliverToBoxAdapter(
     child: Container(
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
@@ -43,7 +45,7 @@ SliverToBoxAdapter areaMenu(double screenHeight, BuildContext context, String id
                         height: screenHeight * 0.015,
                       ),
                       Text(
-                        'Customer',
+                        'Kustomer',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -71,7 +73,7 @@ SliverToBoxAdapter areaMenu(double screenHeight, BuildContext context, String id
                         height: screenHeight * 0.015,
                       ),
                       Text(
-                        'E-Contract',
+                        'E-Kontrak',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -91,7 +93,7 @@ SliverToBoxAdapter areaMenu(double screenHeight, BuildContext context, String id
                   child: Column(
                     children: [
                       Image.asset(
-                        'assets/images/performance_new.png',
+                        'assets/images/mon_contract.png',
                         width: 50,
                         height: 50,
                       ),
@@ -99,7 +101,7 @@ SliverToBoxAdapter areaMenu(double screenHeight, BuildContext context, String id
                         height: screenHeight * 0.015,
                       ),
                       Text(
-                        'Performance',
+                        'Monitoring',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -111,7 +113,12 @@ SliverToBoxAdapter areaMenu(double screenHeight, BuildContext context, String id
                   ),
                 ),
                 onTap: () {
-                  handleComing(context);
+                  // handleComing(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SearchContract(),
+                    ),
+                  );
                 },
               ),
               GestureDetector(

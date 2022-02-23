@@ -110,7 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
             slivers: [
               areaHeader(screenHeight, userUpper, context),
               areaPoint(screenHeight, context),
-              // _areaMenu(screenHeight),
               areaMenu(screenHeight, context, id),
               areaHeaderMonitoring(),
               _isLoading

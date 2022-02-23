@@ -33,8 +33,6 @@ class _AdminScreenState extends State<AdminScreen> {
   void initState() {
     super.initState();
     getRole();
-    getApprovedData();
-    getRejectedData();
   }
 
   getRole() async {
@@ -46,6 +44,8 @@ class _AdminScreenState extends State<AdminScreen> {
       userUpper = username.toUpperCase();
       divisi = preferences.getString("divisi");
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
+      divisi == "AR" ? getApprovedData(true): getApprovedData(false); 
+      divisi == "AR" ? getRejectedData(true): getRejectedData(false);
 
       checkSigned();
       getTtd(int.parse(id));
@@ -95,9 +95,10 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  getApprovedData() async {
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/approved';
+  getApprovedData(bool isAr) async {
+    var url = !isAr
+       ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
+       : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -113,9 +114,10 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  getRejectedData() async {
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/rejected';
+  getRejectedData(bool isAr) async {
+    var url = !isAr
+       ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
+       : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -164,9 +166,9 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> _refreshData() async {
     setState(() {
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
+      divisi == "AR" ? getApprovedData(true): getApprovedData(false); 
+      divisi == "AR" ? getRejectedData(true): getRejectedData(false);
       getMonitoringData();
-      getApprovedData();
-      getRejectedData();
     });
   }
 

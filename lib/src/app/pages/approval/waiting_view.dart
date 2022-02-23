@@ -66,20 +66,24 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/customers/approvalSM?ttd_sales_manager=0'
         : 'http://timurrayalab.com/salesforce/server/api/customers/approvalAM?ttd_ar_manager=0';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url);
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
-      print("List Size: ${list.length}");
-    }
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+    } catch (e) {
+      print(e.toString());
+    }   
     return list;
   }
 
