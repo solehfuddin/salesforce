@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:in_app_update/in_app_update.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
@@ -1040,4 +1043,58 @@ String getEndDays({String input}) {
   DateTime compare = DateTime.parse(input);
 
   return '${counterTwoDays(now, compare)} Hari';
+}
+
+void showError(BuildContext context, dynamic exception) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(exception),
+    duration: Duration(seconds: 2),
+  ));
+}
+
+void checkUpdate(BuildContext context) {
+  if (Platform.isAndroid) {
+    AppUpdateInfo _updateInfo;
+
+    InAppUpdate.checkForUpdate().then((info) {
+      _updateInfo = info;
+      if (_updateInfo.updateAvailable) {
+        print('Info : $_updateInfo');
+        print('Update please');
+
+        InAppUpdate.performImmediateUpdate().catchError((e) =>
+        Fluttertoast.showToast(
+            msg: e.toString(),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16));
+
+        // InAppUpdate.startFlexibleUpdate()
+        //     .then((value) => print('Update please'))
+        //     .catchError((e) => Fluttertoast.showToast(
+        //         msg: e.toString(),
+        //         toastLength: Toast.LENGTH_SHORT,
+        //         gravity: ToastGravity.BOTTOM,
+        //         timeInSecForIosWeb: 1,
+        //         backgroundColor: Colors.red,
+        //         textColor: Colors.white,
+        //         fontSize: 16));
+        SystemNavigator.pop();
+      }
+    }).catchError((e) {
+      Fluttertoast.showToast(
+          msg: 'Pastikan aplikasimu sudah versi terbaru',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16);
+
+      print(e.toString());
+    });
+  }
 }

@@ -115,7 +115,6 @@ class _LoginFormState extends State<LoginForm> {
                   fontSize: 23,
                   color: MyColors.bgColor,
                   fontWeight: FontWeight.w700,
-                  // fontFamily: 'Segoe ui',
                   fontFamily: 'Montserrat',
                   fontStyle: FontStyle.italic,
                 ),
