@@ -661,7 +661,7 @@ unduhData(Function stopLoading()) async {
 
 donwloadCustomer(int idCust, Function stopLoading()) async {
   // const url = 'https://flutter.dev';
-  var url = 'https://timurrayalab.com/salesforce/customers/customers_pdf/$idCust';
+  var url = 'https://timurrayalab.com/salesforce/download/customers_pdf/$idCust';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
@@ -671,7 +671,7 @@ donwloadCustomer(int idCust, Function stopLoading()) async {
 
 donwloadContract(int idCust, Function stopLoading()) async {
   // const url = 'https://flutter.dev';
-  var url = 'https://timurrayalab.com/salesforce/contract/contract_pdf/$idCust';
+  var url = 'https://timurrayalab.com/salesforce/download/contract_pdf/$idCust';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
