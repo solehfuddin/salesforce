@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:in_app_update/in_app_update.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
@@ -15,6 +18,7 @@ import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -611,8 +615,10 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                     if (btnState == ButtonState.Idle) {
                       startLoading();
                       waitingLoad();
-
+                      // downloadFile('https://fluttermaster.com/wp-content/uploads/2018/08/fluttermaster.com-logo-web-header.png', filename : 'tes.png');
+                      // unduhData(stopLoading());
                       // stopLoading();
+                      donwloadCustomer(int.parse(customer[position].id), stopLoading());
                     }
                   },
                 ),
@@ -646,6 +652,92 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
     },
   );
 }
+
+unduhData(Function stopLoading()) async {
+  // downloadFile('https://fluttermaster.com/wp-content/uploads/2018/08/fluttermaster.com-logo-web-header.png', filename : 'tes.png');
+  // stopLoading();
+  //donwloadCustomer();
+}
+
+donwloadCustomer(int idCust, Function stopLoading()) async {
+  // const url = 'https://flutter.dev';
+  var url = 'https://timurrayalab.com/salesforce/customers/customers_pdf/$idCust';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+donwloadContract(int idCust, Function stopLoading()) async {
+  // const url = 'https://flutter.dev';
+  var url = 'https://timurrayalab.com/salesforce/contract/contract_pdf/$idCust';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+downloadFile(String url, {String filename}) async {
+  var httpClient = http.Client();
+  var request = new http.Request('GET', Uri.parse(url));
+  var response = httpClient.send(request);
+  String dir = (await getApplicationDocumentsDirectory()).path;
+  
+  List<List<int>> chunks = List.empty(growable: true);
+  int downloaded = 0;
+  
+  response.asStream().listen((http.StreamedResponse r) {
+    
+    r.stream.listen((List<int> chunk) {
+      // Display percentage of completion
+      debugPrint('downloadPercentage: ${downloaded / r.contentLength * 100}');
+      
+      chunks.add(chunk);
+      downloaded += chunk.length;
+    }, onDone: () async {
+      // Display percentage of completion
+      debugPrint('downloadPercentage: ${downloaded / r.contentLength * 100}');
+      
+      // Save the file
+      File file = new File('$dir/$filename');
+      final Uint8List bytes = Uint8List(r.contentLength);
+      int offset = 0;
+      for (List<int> chunk in chunks) {
+        bytes.setRange(offset, offset + chunk.length, chunk);
+        offset += chunk.length;
+      }
+      await file.writeAsBytes(bytes);   
+      return;       
+   });
+  });
+}
+
+// Future<String> downloadFile(String url, String fileName) async {
+//   HttpClient httpClient = new HttpClient();
+//   File file;
+//   String filePath = '';
+//   String myUrl = '';
+//   String dir = (await getApplicationDocumentsDirectory()).path;
+
+//   try {
+//     myUrl = url + '/' + fileName;
+//     var request = await httpClient.getUrl(Uri.parse(myUrl));
+//     var response = await request.close();
+//     if (response.statusCode == 200) {
+//       var bytes = await consolidateHttpClientResponseBytes(response);
+//       filePath = '$dir/$fileName';
+//       file = File(filePath);
+//       await file.writeAsBytes(bytes);
+//     } else
+//       filePath = 'Error code: ' + response.statusCode.toString();
+//   } catch (ex) {
+//     filePath = 'Can not fetch url';
+//   }
+
+//   return filePath;
+// }
 
 approveCustomerReject(BuildContext context, bool isAr, String idCust,
     String ttd, String username) async {
@@ -1063,14 +1155,14 @@ void checkUpdate(BuildContext context) {
         print('Update please');
 
         InAppUpdate.performImmediateUpdate().catchError((e) =>
-        Fluttertoast.showToast(
-            msg: e.toString(),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16));
+            Fluttertoast.showToast(
+                msg: e.toString(),
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16));
 
         // InAppUpdate.startFlexibleUpdate()
         //     .then((value) => print('Update please'))

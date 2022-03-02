@@ -909,6 +909,7 @@ class _DetailContractState extends State<DetailContract> {
                                 waitingLoad();
 
                                 // stopLoading();
+                                donwloadContract(int.parse(widget.item.idContract), stopLoading());
                               });
                             }
                           },
