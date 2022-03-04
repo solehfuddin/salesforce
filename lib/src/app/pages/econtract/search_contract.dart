@@ -115,6 +115,9 @@ class _SearchContractState extends State<SearchContract> {
 
       openDialog();
     }
+    else {
+      handleStatus(context, 'Harap ajukan kontrak baru', false);
+    }
   }
 
   openDialog() async {
