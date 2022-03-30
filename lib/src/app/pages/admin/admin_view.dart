@@ -5,8 +5,10 @@ import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
+import 'package:sample/src/app/widgets/arearenewal.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
+import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -24,14 +26,18 @@ class _AdminScreenState extends State<AdminScreen> {
   String ttdPertama;
   String userUpper = '';
   bool _isLoading = true;
+  bool _isLoadRenewal = true;
   int totalWaiting = 0;
   int totalApproved = 0;
   int totalRejected = 0;
   List<Monitoring> listMonitoring = List.empty(growable: true);
+  List<Contract> listContract = List.empty(growable: true);
 
   @override
   void initState() {
     super.initState();
+    if (listContract.length > 0) listContract.clear();
+
     getRole();
   }
 
@@ -44,8 +50,9 @@ class _AdminScreenState extends State<AdminScreen> {
       userUpper = username.toUpperCase();
       divisi = preferences.getString("divisi");
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
-      divisi == "AR" ? getApprovedData(true): getApprovedData(false); 
-      divisi == "AR" ? getRejectedData(true): getRejectedData(false);
+      divisi == "AR" ? getApprovedData(true) : getApprovedData(false);
+      divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
+      divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
 
       checkSigned();
       getTtd(int.parse(id));
@@ -97,8 +104,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   getApprovedData(bool isAr) async {
     var url = !isAr
-       ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
-       : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
+        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
+        : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -116,8 +123,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   getRejectedData(bool isAr) async {
     var url = !isAr
-       ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
-       : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
+        ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
+        : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -163,11 +170,43 @@ class _AdminScreenState extends State<AdminScreen> {
     });
   }
 
+  getRenewalData(bool isAr) async {
+    _isLoadRenewal = true;
+
+    var url = !isAr
+        ? 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustSM'
+        : 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustAM';
+    var response = await http.get(url);
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      listContract =
+          rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+      print("List Size: ${listContract.length}");
+    }
+
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        _isLoadRenewal = false;
+      });
+    });
+  }
+
   Future<void> _refreshData() async {
     setState(() {
+      if (listMonitoring.length > 0) listMonitoring.clear();
+      if (listContract.length > 0) listContract.clear();
+
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
-      divisi == "AR" ? getApprovedData(true): getApprovedData(false); 
-      divisi == "AR" ? getRejectedData(true): getRejectedData(false);
+      divisi == "AR" ? getApprovedData(true) : getApprovedData(false);
+      divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
+      divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
       getMonitoringData();
     });
   }
@@ -186,6 +225,15 @@ class _AdminScreenState extends State<AdminScreen> {
               areaHeader(screenHeight, userUpper, context),
               areaCounter(totalWaiting.toString(), totalApproved.toString(),
                   totalRejected.toString(), context),
+              areaHeaderRenewal(),
+              _isLoadRenewal
+                  ? areaLoadingRenewal()
+                  : listContract.length > 0
+                      ? areaRenewal(
+                          listContract, context, ttdPertama, username, divisi)
+                      : areaRenewalNotFound(context),
+              areaButtonRenewal(
+                  context, listContract.length > 0 ? true : false),
               areaHeaderMonitoring(),
               _isLoading
                   ? areaLoading()

@@ -1,10 +1,11 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:sample/src/app/pages/econtract/search_contract.dart';
+import 'package:sample/src/app/pages/econtract/detail_contract.dart';
+import 'package:sample/src/app/pages/renewcontract/complete_renewal.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/monitoring.dart';
+import 'package:sample/src/domain/entities/contract.dart';
 
-SliverToBoxAdapter areaLoading() {
+SliverToBoxAdapter areaLoadingRenewal() {
   return SliverToBoxAdapter(
     child: Column(
       children: [
@@ -35,7 +36,7 @@ SliverToBoxAdapter areaLoading() {
   );
 }
 
-SliverPadding areaHeaderMonitoring() {
+SliverPadding areaHeaderRenewal() {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15,
@@ -47,7 +48,7 @@ SliverPadding areaHeaderMonitoring() {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              'Kontrak segera berakhir',
+              'Pembaruan Kontrak',
               style: TextStyle(
                 fontSize: 23,
                 fontFamily: 'Segoe ui',
@@ -62,14 +63,14 @@ SliverPadding areaHeaderMonitoring() {
   );
 }
 
-SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
+SliverPadding areaRenewal(List<Contract> item, BuildContext context,
     String ttdPertama, String username, String divisi) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
-          return itemMonitoring(
+          return itemRenewal(
               item, index, context, ttdPertama, username, divisi);
         },
         childCount: item.length,
@@ -78,7 +79,103 @@ SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
   );
 }
 
-SliverPadding areaMonitoringNotFound(BuildContext context) {
+Widget itemRenewal(List<Contract> item, int index, BuildContext context,
+    String ttdPertama, String username, String divisi) {
+  return InkWell(
+    child: Container(
+      margin: EdgeInsets.only(
+        bottom: 10,
+      ),
+      padding: EdgeInsets.all(15),
+      height: 80,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(15),
+        ),
+        border: Border.all(
+          color: Colors.black26,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/e_contract_new.png',
+            filterQuality: FilterQuality.medium,
+            width: 35,
+            height: 35,
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              item[index].customerShipName != null
+                  ? item[index].customerShipName
+                  : '-',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Segoe ui',
+                color: Colors.black87,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                convertDateWithMonth(item[index].dateAdded),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Segoe ui',
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                item[index].status,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Segoe ui',
+                  color: item[index].status == "ACTIVE"
+                      ? Colors.green.shade700
+                      : item[index].status == "INACTIVE"
+                          ? Colors.red.shade800
+                          : Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+    onTap: () {
+      item[index].idCustomer != null
+          ? Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => DetailContract(
+                  item[index],
+                  divisi,
+                  ttdPertama,
+                  username,
+                  false,
+                  isContract: true,
+                  isAdminRenewal: true,
+                ),
+              ),
+            )
+          : handleStatus(context, 'Id customer tidak ditemukan', false);
+    },
+  );
+}
+
+SliverPadding areaRenewalNotFound(BuildContext context) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15,
@@ -131,7 +228,7 @@ SliverPadding areaMonitoringNotFound(BuildContext context) {
                   waitingLoad();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => SearchContract(),
+                      builder: (context) => CompleteRenewal(),
                     ),
                   );
                   stopLoading();
@@ -145,7 +242,7 @@ SliverPadding areaMonitoringNotFound(BuildContext context) {
   );
 }
 
-SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
+SliverPadding areaButtonRenewal(BuildContext context, bool isShow) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15,
@@ -176,9 +273,9 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
                   if (btnState == ButtonState.Idle) {
                     startLoading();
                     waitingLoad();
-                    Navigator.of(context).push(
+                    Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => SearchContract(),
+                        builder: (context) => CompleteRenewal(),
                       ),
                     );
                     stopLoading();
@@ -190,110 +287,5 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
               height: 5,
             ),
     ),
-  );
-}
-
-Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
-    String ttdPertama, String username, String divisi) {
-  return InkWell(
-    child: Container(
-      margin: EdgeInsets.symmetric(
-        vertical: 7,
-      ),
-      padding: EdgeInsets.all(
-        15,
-      ),
-      height: 110,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: Colors.black26,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            item[index].namaUsaha,
-            style: TextStyle(
-              fontSize: 18,
-              fontFamily: 'Segoe Ui',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(
-            height: 15,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Status',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Text(
-                    capitalize(item[index].status.toLowerCase()),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Segoe Ui',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.orange[800],
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Sisa Kontrak',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Text(
-                    getEndDays(input: item[index].endDateContract),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Segoe Ui',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.red[700],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-    onTap: () {
-      getCustomerContractNew(
-        context: context,
-        divisi: divisi,
-        username: username,
-        ttdPertama: ttdPertama,
-        idCust: item[index].idCustomer,
-        isSales: true,
-        isContract: false,
-      );
-    },
   );
 }

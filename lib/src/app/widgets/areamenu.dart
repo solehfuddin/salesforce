@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
+import 'package:sample/src/app/pages/renewcontract/renewal_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
 checkSigned(String id, BuildContext context) async {
@@ -113,7 +114,6 @@ SliverToBoxAdapter areaMenu(
                   ),
                 ),
                 onTap: () {
-                  // handleComing(context);
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => SearchContract(),
@@ -126,7 +126,7 @@ SliverToBoxAdapter areaMenu(
                   child: Column(
                     children: [
                       Image.asset(
-                        'assets/images/agenda_menu_new.png',
+                        'assets/images/renew_contract.png',
                         width: 50,
                         height: 50,
                       ),
@@ -134,7 +134,7 @@ SliverToBoxAdapter areaMenu(
                         height: screenHeight * 0.015,
                       ),
                       Text(
-                        'Agenda',
+                        'Ubah Kontrak',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -146,7 +146,11 @@ SliverToBoxAdapter areaMenu(
                   ),
                 ),
                 onTap: () {
-                  handleComing(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => RenewalContract(keyword: '',),
+                    ),
+                  );
                 },
               ),
             ],

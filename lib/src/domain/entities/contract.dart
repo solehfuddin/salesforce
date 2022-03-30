@@ -1,7 +1,8 @@
 class Contract {
   String idContract, idCustomer, namaPertama, jabatanPertama, alamatPertama, telpPertama, faxPertama,
   namaKedua, jabatanKedua, alamatKedua, telpKedua, faxKedua, tpNikon, tpLeinz, tpOriental, tpMoe, 
-  pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, status;
+  pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, status, customerShipName,
+  customerShipNumber, dateAdded, approvalSm, approvalAm, dateApprovalSm, dateApprovalAm;
 
   Contract.fromJson(Map json):
     idContract = json['id'],
@@ -26,7 +27,14 @@ class Contract {
     pembMoe = json['pembayaran_moe'],
     startContract = json['start_contract'],
     endContract = json['end_contract'],
-    status = json['status'];
+    status = json['status'],
+    customerShipName = json['customer_ship_name'],
+    customerShipNumber = json['customer_ship_number'],
+    dateAdded = json['date_added'],
+    approvalAm = json['approval_am'],
+    approvalSm = json['approval_sm'],
+    dateApprovalAm = json['date_approval_am'],
+    dateApprovalSm = json['date_approval_sm'];
 
   Contract(
     this.idContract,
@@ -51,7 +59,14 @@ class Contract {
     this.pembMoe,
     this.startContract,
     this.endContract,
-    this.status
+    this.status,
+    this.customerShipName,
+    this.customerShipNumber,
+    this.dateAdded,
+    this.approvalAm,
+    this.approvalSm,
+    this.dateApprovalAm,
+    this.dateApprovalSm,
   );
 
   factory Contract.singleJson(dynamic json){
@@ -78,7 +93,14 @@ class Contract {
       json['pembayaran_moe'] as String,
       json['start_contract'] as String,
       json['end_contract'] as String,
-      json['status'] as String
+      json['status'] as String,
+      json['customer_ship_name'] as String,
+      json['customer_ship_number'] as String,
+      json['date_added'] as String,
+      json['approval_am'] as String,
+      json['approval_sm'] as String,
+      json['date_approval_am'] as String,
+      json['date_approval_sm'] as String,
     );
   }
 }

@@ -1,31 +1,24 @@
 import 'dart:convert';
-
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/discount.dart';
 import 'package:http/http.dart' as http;
 
-class DetailContract extends StatefulWidget {
+class DetailContractRejected extends StatefulWidget {
   Contract item;
   String div;
   String ttd;
   String username;
-  bool isMonitoring;
-  bool isContract = false;
-  bool isAdminRenewal = false;
 
-  DetailContract(
-      this.item, this.div, this.ttd, this.username, this.isMonitoring,
-      {this.isContract, this.isAdminRenewal});
+  DetailContractRejected({this.item, this.div, this.ttd, this.username});
 
   @override
-  _DetailContractState createState() => _DetailContractState();
+  State<DetailContractRejected> createState() => _DetailContractRejectedState();
 }
 
-class _DetailContractState extends State<DetailContract> {
+class _DetailContractRejectedState extends State<DetailContractRejected> {
   List<Discount> discList = List.empty(growable: true);
 
   getDisc(dynamic idContract) async {
@@ -73,7 +66,7 @@ class _DetailContractState extends State<DetailContract> {
     return list;
   }
 
-  approveContract(bool isAr, String idCust, String username) async {
+  approveContractReject(bool isAr, String idCust, String username) async {
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/approveContractAM';
@@ -98,117 +91,7 @@ class _DetailContractState extends State<DetailContract> {
     final bool sts = res['status'];
     final String msg = res['message'];
 
-    widget.isAdminRenewal 
-    ? handleCustomStatus(context, capitalize(msg), sts)
-    : handleStatus(context, capitalize(msg), sts);
-  }
-
-  approveCustomer(bool isAr, String idCust, String ttd, String username) async {
-    var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
-
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'nama_sales_manager': username,
-            }
-          : {
-              'id_customer': idCust,
-              'nama_ar_manager': username,
-            },
-    );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    approveContract(isAr, idCust, username);
-  }
-
-  rejectContract(bool isAr, String idCust, String username) async {
-    var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractAM';
-
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'approver_sm': username,
-            }
-          : {
-              'id_customer': idCust,
-              'approver_am': username,
-            },
-    );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    print('Username : $username');
-
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
-
-    widget.isAdminRenewal 
-    ? handleCustomStatus(context, capitalize(msg), sts)
-    : handleStatus(context, capitalize(msg), sts);
-  }
-
-  rejectCustomer(bool isAr, String idCust, String ttd, String username) async {
-    var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/rejectAM';
-
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'nama_sales_manager': username,
-            }
-          : {
-              'id_customer': idCust,
-              'nama_ar_manager': username,
-            },
-    );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    rejectContract(isAr, idCust, username);
-  }
-
-  approveOldCustomer() {
-    widget.div == "AR"
-        ? approveContract(true, widget.item.idCustomer, widget.username)
-        : approveContract(false, widget.item.idCustomer, widget.username);
-  }
-
-  approveNewCustomer() {
-    widget.div == "AR"
-        ? approveCustomer(
-            true, widget.item.idCustomer, widget.ttd, widget.username)
-        : approveCustomer(
-            false, widget.item.idCustomer, widget.ttd, widget.username);
-  }
-
-  rejectOldCustomer() {
-    widget.div == "AR"
-        ? rejectContract(true, widget.item.idCustomer, widget.username)
-        : rejectContract(false, widget.item.idCustomer, widget.username);
-  }
-
-  rejectNewCustomer() {
-    widget.div == "AR"
-        ? rejectCustomer(
-            true, widget.item.idCustomer, widget.ttd, widget.username)
-        : rejectCustomer(
-            false, widget.item.idCustomer, widget.ttd, widget.username);
+    handleStatus(context, capitalize(msg), sts);
   }
 
   @override
@@ -228,14 +111,7 @@ class _DetailContractState extends State<DetailContract> {
                   Padding(
                     padding: const EdgeInsets.only(top: 30),
                     child: ElevatedButton(
-                      // onPressed: () => Navigator.pop(context),
-                      onPressed: () {
-                        widget.isAdminRenewal
-                            ? Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) => AdminScreen()))
-                            : Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context),
                       child: Icon(
                         Icons.arrow_back_ios_new,
                         size: 15,
@@ -1005,51 +881,81 @@ class _DetailContractState extends State<DetailContract> {
                   ),
                   areaDiskon(widget.item),
                   SizedBox(
-                    height: 30,
+                    height: 20,
                   ),
-                  widget.isMonitoring
-                      ? Center(
-                          child: ArgonButton(
-                            height: 40,
-                            width: 150,
-                            borderRadius: 30.0,
-                            color: Colors.blue[700],
-                            child: Text(
-                              "Unduh Kontrak",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            loader: Container(
-                              padding: EdgeInsets.all(8),
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                            onTap: (startLoading, stopLoading, btnState) {
-                              if (btnState == ButtonState.Idle) {
-                                setState(() {
-                                  startLoading();
-                                  waitingLoad();
-                                  donwloadContract(
-                                      int.parse(widget.item.idCustomer),
-                                      stopLoading());
-                                });
-                              }
-                            },
-                          ),
-                        )
-                      : SizedBox(
-                          height: 5,
-                        ),
-                  widget.isMonitoring
-                      ? SizedBox(
-                          height: 5,
-                        )
-                      : handleAction(),
+                  Center(
+                    child: Text(
+                      'Apakah anda ingin menyetujui kontrak optik ini?',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange[800],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                   SizedBox(
                     height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ArgonButton(
+                        height: 40,
+                        width: 100,
+                        borderRadius: 30.0,
+                        color: Colors.blue[700],
+                        child: Text(
+                          "Approve",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        loader: Container(
+                          padding: EdgeInsets.all(8),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onTap: (startLoading, stopLoading, btnState) {
+                          if (btnState == ButtonState.Idle) {
+                            startLoading();
+                            waitingLoad();
+                            widget.div == "AR"
+                                ? approveContractReject(true,
+                                    widget.item.idCustomer, widget.username)
+                                : approveContractReject(false,
+                                    widget.item.idCustomer, widget.username);
+                            // stopLoading();
+                          }
+                        },
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          primary: Colors.red[800],
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                        ),
+                        child: Text(
+                          'Tutup',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Segoe ui',
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                 ],
               ),
@@ -1201,86 +1107,5 @@ class _DetailContractState extends State<DetailContract> {
             ),
           );
         });
-  }
-
-  Widget handleAction() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 5,
-          ),
-          alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: 40,
-            width: 100,
-            borderRadius: 30.0,
-            color: Colors.red[700],
-            child: Text(
-              "Reject",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700),
-            ),
-            loader: Container(
-              padding: EdgeInsets.all(8),
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
-            ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  widget.isContract ? rejectOldCustomer() : rejectNewCustomer();
-                });
-              }
-            },
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 5,
-          ),
-          alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: 40,
-            width: 100,
-            borderRadius: 30.0,
-            color: Colors.blue[600],
-            child: Text(
-              "Approve",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700),
-            ),
-            loader: Container(
-              padding: EdgeInsets.all(8),
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
-            ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  widget.isContract
-                      ? approveOldCustomer()
-                      : approveNewCustomer();
-                });
-              }
-            },
-          ),
-        ),
-      ],
-    );
   }
 }

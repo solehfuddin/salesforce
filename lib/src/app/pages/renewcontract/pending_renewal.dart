@@ -1,25 +1,35 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/monitoring.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SearchContract extends StatefulWidget {
+class PendingRenewal extends StatefulWidget {
   @override
-  _SearchContractState createState() => _SearchContractState();
+  State<PendingRenewal> createState() => _PendingRenewalState();
 }
 
-class _SearchContractState extends State<SearchContract> {
+class _PendingRenewalState extends State<PendingRenewal> {
+  String search = '';
   String id = '';
   String role = '';
   String username = '';
-  String search = '';
   String divisi = '';
   String ttdPertama;
-  Contract itemContract;
+
+  Future<void> _refreshData() async {
+    setState(() {
+      divisi == "AR" ? getPendingData(true) : getPendingData(false);
+    });
+  }
+
+  @override
+  initState() {
+    super.initState();
+    getRole();
+  }
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -32,12 +42,6 @@ class _SearchContractState extends State<SearchContract> {
       getTtd(int.parse(id));
       print("Search Contract : $role");
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getRole();
   }
 
   getTtd(int input) async {
@@ -55,10 +59,43 @@ class _SearchContractState extends State<SearchContract> {
     }
   }
 
-  Future<List<Monitoring>> getMonitoringData() async {
-    List<Monitoring> list;
+  Future<List<Contract>> getPendingBySearch(String input, bool isAr) async {
+    List<Contract> list;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
+        'http://timurrayalab.com/salesforce/server/api/contract/findOldCustContract';
+    var response = await http.post(
+      url,
+      body: !isAr
+          ? {
+              'search': input,
+              'approval_sm': '0',
+            }
+          : {
+              'search': input,
+              'approval_am': '0',
+            },
+    );
+
+    print('Response status: ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+      print("List Size: ${list.length}");
+    }
+
+    return list;
+  }
+
+  Future<List<Contract>> getPendingData(bool isAr) async {
+    List<Contract> list;
+    var url = !isAr
+        ? 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustSM'
+        : 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -69,68 +106,17 @@ class _SearchContractState extends State<SearchContract> {
     if (sts) {
       var rest = data['data'];
       print(rest);
-      list = rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
+      list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
       print("List Size: ${list.length}");
     }
 
     return list;
-  }
-
-  Future<List<Monitoring>> getMonitoringBySearch(String input) async {
-    List<Monitoring> list;
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/search?search=$input';
-    var response = await http.get(url);
-
-    print('Response status: ${response.statusCode}');
-
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
-
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
-      print("List Size: ${list.length}");
-    }
-
-    return list;
-  }
-
-  Future<void> _refreshData() async{
-    setState(() {
-      search.isNotEmpty
-                      ? getMonitoringBySearch(search)
-                      : getMonitoringData();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.white70,
-        title: Text(
-          'List Monitoring Contract',
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 18,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0.0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black54,
-            size: 18,
-          ),
-        ),
-      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -172,8 +158,11 @@ class _SearchContractState extends State<SearchContract> {
               height: 100,
               child: FutureBuilder(
                   future: search.isNotEmpty
-                      ? getMonitoringBySearch(search)
-                      : getMonitoringData(),
+                      ? getPendingBySearch(
+                          search, divisi == "AR" ? true : false)
+                      : divisi == "AR"
+                          ? getPendingData(true)
+                          : getPendingData(false),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
@@ -211,7 +200,7 @@ class _SearchContractState extends State<SearchContract> {
     );
   }
 
-  Widget listViewWidget(List<Monitoring> item, int len) {
+  Widget listViewWidget(List<Contract> item, int len) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
@@ -224,87 +213,68 @@ class _SearchContractState extends State<SearchContract> {
             itemBuilder: (context, position) {
               return InkWell(
                 child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 7,),
-                  padding: EdgeInsets.all(
-                    15,
+                  margin: EdgeInsets.only(
+                    bottom: 10,
                   ),
-                  height: 110,
+                  padding: EdgeInsets.all(15),
+                  height: 80,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(15),
+                    ),
                     border: Border.all(
                       color: Colors.black26,
                     ),
-                    color: Colors.white,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        item[position].namaUsaha,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'Segoe Ui',
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Image.asset(
+                        'assets/images/e_contract_new.png',
+                        filterQuality: FilterQuality.medium,
+                        width: 35,
+                        height: 35,
                       ),
                       SizedBox(
-                        height: 15,
+                        width: 10,
                       ),
-                      Row(
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          item[position].customerShipName != null
+                              ? item[position].customerShipName
+                              : '-',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe ui',
+                            color: Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Status',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[800],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              Text(
-                                capitalize(
-                                        item[position].status.toLowerCase()),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Segoe Ui',
-                                  fontWeight: FontWeight.w600,
-                                  color: item[position].status == "ACTIVE" ?  Colors.orange[800] : Colors.red[600],
-                                ),
-                              ),
-                            ],
+                          Text(
+                            convertDateWithMonth(item[position].dateAdded),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Segoe ui',
+                              color: Colors.black,
+                            ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Sisa Kontrak',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[800],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              Text(
-                                getEndDays(input: item[position].endDateContract),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Segoe Ui',
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.red[700],
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'PENDING',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Segoe ui',
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ],
                       ),
@@ -312,17 +282,22 @@ class _SearchContractState extends State<SearchContract> {
                   ),
                 ),
                 onTap: () {
-                  item[position].idCustomer != null ?
-                  getCustomerContractNew(
-                    context: context,
-                    idCust: item[position].idCustomer,
-                    username: username,
-                    divisi: divisi,
-                    ttdPertama: ttdPertama,
-                    isSales: true,
-                    isContract: false,
-                  )
-                  : handleStatus(context, 'Id customer tidak ditemukan', false);
+                  item[position].idCustomer != null
+                      ? Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DetailContract(
+                              item[position],
+                              divisi,
+                              ttdPertama,
+                              username,
+                              false,
+                              isContract: true,
+                              isAdminRenewal: false,
+                            ),
+                          ),
+                        )
+                      : handleStatus(
+                          context, 'Id customer tidak ditemukan', false);
                 },
               );
             }),

@@ -83,11 +83,11 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
       }
     } catch (e) {
       print(e.toString());
-    }   
+    }
     return list;
   }
 
-  getCustomerContract(int idCust) async {
+  getCustomerContract(dynamic idCust, bool isContract) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
     var response = await http.get(url);
@@ -101,20 +101,18 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
       var rest = data['data'];
       print(rest);
       itemContract = Contract.fromJson(rest[0]);
-      openDialog();
+      openDialog(isContract);
     }
   }
 
-  openDialog() async {
-    await formContract(itemContract, divisi);
-    setState((){});
+  openDialog(bool isContract) async {
+    await formContract(itemContract, divisi, isContract);
+    setState(() {});
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      divisi == "AR"
-                      ? getCustomerData(true)
-                      : getCustomerData(false);
+      divisi == "AR" ? getCustomerData(true) : getCustomerData(false);
     });
   }
 
@@ -303,7 +301,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                               ),
                               child: Text(
                                 customer[position].namaSalesman.length > 0
-                                    ? capitalize(customer[position].namaSalesman)
+                                    ? capitalize(
+                                        customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -319,7 +318,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     ),
                     onTap: () {
                       setState(() {
-                        getCustomerContract(int.parse(customer[position].id));
+                        getCustomerContract(customer[position].id, false);
                       });
                     },
                   ),
@@ -336,7 +335,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     );
   }
 
-  formContract(Contract item, String div) {
+  formContract(Contract item, String div, bool isContract) {
     return showModalBottomSheet(
         elevation: 2,
         backgroundColor: Colors.white,
@@ -349,7 +348,15 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
           ),
         ),
         builder: (context) {
-          return DetailContract(item, div, ttdPertama, username, false);
+          return DetailContract(
+            item,
+            div,
+            ttdPertama,
+            username,
+            false,
+            isContract: isContract,
+            isAdminRenewal: false,
+          );
         });
   }
 }

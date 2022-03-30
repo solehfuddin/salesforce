@@ -38,7 +38,6 @@ class _SplashScreenState extends State<SplashScreen> {
             .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
       }
     } else {
-      // await pref.setBool('check', true);
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) => NewIntro()));
     }

@@ -172,9 +172,11 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
-                              color: customer[position].status == "Pending"
+                              color: customer[position].status.contains('Pending') || 
+                                     customer[position].status.contains('PENDING')
                                   ? Colors.grey[600]
-                                  : customer[position].status == "Accepted"
+                                  : customer[position].status.contains('Accepted') || 
+                                    customer[position].status.contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
                               width: 5),

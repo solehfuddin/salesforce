@@ -244,7 +244,7 @@ SliverPadding areaCounter(String totalWaiting, String totalApproved, String tota
                             height: 4,
                           ),
                           Text(
-                            'Diterima',
+                            'Disetujui',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black,
