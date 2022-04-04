@@ -228,7 +228,6 @@ class _DetailContractState extends State<DetailContract> {
                   Padding(
                     padding: const EdgeInsets.only(top: 30),
                     child: ElevatedButton(
-                      // onPressed: () => Navigator.pop(context),
                       onPressed: () {
                         widget.isAdminRenewal
                             ? Navigator.of(context).pushReplacement(

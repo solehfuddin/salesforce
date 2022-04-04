@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/pages/profile/profile_screen.dart';
 
 SliverToBoxAdapter areaHeader(double screenHeight, String userUpper, BuildContext context) {
     return SliverToBoxAdapter(
@@ -28,7 +28,8 @@ SliverToBoxAdapter areaHeader(double screenHeight, String userUpper, BuildContex
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    handleComing(context);
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ProfileScreen()));
                   },
                   icon: Icon(Icons.account_circle),
                   label: Text('Profil'),

@@ -22,7 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Contract itemContract;
-String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+String capitalize(String s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 
 waitingLoad() async {
   await Future.delayed(Duration(seconds: 2));
@@ -377,7 +377,9 @@ handleCustomStatus(BuildContext context, String msg, bool status) {
   showDialog(context: context, builder: (context) => alert);
 }
 
-handleStatusChangeContract(OldCustomer item, BuildContext context, String msg, bool status, {dynamic keyword}) {
+handleStatusChangeContract(
+    OldCustomer item, BuildContext context, String msg, bool status,
+    {dynamic keyword}) {
   AlertDialog alert = AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
@@ -431,8 +433,12 @@ handleStatusChangeContract(OldCustomer item, BuildContext context, String msg, b
           onPressed: () {
             Navigator.of(context, rootNavigator: true).pop(context);
             if (status) {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HistoryContract(item, keyword: keyword,)));
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => HistoryContract(
+                        item,
+                        keyword: keyword,
+                        isAdmin: false,
+                      )));
             }
           },
         ),
@@ -951,7 +957,8 @@ formWaitingContract(BuildContext context, List<Contract> item, int position) {
                       ),
                     ),
                     Text(
-                      item[position].approvalSm == "0" || item[position].approvalSm == null 
+                      item[position].approvalSm == "0" ||
+                              item[position].approvalSm == null
                           ? 'Menunggu Persetujuan Sales Manager'
                           : item[position].approvalSm == "1"
                               ? 'Disetujui oleh Sales Manager ${convertDateIndo(item[position].dateApprovalSm)}'
@@ -1013,7 +1020,8 @@ formWaitingContract(BuildContext context, List<Contract> item, int position) {
                       ),
                     ),
                     Text(
-                      item[position].approvalAm == "0" || item[position].approvalSm == null
+                      item[position].approvalAm == "0" ||
+                              item[position].approvalSm == null
                           ? 'Menunggu Persetujuan AR Manager'
                           : item[position].approvalAm == "1"
                               ? 'Disetujui oleh AR Manager ${convertDateIndo(item[position].dateApprovalAm)}'
@@ -1542,6 +1550,15 @@ String convertToIdr(dynamic number, int decimalDigit) {
     locale: 'id',
     symbol: 'Rp ',
     decimalDigits: decimalDigit,
+  );
+  return currencyFormatter.format(number);
+}
+
+String convertThousand(dynamic number, int decimalDigit) {
+  NumberFormat currencyFormatter = NumberFormat.currency(
+    decimalDigits: decimalDigit,
+    locale: 'id',
+    symbol: '',
   );
   return currencyFormatter.format(number);
 }

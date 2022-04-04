@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/renewcontract/change_contract.dart';
-import 'package:sample/src/app/pages/renewcontract/renewal_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
@@ -13,8 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HistoryContract extends StatefulWidget {
   OldCustomer item;
   dynamic keyword;
+  bool isAdmin = false;
 
-  HistoryContract(this.item, {this.keyword});
+  HistoryContract(this.item, {this.keyword, this.isAdmin});
 
   @override
   State<HistoryContract> createState() => _HistoryContractState();
@@ -39,6 +39,7 @@ class _HistoryContractState extends State<HistoryContract> {
 
       getTtd(int.parse(id));
       print("Search Contract : $role");
+      print("Keyword : ${widget.keyword}");
     });
   }
 
@@ -134,11 +135,7 @@ class _HistoryContractState extends State<HistoryContract> {
                               padding: const EdgeInsets.only(bottom: 190),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.of(context)
-                                      .pushReplacement(MaterialPageRoute(
-                                          builder: (context) => RenewalContract(
-                                                keyword: widget.keyword,
-                                              )));
+                                  Navigator.pop(context);
                                 },
                                 child: Icon(
                                   Icons.arrow_back_ios_new,
@@ -369,43 +366,48 @@ class _HistoryContractState extends State<HistoryContract> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: ArgonButton(
-                                height: 30,
-                                width: 100,
-                                borderRadius: 30.0,
-                                color: Colors.blue[600],
-                                child: Text(
-                                  "Ubah kontrak",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                loader: Container(
-                                  padding: EdgeInsets.all(8),
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
+                            widget.isAdmin
+                                ? SizedBox(
+                                    width: 5,
+                                  )
+                                : Container(
+                                    alignment: Alignment.centerRight,
+                                    child: ArgonButton(
+                                      height: 30,
+                                      width: 100,
+                                      borderRadius: 30.0,
+                                      color: Colors.blue[600],
+                                      child: Text(
+                                        "Ubah kontrak",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      loader: Container(
+                                        padding: EdgeInsets.all(8),
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      onTap: (startLoading, stopLoading,
+                                          btnState) {
+                                        if (btnState == ButtonState.Idle) {
+                                          startLoading();
+                                          waitingLoad();
+                                          Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChangeContract(
+                                                        widget.item,
+                                                        activeContract,
+                                                        keyword: widget.keyword,
+                                                      )));
+                                          stopLoading();
+                                        }
+                                      },
+                                    ),
                                   ),
-                                ),
-                                onTap: (startLoading, stopLoading, btnState) {
-                                  if (btnState == ButtonState.Idle) {
-                                    startLoading();
-                                    waitingLoad();
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChangeContract(
-                                                  widget.item,
-                                                  activeContract,
-                                                  keyword: widget.keyword,
-                                                )));
-                                    stopLoading();
-                                  }
-                                },
-                              ),
-                            ),
                             SizedBox(
                               height: 15,
                             ),

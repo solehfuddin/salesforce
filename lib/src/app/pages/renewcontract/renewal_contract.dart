@@ -8,8 +8,9 @@ import 'package:http/http.dart' as http;
 
 class RenewalContract extends StatefulWidget {
   dynamic keyword;
+  bool isAdmin = false;
 
-  RenewalContract({this.keyword});
+  RenewalContract({this.keyword, this.isAdmin});
 
   @override
   State<RenewalContract> createState() => _RenewalContractState();
@@ -34,9 +35,6 @@ class _RenewalContractState extends State<RenewalContract> {
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
 
-      search = widget.keyword;
-      txtSearch.text = widget.keyword;
-
       getTtd(int.parse(id));
       print("Search Contract : $role");
     });
@@ -47,6 +45,10 @@ class _RenewalContractState extends State<RenewalContract> {
     super.initState();
     getRole();
     getAllOldCustomer();
+
+    txtSearch.text = widget.keyword;
+    search = widget.keyword;
+    print("Keyword : ${widget.keyword}");
   }
 
   getTtd(int input) async {
@@ -101,9 +103,12 @@ class _RenewalContractState extends State<RenewalContract> {
   }
 
   Future<List<OldCustomer>> getOldCustomerBySearch(String input) async {
+    setState(() {});
+
     List<OldCustomer> list;
     var url =
         'http://timurrayalab.com/salesforce/server/api/customers/searchOldCust?limit=100&offset=0&search=$input';
+    
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -169,7 +174,7 @@ class _RenewalContractState extends State<RenewalContract> {
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
-              controller: search.isNotEmpty ? txtSearch : null,
+              controller: txtSearch,
               decoration: InputDecoration(
                 hintText:'Pencarian data..',
                 prefixIcon: Icon(Icons.search),
@@ -192,8 +197,8 @@ class _RenewalContractState extends State<RenewalContract> {
               ),
               onSubmitted: (value) {
                 setState(() {
-                  search = value;
-                  txtSearch.text = search;
+                  txtSearch.text = value;
+                  search = txtSearch.text;
                 });
               },
             ),
@@ -202,7 +207,7 @@ class _RenewalContractState extends State<RenewalContract> {
             child: SizedBox(
               height: 100,
               child: FutureBuilder(
-                future: search.isNotEmpty
+                future: txtSearch.text.isNotEmpty
                     ? getOldCustomerBySearch(search)
                     : getOldCustomerByIdLimit(_count),
                 builder: (context, snapshot) {
@@ -442,13 +447,18 @@ class _RenewalContractState extends State<RenewalContract> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => HistoryContract(
                                 item[position],
-                                keyword: search,
-                              )));
+                                keyword: txtSearch.text,
+                                isAdmin: false,
+                              ))).then((_) {
+                                setState(() {
+                                  _refreshData();
+                                });
+                              });
                 },
               );
             }),

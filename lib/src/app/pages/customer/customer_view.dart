@@ -51,8 +51,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
   }
 
   getCustomerById(int input) async {
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/getBySales?created_by=$input';
+    var url = input < 1 
+      ? 'http://timurrayalab.com/salesforce/server/api/customers'
+      :  'http://timurrayalab.com/salesforce/server/api/customers/getBySales?created_by=$input';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');

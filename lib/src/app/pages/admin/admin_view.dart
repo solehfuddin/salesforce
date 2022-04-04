@@ -30,6 +30,8 @@ class _AdminScreenState extends State<AdminScreen> {
   int totalWaiting = 0;
   int totalApproved = 0;
   int totalRejected = 0;
+  int totalNewCustomer = 0;
+  int totalOldCustomer = 0;
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<Contract> listContract = List.empty(growable: true);
 
@@ -55,6 +57,9 @@ class _AdminScreenState extends State<AdminScreen> {
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
 
       checkSigned();
+      countNewCustomer();
+      countOldCustomer();
+
       getTtd(int.parse(id));
       getMonitoringData();
     });
@@ -80,6 +85,35 @@ class _AdminScreenState extends State<AdminScreen> {
     print(ttd);
     if (ttd == null) {
       handleSigned(context);
+    }
+  }
+
+  countNewCustomer() async {
+    var url = 'http://timurrayalab.com/salesforce/server/api/customers';
+    var response = await http.get(url);
+
+    print('Response status : ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      totalNewCustomer = data['count'];
+    }
+  }
+
+  countOldCustomer() async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/customers/oldCustomer';
+    var response = await http.get(url);
+
+    print('Response status : ${response.statusCode}');
+
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+
+    if (sts) {
+      totalOldCustomer = data['total_row'];
     }
   }
 
@@ -223,8 +257,14 @@ class _AdminScreenState extends State<AdminScreen> {
             physics: ClampingScrollPhysics(),
             slivers: [
               areaHeader(screenHeight, userUpper, context),
-              areaCounter(totalWaiting.toString(), totalApproved.toString(),
-                  totalRejected.toString(), context),
+              areaCounter(
+                totalWaiting.toString(),
+                totalApproved.toString(),
+                totalRejected.toString(),
+                totalNewCustomer.toString(),
+                totalOldCustomer.toString(),
+                context,
+              ),
               areaHeaderRenewal(),
               _isLoadRenewal
                   ? areaLoadingRenewal()

@@ -148,7 +148,10 @@ SliverToBoxAdapter areaMenu(
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => RenewalContract(keyword: '',),
+                      builder: (context) => RenewalContract(
+                        keyword: '',
+                        isAdmin: false,
+                      ),
                     ),
                   );
                 },
