@@ -116,82 +116,98 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     });
   }
 
+  Future<bool> _onBackPressed() async {
+    if (role == 'admin') {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminScreen()));
+      return true;
+    } else if (role == 'sales') {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()));
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white70,
-        title: Text(
-          'List Customer Baru',
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 18,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0.0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            if (role == 'admin') {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen()));
-            } else if (role == 'sales') {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomeScreen()));
-            }
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black54,
-            size: 18,
-          ),
-        ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 100,
-              child: FutureBuilder(
-                  future: divisi == "AR"
-                      ? getCustomerData(true)
-                      : getCustomerData(false),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return snapshot.data != null
-                            ? listViewWidget(
-                                snapshot.data, snapshot.data.length)
-                            : Column(
-                                children: [
-                                  Center(
-                                    child: Image.asset(
-                                      'assets/images/not_found.png',
-                                      width: 300,
-                                      height: 300,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Data tidak ditemukan',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[600],
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                  )
-                                ],
-                              );
-                    }
-                  }),
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white70,
+          title: Text(
+            'List Customer Baru',
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 18,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ],
+          elevation: 0.0,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              if (role == 'admin') {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => AdminScreen()));
+              } else if (role == 'sales') {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => HomeScreen()));
+              }
+            },
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.black54,
+              size: 18,
+            ),
+          ),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 100,
+                child: FutureBuilder(
+                    future: divisi == "AR"
+                        ? getCustomerData(true)
+                        : getCustomerData(false),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Center(child: CircularProgressIndicator());
+                        default:
+                          return snapshot.data != null
+                              ? listViewWidget(
+                                  snapshot.data, snapshot.data.length)
+                              : Column(
+                                  children: [
+                                    Center(
+                                      child: Image.asset(
+                                        'assets/images/not_found.png',
+                                        width: 300,
+                                        height: 300,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Data tidak ditemukan',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red[600],
+                                        fontFamily: 'Montserrat',
+                                      ),
+                                    )
+                                  ],
+                                );
+                      }
+                    }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

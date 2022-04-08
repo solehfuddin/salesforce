@@ -35,12 +35,12 @@ class _RejectedScreenState extends State<RejectedScreen> {
       print("Dashboard : $role");
     });
   }
-  
+
   Future<List<Customer>> getCustomerData(bool isAr) async {
     List<Customer> list;
     var url = !isAr
-       ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
-       : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
+        ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
+        : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -72,8 +72,12 @@ class _RejectedScreenState extends State<RejectedScreen> {
       var rest = data['data'];
       print(rest);
       itemContract = Contract.fromJson(rest[0]);
-      await formRejected(context, listCust, pos, idCust: itemContract.idCustomer, div: divisi, username: username, ttd: ttdPertama);
-      setState((){});
+      await formRejected(context, listCust, pos,
+          idCust: itemContract.idCustomer,
+          div: divisi,
+          username: username,
+          ttd: ttdPertama);
+      setState(() {});
     }
   }
 
@@ -94,7 +98,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
 
   Future<void> _refreshData() async {
     setState(() {
-      divisi == "AR" ? getCustomerData(true): getCustomerData(false);
+      divisi == "AR" ? getCustomerData(true) : getCustomerData(false);
     });
   }
 
@@ -104,80 +108,98 @@ class _RejectedScreenState extends State<RejectedScreen> {
     getRole();
   }
 
+  Future<bool> _onBackPressed() async {
+    if (role == 'admin') {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminScreen()));
+      return true;
+    } else if (role == 'sales') {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()));
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white70,
-        title: Text(
-          'Reject Customer',
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 18,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0.0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            if (role == 'admin') {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen()));
-            } else if (role == 'sales') {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomeScreen()));
-            }
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black54,
-            size: 18,
-          ),
-        ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 100,
-              child: FutureBuilder(
-                  future: divisi == "AR" ? getCustomerData(true): getCustomerData(false),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return snapshot.data != null
-                            ? listViewWidget(
-                                snapshot.data, snapshot.data.length)
-                            : Column(
-                                children: [
-                                  Center(
-                                    child: Image.asset(
-                                      'assets/images/not_found.png',
-                                      width: 300,
-                                      height: 300,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Data tidak ditemukan',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[600],
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                  )
-                                ],
-                              );
-                    }
-                  }),
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white70,
+          title: Text(
+            'Reject Customer',
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 18,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ],
+          elevation: 0.0,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              if (role == 'admin') {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => AdminScreen()));
+              } else if (role == 'sales') {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => HomeScreen()));
+              }
+            },
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.black54,
+              size: 18,
+            ),
+          ),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 100,
+                child: FutureBuilder(
+                    future: divisi == "AR"
+                        ? getCustomerData(true)
+                        : getCustomerData(false),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Center(child: CircularProgressIndicator());
+                        default:
+                          return snapshot.data != null
+                              ? listViewWidget(
+                                  snapshot.data, snapshot.data.length)
+                              : Column(
+                                  children: [
+                                    Center(
+                                      child: Image.asset(
+                                        'assets/images/not_found.png',
+                                        width: 300,
+                                        height: 300,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Data tidak ditemukan',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red[600],
+                                        fontFamily: 'Montserrat',
+                                      ),
+                                    )
+                                  ],
+                                );
+                      }
+                    }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -201,11 +223,19 @@ class _RejectedScreenState extends State<RejectedScreen> {
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
-                              color: customer[position].status.contains('Pending') || 
-                                     customer[position].status.contains('PENDING')
+                              color: customer[position]
+                                          .status
+                                          .contains('Pending') ||
+                                      customer[position]
+                                          .status
+                                          .contains('PENDING')
                                   ? Colors.grey[600]
-                                  : customer[position].status.contains('Accepted') || 
-                                    customer[position].status.contains('ACCEPTED')
+                                  : customer[position]
+                                              .status
+                                              .contains('Accepted') ||
+                                          customer[position]
+                                              .status
+                                              .contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
                               width: 5),
@@ -295,7 +325,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
                               ),
                               child: Text(
                                 customer[position].namaSalesman.length > 0
-                                    ? capitalize(customer[position].namaSalesman)
+                                    ? capitalize(
+                                        customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -310,7 +341,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
                       ),
                     ),
                     onTap: () {
-                      getCustomerContract(customer, position, int.parse(customer[position].id));
+                      getCustomerContract(
+                          customer, position, int.parse(customer[position].id));
                     },
                   ),
                   clipper: ShapeBorderClipper(

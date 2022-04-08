@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:io' as Io;
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +28,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isNamaLengkap = false;
   bool _isPassword = false;
   bool _isRePassword = false;
+  File tmpFile;
+  String tmpName, base64Imgprofile;
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -52,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (sts) {
       textNamaLengkap.text = data['data'][0]['name'];
       status = data['data'][0]['status'];
+      base64Imgprofile = data['data'][0]['imgprofile'];
 
       print('Nama Lengkap : ${textNamaLengkap.text}');
       print('Status : $status');
@@ -106,6 +112,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future chooseImage() async {
+    var imgFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      imageQuality: 25,
+      preferredCameraDevice: CameraDevice.front,
+    );
+    setState(() {
+      if (imgFile != null) {
+        tmpFile = File(imgFile.path);
+        tmpName = tmpFile.path.split('/').last;
+        base64Imgprofile =
+            base64Encode(Io.File(imgFile.path).readAsBytesSync());
+
+        print(imgFile.path);
+        print(base64Imgprofile);
+
+        perbaruiProfil();
+      }
+    });
+  }
+
+  perbaruiProfil() async {
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/users/changeImageProfile';
+    var response = await http.post(
+      url,
+      body: {
+        'id': id,
+        'image': base64Imgprofile,
+      },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+  }
+
   perbaruiData(Function stop, {bool isChangePassword}) async {
     var url = 'http://timurrayalab.com/salesforce/server/api/users';
 
@@ -155,7 +197,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
           icon: Icon(
             Icons.arrow_back_ios_new,
             size: 18,
@@ -170,9 +214,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Image.asset(
-                  'assets/images/profile.png',
-                  width: 90,
+                child: InkWell(
+                  onTap: chooseImage,
+                  child: Stack(
+                    children: <Widget>[
+                      base64Imgprofile == null
+                          ? CircleAvatar(
+                              radius: 50,
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/images/profile.png',
+                                  height: 100,
+                                  width: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 50,
+                              backgroundImage: MemoryImage(
+                                Base64Decoder().convert(base64Imgprofile),
+                              ),
+                            ),
+                      Positioned(
+                          bottom: 1,
+                          right: 5,
+                          child: Container(
+                            height: 30,
+                            width: 30,
+                            child: Icon(
+                              Icons.add_a_photo,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.green.shade500,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(18))),
+                          ))
+                    ],
+                  ),
                 ),
               ),
               SizedBox(

@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       getMonitoringSales(int.tryParse(id));
       print("Dashboard : $role");
+      getTtd(int.parse(id));
     });
   }
 
@@ -95,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _refreshData() async {
     setState(() {
       getMonitoringSales(int.tryParse(id));
+      getTtd(int.parse(id));
     });
   }
 

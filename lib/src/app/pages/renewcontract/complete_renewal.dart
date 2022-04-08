@@ -9,9 +9,14 @@ class CompleteRenewal extends StatefulWidget {
   State<CompleteRenewal> createState() => _CompleteRenewalState();
 }
 
-class _CompleteRenewalState extends State<CompleteRenewal> with TickerProviderStateMixin {
+class _CompleteRenewalState extends State<CompleteRenewal>
+    with TickerProviderStateMixin {
   TabController tabController;
-  final tabColors = [Colors.grey.shade600, Colors.green.shade600, Colors.red.shade700];
+  final tabColors = [
+    Colors.grey.shade600,
+    Colors.green.shade600,
+    Colors.red.shade700
+  ];
   Color indicatorColor;
 
   @override
@@ -21,67 +26,76 @@ class _CompleteRenewalState extends State<CompleteRenewal> with TickerProviderSt
       initialIndex: 0,
       length: 3,
       vsync: this,
-    )..addListener(() { 
-      setState(() {
-        indicatorColor = tabColors[tabController.index];
+    )..addListener(() {
+        setState(() {
+          indicatorColor = tabColors[tabController.index];
+        });
       });
-     });
-     indicatorColor = tabColors[0];
+    indicatorColor = tabColors[0];
+  }
+
+  Future<bool> _onBackPressed() async {
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => AdminScreen()));
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.white70,
-        title: Text(
-          'List Perubahan Kontrak',
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 18,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Colors.white70,
+          title: Text(
+            'List Perubahan Kontrak',
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 18,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => AdminScreen())),
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.black54,
+              size: 18,
+            ),
+          ),
+          bottom: TabBar(
+            controller: tabController,
+            labelColor: Colors.black54,
+            indicatorColor: indicatorColor,
+            indicatorPadding: EdgeInsets.all(3),
+            indicatorSize: TabBarIndicatorSize.label,
+            indicatorWeight: 3,
+            tabs: [
+              Tab(
+                text: 'Menunggu',
+              ),
+              Tab(
+                text: 'Disetujui',
+              ),
+              Tab(
+                text: 'Ditolak',
+              ),
+            ],
           ),
         ),
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen())),
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black54,
-            size: 18,
-          ),
-        ),
-        bottom: TabBar(
+        body: TabBarView(
           controller: tabController,
-          labelColor: Colors.black54,
-          indicatorColor: indicatorColor,
-          indicatorPadding: EdgeInsets.all(3),
-          indicatorSize: TabBarIndicatorSize.label,
-          indicatorWeight: 3,
-          tabs: [
-            Tab(
-              text: 'Menunggu',
-            ),
-            Tab(
-              text: 'Disetujui',
-            ),
-            Tab(
-              text: 'Ditolak',
-            ),
+          children: [
+            PendingRenewal(),
+            ApproveRenewal(),
+            RejectRenewal(),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: tabController,
-        children: [
-          PendingRenewal(),
-          ApproveRenewal(),
-          RejectRenewal(),
-        ],
       ),
     );
   }

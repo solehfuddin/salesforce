@@ -55,7 +55,8 @@ class _SignedScreenState extends State<SignedScreen> {
       return Column(
         children: [
           Text(
-            'Last your signed',
+            // 'Last your signed',
+            'Tanda Tangan Terbaru',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -94,7 +95,8 @@ class _SignedScreenState extends State<SignedScreen> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(
-            'Digital Signature',
+            // 'Digital Signature',
+            'Tanda Tangan Digital',
             style: TextStyle(
               color: Colors.black54,
               fontSize: 18,
@@ -133,7 +135,8 @@ class _SignedScreenState extends State<SignedScreen> {
                 ),
                 Center(
                   child: Text(
-                    'ELECTRONIC SIGNATURE INSTANTLY',
+                    // 'ELECTRONIC SIGNATURE INSTANTLY',
+                    'LENGKAPI TANDA TANGAN',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -145,7 +148,8 @@ class _SignedScreenState extends State<SignedScreen> {
                 ),
                 Center(
                   child: Text(
-                    'By signing this document with an electronic signature, I agree that such signature will be as valid as handwritten signatures to the extent allowed by local law',
+                    // 'By signing this document with an electronic signature, I agree that such signature will be as valid as handwritten signatures to the extent allowed by local law',
+                    'Dengan menandatangani dokumen ini secara digital, saya menyatakan bahwa tanda tangan tersebut asli dan legal sehingga diakui secara hukum yang berlaku',
                     style: TextStyle(
                         fontSize: 12,
                         fontFamily: 'Montserrat',

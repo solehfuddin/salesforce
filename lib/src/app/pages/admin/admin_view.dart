@@ -242,6 +242,7 @@ class _AdminScreenState extends State<AdminScreen> {
       divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
       getMonitoringData();
+      getTtd(int.parse(id));
     });
   }
 
