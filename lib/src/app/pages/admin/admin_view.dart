@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/widgets/areachart.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
@@ -34,12 +36,49 @@ class _AdminScreenState extends State<AdminScreen> {
   int totalOldCustomer = 0;
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<Contract> listContract = List.empty(growable: true);
+  List<BarChartGroupData> rawBarGroups;
+  List<BarChartGroupData> showingBarGroups;
+  double width = 7;
+  Color leftBarColor = const Color(0xff845bef);
+  List<Color> colorBar = List.empty(growable: true);
 
   @override
   void initState() {
     super.initState();
     if (listContract.length > 0) listContract.clear();
 
+    colorBar.add(leftBarColor);
+
+    final barGroup1 = makeGroupData(0, 10);
+    final barGroup2 = makeGroupData(1, 12);
+    final barGroup3 = makeGroupData(2, 14);
+    final barGroup4 = makeGroupData(3, 19);
+    final barGroup5 = makeGroupData(4, 15);
+    final barGroup6 = makeGroupData(5, 13);
+    final barGroup7 = makeGroupData(6, 18);
+    // final barGroup8 = makeGroupData(7, 15);
+    // final barGroup9 = makeGroupData(8, 14);
+    // final barGroup10 = makeGroupData(9, 12);
+    // final barGroup11 = makeGroupData(10, 15);
+    // final barGroup12 = makeGroupData(11, 10);
+
+    final items = [
+      barGroup1,
+      barGroup2,
+      barGroup3,
+      barGroup4,
+      barGroup5,
+      barGroup6,
+      barGroup7,
+      // barGroup8,
+      // barGroup9,
+      // barGroup10,
+      // barGroup11,
+      // barGroup12
+    ];
+
+    rawBarGroups = items;
+    showingBarGroups = rawBarGroups;
     getRole();
   }
 
@@ -246,6 +285,16 @@ class _AdminScreenState extends State<AdminScreen> {
     });
   }
 
+  BarChartGroupData makeGroupData(int x, double y1) {
+    return BarChartGroupData(barsSpace: 4, x: x, barRods: [
+      BarChartRodData(
+        y: y1,
+        colors: colorBar,
+        width: width,
+      ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -266,6 +315,8 @@ class _AdminScreenState extends State<AdminScreen> {
                 totalOldCustomer.toString(),
                 context,
               ),
+              areaChartDonuts(),
+              areaChart(rawBarGroups: rawBarGroups, showingBarGroups: showingBarGroups),
               areaHeaderRenewal(),
               _isLoadRenewal
                   ? areaLoadingRenewal()
