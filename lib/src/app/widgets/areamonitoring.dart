@@ -1,5 +1,6 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
@@ -9,26 +10,26 @@ SliverToBoxAdapter areaLoading() {
     child: Column(
       children: [
         SizedBox(
-          height: 15,
+          height: 15.h,
         ),
         Center(
           child: CircularProgressIndicator(),
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Center(
           child: Text(
             'Processing ...',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
             ),
           ),
         ),
         SizedBox(
-          height: 15,
+          height: 15.h,
         ),
       ],
     ),
@@ -38,8 +39,8 @@ SliverToBoxAdapter areaLoading() {
 SliverPadding areaHeaderMonitoring() {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15,
-      vertical: 5,
+      horizontal: 15.r,
+      vertical: 5.r,
     ),
     sliver: SliverToBoxAdapter(
       child: Column(
@@ -49,13 +50,13 @@ SliverPadding areaHeaderMonitoring() {
             Text(
               'Kontrak segera berakhir',
               style: TextStyle(
-                fontSize: 23,
+                fontSize: 23.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
           ]),
     ),
@@ -65,7 +66,7 @@ SliverPadding areaHeaderMonitoring() {
 SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
     String ttdPertama, String username, String divisi) {
   return SliverPadding(
-    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+    padding: EdgeInsets.symmetric(horizontal: 15.r, vertical: 0.r),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
@@ -81,8 +82,8 @@ SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
 SliverPadding areaMonitoringNotFound(BuildContext context) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15,
-      vertical: 0,
+      horizontal: 15.r,
+      vertical: 0.r,
     ),
     sliver: SliverToBoxAdapter(
       child: Column(
@@ -90,37 +91,37 @@ SliverPadding areaMonitoringNotFound(BuildContext context) {
           Center(
             child: Image.asset(
               'assets/images/not_found.png',
-              width: 300,
-              height: 300,
+              width: 300.w,
+              height: 300.h,
             ),
           ),
           Text(
             'Data tidak ditemukan',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w600,
               color: Colors.red[600],
               fontFamily: 'Montserrat',
             ),
           ),
           SizedBox(
-            height: 25,
+            height: 25.h,
           ),
           Center(
             child: ArgonButton(
-              height: 40,
-              width: 130,
-              borderRadius: 30.0,
+              height: 40.h,
+              width: 130.w,
+              borderRadius: 30.0.r,
               color: Colors.blue[600],
               child: Text(
                 "Search Contract",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700),
               ),
               loader: Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 child: CircularProgressIndicator(
                   color: Colors.white,
                 ),
@@ -148,26 +149,26 @@ SliverPadding areaMonitoringNotFound(BuildContext context) {
 SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15,
-      vertical: 10,
+      horizontal: 15.r,
+      vertical: 10.r,
     ),
     sliver: SliverToBoxAdapter(
       child: isShow
           ? Center(
               child: ArgonButton(
-                height: 40,
-                width: 130,
-                borderRadius: 30.0,
+                height: 40.h,
+                width: 130.w,
+                borderRadius: 30.0.r,
                 color: Colors.blue[600],
                 child: Text(
                   "Selengkapnya",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   child: CircularProgressIndicator(
                     color: Colors.white,
                   ),
@@ -187,7 +188,7 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
               ),
             )
           : SizedBox(
-              height: 5,
+              height: 5.h,
             ),
     ),
   );
@@ -198,14 +199,14 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
   return InkWell(
     child: Container(
       margin: EdgeInsets.symmetric(
-        vertical: 7,
+        vertical: 7.r,
       ),
       padding: EdgeInsets.all(
-        15,
+        15.r,
       ),
-      height: 110,
+      height: 115.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15.r),
         border: Border.all(
           color: Colors.black26,
         ),
@@ -216,13 +217,13 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
           Text(
             item[index].namaUsaha,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontFamily: 'Segoe Ui',
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -233,19 +234,19 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
                     ),
                   ),
                   SizedBox(
-                    height: 2,
+                    height: 2.h,
                   ),
                   Text(
                     capitalize(item[index].status.toLowerCase()),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.orange[800],
@@ -259,19 +260,19 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Sisa Kontrak',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
                     ),
                   ),
                   SizedBox(
-                    height: 2,
+                    height: 2.h,
                   ),
                   Text(
                     getEndDays(input: item[index].endDateContract),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.red[700],

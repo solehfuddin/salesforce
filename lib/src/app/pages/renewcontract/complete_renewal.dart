@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/renewcontract/approve_renewal.dart';
 import 'package:sample/src/app/pages/renewcontract/reject_renewal.dart';
@@ -33,7 +34,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
       });
     indicatorColor = tabColors[0];
   }
-
+  
   Future<bool> _onBackPressed() async {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => AdminScreen()));
@@ -52,7 +53,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
             'List Perubahan Kontrak',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 18,
+              fontSize: 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
             ),
@@ -65,14 +66,14 @@ class _CompleteRenewalState extends State<CompleteRenewal>
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: 18,
+              size: 18.r,
             ),
           ),
           bottom: TabBar(
             controller: tabController,
             labelColor: Colors.black54,
             indicatorColor: indicatorColor,
-            indicatorPadding: EdgeInsets.all(3),
+            indicatorPadding: EdgeInsets.all(3.r),
             indicatorSize: TabBarIndicatorSize.label,
             indicatorWeight: 3,
             tabs: [

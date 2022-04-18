@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
@@ -426,7 +427,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -436,7 +437,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'Perjanjian Kerjasama Pembelian',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -450,7 +451,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18,
+            size: 18.r,
           ),
         ),
       ),
@@ -461,13 +462,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Pihak Pertama',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
@@ -478,138 +479,138 @@ class _EcontractScreenState extends State<EcontractScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Nama : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 15,
+                  width: 15.w,
                 ),
                 Text(
                   // username,
                   name,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Jabatan : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 2,
+                  width: 2.w,
                 ),
                 Text(
                   // capitalize(role),
                   role,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Telp : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 29,
+                  width: 29.w,
                 ),
                 Text(
                   '021-4610154',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Fax : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 34,
+                  width: 34.w,
                 ),
                 Text(
                   '021-4610151-52',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Alamat : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 7,
+                  width: 7.w,
                 ),
                 Expanded(
                   child: Text(
                     'Jl. Rawa Kepiting No. 4 Kawasan Industri Pulogadung, Jakarta Timur',
                     overflow: TextOverflow.fade,
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600),
                   ),
@@ -617,17 +618,17 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Pihak Kedua',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
@@ -638,138 +639,138 @@ class _EcontractScreenState extends State<EcontractScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Nama : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 15,
+                  width: 15.w,
                 ),
                 Text(
                   namaKedua = widget.customerList[widget.position].nama,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Jabatan : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 2,
+                  width: 2.w,
                 ),
                 Text(
                   jabatanKedua = 'Owner',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Telp : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 29,
+                  width: 29.w,
                 ),
                 Text(
                   telpKedua = widget.customerList[widget.position].noTlp,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Fax : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 34,
+                  width: 34.w,
                 ),
                 Text(
                   faxKedua = widget.customerList[widget.position].fax.isEmpty
                       ? '-'
                       : widget.customerList[widget.position].fax,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Alamat : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 7,
+                  width: 7.w,
                 ),
                 Expanded(
                   child: Text(
                     alamatKedua = widget.customerList[widget.position].alamat,
                     overflow: TextOverflow.fade,
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600),
                   ),
@@ -777,25 +778,25 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 15,
+              height: 15.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Target Pembelian yang disepakati : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -803,12 +804,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   hintText: 'Lensa Nikon',
                   labelText: 'Lensa Nikon',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValNikon ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -817,8 +818,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -826,12 +827,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   hintText: 'Lensa Leinz',
                   labelText: 'Lensa Leinz',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValLeinz ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -840,8 +841,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -849,12 +850,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   hintText: 'Lensa Oriental',
                   labelText: 'Lensa Oriental',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValOriental ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -863,8 +864,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -872,12 +873,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   hintText: 'Lensa Moe',
                   labelText: 'Lensa Moe',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValMoe ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -885,39 +886,39 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 15.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Jangka waktu pembayaran : ',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Nikon : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -928,15 +929,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -966,22 +967,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Leinz : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -992,15 +993,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1030,22 +1031,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Oriental : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1056,15 +1057,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1094,22 +1095,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Moe : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1120,15 +1121,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1158,32 +1159,32 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Terhitung sejak tanggal : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: DateTimeField(
                 decoration: InputDecoration(
                   hintText: 'Tanggal Mulai',
                   labelText: 'Tanggal Mulai',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                   errorText: _isTanggalSt ? 'Data wajib diisi' : null,
                 ),
@@ -1200,15 +1201,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: DateTimeField(
                 decoration: InputDecoration(
                   hintText: 'Tanggal Berakhir',
                   labelText: 'Tanggal Berakhir',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                   errorText: _isTanggalEd ? 'Data wajib diisi' : null,
                 ),
@@ -1224,17 +1225,17 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Reguler : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
@@ -1243,16 +1244,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 200,
+                  width: 200.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 2,
+                      horizontal: 20.r,
+                      vertical: 2.r,
                     ),
                     child: Text(
                       'All Lensa Reguler',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1261,8 +1262,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 2,
+                    horizontal: 20.r,
+                    vertical: 2.r,
                   ),
                   child: Checkbox(
                     value: this._isRegularDisc,
@@ -1280,38 +1281,38 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             _isRegularDisc
                 ? SizedBox(
-                    height: 5,
+                    height: 5.h,
                   )
                 : areaMultiFormDiv(),
             _isRegularDisc
                 ? SizedBox(
-                    height: 5,
+                    height: 5.h,
                   )
                 : areaMultiFormProduct(),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               alignment: Alignment.centerRight,
               child: ArgonButton(
-                height: 40,
-                width: 100,
-                borderRadius: 30.0,
+                height: 40.h,
+                width: 100.w,
+                borderRadius: 30.0.r,
                 color: Colors.blue[700],
                 child: Text(
                   "Simpan",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   child: CircularProgressIndicator(
                     color: Colors.white,
                   ),
@@ -1328,7 +1329,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
           ],
         ),
@@ -1349,8 +1350,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
               child: Text("Submit")),
         ],
         content: Container(
-          width: double.minPositive,
-          height: 300,
+          width: double.minPositive.w,
+          height: 300.h,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: item.length,
@@ -1388,13 +1389,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              width: 350,
+              width: 350.w,
               padding: EdgeInsets.symmetric(
-                horizontal: 5,
-                vertical: 10,
+                horizontal: 5.r,
+                vertical: 10.r,
               ),
               color: Colors.white,
-              height: 80,
+              height: 80.h,
               child: TextField(
                 textInputAction: TextInputAction.search,
                 autocorrect: true,
@@ -1404,14 +1405,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   hintStyle: TextStyle(color: Colors.grey),
                   filled: true,
                   fillColor: Colors.white70,
-                  contentPadding: EdgeInsets.symmetric(vertical: 3),
+                  contentPadding: EdgeInsets.symmetric(vertical: 3.r),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    borderSide: BorderSide(color: Colors.grey, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                    borderSide: BorderSide(color: Colors.grey, width: 2.r),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                    borderSide: BorderSide(color: Colors.blue, width: 2.r),
                   ),
                 ),
                 onSubmitted: (value) {
@@ -1423,7 +1424,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             ),
             Expanded(
               child: SizedBox(
-                height: 100,
+                height: 100.h,
                 child: FutureBuilder(
                     future: search.isNotEmpty
                         ? getSearchProduct(search)
@@ -1451,8 +1452,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
   Widget listItemWidget(List<Product> item) {
     return StatefulBuilder(builder: (context, setState) {
       return Container(
-          width: double.minPositive,
-          height: 350,
+          width: double.minPositive.w,
+          height: 350.h,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: item.length,
@@ -1480,20 +1481,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Divisi : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
+                horizontal: 20.r,
               ),
               child: Ink(
                 decoration: const ShapeDecoration(
@@ -1502,11 +1503,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ),
                 child: IconButton(
                   constraints: BoxConstraints(
-                    maxHeight: 28,
-                    maxWidth: 28,
+                    maxHeight: 28.r,
+                    maxWidth: 28.r,
                   ),
                   icon: const Icon(Icons.add),
-                  iconSize: 13,
+                  iconSize: 13.r,
                   color: Colors.white,
                   onPressed: () {
                     showDialog(
@@ -1521,22 +1522,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
           ],
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 200,
+              width: 180.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Produk',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1544,16 +1545,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 90.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Regular',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1561,16 +1562,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 80.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1580,10 +1581,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
           ],
         ),
         SizedBox(
-          height: 5,
+          height: 5.h,
         ),
         Container(
-          height: 150,
+          height: 150.w,
           child: formDisc.isNotEmpty
               ? ListView.builder(
                   itemCount: formDisc.length,
@@ -1596,7 +1597,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ),
         ),
         SizedBox(
-          height: 20,
+          height: 20.h,
         ),
       ],
     );
@@ -1610,20 +1611,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Khusus : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
+                horizontal: 20.r,
               ),
               child: Ink(
                 decoration: const ShapeDecoration(
@@ -1632,11 +1633,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ),
                 child: IconButton(
                   constraints: BoxConstraints(
-                    maxHeight: 28,
-                    maxWidth: 28,
+                    maxHeight: 28.r,
+                    maxWidth: 28.r,
                   ),
                   icon: const Icon(Icons.add),
-                  iconSize: 13,
+                  iconSize: 13.r,
                   color: Colors.white,
                   onPressed: () {
                     showDialog(
@@ -1651,22 +1652,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
           ],
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 200,
+              width: 180.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Produk',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1674,16 +1675,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 90.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Regular',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1691,16 +1692,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 80.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1710,10 +1711,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
           ],
         ),
         SizedBox(
-          height: 5,
+          height: 5.h,
         ),
         Container(
-          height: 150,
+          height: 150.h,
           child: formProduct.isNotEmpty
               ? ListView.builder(
                   itemCount: formProduct.length,
@@ -1726,7 +1727,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ),
         ),
         SizedBox(
-          height: 20,
+          height: 20.h,
         ),
       ],
     );

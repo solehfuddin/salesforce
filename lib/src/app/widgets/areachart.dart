@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/widgets/indicator.dart';
 
 int touchedIndex = -1;
@@ -8,8 +9,8 @@ int touchedGroupIndex = -1;
 SliverPadding areaChartDonuts() {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15,
-      vertical: 15,
+      horizontal: 15.r,
+      vertical: 15.r,
     ),
     sliver: SliverToBoxAdapter(
       child: StatefulBuilder(
@@ -20,19 +21,19 @@ SliverPadding areaChartDonuts() {
               Text(
                 'Penjualan',
                 style: TextStyle(
-                  fontSize: 25,
+                  fontSize: 25.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(
-                height: 15,
+                height: 15.h,
               ),
               Center(
                 child: Card(
                   color: Colors.white,
                   elevation: 3.5,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
+                      borderRadius: BorderRadius.circular(15.r)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -58,7 +59,7 @@ SliverPadding areaChartDonuts() {
                                 show: false,
                               ),
                               sectionsSpace: 0,
-                              centerSpaceRadius: 40,
+                              centerSpaceRadius: 40.r,
                               sections: showingSections(),
                             ),
                           ),
@@ -104,7 +105,7 @@ SliverPadding areaChartDonuts() {
                         ],
                       ),
                       SizedBox(
-                        width: 35,
+                        width: 35.w,
                       ),
                     ],
                   ),
@@ -121,8 +122,8 @@ SliverPadding areaChartDonuts() {
 SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGroupData> showingBarGroups}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15,
-      vertical: 15,
+      horizontal: 15.r,
+      vertical: 15.r,
     ),
     sliver: SliverToBoxAdapter(
       child: StatefulBuilder(
@@ -138,11 +139,11 @@ SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGrou
                   elevation: 3.5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
-                      15,
+                      15.r,
                     ),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     child: Column(
                       children: [
                         Row(
@@ -150,30 +151,30 @@ SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGrou
                           children: [
                             iconTransaction(),
                             SizedBox(
-                              width: 30,
+                              width: 30.w,
                             ),
                             Text(
                               'Transaksi',
                               style: TextStyle(
-                                fontSize: 25,
+                                fontSize: 25.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
                               '/ Semester',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 20.sp,
                                 color: Colors.black.withOpacity(0.8),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             SizedBox(
-                              width: 30,
+                              width: 30.w,
                             ),
                           ],
                         ),
                         SizedBox(
-                          height: 15,
+                          height: 15.h,
                         ),
                         Expanded(
                           child: BarChart(
@@ -207,7 +208,7 @@ SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGrou
                                     color: Colors.black54,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                   reservedSize: 42,
                                   getTitles: bottomTitles,
@@ -218,9 +219,9 @@ SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGrou
                                     color: Colors.black54,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
-                                  margin: 22,
+                                  margin: 22.r,
                                   reservedSize: 28,
                                   interval: 1,
                                   getTitles: leftTitles,
@@ -309,7 +310,7 @@ Widget iconTransaction() {
     children: [
       Container(
         width: width,
-        height: 7,
+        height: 7.h,
         color: Colors.black.withOpacity(0.5),
       ),
       SizedBox(
@@ -317,7 +318,7 @@ Widget iconTransaction() {
       ),
       Container(
         width: width,
-        height: 14,
+        height: 14.h,
         color: Colors.black.withOpacity(0.6),
       ),
       SizedBox(
@@ -325,7 +326,7 @@ Widget iconTransaction() {
       ),
       Container(
         width: width,
-        height: 21,
+        height: 21.h,
         color: Colors.black.withOpacity(0.7),
       ),
     ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -146,7 +147,7 @@ class _RenewalContractState extends State<RenewalContract> {
           'List Customer Lama',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -157,7 +158,7 @@ class _RenewalContractState extends State<RenewalContract> {
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(
               Icons.arrow_back_ios_new,
-              size: 18,
+              size: 18.r,
               color: Colors.black54,
             )),
       ),
@@ -166,11 +167,11 @@ class _RenewalContractState extends State<RenewalContract> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
+              horizontal: 20.r,
+              vertical: 10.r,
             ),
             color: Colors.white,
-            height: 80,
+            height: 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -181,18 +182,18 @@ class _RenewalContractState extends State<RenewalContract> {
                 hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white70,
-                contentPadding: EdgeInsets.symmetric(vertical: 3),
+                contentPadding: EdgeInsets.symmetric(vertical: 3.r),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
-                    Radius.circular(12.0),
+                    Radius.circular(12.0.r),
                   ),
-                  borderSide: BorderSide(color: Colors.grey, width: 2),
+                  borderSide: BorderSide(color: Colors.grey, width: 2.r),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
-                    Radius.circular(12),
+                    Radius.circular(12.r),
                   ),
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.r),
                 ),
               ),
               onSubmitted: (value) {
@@ -205,7 +206,7 @@ class _RenewalContractState extends State<RenewalContract> {
           ),
           Expanded(
             child: SizedBox(
-              height: 100,
+              height: 100.h,
               child: FutureBuilder(
                 future: txtSearch.text.isNotEmpty
                     ? getOldCustomerBySearch(search)
@@ -234,14 +235,14 @@ class _RenewalContractState extends State<RenewalContract> {
                           Center(
                             child: Image.asset(
                               'assets/images/not_found.png',
-                              width: 300,
-                              height: 300,
+                              width: 300.w,
+                              height: 300.h,
                             ),
                           ),
                           Text(
                             'Data tidak ditemukan',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.red[600],
                               fontFamily: 'Montserrat',
@@ -270,20 +271,20 @@ class _RenewalContractState extends State<RenewalContract> {
         child: ListView.builder(
             controller: controller,
             itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.h,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
               return InkWell(
                 child: Container(
                   margin: EdgeInsets.symmetric(
-                    vertical: 7,
+                    vertical: 7.r,
                   ),
-                  padding: EdgeInsets.all(15),
-                  height: 150,
+                  padding: EdgeInsets.all(15.r),
+                  height: 150.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15.r),
                     border: Border.all(
                       color: Colors.black26,
                     ),
@@ -303,7 +304,7 @@ class _RenewalContractState extends State<RenewalContract> {
                               softWrap: false,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontFamily: 'Segoe Ui',
                                 fontWeight: FontWeight.w600,
                               ),
@@ -312,7 +313,7 @@ class _RenewalContractState extends State<RenewalContract> {
                           Text(
                             item[position].customerShipNumber,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               fontFamily: 'Segoe Ui',
                               fontWeight: FontWeight.w600,
                               color: Colors.orange,
@@ -321,27 +322,27 @@ class _RenewalContractState extends State<RenewalContract> {
                         ],
                       ),
                       SizedBox(
-                        height: 2,
+                        height: 2.h,
                       ),
                       Row(
                         children: [
                           Container(
                             padding: EdgeInsets.symmetric(
-                              vertical: 5,
-                              horizontal: 10,
+                              vertical: 5.r,
+                              horizontal: 10.r,
                             ),
                             decoration: BoxDecoration(
                               color: item[position].status == "A"
                                   ? Colors.orange[100]
                                   : Colors.red[100],
-                              borderRadius: BorderRadius.circular(3),
+                              borderRadius: BorderRadius.circular(3.r),
                             ),
                             child: Text(
                               item[position].status == 'A'
                                   ? 'AKTIF'
                                   : 'TIDAK AKTIF',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontFamily: 'Segoe ui',
                                 fontWeight: FontWeight.bold,
                                 color: item[position].status == "A"
@@ -351,16 +352,16 @@ class _RenewalContractState extends State<RenewalContract> {
                             ),
                           ),
                           SizedBox(
-                            width: 10,
+                            width: 10.w,
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              vertical: 5,
-                              horizontal: 10,
+                              vertical: 5.r,
+                              horizontal: 10.r,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.blue[100],
-                              borderRadius: BorderRadius.circular(3),
+                              borderRadius: BorderRadius.circular(3.r),
                             ),
                             child: Text.rich(
                               TextSpan(
@@ -369,20 +370,20 @@ class _RenewalContractState extends State<RenewalContract> {
                                     child: Icon(
                                       Icons.pin_drop_sharp,
                                       color: Colors.blue[800],
-                                      size: 14,
+                                      size: 14.r,
                                     ),
                                   ),
                                   WidgetSpan(
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: 2,
+                                        horizontal: 2.r,
                                       ),
                                     ),
                                   ),
                                   TextSpan(
                                     text: item[position].city,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 12.sp,
                                       fontFamily: 'Segoe ui',
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue[800],
@@ -404,13 +405,13 @@ class _RenewalContractState extends State<RenewalContract> {
                                   child: Icon(
                                     Icons.attach_file,
                                     color: Colors.grey[600],
-                                    size: 19,
+                                    size: 19.r,
                                   ),
                                 ),
                                 TextSpan(
                                   text: item[position].totalContract,
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 15.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey[600],
@@ -425,18 +426,18 @@ class _RenewalContractState extends State<RenewalContract> {
                                 Text(
                                   item[position].contactPerson,
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 13.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 7,
+                                  width: 7.w,
                                 ),
                                 Image.asset(
                                   'assets/images/avatar_user.png',
-                                  width: 28,
+                                  width: 28.w,
                                 ),
                               ],
                             ),

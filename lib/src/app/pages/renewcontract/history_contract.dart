@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/renewcontract/change_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
@@ -125,40 +126,40 @@ class _HistoryContractState extends State<HistoryContract> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: double.infinity,
-                        height: 280,
+                        width: double.infinity.w,
+                        height: 280.h,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 190),
+                              padding: EdgeInsets.only(bottom: 190.r),
                               child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
                                 child: Icon(
                                   Icons.arrow_back_ios_new,
-                                  size: 15,
+                                  size: 15.r,
                                 ),
                                 style: ButtonStyle(
                                   shape:
                                       MaterialStateProperty.all(CircleBorder()),
                                   padding: MaterialStateProperty.all(
-                                      EdgeInsets.all(8)),
+                                      EdgeInsets.all(8.r)),
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.transparent),
                                 ),
                               ),
                             ),
                             Container(
-                              width: double.infinity,
-                              height: 25,
+                              width: double.infinity.w,
+                              height: 25.h,
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade50,
                                 borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(30),
-                                  topRight: Radius.circular(30),
+                                  topLeft: Radius.circular(30.r),
+                                  topRight: Radius.circular(30.r),
                                 ),
                               ),
                             ),
@@ -174,8 +175,8 @@ class _HistoryContractState extends State<HistoryContract> {
                         ),
                       ),
                       Container(
-                        height: 230,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 230.h,
+                        padding: EdgeInsets.symmetric(horizontal: 20.r),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -184,7 +185,7 @@ class _HistoryContractState extends State<HistoryContract> {
                               style: TextStyle(
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 fontFamily: 'Montserrat',
                               ),
                               maxLines: 1,
@@ -192,17 +193,17 @@ class _HistoryContractState extends State<HistoryContract> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 10.h,
                             ),
                             Container(
-                              width: double.infinity,
-                              height: 180,
+                              width: double.infinity.w,
+                              height: 180.h,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(15.r),
                                 border: Border.all(
                                   color: Colors.black12,
-                                  width: 1.8,
+                                  width: 1.8.r,
                                 ),
                               ),
                               child: Column(
@@ -216,13 +217,13 @@ class _HistoryContractState extends State<HistoryContract> {
                                         flex: 1,
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: 10,
+                                            horizontal: 10.r,
                                           ),
                                           child: Text(
                                             'Penanggung Jawab',
                                             style: TextStyle(
                                               fontFamily: 'Segoe ui',
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.black54,
                                             ),
@@ -234,13 +235,13 @@ class _HistoryContractState extends State<HistoryContract> {
                                         flex: 1,
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: 10,
+                                            horizontal: 10.r,
                                           ),
                                           child: Text(
                                             widget.item.contactPerson.trim(),
                                             style: TextStyle(
                                               fontFamily: 'Segoe ui',
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.black,
                                             ),
@@ -250,7 +251,7 @@ class _HistoryContractState extends State<HistoryContract> {
                                     ],
                                   ),
                                   Container(
-                                    height: 1.8,
+                                    height: 1.8.h,
                                     decoration: BoxDecoration(
                                       color: Colors.black12,
                                     ),
@@ -261,13 +262,13 @@ class _HistoryContractState extends State<HistoryContract> {
                                         flex: 1,
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: 10,
+                                            horizontal: 10.r,
                                           ),
                                           child: Text(
                                             'Nomor Akun',
                                             style: TextStyle(
                                               fontFamily: 'Segoe ui',
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.black54,
                                             ),
@@ -279,13 +280,13 @@ class _HistoryContractState extends State<HistoryContract> {
                                         flex: 1,
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: 10,
+                                            horizontal: 10.r,
                                           ),
                                           child: Text(
                                             widget.item.customerShipNumber,
                                             style: TextStyle(
                                               fontFamily: 'Segoe ui',
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.orange,
                                             ),
@@ -295,7 +296,7 @@ class _HistoryContractState extends State<HistoryContract> {
                                     ],
                                   ),
                                   Container(
-                                    height: 1.8,
+                                    height: 1.8.h,
                                     decoration: BoxDecoration(
                                       color: Colors.black12,
                                     ),
@@ -306,13 +307,13 @@ class _HistoryContractState extends State<HistoryContract> {
                                         flex: 1,
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: 10,
+                                            horizontal: 10.r,
                                           ),
                                           child: Text(
                                             'Status Akun',
                                             style: TextStyle(
                                               fontFamily: 'Segoe ui',
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.black54,
                                             ),
@@ -324,16 +325,16 @@ class _HistoryContractState extends State<HistoryContract> {
                                         flex: 1,
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 3,
+                                            horizontal: 10.r,
+                                            vertical: 3.r,
                                           ),
-                                          margin: EdgeInsets.only(left: 7),
+                                          margin: EdgeInsets.only(left: 7.r),
                                           decoration: BoxDecoration(
                                             color: widget.item.status == "A"
                                                 ? Colors.orange[100]
                                                 : Colors.red[100],
                                             borderRadius:
-                                                BorderRadius.circular(3),
+                                                BorderRadius.circular(3.r),
                                           ),
                                           child: Text(
                                             widget.item.status == 'A'
@@ -341,7 +342,7 @@ class _HistoryContractState extends State<HistoryContract> {
                                                 : 'TIDAK AKTIF',
                                             style: TextStyle(
                                               fontFamily: 'Segoe ui',
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w600,
                                               color: widget.item.status == 'A'
                                                   ? Colors.orange[800]
@@ -360,32 +361,32 @@ class _HistoryContractState extends State<HistoryContract> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
+                          horizontal: 20.r,
+                          vertical: 10.r,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             widget.isAdmin
                                 ? SizedBox(
-                                    width: 5,
+                                    width: 5.w,
                                   )
                                 : Container(
                                     alignment: Alignment.centerRight,
                                     child: ArgonButton(
-                                      height: 30,
-                                      width: 100,
-                                      borderRadius: 30.0,
+                                      height: 30.h,
+                                      width: 100.w,
+                                      borderRadius: 30.0.r,
                                       color: Colors.blue[600],
                                       child: Text(
                                         "Ubah kontrak",
                                         style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 12,
+                                            fontSize: 12.sp,
                                             fontWeight: FontWeight.w700),
                                       ),
                                       loader: Container(
-                                        padding: EdgeInsets.all(8),
+                                        padding: EdgeInsets.all(8.r),
                                         child: CircularProgressIndicator(
                                           color: Colors.white,
                                         ),
@@ -409,19 +410,19 @@ class _HistoryContractState extends State<HistoryContract> {
                                     ),
                                   ),
                             SizedBox(
-                              height: 15,
+                              height: 15.h,
                             ),
                             Text(
                               'Riwayat Kontrak',
                               style: TextStyle(
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 fontFamily: 'Montserrat',
                               ),
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 10.h,
                             ),
                             FutureBuilder(
                                 future: getHistoryContract(
@@ -440,14 +441,14 @@ class _HistoryContractState extends State<HistoryContract> {
                                                 Center(
                                                   child: Image.asset(
                                                     'assets/images/not_found.png',
-                                                    width: 150,
-                                                    height: 150,
+                                                    width: 150.w,
+                                                    height: 150.h,
                                                   ),
                                                 ),
                                                 Text(
                                                   'Data tidak ditemukan',
                                                   style: TextStyle(
-                                                    fontSize: 15,
+                                                    fontSize: 15.sp,
                                                     fontWeight: FontWeight.w600,
                                                     color: Colors.red[600],
                                                     fontFamily: 'Montserrat',
@@ -461,7 +462,7 @@ class _HistoryContractState extends State<HistoryContract> {
                         ),
                       ),
                       SizedBox(
-                        height: 15,
+                        height: 15.h,
                       ),
                     ],
                   ),
@@ -484,13 +485,13 @@ class _HistoryContractState extends State<HistoryContract> {
           return InkWell(
             child: Container(
               margin: EdgeInsets.only(
-                bottom: 5,
+                bottom: 5.r,
               ),
-              padding: EdgeInsets.all(15),
-              height: 75,
+              padding: EdgeInsets.all(15.r),
+              height: 75.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(
-                  Radius.circular(15),
+                  Radius.circular(15.r),
                 ),
                 border: Border.all(
                   color: Colors.black26,
@@ -505,14 +506,14 @@ class _HistoryContractState extends State<HistoryContract> {
                     filterQuality: FilterQuality.medium,
                   ),
                   SizedBox(
-                    width: 10,
+                    width: 10.w,
                   ),
                   Expanded(
                     flex: 1,
                     child: Text(
                       'Kontrak tahun ${item[position].startContract.substring(0, 4)}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Segoe ui',
                         color: Colors.black87,
@@ -525,7 +526,7 @@ class _HistoryContractState extends State<HistoryContract> {
                       Text(
                         convertDateWithMonth(item[position].startContract),
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Segoe ui',
                           color: Colors.black,
@@ -534,7 +535,7 @@ class _HistoryContractState extends State<HistoryContract> {
                       Text(
                         item[position].status,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Segoe ui',
                           color: item[position].status == "ACTIVE"

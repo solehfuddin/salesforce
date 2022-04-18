@@ -41,6 +41,8 @@ dependencies:
   path_provider: ^1.6.28
   url_launcher: ^5.7.10
   fl_chart: ^0.12.3
+  syncfusion_flutter_charts: ^18.4.49
+  flutter_screenutil: ^4.0.4
 
 dev_dependencies:
   flutter_test:

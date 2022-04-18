@@ -5,6 +5,7 @@ import 'dart:io' as Io;
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -131,7 +132,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
       }
     });
   }
-
+  
   Widget showKtp() {
     tmpName == null
         ? textPathKtp.text = 'Foto ktp belum dipilih'
@@ -145,7 +146,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           hintText: 'Foto Ktp',
           labelText: 'Foto Ktp',
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(5.r),
           ),
           // errorText: _isFotoKtp ? 'Harap ambil foto ktp' : null,
         ),
@@ -167,7 +168,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           hintText: 'Foto Siup',
           labelText: 'Foto Siup',
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(5.r),
           ),
         ),
         controller: textPathSiup,
@@ -326,7 +327,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'Data Entry Customer Baru',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -338,7 +339,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18,
+            size: 18.r,
           ),
         ),
       ),
@@ -360,7 +361,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   Widget _areaBadanUsaha() {
     return Container(
       padding: EdgeInsets.all(
-        15,
+        15.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,12 +371,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Segoe ui',
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -383,7 +384,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nama Optik/Dr/RS/Klinik/PT/dll',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -392,7 +393,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -401,7 +402,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -409,7 +410,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'Optik Timur',
               // labelText: 'Nama Optik/Dr/RS/Klinik/PT/dll',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isNamaOptik ? 'Data wajib diisi' : null,
               // errorText: textNamaOptik.text.isEmpty ? 'Data wajib diisi' : null,
@@ -417,7 +418,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textNamaOptik,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -425,7 +426,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Alamat',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -434,7 +435,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -443,7 +444,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -451,7 +452,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'Jl Kebangsaan no 57 Jakarta',
               // labelText: 'Alamat',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isAlamatUsaha ? 'Data wajib diisi' : null,
             ),
@@ -461,7 +462,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textAlamatOptik,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -469,7 +470,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nomor Telp',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -478,7 +479,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -487,7 +488,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -495,26 +496,26 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: '02112XXX',
               // labelText: 'Telp',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isTlpUsaha ? 'Data wajib diisi' : null,
             ),
             controller: textTelpOptik,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Nomor Fax',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -522,25 +523,25 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: '02112XXX',
               // labelText: 'Fax',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
             ),
             controller: textFaxOptik,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Alamat Email',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.none,
@@ -548,14 +549,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'nama@email.com',
               // labelText: 'Email',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: !_isEmailValid ? 'Alamat email salah' : null,
             ),
             controller: textEmailOptik,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -563,7 +564,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nama Penanggung Jawab di tempat',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -572,7 +573,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -581,7 +582,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -589,14 +590,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'John Doe',
               // labelText: 'Nama Penanggung Jawab di tempat',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isNamaPic ? 'Data wajib diisi' : null,
             ),
             controller: textPicOptik,
           ),
           SizedBox(
-            height: 5,
+            height: 5.h,
           ),
         ],
       ),
@@ -605,7 +606,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   Widget _areaDataPribadi() {
     return Container(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(15.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -614,12 +615,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Segoe ui',
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -627,7 +628,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nomor SIM/KTP',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -636,7 +637,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -645,7 +646,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -653,14 +654,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: '317210XXXXXXXXXXX',
               // labelText: 'Nomor SIM/KTP',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isNoIdentitas ? 'Data wajib diisi' : null,
             ),
             controller: textIdentitas,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -668,7 +669,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nama Pelanggan/Pemilik',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -677,7 +678,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -686,7 +687,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -694,33 +695,33 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'John Doe',
               // labelText: 'Nama Pelanggan/Pemilik',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isNamaUser ? 'Data wajib diisi' : null,
             ),
             controller: textNamaUser,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Agama',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
             decoration: BoxDecoration(
                 color: Colors.white70,
                 border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5)),
+                borderRadius: BorderRadius.circular(5.r)),
             child: DropdownButton(
               underline: SizedBox(),
               isExpanded: true,
@@ -744,7 +745,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 "Pilih Agama",
                 style: TextStyle(
                     color: Colors.black54,
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600),
               ),
               onChanged: (String value) {
@@ -755,7 +756,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -763,7 +764,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Tempat Lahir',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -772,7 +773,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -781,7 +782,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -789,14 +790,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'Jakarta',
               // labelText: 'Tempat Lahir',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isTempatLahir ? 'Data wajib diisi' : null,
             ),
             controller: textTempatLahir,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -804,7 +805,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Tanggal Lahir',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -813,7 +814,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -822,14 +823,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           DateTimeField(
             decoration: InputDecoration(
               hintText: 'yyyy-mm-dd',
               // labelText: 'Tanggal Lahir',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isTanggalLahir ? 'Data wajib diisi' : null,
             ),
@@ -844,7 +845,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textTanggalLahir,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -852,7 +853,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Alamat Tempat Tinggal',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -861,7 +862,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -870,7 +871,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -878,7 +879,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'Jl Kebangsaan no 57 Jakarta',
               // labelText: 'Alamat Tempat Tinggal',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isAlamat ? 'Data wajib diisi' : null,
             ),
@@ -888,7 +889,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textAlamatUser,
           ),
           SizedBox(
-            height: 10,
+            height: 10.sp,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -896,7 +897,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Telp / Hp',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -905,7 +906,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   // color: Colors.red[600],
@@ -914,7 +915,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -922,26 +923,26 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: '0857XXXXXXXX',
               // labelText: 'Telp / Hp',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isTlpHp ? 'Data wajib diisi' : null,
             ),
             controller: textTelpUser,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Fax',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -949,13 +950,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'Fax',
               labelText: 'Fax',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
             ),
             controller: textFaxUser,
           ),
           SizedBox(
-            height: 5,
+            height: 5.h,
           ),
         ],
       ),
@@ -965,7 +966,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   Widget _areaDataTambahan() {
     return Container(
       padding: EdgeInsets.all(
-        15,
+        15.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -975,31 +976,31 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Segoe ui',
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Jenis Pembayaran',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
             decoration: BoxDecoration(
                 color: Colors.white70,
                 border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5)),
+                borderRadius: BorderRadius.circular(5.r)),
             child: DropdownButton(
               underline: SizedBox(),
               isExpanded: true,
@@ -1020,7 +1021,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 "Pilih Sistem Pembayaran",
                 style: TextStyle(
                     color: Colors.black54,
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600),
               ),
               onChanged: (String value) {
@@ -1031,19 +1032,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Kredit Limit',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -1051,7 +1052,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'XX.XXX.XXX',
               // labelText: 'Kredit Limit',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
             ),
             inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -1060,19 +1061,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textKreditLimit,
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Text(
             'Catatan',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             textCapitalization: TextCapitalization.characters,
@@ -1080,7 +1081,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               hintText: 'Isi catatan',
               // labelText: 'Catatan',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(5.r),
               ),
             ),
             keyboardType: TextInputType.multiline,
@@ -1089,7 +1090,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textCatatan,
           ),
           SizedBox(
-            height: 5,
+            height: 5.h,
           ),
         ],
       ),
@@ -1099,7 +1100,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   Widget _areaDokumenPelengkap() {
     return Container(
       padding: EdgeInsets.all(
-        15,
+        15.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1109,19 +1110,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Segoe ui',
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               showKtp(),
               SizedBox(
-                width: 15,
+                width: 15.w,
               ),
               Ink(
                 decoration: const ShapeDecoration(
@@ -1133,7 +1134,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     Icons.camera_alt_outlined,
                     color: Colors.white,
                   ),
-                  iconSize: 27,
+                  iconSize: 27.r,
                   onPressed: () {
                     chooseImage();
                   },
@@ -1142,14 +1143,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               showSiup(),
               SizedBox(
-                width: 15,
+                width: 15.w,
               ),
               Ink(
                 decoration: const ShapeDecoration(
@@ -1161,7 +1162,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     Icons.camera_alt_outlined,
                     color: Colors.white,
                   ),
-                  iconSize: 27,
+                  iconSize: 27.r,
                   onPressed: () {
                     chooseSiup();
                   },
@@ -1170,7 +1171,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 5,
+            height: 5.h,
           ),
         ],
       ),
@@ -1179,7 +1180,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   Widget _areaSignSubmit() {
     return Container(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(15.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1188,32 +1189,32 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Segoe ui',
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Signature(
             controller: _signController,
-            height: 150,
+            height: 150.h,
             backgroundColor: Colors.blueGrey.shade50,
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Text(
             'Dengan menandatangani dokumen ini secara elektronik, saya setuju bahwa tanda tangan tersebut akan sama validnya dengan tanda tangan tulisan sesuai hukum setempat',
             style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
                 color: Colors.black87),
             textAlign: TextAlign.justify,
           ),
           SizedBox(
-            height: 20,
+            height: 20.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1222,13 +1223,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(),
                   primary: Colors.orange[800],
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
                 ),
                 child: Text(
                   'Hapus Ttd',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Segoe ui',
                   ),
@@ -1238,19 +1239,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 },
               ),
               ArgonButton(
-                height: 40,
-                width: 100,
-                borderRadius: 30.0,
+                height: 40.h,
+                width: 100.w,
+                borderRadius: 30.0.r,
                 color: Colors.blue[700],
                 child: Text(
                   "Simpan",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   child: CircularProgressIndicator(
                     color: Colors.white,
                   ),
@@ -1269,7 +1270,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ],
           ),
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
         ],
       ),

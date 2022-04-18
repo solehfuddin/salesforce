@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Indicator extends StatelessWidget {
   final Color color;
@@ -28,13 +29,13 @@ class Indicator extends StatelessWidget {
             color: color,
           ),
         ),
-        const SizedBox(
-          width: 4,
+        SizedBox(
+          width: 4.w,
         ),
         Text(
           text,
           style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
+              fontSize: 16.sp, fontWeight: FontWeight.bold, color: textColor),
         )
       ],
     );

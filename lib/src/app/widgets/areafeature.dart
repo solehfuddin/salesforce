@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 
 SliverPadding areaFeature(double screenHeight, BuildContext context) {
     return SliverPadding(
       padding: EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 10,
+        horizontal: 15.r,
+        vertical: 10.r,
       ),
       sliver: SliverToBoxAdapter(
         child: Column(
@@ -14,22 +15,22 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
             Text(
               'Tanda tangan digital',
               style: TextStyle(
-                fontSize: 23,
+                fontSize: 23.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 15.h,
             ),
             GestureDetector(
               child: Container(
                 padding: EdgeInsets.all(
-                  15,
+                  15.r,
                 ),
                 height: screenHeight * 0.18,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(5.r),
                   border: Border.all(
                     color: Colors.black26,
                   ),
@@ -41,11 +42,11 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                       children: [
                         Image.asset(
                           'assets/images/digital_sign.png',
-                          width: 40,
-                          height: 40,
+                          width: 40.w,
+                          height: 40.h,
                         ),
                         SizedBox(
-                          width: 8,
+                          width: 8.w,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +55,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                               // 'Set digital signed easily to save your',
                               'Tanda tangan digital untuk memudahkan',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
@@ -62,7 +63,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                               // 'time when approved new customer',
                               'proses pengajuan kustomer baru',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
@@ -71,16 +72,16 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                       ],
                     ),
                     SizedBox(
-                      height: 16,
+                      height: 16.h,
                     ),
                     Container(
-                      height: 2,
+                      height: 2.h,
                       decoration: BoxDecoration(
                         color: Colors.black12,
                       ),
                     ),
                     SizedBox(
-                      height: 8,
+                      height: 8.h,
                     ),
                     Center(
                       child: Text(
@@ -88,7 +89,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                         'Selengkapnya',
                         style: TextStyle(
                           color: Colors.blue[700],
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Segoe ui',
                         ),
@@ -101,7 +102,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                   MaterialPageRoute(builder: (context) => SignedScreen())),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
           ],
         ),

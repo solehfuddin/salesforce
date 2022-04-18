@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomAppBar extends StatefulWidget with PreferredSizeWidget {
@@ -33,7 +34,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
         TextButton(
           child: Text('Cancel'),
           onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // onPressed: () => Navigator.of(context).pop(),
         ),
       ],
     );
@@ -47,7 +47,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         child: Text(
           "Coming Soon",
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 20.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -56,8 +56,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
       content: Container(
         child: Image.asset(
           'assets/images/coming_soon.png',
-          width: 80,
-          height: 80,
+          width: 80.r,
+          height: 80.r,
         ),
       ),
       actions: [
@@ -66,20 +66,19 @@ class _CustomAppBarState extends State<CustomAppBar> {
             style: ElevatedButton.styleFrom(
               shape: StadiumBorder(),
               primary: Colors.indigo[600],
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
             ),
             child: Text(
               'Kembali',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Segoe ui',
               ),
             ),
             onPressed: () {
               Navigator.of(context, rootNavigator: true).pop();
-              // Navigator.of(context).pop();
             },
           ),
         ),
@@ -96,7 +95,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       elevation: 0.0,
       leading: IconButton(
         icon: Icon(Icons.exit_to_app),
-        iconSize: 28,
+        iconSize: 28.r,
         onPressed: () {
           handleLogout();
         },
@@ -104,7 +103,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       actions: [
         IconButton(
           icon: Icon(Icons.notifications),
-          iconSize: 28,
+          iconSize: 28.r,
           onPressed: () {
             handleComing();
           },

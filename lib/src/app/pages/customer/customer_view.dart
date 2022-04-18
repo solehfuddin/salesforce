@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/econtract/econtract_view.dart';
@@ -127,7 +128,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
           'List Customer Baru',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -139,7 +140,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18,
+            size: 18.r,
           ),
         ),
       ),
@@ -148,11 +149,11 @@ class _CustomerScreenState extends State<CustomerScreen> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
+              horizontal: 20.r,
+              vertical: 10.r,
             ),
             color: Colors.white,
-            height: 80,
+            height: 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -162,14 +163,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
                 hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white70,
-                contentPadding: EdgeInsets.symmetric(vertical: 3),
+                contentPadding: EdgeInsets.symmetric(vertical: 3.r),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  borderSide: BorderSide(color: Colors.grey, width: 2),
+                  borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                  borderSide: BorderSide(color: Colors.grey, width: 2.w),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.w),
                 ),
               ),
               onSubmitted: (value) {
@@ -181,7 +182,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
           ),
           Expanded(
             child: SizedBox(
-              height: 100,
+              height: 100.h,
               child: FutureBuilder(
                   future: search.isNotEmpty
                       ? getCustomerBySeach(search)
@@ -211,14 +212,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300,
-                                      height: 300,
+                                      width: 300.w,
+                                      height: 300.h,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -248,9 +249,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
         child: ListView.builder(
             controller: controller,
             itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 8,
+            padding: EdgeInsets.symmetric(
+              horizontal: 5.r,
+              vertical: 8.r,
             ),
             itemBuilder: (context, position) {
               return Card(
@@ -258,7 +259,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: 100,
+                      height: 100.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -269,13 +270,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                     customer[position].status.contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
-                              width: 5),
+                              width: 5.w),
                         ),
                       ),
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 8,
+                          horizontal: 15.r,
+                          vertical: 8.r,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -287,13 +288,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                 Text(
                                   customer[position].namaUsaha,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 15,
+                                  height: 15.h,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,24 +302,24 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                     SizedBox(
-                                      width: 40,
+                                      width: 40.w,
                                     ),
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
                                 SizedBox(
-                                  height: 5,
+                                  height: 5.h,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,17 +328,17 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
                                     SizedBox(
-                                      width: 25,
+                                      width: 25.w,
                                     ),
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -347,8 +348,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 10,
+                                vertical: 5.r,
+                                horizontal: 10.r,
                               ),
                               decoration: BoxDecoration(
                                 color: customer[position].status.contains('Pending') || 
@@ -358,12 +359,12 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                       customer[position].status.contains('ACCEPTED')
                                         ? Colors.blue[600]
                                         : Colors.red[600],
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: Text(
                                 customer[position].status,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontFamily: 'Segoe ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
@@ -385,7 +386,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                   ),
                   clipper: ShapeBorderClipper(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(3.r),
                     ),
                   ),
                 ),

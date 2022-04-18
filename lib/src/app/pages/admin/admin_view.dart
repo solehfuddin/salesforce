@@ -8,10 +8,13 @@ import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/arearenewal.dart';
+import 'package:sample/src/app/widgets/areasyncchart.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
+import 'package:sample/src/domain/entities/piereport.dart';
+import 'package:sample/src/domain/entities/report.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -38,6 +41,8 @@ class _AdminScreenState extends State<AdminScreen> {
   List<Contract> listContract = List.empty(growable: true);
   List<BarChartGroupData> rawBarGroups;
   List<BarChartGroupData> showingBarGroups;
+  List<Report> _sampleData;
+  List<PieReport> _samplePie;
   double width = 7;
   Color leftBarColor = const Color(0xff845bef);
   List<Color> colorBar = List.empty(growable: true);
@@ -79,6 +84,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
     rawBarGroups = items;
     showingBarGroups = rawBarGroups;
+    _sampleData = getReportData();
+    _samplePie = getReportPie();
     getRole();
   }
 
@@ -295,50 +302,109 @@ class _AdminScreenState extends State<AdminScreen> {
     ]);
   }
 
+  List<Report> getReportData() {
+    final List<Report> sample = [
+      Report(
+          category: "Januari", sales1: 50, sales2: 30, sales3: 40, sales4: 20),
+      Report(
+          category: "Februari", sales1: 35, sales2: 25, sales3: 35, sales4: 30),
+      Report(category: "Maret", sales1: 20, sales2: 40, sales3: 45, sales4: 35),
+      Report(category: "April", sales1: 50, sales2: 35, sales3: 25, sales4: 40)
+    ];
+    return sample;
+  }
+
+  List<PieReport> getReportPie() {
+    final List<PieReport> dummy = [
+      PieReport(
+        salesName: "Bagol",
+        perc: "30.5%",
+        value: 20000,
+        color: Color(0xff0293ee),
+      ),
+      PieReport(
+        salesName: "Sule",
+        perc: "20.5%",
+        value: 11000,
+        color: Color(0xfff8b250),
+      ),
+      PieReport(
+        salesName: "Mayor",
+        perc: "9%",
+        value: 4200,
+        color: Color(0xff845bef),
+      ),
+      PieReport(
+        salesName: "Badrul",
+        perc: "40%",
+        value: 28000,
+        color: Color(0xff13d38e),
+      ),
+    ];
+    return dummy;
+  }
+
+  Future<bool> _onBackPressed() async {
+    handleLogout(context);
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: CustomAppBar(),
-        body: RefreshIndicator(
-          child: CustomScrollView(
-            physics: ClampingScrollPhysics(),
-            slivers: [
-              areaHeader(screenHeight, userUpper, context),
-              areaCounter(
-                totalWaiting.toString(),
-                totalApproved.toString(),
-                totalRejected.toString(),
-                totalNewCustomer.toString(),
-                totalOldCustomer.toString(),
-                context,
-              ),
-              areaChartDonuts(),
-              areaChart(rawBarGroups: rawBarGroups, showingBarGroups: showingBarGroups),
-              areaHeaderRenewal(),
-              _isLoadRenewal
-                  ? areaLoadingRenewal()
-                  : listContract.length > 0
-                      ? areaRenewal(
-                          listContract, context, ttdPertama, username, divisi)
-                      : areaRenewalNotFound(context),
-              areaButtonRenewal(
-                  context, listContract.length > 0 ? true : false),
-              areaHeaderMonitoring(),
-              _isLoading
-                  ? areaLoading()
-                  : listMonitoring.length > 0
-                      ? areaMonitoring(
-                          listMonitoring, context, ttdPertama, username, divisi)
-                      : areaMonitoringNotFound(context),
-              areaButtonMonitoring(
-                  context, listMonitoring.length > 0 ? true : false),
-              areaFeature(screenHeight, context),
-            ],
+      home: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: CustomAppBar(),
+          body: RefreshIndicator(
+            child: CustomScrollView(
+              physics: ClampingScrollPhysics(),
+              slivers: [
+                areaHeader(screenHeight, userUpper, context),
+                areaCounter(
+                  totalWaiting.toString(),
+                  totalApproved.toString(),
+                  totalRejected.toString(),
+                  totalNewCustomer.toString(),
+                  totalOldCustomer.toString(),
+                  context,
+                ),
+                areaChartDonuts(),
+                areaChart(
+                    rawBarGroups: rawBarGroups,
+                    showingBarGroups: showingBarGroups),
+                areaLineChartSync(reportData: _sampleData),
+                areaPieChartSync(dataPie: _samplePie),
+                areaHeaderRenewal(),
+                _isLoadRenewal
+                    ? areaLoadingRenewal()
+                    : listContract.length > 0
+                        ? areaRenewal(
+                            listContract, context, ttdPertama, username, divisi)
+                        : areaRenewalNotFound(context),
+                areaButtonRenewal(
+                    context, listContract.length > 0 ? true : false),
+                areaHeaderMonitoring(),
+                _isLoading
+                    ? areaLoading()
+                    : listMonitoring.length > 0
+                        ? areaMonitoring(
+                            listMonitoring,
+                            context,
+                            ttdPertama,
+                            username,
+                            divisi,
+                          )
+                        : areaMonitoringNotFound(context),
+                areaButtonMonitoring(
+                    context, listMonitoring.length > 0 ? true : false),
+                areaFeature(screenHeight, context),
+              ],
+            ),
+            onRefresh: _refreshData,
           ),
-          onRefresh: _refreshData,
         ),
       ),
       debugShowCheckedModeBanner: false,

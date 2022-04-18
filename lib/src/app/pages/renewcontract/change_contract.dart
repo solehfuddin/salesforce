@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -467,7 +468,7 @@ class _ChangeContractState extends State<ChangeContract> {
         title: Text(
           'Perubahan Kontrak',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
             color: Colors.black54,
@@ -479,7 +480,7 @@ class _ChangeContractState extends State<ChangeContract> {
           onPressed: () => Navigator.pop(context),
           icon: Icon(
             Icons.arrow_back_ios_new,
-            size: 18,
+            size: 18.r,
             color: Colors.black54,
           ),
         ),
@@ -490,13 +491,13 @@ class _ChangeContractState extends State<ChangeContract> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Pihak Pertama',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
@@ -507,136 +508,137 @@ class _ChangeContractState extends State<ChangeContract> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Nama : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 15,
+                  width: 15.w,
                 ),
                 Text(
                   name,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Jabatan : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 2,
+                  width: 2.w,
                 ),
                 Text(
                   role,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w
+                  ,
                 ),
                 Text(
                   'Telp : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 29,
+                  width: 29.w,
                 ),
                 Text(
                   '021-4610154',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Fax : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 34,
+                  width: 34.w,
                 ),
                 Text(
                   '021-4610151-52',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Alamat : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 7,
+                  width: 7.w,
                 ),
                 Expanded(
                   child: Text(
                     'Jl. Rawa Kepiting No. 4 Kawasan Industri Pulogadung, Jakarta Timur',
                     overflow: TextOverflow.fade,
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600),
                   ),
@@ -644,17 +646,17 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Pihak Kedua',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
@@ -665,136 +667,136 @@ class _ChangeContractState extends State<ChangeContract> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Nama : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 15,
+                  width: 15.w,
                 ),
                 Text(
                   widget.oldCustomer.contactPerson.trim(),
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Jabatan : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 2,
+                  width: 2.w,
                 ),
                 Text(
                   jabatanKedua = 'Owner',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Telp : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 29,
+                  width: 29.w,
                 ),
                 Text(
                   widget.oldCustomer.phone,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Fax : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 34,
+                  width: 34.w,
                 ),
                 Text(
                   '-',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Text(
                   'Alamat : ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
-                  width: 7,
+                  width: 7.w,
                 ),
                 Expanded(
                   child: Text(
                     widget.oldCustomer.address2,
                     overflow: TextOverflow.fade,
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600),
                   ),
@@ -802,30 +804,30 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 15,
+              height: 15.h,
             ),
             widget.actContract.isNotEmpty
                 ? areaTarget()
                 : SizedBox(
-                    width: 0,
+                    width: 0.w,
                   ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Target Pembelian yang disepakati : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -833,12 +835,12 @@ class _ChangeContractState extends State<ChangeContract> {
                   hintText: 'Lensa Nikon',
                   labelText: 'Lensa Nikon',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValNikon ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -847,8 +849,8 @@ class _ChangeContractState extends State<ChangeContract> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -856,12 +858,12 @@ class _ChangeContractState extends State<ChangeContract> {
                   hintText: 'Lensa Leinz',
                   labelText: 'Lensa Leinz',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValLeinz ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -870,8 +872,8 @@ class _ChangeContractState extends State<ChangeContract> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -879,8 +881,8 @@ class _ChangeContractState extends State<ChangeContract> {
                   hintText: 'Lensa Oriental',
                   labelText: 'Lensa Oriental',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValOriental ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
@@ -893,8 +895,8 @@ class _ChangeContractState extends State<ChangeContract> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -902,12 +904,12 @@ class _ChangeContractState extends State<ChangeContract> {
                   hintText: 'Lensa Moe',
                   labelText: 'Lensa Moe',
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 15,
+                    vertical: 3.r,
+                    horizontal: 15.r,
                   ),
                   errorText: _isValMoe ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
@@ -915,47 +917,47 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 15.h,
             ),
             widget.actContract.isNotEmpty
                 ? areaJangkaWaktu()
                 : SizedBox(
-                    width: 0,
+                    width: 0.w,
                   ),
             SizedBox(
-              height: 15,
+              height: 15.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Jangka waktu pembayaran : ',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Nikon : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -966,15 +968,15 @@ class _ChangeContractState extends State<ChangeContract> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1004,22 +1006,22 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Leinz : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1030,15 +1032,15 @@ class _ChangeContractState extends State<ChangeContract> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1068,22 +1070,22 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Oriental : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1094,15 +1096,15 @@ class _ChangeContractState extends State<ChangeContract> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1132,22 +1134,22 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 SizedBox(
-                  width: 150,
+                  width: 150.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     child: Text(
                       'Lensa Moe : ',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1158,15 +1160,15 @@ class _ChangeContractState extends State<ChangeContract> {
                   flex: 1,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
+                      horizontal: 20.r,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                         color: Colors.white70,
                         border: Border.all(color: Colors.black54),
-                        borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(5.r)),
                     margin: EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 20.r,
                     ),
                     child: DropdownButton(
                       underline: SizedBox(),
@@ -1196,32 +1198,32 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Terhitung sejak tanggal : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: DateTimeField(
                 decoration: InputDecoration(
                   hintText: 'Tanggal Mulai',
                   labelText: 'Tanggal Mulai',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                   errorText: _isTanggalSt ? 'Data wajib diisi' : null,
                 ),
@@ -1238,15 +1240,15 @@ class _ChangeContractState extends State<ChangeContract> {
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               child: DateTimeField(
                 decoration: InputDecoration(
                   hintText: 'Tanggal Berakhir',
                   labelText: 'Tanggal Berakhir',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r),
                   ),
                   errorText: _isTanggalEd ? 'Data wajib diisi' : null,
                 ),
@@ -1262,23 +1264,23 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             widget.actContract.isNotEmpty
                 ? areaDiskon(widget.actContract[0])
                 : SizedBox(
-                    width: 0,
+                    width: 0.w,
                   ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Reguler : ',
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
@@ -1287,16 +1289,16 @@ class _ChangeContractState extends State<ChangeContract> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 200,
+                  width: 200.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 2,
+                      horizontal: 20.r,
+                      vertical: 2.r,
                     ),
                     child: Text(
                       'All Lensa Reguler',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                       ),
@@ -1305,8 +1307,8 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 2,
+                    horizontal: 20.r,
+                    vertical: 2.r,
                   ),
                   child: Checkbox(
                     value: this._isRegularDisc,
@@ -1324,38 +1326,38 @@ class _ChangeContractState extends State<ChangeContract> {
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             _isRegularDisc
                 ? SizedBox(
-                    height: 5,
+                    height: 5.h,
                   )
                 : areaMultiFormDiv(),
             _isRegularDisc
                 ? SizedBox(
-                    height: 5,
+                    height: 5.h,
                   )
                 : areaMultiFormProduct(),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 20.r,
+                vertical: 5.r,
               ),
               alignment: Alignment.centerRight,
               child: ArgonButton(
-                height: 40,
-                width: 100,
-                borderRadius: 30.0,
+                height: 40.h,
+                width: 100.w,
+                borderRadius: 30.0.r,
                 color: Colors.blue[700],
                 child: Text(
                   "Simpan",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   child: CircularProgressIndicator(
                     color: Colors.white,
                   ),
@@ -1372,7 +1374,7 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
           ],
         ),
@@ -1385,26 +1387,26 @@ class _ChangeContractState extends State<ChangeContract> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 5,
+          height: 5.r,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
           ),
           child: Text(
             'Target Pembelian sebelumnya :',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
         SizedBox(
-          height: 8,
+          height: 8.h,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20.r),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1412,20 +1414,20 @@ class _ChangeContractState extends State<ChangeContract> {
                 child: Text(
                   'Lensa Nikon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
                   'Lensa Leinz',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1435,11 +1437,11 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 3,
+          height: 3.h,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1451,13 +1453,13 @@ class _ChangeContractState extends State<ChangeContract> {
                           int.parse(widget.actContract[0].tpNikon), 0)
                       : 'Rp 0',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
@@ -1466,7 +1468,7 @@ class _ChangeContractState extends State<ChangeContract> {
                           int.parse(widget.actContract[0].tpLeinz), 0)
                       : 'Rp 0',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
@@ -1475,11 +1477,11 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1488,20 +1490,20 @@ class _ChangeContractState extends State<ChangeContract> {
                 child: Text(
                   'Lensa Oriental',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
                   'Lensa Moe',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1511,11 +1513,11 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 3,
+          height: 3.h,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1527,13 +1529,13 @@ class _ChangeContractState extends State<ChangeContract> {
                           int.parse(widget.actContract[0].tpOriental), 0)
                       : 'Rp 0',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
@@ -1541,7 +1543,7 @@ class _ChangeContractState extends State<ChangeContract> {
                       ? convertToIdr(int.parse(widget.actContract[0].tpMoe), 0)
                       : 'Rp 0',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
@@ -1550,7 +1552,7 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 15,
+          height: 15.h,
         ),
       ],
     );
@@ -1561,17 +1563,17 @@ class _ChangeContractState extends State<ChangeContract> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 5,
+          height: 5.h,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 7,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
+            vertical: 7.r,
           ),
           child: Text(
             'Jangka waktu pembayaran sebelumnya :',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
             ),
@@ -1579,7 +1581,7 @@ class _ChangeContractState extends State<ChangeContract> {
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: 20,
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1588,20 +1590,20 @@ class _ChangeContractState extends State<ChangeContract> {
                 child: Text(
                   'Lensa Nikon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
                   'Lensa Leinz',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1611,11 +1613,11 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 3,
+          height: 3.h,
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: 20,
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1627,13 +1629,13 @@ class _ChangeContractState extends State<ChangeContract> {
                   //     : '-',
                   widget.actContract[0].pembNikon,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
@@ -1642,7 +1644,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   //     : '-',
                   widget.actContract[0].pembLeinz,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
@@ -1651,11 +1653,11 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: 20,
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1664,20 +1666,20 @@ class _ChangeContractState extends State<ChangeContract> {
                 child: Text(
                   'Lensa Oriental',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
                   'Lensa Moe',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1687,11 +1689,11 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 3,
+          height: 3.h,
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: 20,
+            horizontal: 20.h,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1703,13 +1705,13 @@ class _ChangeContractState extends State<ChangeContract> {
                   //     : '-',
                   widget.actContract[0].pembOriental,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
               ),
               SizedBox(
-                width: 120,
+                width: 120.w,
               ),
               Expanded(
                 child: Text(
@@ -1718,7 +1720,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   //     : '-',
                   widget.actContract[0].pembMoe,
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
@@ -1727,7 +1729,7 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 15,
+          height: 15.h,
         ),
       ],
     );
@@ -1746,8 +1748,8 @@ class _ChangeContractState extends State<ChangeContract> {
               child: Text("Submit")),
         ],
         content: Container(
-          width: double.minPositive,
-          height: 300,
+          width: double.minPositive.w,
+          height: 300.h,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: item.length,
@@ -1785,13 +1787,13 @@ class _ChangeContractState extends State<ChangeContract> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              width: 350,
+              width: 350.w,
               padding: EdgeInsets.symmetric(
-                horizontal: 5,
-                vertical: 10,
+                horizontal: 5.r,
+                vertical: 10.r,
               ),
               color: Colors.white,
-              height: 80,
+              height: 80.h,
               child: TextField(
                 textInputAction: TextInputAction.search,
                 autocorrect: true,
@@ -1801,14 +1803,14 @@ class _ChangeContractState extends State<ChangeContract> {
                   hintStyle: TextStyle(color: Colors.grey),
                   filled: true,
                   fillColor: Colors.white70,
-                  contentPadding: EdgeInsets.symmetric(vertical: 3),
+                  contentPadding: EdgeInsets.symmetric(vertical: 3.r),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    borderSide: BorderSide(color: Colors.grey, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                    borderSide: BorderSide(color: Colors.grey, width: 2.r),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                    borderSide: BorderSide(color: Colors.blue, width: 2.r),
                   ),
                 ),
                 onSubmitted: (value) {
@@ -1820,7 +1822,7 @@ class _ChangeContractState extends State<ChangeContract> {
             ),
             Expanded(
               child: SizedBox(
-                height: 100,
+                height: 100.h,
                 child: FutureBuilder(
                     future: search.isNotEmpty
                         ? getSearchProduct(search)
@@ -1848,8 +1850,8 @@ class _ChangeContractState extends State<ChangeContract> {
   Widget listItemWidget(List<Product> item) {
     return StatefulBuilder(builder: (context, setState) {
       return Container(
-          width: double.minPositive,
-          height: 350,
+          width: double.minPositive.w,
+          height: 350.h,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: item.length,
@@ -1874,21 +1876,21 @@ class _ChangeContractState extends State<ChangeContract> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 0,
-                  vertical: 5,
+                  horizontal: 0.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Kontrak Diskon Sebelumnya : ',
                   style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600),
                 ),
@@ -1897,32 +1899,32 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         SizedBox(
-          height: 3,
+          height: 3.h,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: 170,
+                width: 170.w,
                 child: Text(
                   'Deskripsi produk',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                width: 90,
+                width: 90.w,
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -1932,8 +1934,8 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ),
         Container(
-          width: double.maxFinite,
-          height: 150,
+          width: double.maxFinite.w,
+          height: 150.h,
           child: FutureBuilder(
               future: getDiscountData(item.idCustomer),
               builder: (context, snapshot) {
@@ -1948,14 +1950,14 @@ class _ChangeContractState extends State<ChangeContract> {
                               Center(
                                 child: Image.asset(
                                   'assets/images/not_found.png',
-                                  width: 120,
-                                  height: 120,
+                                  width: 120.w,
+                                  height: 120.h,
                                 ),
                               ),
                               Text(
                                 'Item Discount tidak ditemukan',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.red[600],
                                   fontFamily: 'Montserrat',
@@ -1967,7 +1969,7 @@ class _ChangeContractState extends State<ChangeContract> {
               }),
         ),
         SizedBox(
-          height: 20,
+          height: 20.h,
         ),
       ],
     );
@@ -1976,41 +1978,41 @@ class _ChangeContractState extends State<ChangeContract> {
   Widget listDiscWidget(List<Discount> item, int len) {
     return ListView.builder(
         itemCount: len,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 0,
-          vertical: 8,
+        padding: EdgeInsets.symmetric(
+          horizontal: 0.r,
+          vertical: 8.r,
         ),
         itemBuilder: (context, position) {
           return SizedBox(
-            height: 30,
+            height: 30.h,
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
+              padding: EdgeInsets.symmetric(
+                horizontal: 20.r,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
-                    width: 200,
+                    width: 200.w,
                     child: Text(
                       item[position].prodDesc != null
                           ? item[position].prodDesc
                           : '-',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   SizedBox(
-                    width: 80,
+                    width: 80.w,
                     child: Text(
                       item[position].discount != null
                           ? '${item[position].discount} %'
                           : '-',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w600,
                       ),
@@ -2031,20 +2033,20 @@ class _ChangeContractState extends State<ChangeContract> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Divisi : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
+                horizontal: 20.r,
               ),
               child: Ink(
                 decoration: const ShapeDecoration(
@@ -2057,7 +2059,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     maxWidth: 28,
                   ),
                   icon: const Icon(Icons.add),
-                  iconSize: 13,
+                  iconSize: 13.r,
                   color: Colors.white,
                   onPressed: () {
                     showDialog(
@@ -2072,22 +2074,22 @@ class _ChangeContractState extends State<ChangeContract> {
           ],
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 200,
+              width: 180.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Produk',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -2095,16 +2097,16 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 90.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Regular',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -2112,16 +2114,16 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 80.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -2131,10 +2133,10 @@ class _ChangeContractState extends State<ChangeContract> {
           ],
         ),
         SizedBox(
-          height: 5,
+          height: 5.h,
         ),
         Container(
-          height: 150,
+          height: 150.h,
           child: formDisc.isNotEmpty
               ? ListView.builder(
                   itemCount: formDisc.length,
@@ -2147,7 +2149,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
         ),
         SizedBox(
-          height: 20,
+          height: 20.h,
         ),
       ],
     );
@@ -2161,20 +2163,20 @@ class _ChangeContractState extends State<ChangeContract> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+                horizontal: 20.r,
+                vertical: 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Khusus : ',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
+                horizontal: 20.r,
               ),
               child: Ink(
                 decoration: const ShapeDecoration(
@@ -2183,11 +2185,11 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 child: IconButton(
                   constraints: BoxConstraints(
-                    maxHeight: 28,
-                    maxWidth: 28,
+                    maxHeight: 28.r,
+                    maxWidth: 28.r,
                   ),
                   icon: const Icon(Icons.add),
-                  iconSize: 13,
+                  iconSize: 13.r,
                   color: Colors.white,
                   onPressed: () {
                     showDialog(
@@ -2202,22 +2204,22 @@ class _ChangeContractState extends State<ChangeContract> {
           ],
         ),
         SizedBox(
-          height: 10,
+          height: 10.h,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 200,
+              width: 180.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Produk',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -2225,16 +2227,16 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 90.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Regular',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -2242,16 +2244,16 @@ class _ChangeContractState extends State<ChangeContract> {
               ),
             ),
             SizedBox(
-              width: 100,
+              width: 80.w,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
+                  horizontal: 20.r,
+                  vertical: 5.r,
                 ),
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -2261,10 +2263,10 @@ class _ChangeContractState extends State<ChangeContract> {
           ],
         ),
         SizedBox(
-          height: 5,
+          height: 5.h,
         ),
         Container(
-          height: 150,
+          height: 150.h,
           child: formProduct.isNotEmpty
               ? ListView.builder(
                   itemCount: formProduct.length,
@@ -2277,7 +2279,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
         ),
         SizedBox(
-          height: 20,
+          height: 20.h,
         ),
       ],
     );

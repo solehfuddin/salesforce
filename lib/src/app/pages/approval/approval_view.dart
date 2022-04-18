@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:http/http.dart' as http;
@@ -90,7 +91,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
           'Approved Customer',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -104,7 +105,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18,
+            size: 18.r,
           ),
         ),
       ),
@@ -113,7 +114,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         children: [
           Expanded(
             child: SizedBox(
-              height: 100,
+              height: 100.h,
               child: FutureBuilder(
                   future: divisi == "AR" ? getCustomerData(true): getCustomerData(false),
                   builder: (context, snapshot) {
@@ -129,14 +130,14 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300,
-                                      height: 300,
+                                      width: 300.r,
+                                      height: 300.r,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -158,9 +159,9 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
       child: Container(
         child: ListView.builder(
             itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 8,
+            padding: EdgeInsets.symmetric(
+              horizontal: 5.r,
+              vertical: 8.r,
             ),
             itemBuilder: (context, position) {
               return Card(
@@ -168,7 +169,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: 100,
+                      height: 100.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -179,13 +180,13 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                     customer[position].status.contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
-                              width: 5),
+                              width: 5.w),
                         ),
                       ),
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 8,
+                          horizontal: 15.r,
+                          vertical: 8.r,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -197,13 +198,13 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                 Text(
                                   customer[position].namaUsaha,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 15,
+                                  height: 15.h,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,24 +212,24 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                     SizedBox(
-                                      width: 40,
+                                      width: 40.w,
                                     ),
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
                                 SizedBox(
-                                  height: 5,
+                                  height: 5.h,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,17 +238,17 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
                                     SizedBox(
-                                      width: 25,
+                                      width: 25.w,
                                     ),
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -257,19 +258,19 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 10,
+                                vertical: 5.r,
+                                horizontal: 10.r,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.teal[400],
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: Text(
                                 customer[position].namaSalesman.length > 0
                                     ? capitalize(customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontFamily: 'Segoe ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
@@ -286,7 +287,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                   ),
                   clipper: ShapeBorderClipper(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(3.r),
                     ),
                   ),
                 ),

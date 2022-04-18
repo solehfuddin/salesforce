@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/areabanner.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamenu.dart';
@@ -100,33 +101,41 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<bool> _onBackPressed() async {
+    handleLogout(context);
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     return MaterialApp(
-      home: Scaffold(
-        appBar: CustomAppBar(),
-        body: RefreshIndicator(
-          child: CustomScrollView(
-            physics: ClampingScrollPhysics(),
-            slivers: [
-              areaHeader(screenHeight, userUpper, context),
-              areaPoint(screenHeight, context),
-              areaMenu(screenHeight, context, id),
-              areaHeaderMonitoring(),
-              _isLoading
-                  ? areaLoading()
-                  : listMonitoring.length > 0
-                      ? areaMonitoring(
-                          listMonitoring, context, ttdSales, username, divisi)
-                      : areaMonitoringNotFound(context),
-              areaButtonMonitoring(
-                  context, listMonitoring.length > 0 ? true : false),
-              areaFeature(screenHeight, context),
-              areaBanner(screenHeight, context),
-            ],
+      home: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          appBar: CustomAppBar(),
+          body: RefreshIndicator(
+            child: CustomScrollView(
+              physics: ClampingScrollPhysics(),
+              slivers: [
+                areaHeader(screenHeight, userUpper, context),
+                areaPoint(screenHeight, context),
+                areaMenu(screenHeight, context, id),
+                areaHeaderMonitoring(),
+                _isLoading
+                    ? areaLoading()
+                    : listMonitoring.length > 0
+                        ? areaMonitoring(
+                            listMonitoring, context, ttdSales, username, divisi)
+                        : areaMonitoringNotFound(context),
+                areaButtonMonitoring(
+                    context, listMonitoring.length > 0 ? true : false),
+                areaFeature(screenHeight, context),
+                areaBanner(screenHeight, context),
+              ],
+            ),
+            onRefresh: _refreshData,
           ),
-          onRefresh: _refreshData,
         ),
       ),
       debugShowCheckedModeBanner: false,

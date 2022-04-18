@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
@@ -104,7 +105,7 @@ class _SearchContractState extends State<SearchContract> {
                       : getMonitoringData();
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +116,7 @@ class _SearchContractState extends State<SearchContract> {
           'List Monitoring Contract',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -127,7 +128,7 @@ class _SearchContractState extends State<SearchContract> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18,
+            size: 18.r,
           ),
         ),
       ),
@@ -136,11 +137,11 @@ class _SearchContractState extends State<SearchContract> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
+              horizontal: 20.r,
+              vertical: 10.r,
             ),
             color: Colors.white,
-            height: 80,
+            height: 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -150,14 +151,14 @@ class _SearchContractState extends State<SearchContract> {
                 hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white70,
-                contentPadding: EdgeInsets.symmetric(vertical: 3),
+                contentPadding: EdgeInsets.symmetric(vertical: 3.r),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  borderSide: BorderSide(color: Colors.grey, width: 2),
+                  borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                  borderSide: BorderSide(color: Colors.grey, width: 2.r),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.r),
                 ),
               ),
               onSubmitted: (value) {
@@ -169,7 +170,7 @@ class _SearchContractState extends State<SearchContract> {
           ),
           Expanded(
             child: SizedBox(
-              height: 100,
+              height: 100.h,
               child: FutureBuilder(
                   future: search.isNotEmpty
                       ? getMonitoringBySearch(search)
@@ -187,14 +188,14 @@ class _SearchContractState extends State<SearchContract> {
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300,
-                                      height: 300,
+                                      width: 300.r,
+                                      height: 300.r,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -216,21 +217,21 @@ class _SearchContractState extends State<SearchContract> {
       child: Container(
         child: ListView.builder(
             itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 15,
+            padding: EdgeInsets.symmetric(
+              horizontal: 5.r,
+              vertical: 15.r,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
               return InkWell(
                 child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 7,),
+                  margin: EdgeInsets.symmetric(vertical: 7.r,),
                   padding: EdgeInsets.all(
-                    15,
+                    15.r,
                   ),
-                  height: 110,
+                  height: 110.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15.r),
                     border: Border.all(
                       color: Colors.black26,
                     ),
@@ -242,13 +243,13 @@ class _SearchContractState extends State<SearchContract> {
                       Text(
                         item[position].namaUsaha,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontFamily: 'Segoe Ui',
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       SizedBox(
-                        height: 15,
+                        height: 15.h,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -259,20 +260,20 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 'Status',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[800],
                                 ),
                               ),
                               SizedBox(
-                                height: 2,
+                                height: 2.h,
                               ),
                               Text(
                                 capitalize(
                                         item[position].status.toLowerCase()),
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
                                   color: item[position].status == "ACTIVE" ?  Colors.orange[800] : Colors.red[600],
@@ -286,19 +287,19 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 'Sisa Kontrak',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[800],
                                 ),
                               ),
                               SizedBox(
-                                height: 2,
+                                height: 2.h,
                               ),
                               Text(
                                 getEndDays(input: item[position].endDateContract),
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.red[700],

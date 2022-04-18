@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/screen_util.dart';
 import 'package:sample/src/app/widgets/waveFooter.dart';
 import 'package:sample/src/app/widgets/waveHeader.dart';
 
@@ -16,14 +17,16 @@ class _BackgroundLogin extends State<BackgroundLogin> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Column(
         children: <Widget>[
           SizedBox(
-            height: 50,
+            // height: 50,
+            height: ScreenUtil().setHeight(50),
           ),
           Stack(
             alignment: Alignment.bottomRight,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
@@ -49,7 +50,7 @@ class _SignedScreenState extends State<SignedScreen> {
     _signController.addListener(() => print('Value changed'));
     getRole();
   }
-
+  
   Widget showImage() {
     if (tmpTtd != null) {
       return Column(
@@ -58,28 +59,28 @@ class _SignedScreenState extends State<SignedScreen> {
             // 'Last your signed',
             'Tanda Tangan Terbaru',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
           Container(
             width: MediaQuery.of(context).size.width,
-            height: 150,
+            height: 150.h,
             decoration: BoxDecoration(
               border: Border.all(
                 color: Colors.black54,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Image.memory(
               base64Decode(tmpTtd),
             ),
           ),
           SizedBox(
-            height: 15,
+            height: 15.h,
           ),
         ],
       );
@@ -99,7 +100,7 @@ class _SignedScreenState extends State<SignedScreen> {
             'Tanda Tangan Digital',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 18,
+              fontSize: 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
             ),
@@ -111,7 +112,7 @@ class _SignedScreenState extends State<SignedScreen> {
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: 18,
+              size: 18.r,
             ),
           ),
         ),
@@ -119,39 +120,39 @@ class _SignedScreenState extends State<SignedScreen> {
           child: Container(
             color: Colors.white,
             padding: EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 20,
+              horizontal: 15.r,
+              vertical: 20.r,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Image.asset(
                   'assets/images/signedable.png',
-                  width: 220,
-                  height: 193,
+                  width: 220.r,
+                  height: 193.r,
                 ),
                 SizedBox(
-                  height: 30,
+                  height: 30.h,
                 ),
                 Center(
                   child: Text(
                     // 'ELECTRONIC SIGNATURE INSTANTLY',
                     'LENGKAPI TANDA TANGAN',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 20.h,
                 ),
                 Center(
                   child: Text(
                     // 'By signing this document with an electronic signature, I agree that such signature will be as valid as handwritten signatures to the extent allowed by local law',
                     'Dengan menandatangani dokumen ini secara digital, saya menyatakan bahwa tanda tangan tersebut asli dan legal sehingga diakui secara hukum yang berlaku',
                     style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                         color: Colors.black87),
@@ -159,15 +160,15 @@ class _SignedScreenState extends State<SignedScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 20.h,
                 ),
                 Signature(
                   controller: _signController,
-                  height: 150,
+                  height: 150.h,
                   backgroundColor: Colors.blueGrey.shade50,
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 20.h,
                 ),
                 showImage(),
                 Row(
@@ -178,13 +179,13 @@ class _SignedScreenState extends State<SignedScreen> {
                         shape: StadiumBorder(),
                         primary: Colors.orange[800],
                         padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
                       ),
                       child: Text(
                         'Clear',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Segoe ui',
                         ),
@@ -198,13 +199,13 @@ class _SignedScreenState extends State<SignedScreen> {
                         shape: StadiumBorder(),
                         primary: Colors.blue[700],
                         padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
                       ),
                       child: Text(
                         'Submit',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Segoe ui',
                         ),

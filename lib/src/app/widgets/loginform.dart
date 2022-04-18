@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/colors.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/passwordtextfield.dart';
@@ -56,13 +57,13 @@ class _LoginFormState extends State<LoginForm> {
                     PasswordTextField(
                         0, 15, "PASSWORD", textPassword, _isPassword),
                     Padding(
-                      padding: EdgeInsets.only(right: 50, top: 30),
+                      padding: EdgeInsets.only(right: 50.w, top: 30.h),
                       child: Row(
                         children: <Widget>[
                           Expanded(
                             child: Padding(
                               padding: EdgeInsets.only(
-                                right: 40,
+                                right: 40.w,
                               ),
                             ),
                           ),
@@ -74,12 +75,12 @@ class _LoginFormState extends State<LoginForm> {
               ],
             ),
             SizedBox(
-              height: 30,
+              height: 30.h,
             ),
             Container(
               alignment: Alignment.topRight,
               child: Container(
-                padding: EdgeInsets.only(right: 35),
+                padding: EdgeInsets.only(right: 35.w),
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
@@ -88,16 +89,16 @@ class _LoginFormState extends State<LoginForm> {
                   },
                   icon: Icon(
                     Icons.login,
-                    size: 33,
+                    size: 33.r,
                   ),
                   label: Text(''),
                   style: ElevatedButton.styleFrom(
                       primary: Colors.deepOrange[600],
                       padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                          EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(30.r),
                       )),
                 ),
               ),
@@ -112,7 +113,7 @@ class _LoginFormState extends State<LoginForm> {
               child: Text(
                 "e-SALES",
                 style: TextStyle(
-                  fontSize: 23,
+                  fontSize: 23.sp,
                   color: MyColors.bgColor,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Montserrat',
@@ -125,7 +126,7 @@ class _LoginFormState extends State<LoginForm> {
               child: Text(
                 'v 1.0',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Segoe ui',
                 ),

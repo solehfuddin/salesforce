@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
@@ -140,7 +141,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
             'List Customer Baru',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 18,
+              fontSize: 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
             ),
@@ -160,7 +161,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: 18,
+              size: 18.r,
             ),
           ),
         ),
@@ -169,7 +170,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
           children: [
             Expanded(
               child: SizedBox(
-                height: 100,
+                height: 100.h,
                 child: FutureBuilder(
                     future: divisi == "AR"
                         ? getCustomerData(true)
@@ -187,14 +188,14 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                     Center(
                                       child: Image.asset(
                                         'assets/images/not_found.png',
-                                        width: 300,
-                                        height: 300,
+                                        width: 300.r,
+                                        height: 300.r,
                                       ),
                                     ),
                                     Text(
                                       'Data tidak ditemukan',
                                       style: TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 18.sp,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.red[600],
                                         fontFamily: 'Montserrat',
@@ -217,9 +218,9 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
       child: Container(
         child: ListView.builder(
             itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 8,
+            padding: EdgeInsets.symmetric(
+              horizontal: 5.r,
+              vertical: 8.r,
             ),
             itemBuilder: (context, position) {
               return Card(
@@ -227,16 +228,16 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: 100,
+                      height: 100.h,
                       decoration: BoxDecoration(
                         border: Border(
-                          left: BorderSide(color: Colors.grey[600], width: 5),
+                          left: BorderSide(color: Colors.grey[600], width: 5.r,),
                         ),
                       ),
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 8,
+                          horizontal: 15.r,
+                          vertical: 8.r,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -248,13 +249,13 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                 Text(
                                   customer[position].namaUsaha,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 15,
+                                  height: 15.h,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,24 +263,24 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                     SizedBox(
-                                      width: 40,
+                                      width: 40.w,
                                     ),
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
                                 SizedBox(
-                                  height: 5,
+                                  height: 5.h,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,17 +289,17 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
                                     SizedBox(
-                                      width: 25,
+                                      width: 25.w,
                                     ),
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -308,12 +309,12 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 10,
+                                vertical: 5.r,
+                                horizontal: 10.r,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.teal[400],
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: Text(
                                 customer[position].namaSalesman.length > 0
@@ -321,7 +322,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                         customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontFamily: 'Segoe ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
@@ -340,7 +341,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                   ),
                   clipper: ShapeBorderClipper(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(3.r),
                     ),
                   ),
                 ),
@@ -359,8 +360,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         context: context,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
+            topLeft: Radius.circular(15.r),
+            topRight: Radius.circular(15.r),
           ),
         ),
         builder: (context) {

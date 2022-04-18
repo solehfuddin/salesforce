@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
@@ -102,7 +103,7 @@ handleComing(BuildContext context) {
       child: Text(
         "Coming Soon",
         style: TextStyle(
-          fontSize: 20,
+          fontSize: 20.sp,
           fontFamily: 'Segoe ui',
           fontWeight: FontWeight.w600,
         ),
@@ -111,8 +112,8 @@ handleComing(BuildContext context) {
     content: Container(
       child: Image.asset(
         'assets/images/coming_soon.png',
-        width: 80,
-        height: 80,
+        width: 80.r,
+        height: 80.r,
       ),
     ),
     actions: [
@@ -121,13 +122,13 @@ handleComing(BuildContext context) {
           style: ElevatedButton.styleFrom(
             shape: StadiumBorder(),
             primary: Colors.indigo[600],
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
           ),
           child: Text(
             'Ok',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               fontFamily: 'Segoe ui',
             ),
@@ -251,9 +252,9 @@ handleStatus(BuildContext context, String msg, bool status) {
   AlertDialog alert = AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
-        top: 20,
+        top: 20.r,
       ),
-      height: 120,
+      height: 120.h,
       child: Column(
         children: [
           Center(
@@ -261,18 +262,18 @@ handleStatus(BuildContext context, String msg, bool status) {
               status
                   ? 'assets/images/success.png'
                   : 'assets/images/failure.png',
-              width: 60,
-              height: 60,
+              width: 60.r,
+              height: 60.r,
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 20.h,
           ),
           Center(
             child: Text(
               msg,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -287,13 +288,13 @@ handleStatus(BuildContext context, String msg, bool status) {
           style: ElevatedButton.styleFrom(
             shape: StadiumBorder(),
             primary: Colors.indigo[600],
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
           ),
           child: Text(
             'Ok',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               fontFamily: 'Segoe ui',
             ),
@@ -492,7 +493,7 @@ handleDigitalSigned(
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
-        fontSize: 16);
+        fontSize: 16.sp);
   }
 }
 
@@ -503,14 +504,14 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(15),
-        topRight: Radius.circular(15),
+        topLeft: Radius.circular(15.r),
+        topRight: Radius.circular(15.r),
       ),
     ),
     context: context,
     builder: (context) {
       return Container(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(15.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -521,15 +522,15 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                 Text(
                   customer[position].namaUsaha,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 15.sp,
                     fontFamily: 'Segoe ui',
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    vertical: 5,
-                    horizontal: 10,
+                    vertical: 5.r,
+                    horizontal: 10.r,
                   ),
                   decoration: BoxDecoration(
                     color: customer[position].status.contains('Pending') ||
@@ -539,12 +540,12 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                                 customer[position].status.contains('ACCEPTED')
                             ? Colors.blue[600]
                             : Colors.red[600],
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Text(
                     customer[position].status,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       fontFamily: 'Segoe ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -554,7 +555,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
               ],
             ),
             SizedBox(
-              height: 5,
+              height: 5.h,
             ),
             Text(
               customer[position].status.contains('Pending') ||
@@ -565,7 +566,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                       ? 'Pengajuan e-kontrak diterima'
                       : 'Pengajuan e-kontrak ditolak',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
                 color: customer[position].status.contains('Pending') ||
@@ -578,58 +579,58 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
               ),
             ),
             SizedBox(
-              height: 5,
+              height: 5.h,
             ),
             Text(
               'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
             SizedBox(
-              height: 3,
+              height: 3.h,
             ),
             Divider(
               color: Colors.black54,
             ),
             SizedBox(
-              height: 5,
+              height: 5.h,
             ),
             Text(
               'Detail Status',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 50.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      vertical: 5,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(5.r),
                     ),
                     child: Center(
                       child: Text(
                         'SM',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -639,7 +640,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,7 +649,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                       child: Text(
                         'Sales Manager',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -662,7 +663,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                               ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
                               : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
@@ -673,28 +674,28 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 50.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 10,
+                      vertical: 5.r,
+                      horizontal: 10.r,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(5.r),
                     ),
                     child: Text(
                       'AM',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w600,
                         color: Colors.black54,
@@ -703,7 +704,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -711,7 +712,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                     Text(
                       'AR Manager',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -724,7 +725,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                               ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
                               : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
@@ -735,25 +736,25 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ArgonButton(
-                  height: 40,
-                  width: 120,
-                  borderRadius: 30.0,
+                  height: 40.h,
+                  width: 120.w,
+                  borderRadius: 30.0.r,
                   color: Colors.blue[700],
                   child: Text(
                     "Unduh Data",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w700),
                   ),
                   loader: Container(
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.r),
                     child: CircularProgressIndicator(
                       color: Colors.white,
                     ),
@@ -771,13 +772,14 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                   style: ElevatedButton.styleFrom(
                     shape: StadiumBorder(),
                     primary: Colors.red[800],
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
                   ),
                   child: Text(
                     'Tutup',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Segoe ui',
                     ),
@@ -789,7 +791,7 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
           ],
         ),
@@ -1209,14 +1211,14 @@ formRejected(BuildContext context, List<Customer> customer, int position,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(15),
-        topRight: Radius.circular(15),
+        topLeft: Radius.circular(15.r),
+        topRight: Radius.circular(15.r),
       ),
     ),
     context: context,
     builder: (context) {
       return Container(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(15.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -1227,15 +1229,15 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                 Text(
                   customer[position].namaUsaha,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontFamily: 'Segoe ui',
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    vertical: 5,
-                    horizontal: 10,
+                    vertical: 5.r,
+                    horizontal: 10.r,
                   ),
                   decoration: BoxDecoration(
                     color: customer[position].status == "Pending"
@@ -1243,12 +1245,12 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                         : customer[position].status == "Accepted"
                             ? Colors.blue[600]
                             : Colors.red[600],
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Text(
                     customer[position].status,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontFamily: 'Segoe ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -1258,7 +1260,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 8.h,
             ),
             Text(
               customer[position].status == "Pending"
@@ -1267,7 +1269,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                       ? 'Pengajuan e-kontrak diterima'
                       : 'Pengajuan e-kontrak ditolak',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
                 color: customer[position].status == "Pending"
@@ -1278,58 +1280,58 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               ),
             ),
             SizedBox(
-              height: 5,
+              height: 5.h,
             ),
             Text(
               'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
             SizedBox(
-              height: 3,
+              height: 3.h,
             ),
             Divider(
               color: Colors.black54,
             ),
             SizedBox(
-              height: 5,
+              height: 5.h,
             ),
             Text(
               'Detail Status',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 50.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      vertical: 5,
+                      vertical: 5.r,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(5.r),
                     ),
                     child: Center(
                       child: Text(
                         'SM',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -1339,7 +1341,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1348,7 +1350,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                       child: Text(
                         'Sales Manager',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -1362,7 +1364,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                               ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
                               : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
@@ -1373,28 +1375,28 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               children: [
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 50.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 10,
+                      vertical: 5.r,
+                      horizontal: 10.r,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(5.r),
                     ),
                     child: Text(
                       'AM',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w600,
                         color: Colors.black54,
@@ -1403,7 +1405,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 20.w,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1411,7 +1413,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                     Text(
                       'AR Manager',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -1424,7 +1426,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                               ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
                               : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
@@ -1435,13 +1437,13 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 20.h,
             ),
             Center(
               child: Text(
                 'Apakah anda ingin menyetujui kontrak optik ini?',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.orange[800],
@@ -1450,25 +1452,25 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ArgonButton(
-                  height: 40,
-                  width: 100,
-                  borderRadius: 30.0,
+                  height: 40.h,
+                  width: 100.w,
+                  borderRadius: 30.0.r,
                   color: Colors.blue[700],
                   child: Text(
                     "Approve",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w700),
                   ),
                   loader: Container(
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.r),
                     child: CircularProgressIndicator(
                       color: Colors.white,
                     ),
@@ -1490,13 +1492,14 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                   style: ElevatedButton.styleFrom(
                     shape: StadiumBorder(),
                     primary: Colors.red[800],
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
                   ),
                   child: Text(
                     'Tutup',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Segoe ui',
                     ),
@@ -1508,7 +1511,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 10.h,
             ),
           ],
         ),
@@ -1674,8 +1677,8 @@ formContractNew(BuildContext context, Contract item, String div,
       context: context,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(15),
-          topRight: Radius.circular(15),
+          topLeft: Radius.circular(15.r),
+          topRight: Radius.circular(15.r),
         ),
       ),
       builder: (context) {
@@ -1689,4 +1692,33 @@ formContractNew(BuildContext context, Contract item, String div,
           isAdminRenewal: false,
         );
       });
+}
+
+signOut() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setBool("islogin", false);
+  await preferences.setString("role", null);
+  await Future.delayed(const Duration(seconds: 2), () {});
+  SystemNavigator.pop();
+}
+
+handleLogout(BuildContext context) {
+  AlertDialog alert = AlertDialog(
+    title: Text("Logout"),
+    content: Container(
+      child: Text("Do you want to close app?"),
+    ),
+    actions: [
+      TextButton(
+        child: Text('Ok'),
+        onPressed: () => signOut(),
+      ),
+      TextButton(
+        child: Text('Cancel'),
+        onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+      ),
+    ],
+  );
+
+  showDialog(context: context, builder: (context) => alert);
 }

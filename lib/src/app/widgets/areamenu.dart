@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
@@ -23,12 +24,12 @@ SliverToBoxAdapter areaMenu(
     double screenHeight, BuildContext context, String idSales) {
   return SliverToBoxAdapter(
     child: Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      padding: EdgeInsets.symmetric(vertical: 15.r, horizontal: 10.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 10,
+            height: 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -39,8 +40,8 @@ SliverToBoxAdapter areaMenu(
                     children: [
                       Image.asset(
                         'assets/images/entry_customer_new.png',
-                        width: 50,
-                        height: 50,
+                        width: 50.r,
+                        height: 50.r,
                       ),
                       SizedBox(
                         height: screenHeight * 0.015,
@@ -48,7 +49,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'Kustomer',
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),
@@ -67,8 +68,8 @@ SliverToBoxAdapter areaMenu(
                     children: [
                       Image.asset(
                         'assets/images/e_contract_new.png',
-                        width: 50,
-                        height: 50,
+                        width: 50.r,
+                        height: 50.r,
                       ),
                       SizedBox(
                         height: screenHeight * 0.015,
@@ -76,7 +77,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'E-Kontrak',
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),
@@ -95,8 +96,8 @@ SliverToBoxAdapter areaMenu(
                     children: [
                       Image.asset(
                         'assets/images/mon_contract.png',
-                        width: 50,
-                        height: 50,
+                        width: 50.r,
+                        height: 50.r,
                       ),
                       SizedBox(
                         height: screenHeight * 0.015,
@@ -104,7 +105,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'Monitoring',
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),
@@ -127,8 +128,8 @@ SliverToBoxAdapter areaMenu(
                     children: [
                       Image.asset(
                         'assets/images/renew_contract.png',
-                        width: 50,
-                        height: 50,
+                        width: 50.r,
+                        height: 50.r,
                       ),
                       SizedBox(
                         height: screenHeight * 0.015,
@@ -136,7 +137,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'Ubah Kontrak',
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),

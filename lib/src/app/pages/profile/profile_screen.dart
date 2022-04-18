@@ -4,6 +4,7 @@ import 'dart:io' as Io;
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -189,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'Profil Pengguna',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -202,14 +203,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
           icon: Icon(
             Icons.arrow_back_ios_new,
-            size: 18,
+            size: 18.r,
             color: Colors.black54,
           ),
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(15),
+          padding: EdgeInsets.all(15.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -220,18 +221,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: <Widget>[
                       base64Imgprofile == null
                           ? CircleAvatar(
-                              radius: 50,
+                              radius: 50.r,
                               child: ClipOval(
                                 child: Image.asset(
                                   'assets/images/profile.png',
-                                  height: 100,
-                                  width: 100,
+                                  height: 100.h,
+                                  width: 100.w,
                                   fit: BoxFit.cover,
                                 ),
                               ),
                             )
                           : CircleAvatar(
-                              radius: 50,
+                              radius: 50.r,
                               backgroundImage: MemoryImage(
                                 Base64Decoder().convert(base64Imgprofile),
                               ),
@@ -240,38 +241,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           bottom: 1,
                           right: 5,
                           child: Container(
-                            height: 30,
-                            width: 30,
+                            height: 30.h,
+                            width: 30.w,
                             child: Icon(
                               Icons.add_a_photo,
                               color: Colors.white,
-                              size: 15,
+                              size: 15.r,
                             ),
                             decoration: BoxDecoration(
                                 color: Colors.green.shade500,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(18))),
+                                    BorderRadius.all(Radius.circular(18.r))),
                           ))
                     ],
                   ),
                 ),
               ),
               SizedBox(
-                height: 10,
+                height: 10.h,
               ),
               Center(
                 child: Text(
                   capitalize(username),
                   style: TextStyle(
                     color: Colors.black87,
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontFamily: 'Segoe ui',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                height: 5,
+                height: 5.h,
               ),
               Center(
                 child: Text(
@@ -282,22 +283,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           capitalize(divisi.toLowerCase()),
                   style: TextStyle(
                     color: Colors.grey.shade700,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Segoe ui',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
-                height: 7,
+                height: 7.h,
               ),
               _isLoading
                   ? areaLoading()
                   : Center(
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          vertical: 5,
-                          horizontal: 10,
+                          vertical: 5.r,
+                          horizontal: 10.r,
                         ),
                         decoration: BoxDecoration(
                           color: status == 'active'
@@ -308,7 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Text(
                           status == 'active' ? 'AKTIF' : 'TIDAK AKTIF',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             fontFamily: 'Segoe ui',
                             fontWeight: FontWeight.bold,
                             color: status == 'active'
@@ -319,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
               SizedBox(
-                height: 35,
+                height: 35.h,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -327,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     'Nama Lengkap',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Segoe ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -336,21 +337,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               SizedBox(
-                height: 7,
+                height: 7.h,
               ),
               TextFormField(
                 textCapitalization: TextCapitalization.characters,
                 decoration: InputDecoration(
                   hintText: 'John Doe',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   errorText: _isNamaLengkap ? 'Nama wajib diisi' : null,
                 ),
                 controller: textNamaLengkap,
               ),
               SizedBox(
-                height: 15,
+                height: 15.h,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     'Ubah Kata Sandi',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Segoe ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -367,21 +368,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               SizedBox(
-                height: 7,
+                height: 7.h,
               ),
               TextFormField(
                 textCapitalization: TextCapitalization.characters,
                 decoration: InputDecoration(
                   hintText: 'Masukkan kata sandi',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
                 controller: textPassword,
                 obscureText: true,
               ),
               SizedBox(
-                height: 15,
+                height: 15.h,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -389,7 +390,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     'Ulangi Kata Sandi',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontFamily: 'Segoe ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -398,39 +399,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               SizedBox(
-                height: 7,
+                height: 7.h,
               ),
               TextFormField(
                 textCapitalization: TextCapitalization.characters,
                 decoration: InputDecoration(
                   hintText: 'Masukkan kata sandi',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
                 controller: textRePassword,
                 obscureText: true,
               ),
               SizedBox(
-                height: 25,
+                height: 25.h,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ArgonButton(
-                    height: 40,
-                    width: 100,
-                    borderRadius: 30.0,
+                    height: 40.h,
+                    width: 100.w,
+                    borderRadius: 30.0.r,
                     color: Colors.blue[600],
                     child: Text(
                       "Perbarui",
                       style: TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w700),
                     ),
                     loader: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: EdgeInsets.all(8.r),
                       child: CircularProgressIndicator(
                         color: Colors.white,
                       ),

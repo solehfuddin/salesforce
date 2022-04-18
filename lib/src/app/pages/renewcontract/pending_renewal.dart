@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
@@ -122,11 +123,11 @@ class _PendingRenewalState extends State<PendingRenewal> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
+              horizontal: 20.r,
+              vertical: 10.r,
             ),
             color: Colors.white,
-            height: 80,
+            height: 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -136,14 +137,14 @@ class _PendingRenewalState extends State<PendingRenewal> {
                 hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white70,
-                contentPadding: EdgeInsets.symmetric(vertical: 3),
+                contentPadding: EdgeInsets.symmetric(vertical: 3.r),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  borderSide: BorderSide(color: Colors.grey, width: 2),
+                  borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                  borderSide: BorderSide(color: Colors.grey, width: 2.r),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.r),
                 ),
               ),
               onSubmitted: (value) {
@@ -155,7 +156,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
           ),
           Expanded(
             child: SizedBox(
-              height: 100,
+              height: 100.h,
               child: FutureBuilder(
                   future: search.isNotEmpty
                       ? getPendingBySearch(
@@ -176,14 +177,14 @@ class _PendingRenewalState extends State<PendingRenewal> {
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300,
-                                      height: 300,
+                                      width: 300.r,
+                                      height: 300.r,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -205,22 +206,22 @@ class _PendingRenewalState extends State<PendingRenewal> {
       child: Container(
         child: ListView.builder(
             itemCount: len,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 15,
+            padding: EdgeInsets.symmetric(
+              horizontal: 5.r,
+              vertical: 15.r,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
               return InkWell(
                 child: Container(
                   margin: EdgeInsets.only(
-                    bottom: 10,
+                    bottom: 10.r,
                   ),
-                  padding: EdgeInsets.all(15),
-                  height: 80,
+                  padding: EdgeInsets.all(15.r),
+                  height: 80.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
-                      Radius.circular(15),
+                      Radius.circular(15.r),
                     ),
                     border: Border.all(
                       color: Colors.black26,
@@ -233,11 +234,11 @@ class _PendingRenewalState extends State<PendingRenewal> {
                       Image.asset(
                         'assets/images/e_contract_new.png',
                         filterQuality: FilterQuality.medium,
-                        width: 35,
-                        height: 35,
+                        width: 35.r,
+                        height: 35.r,
                       ),
                       SizedBox(
-                        width: 10,
+                        width: 10.w,
                       ),
                       Expanded(
                         flex: 1,
@@ -246,7 +247,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
                               ? item[position].customerShipName
                               : '-',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black87,
@@ -261,7 +262,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
                           Text(
                             convertDateWithMonth(item[position].dateAdded),
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Segoe ui',
                               color: Colors.black,
@@ -270,7 +271,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
                           Text(
                             'PENDING',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Segoe ui',
                               color: Colors.grey.shade600,

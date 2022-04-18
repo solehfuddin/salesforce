@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/profile/profile_screen.dart';
 
 SliverToBoxAdapter areaHeader(
     double screenHeight, String userUpper, BuildContext context) {
   return SliverToBoxAdapter(
     child: Container(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      padding: EdgeInsets.symmetric(vertical: 10.r, horizontal: 15.r),
       decoration: BoxDecoration(
         color: Colors.green[500],
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
+          bottomLeft: Radius.circular(30.r),
+          bottomRight: Radius.circular(30.r),
         ),
       ),
       child: Column(
@@ -23,7 +24,7 @@ SliverToBoxAdapter areaHeader(
                 'HAI, $userUpper',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 25.0,
+                  fontSize: 25.0.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -39,10 +40,10 @@ SliverToBoxAdapter areaHeader(
                 label: Text('Profil'),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blueGrey[600],
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                  padding: EdgeInsets.symmetric(horizontal: 15.r, vertical: 7.r),
                   elevation: 0.0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(30.r),
                   ),
                 ),
               ),
@@ -56,7 +57,7 @@ SliverToBoxAdapter areaHeader(
                 //'Digitalize customer data, e-contract monitoring and task more easily and efficient',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 15.0,
+                  fontSize: 15.0.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),
