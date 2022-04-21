@@ -21,12 +21,12 @@ SliverPadding areaChartDonuts() {
               Text(
                 'Penjualan',
                 style: TextStyle(
-                  fontSize: 25.sp,
+                  fontSize: 21.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(
-                height: 15.h,
+                height: 13.h,
               ),
               Center(
                 child: Card(
@@ -156,14 +156,14 @@ SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGrou
                             Text(
                               'Transaksi',
                               style: TextStyle(
-                                fontSize: 25.sp,
+                                fontSize: 24.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
                               '/ Semester',
                               style: TextStyle(
-                                fontSize: 20.sp,
+                                fontSize: 19.sp,
                                 color: Colors.black.withOpacity(0.8),
                                 fontWeight: FontWeight.w600,
                               ),

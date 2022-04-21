@@ -14,14 +14,14 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context) {
                 // 'Get rewarded with Challenges',
                 'Dapatkan hadiah menarik',
                 style: TextStyle(
-                  fontSize: 23.sp,
+                  fontSize: 21.sp,
                   fontFamily: 'Segoe ui',
                   color: Colors.black,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(
-                height: 20.h,
+                height: 13.h,
               ),
               Container(
                 padding: EdgeInsets.all(8.r),
@@ -50,7 +50,7 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context) {
                         Text(
                           'Gratis kopi, misi 5 kustomer baru ..',
                           style: TextStyle(
-                            fontSize: 16.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                           ),

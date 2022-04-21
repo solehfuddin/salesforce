@@ -17,16 +17,18 @@ class DetailContract extends StatefulWidget {
   bool isMonitoring;
   bool isContract = false;
   bool isAdminRenewal = false;
+  bool isHasDisc = false;
 
   DetailContract(
       this.item, this.div, this.ttd, this.username, this.isMonitoring,
-      {this.isContract, this.isAdminRenewal});
+      {this.isContract, this.isAdminRenewal, this.isHasDisc});
 
   @override
   _DetailContractState createState() => _DetailContractState();
 }
 
 class _DetailContractState extends State<DetailContract> {
+  bool _isLoading = true;
   List<Discount> discList = List.empty(growable: true);
 
   getDisc(dynamic idContract) async {
@@ -44,7 +46,15 @@ class _DetailContractState extends State<DetailContract> {
       print(rest);
       discList = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
       print("List Size: ${discList.length}");
+
+      discList.length > 0 ? widget.isHasDisc = true : widget.isHasDisc = false;
     }
+
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -99,9 +109,9 @@ class _DetailContractState extends State<DetailContract> {
     final bool sts = res['status'];
     final String msg = res['message'];
 
-    widget.isAdminRenewal 
-    ? handleCustomStatus(context, capitalize(msg), sts)
-    : handleStatus(context, capitalize(msg), sts);
+    widget.isAdminRenewal
+        ? handleCustomStatus(context, capitalize(msg), sts)
+        : handleStatus(context, capitalize(msg), sts);
   }
 
   approveCustomer(bool isAr, String idCust, String ttd, String username) async {
@@ -155,9 +165,9 @@ class _DetailContractState extends State<DetailContract> {
     final bool sts = res['status'];
     final String msg = res['message'];
 
-    widget.isAdminRenewal 
-    ? handleCustomStatus(context, capitalize(msg), sts)
-    : handleStatus(context, capitalize(msg), sts);
+    widget.isAdminRenewal
+        ? handleCustomStatus(context, capitalize(msg), sts)
+        : handleStatus(context, capitalize(msg), sts);
   }
 
   rejectCustomer(bool isAr, String idCust, String ttd, String username) async {
@@ -1085,37 +1095,52 @@ class _DetailContractState extends State<DetailContract> {
         SizedBox(
           height: 3.h,
         ),
-        discList.length > 0
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 170.w,
-                    child: Text(
-                      'Deskripsi produk',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+        _isLoading
+            ? Center(
+                child: Text(
+                  'Processing ...',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat',
                   ),
-                  SizedBox(
-                    width: 90.w,
-                    child: Text(
-                      'Diskon',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               )
-            : SizedBox(
-                height: 10.h,
-              ),
+            : widget.isHasDisc == null
+                ? SizedBox(
+                    height: 3.h,
+                  )
+                : widget.isHasDisc
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 170.w,
+                            child: Text(
+                              'Deskripsi produk',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 90.w,
+                            child: Text(
+                              'Diskon',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : SizedBox(
+                        height: 3.h,
+                      ),
         Container(
           width: double.maxFinite.w,
           height: 170.h,
@@ -1133,21 +1158,21 @@ class _DetailContractState extends State<DetailContract> {
                               Center(
                                 child: Image.asset(
                                   'assets/images/not_found.png',
-                                  width: 120.r,
-                                  height: 120.r,
+                                  width: 145.w,
+                                  height: 145.h,
                                 ),
                               ),
                               Text(
                                 'Item Discount tidak ditemukan',
                                 style: TextStyle(
-                                  fontSize: 18.sp,
+                                  fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.red[600],
                                   fontFamily: 'Montserrat',
                                 ),
                               ),
                               SizedBox(
-                                height: 10.h,
+                                height: 5.h,
                               ),
                             ],
                           );
@@ -1163,11 +1188,11 @@ class _DetailContractState extends State<DetailContract> {
         itemCount: len,
         padding: EdgeInsets.symmetric(
           horizontal: 0.r,
-          vertical: 8.r,
+          vertical: 5.r,
         ),
         itemBuilder: (context, position) {
-          return SizedBox(
-            height: 30.h,
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 4.r),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

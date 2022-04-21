@@ -49,7 +49,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'Kustomer',
                         style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),
@@ -77,7 +77,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'E-Kontrak',
                         style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),
@@ -105,7 +105,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'Monitoring',
                         style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),
@@ -137,7 +137,7 @@ SliverToBoxAdapter areaMenu(
                       Text(
                         'Ubah Kontrak',
                         style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black54),

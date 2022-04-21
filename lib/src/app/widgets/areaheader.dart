@@ -24,7 +24,7 @@ SliverToBoxAdapter areaHeader(
                 'HAI, $userUpper',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 25.0.sp,
+                  fontSize: 23.0.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -57,7 +57,7 @@ SliverToBoxAdapter areaHeader(
                 //'Digitalize customer data, e-contract monitoring and task more easily and efficient',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 15.0.sp,
+                  fontSize: 14.0.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                 ),

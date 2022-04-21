@@ -45,7 +45,7 @@ SliverToBoxAdapter areaPoint(double screenHeight, BuildContext context) {
                                 '0',
                                 style: TextStyle(
                                   fontFamily: 'Segoe ui',
-                                  fontSize: 18.sp,
+                                  fontSize: 17.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),

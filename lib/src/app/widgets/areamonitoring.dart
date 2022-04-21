@@ -50,7 +50,7 @@ SliverPadding areaHeaderMonitoring() {
             Text(
               'Kontrak segera berakhir',
               style: TextStyle(
-                fontSize: 23.sp,
+                fontSize: 21.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
@@ -215,7 +215,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            item[index].namaUsaha,
+            item[index].namaUsaha != null ? item[index].namaUsaha : item[index].customerShipName,
             style: TextStyle(
               fontSize: 18.sp,
               fontFamily: 'Segoe Ui',

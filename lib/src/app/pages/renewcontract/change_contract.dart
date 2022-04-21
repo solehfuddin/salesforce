@@ -817,7 +817,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 vertical: 8.r,
               ),
               child: Text(
-                'Target Pembelian yang disepakati : ',
+                'Target Pembelian yang disepakati / bulan : ',
                 style: TextStyle(
                     fontSize: 16.sp,
                     fontFamily: 'Montserrat',
@@ -933,7 +933,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 vertical: 8.r,
               ),
               child: Text(
-                'Jangka waktu pembayaran : ',
+                'Jangka waktu pembayaran / bulan : ',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontFamily: 'Montserrat',

@@ -37,13 +37,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textCatatan = new TextEditingController();
   TextEditingController textPathKtp = new TextEditingController();
   TextEditingController textPathSiup = new TextEditingController();
+  TextEditingController textPathKartuNama = new TextEditingController();
+  TextEditingController textPathPendukung = new TextEditingController();
   String _chosenValue;
   String _chosenBilling;
   final format = DateFormat("yyyy-MM-dd");
   String base64ImageKtp, signedImage;
-  File tmpFile, tmpSiupFile;
+  File tmpFile, tmpSiupFile, tmpKartuFile, tmpPendukungFile;
   String tmpName,
       tmpNameSiup,
+      tmpKartuNama,
+      tmpPendukung,
       namaUser,
       tempatLahir,
       tanggalLahir,
@@ -58,16 +62,23 @@ class _NewcustScreenState extends State<NewcustScreen> {
   String role = '';
   String username = '';
   String base64ImageSiup = '';
+  String base64ImageKartuNama = '';
+  String base64ImagePendukung = '';
   String kosong = "";
   bool _isNamaUser = false;
   bool _isTanggalLahir = false;
   bool _isTempatLahir = false;
   bool _isAlamat = false;
   bool _isTlpHp = false;
+  bool _isTlpHpValid = false;
+  bool _isFaxUserValid = false;
   bool _isNoIdentitas = false;
+  bool _isNoIdentitasValid = false;
   bool _isNamaOptik = false;
   bool _isAlamatUsaha = false;
   bool _isTlpUsaha = false;
+  bool _isTlpUsahaValid = false;
+  bool _isFaxUsahaValid = false;
   bool _isNamaPic = false;
   bool _isEmailValid = true;
   bool _isFotoKtp = false;
@@ -101,7 +112,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   Future chooseImage() async {
     var imgFile = await ImagePicker().getImage(
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       imageQuality: 25,
     );
     setState(() {
@@ -118,13 +129,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   Future chooseSiup() async {
     var imgFile = await ImagePicker().getImage(
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       imageQuality: 25,
     );
     setState(() {
       if (imgFile != null) {
         tmpSiupFile = File(imgFile.path);
-        tmpNameSiup = tmpFile.path.split('/').last;
+        tmpNameSiup = tmpSiupFile.path.split('/').last;
         base64ImageSiup = base64Encode(Io.File(imgFile.path).readAsBytesSync());
 
         print(imgFile.path);
@@ -132,10 +143,46 @@ class _NewcustScreenState extends State<NewcustScreen> {
       }
     });
   }
-  
+
+  Future chooseKartuNama() async {
+    var imgFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      imageQuality: 25,
+    );
+    setState(() {
+      if (imgFile != null) {
+        tmpKartuFile = File(imgFile.path);
+        tmpKartuNama = tmpKartuFile.path.split('/').last;
+        base64ImageKartuNama =
+            base64Encode(Io.File(imgFile.path).readAsBytesSync());
+
+        print(imgFile.path);
+        print(base64ImageKartuNama);
+      }
+    });
+  }
+
+  Future choosePendukung() async {
+    var imgFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      imageQuality: 25,
+    );
+    setState(() {
+      if (imgFile != null) {
+        tmpPendukungFile = File(imgFile.path);
+        tmpPendukung = tmpPendukungFile.path.split('/').last;
+        base64ImagePendukung =
+            base64Encode(Io.File(imgFile.path).readAsBytesSync());
+
+        print(imgFile.path);
+        print(base64ImagePendukung);
+      }
+    });
+  }
+
   Widget showKtp() {
     tmpName == null
-        ? textPathKtp.text = 'Foto ktp belum dipilih'
+        ? textPathKtp.text = 'Gambar ktp belum dipilih'
         : textPathKtp.text = tmpName;
 
     return Flexible(
@@ -143,12 +190,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
         enabled: false,
         textCapitalization: TextCapitalization.characters,
         decoration: InputDecoration(
-          hintText: 'Foto Ktp',
-          labelText: 'Foto Ktp',
+          hintText: 'Dokumen Ktp  (Wajib diisi)',
+          labelText: 'Dokumen Ktp  (Wajib diisi)',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5.r),
           ),
-          // errorText: _isFotoKtp ? 'Harap ambil foto ktp' : null,
         ),
         controller: textPathKtp,
       ),
@@ -157,7 +203,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   Widget showSiup() {
     tmpNameSiup == null
-        ? textPathSiup.text = 'Foto siup belum dipilih'
+        ? textPathSiup.text = 'Gambar siup belum dipilih'
         : textPathSiup.text = tmpNameSiup;
 
     return Flexible(
@@ -165,13 +211,55 @@ class _NewcustScreenState extends State<NewcustScreen> {
         enabled: false,
         textCapitalization: TextCapitalization.characters,
         decoration: InputDecoration(
-          hintText: 'Foto Siup',
-          labelText: 'Foto Siup',
+          hintText: 'Dokumen Siup',
+          labelText: 'Dokumen Siup',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5.r),
           ),
         ),
         controller: textPathSiup,
+      ),
+    );
+  }
+
+  Widget showKartuNama() {
+    tmpKartuNama == null
+        ? textPathKartuNama.text = 'Gambar kartu nama belum dipilih'
+        : textPathKartuNama.text = tmpKartuNama;
+
+    return Flexible(
+      child: TextFormField(
+        enabled: false,
+        textCapitalization: TextCapitalization.characters,
+        decoration: InputDecoration(
+          hintText: 'Dokumen Kartu Nama',
+          labelText: 'Dokumen Kartu Nama',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5.r),
+          ),
+        ),
+        controller: textPathKartuNama,
+      ),
+    );
+  }
+
+  Widget showPendukung() {
+    tmpPendukung == null
+        ? textPathPendukung.text = 'Gambar pendukung belum dipilih'
+        : textPathPendukung.text = tmpPendukung;
+
+    return Flexible(
+      child: TextFormField(
+        enabled: false,
+        textCapitalization: TextCapitalization.characters,
+        decoration: InputDecoration(
+          hintText: 'Dokumen Pendukung',
+          labelText: 'Dokumen Pendukung',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5.r),
+          ),
+        ),
+        controller: textPathPendukung,
       ),
     );
   }
@@ -186,13 +274,32 @@ class _NewcustScreenState extends State<NewcustScreen> {
         : _isTanggalLahir = false;
     textAlamatUser.text.isEmpty ? _isAlamat = true : _isAlamat = false;
     textTelpUser.text.isEmpty ? _isTlpHp = true : _isTlpHp = false;
+    textTelpUser.text.length >= 12
+        ? _isTlpHpValid = false
+        : _isTlpHpValid = true;
     textIdentitas.text.isEmpty ? _isNoIdentitas = true : _isNoIdentitas = false;
+    textIdentitas.text.length < 16
+        ? _isNoIdentitasValid = true
+        : _isNoIdentitasValid = false;
 
     textNamaOptik.text.isEmpty ? _isNamaOptik = true : _isNamaOptik = false;
     textAlamatOptik.text.isEmpty
         ? _isAlamatUsaha = true
         : _isAlamatUsaha = false;
     textTelpOptik.text.isEmpty ? _isTlpUsaha = true : _isTlpUsaha = false;
+    textTelpOptik.text.length < 10
+        ? _isTlpUsahaValid = true
+        : _isTlpUsahaValid = false;
+    textFaxOptik.text.isEmpty
+        ? _isFaxUsahaValid = false
+        : textFaxOptik.text.length < 10
+            ? _isFaxUsahaValid = true
+            : _isFaxUsahaValid = false;
+    textFaxUser.text.isEmpty
+        ? _isFaxUserValid = false
+        : textFaxUser.text.length < 10
+            ? _isFaxUserValid = true
+            : _isFaxUserValid = false;
     textPicOptik.text.isEmpty ? _isNamaPic = true : _isNamaPic = false;
 
     tmpName == null ? _isFotoKtp = true : _isFotoKtp = false;
@@ -247,10 +354,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
         !_isTanggalLahir &&
         !_isAlamat &&
         !_isTlpHp &&
+        !_isTlpHpValid &&
         !_isNoIdentitas &&
+        !_isNoIdentitasValid &&
         !_isNamaOptik &&
         !_isAlamatUsaha &&
         !_isTlpUsaha &&
+        !_isTlpUsahaValid &&
+        !_isFaxUsahaValid &&
+        !_isFaxUserValid &&
         !_isNamaPic) {
       if (_isFotoKtp) {
         handleStatus(context, 'Silahkan foto ktp terlebih dahulu', false);
@@ -267,9 +379,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
           base64ImageSiup = 'kosong';
         }
         simpanData(stop);
-
-        // stop();
-        // print(kreditLimit.replaceAll('.', ''));
       }
     } else {
       handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
@@ -299,6 +408,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
         'nama_pj': namaPic.toUpperCase(),
         'sistem_pembayaran': sistemPembayaran,
         'kredit_limit': kreditLimit.replaceAll('.', ''),
+        'gambar_kartu_nama': base64ImageKartuNama,
+        'gambar_pendukung': base64ImagePendukung,
         'upload_dokumen': base64ImageSiup,
         'ttd_customer': signedImage,
         'nama_salesman': username.toUpperCase(),
@@ -390,13 +501,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   color: Colors.black,
                 ),
               ),
-               Text(
+              Text(
                 '(wajib diisi)',
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
-                  // color: Colors.red[600],
                 ),
               ),
             ],
@@ -415,10 +525,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
               errorText: _isNamaOptik ? 'Data wajib diisi' : null,
               // errorText: textNamaOptik.text.isEmpty ? 'Data wajib diisi' : null,
             ),
+            maxLength: 100,
             controller: textNamaOptik,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -432,7 +543,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   color: Colors.black,
                 ),
               ),
-               Text(
+              Text(
                 '(wajib diisi)',
                 style: TextStyle(
                   fontSize: 12.sp,
@@ -457,12 +568,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
               errorText: _isAlamatUsaha ? 'Data wajib diisi' : null,
             ),
             keyboardType: TextInputType.multiline,
-            minLines: 1,
-            maxLines: 3,
+            minLines: 3,
+            maxLines: 4,
+            maxLength: 250,
             controller: textAlamatOptik,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -498,12 +610,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
-              errorText: _isTlpUsaha ? 'Data wajib diisi' : null,
+              errorText: _isTlpUsaha
+                  ? 'Data wajib diisi'
+                  : _isTlpUsahaValid
+                      ? 'Nomor telpon salah'
+                      : null,
             ),
+            maxLength: 10,
             controller: textTelpOptik,
           ),
           SizedBox(
-            height: 10.h,
+            height: 5.h,
           ),
           Text(
             'Nomor Fax',
@@ -525,11 +642,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
+              errorText: _isFaxUsahaValid ? 'Nomor fax salah' : null,
             ),
+            maxLength: 10,
             controller: textFaxOptik,
           ),
           SizedBox(
-            height: 10.h,
+            height: 3.h,
           ),
           Text(
             'Alamat Email',
@@ -553,10 +672,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
               errorText: !_isEmailValid ? 'Alamat email salah' : null,
             ),
+            maxLength: 40,
             controller: textEmailOptik,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -594,6 +714,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
               errorText: _isNamaPic ? 'Data wajib diisi' : null,
             ),
+            maxLength: 50,
             controller: textPicOptik,
           ),
           SizedBox(
@@ -656,12 +777,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
-              errorText: _isNoIdentitas ? 'Data wajib diisi' : null,
+              errorText: _isNoIdentitas
+                  ? 'Data wajib diisi'
+                  : _isNoIdentitasValid
+                      ? 'Nomor ktp salah'
+                      : null,
             ),
+            maxLength: 16,
             controller: textIdentitas,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -699,10 +825,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
               errorText: _isNamaUser ? 'Data wajib diisi' : null,
             ),
+            maxLength: 50,
             controller: textNamaUser,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Text(
             'Agama',
@@ -756,7 +883,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -794,10 +921,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
               errorText: _isTempatLahir ? 'Data wajib diisi' : null,
             ),
+            maxLength: 25,
             controller: textTempatLahir,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -834,6 +962,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
               errorText: _isTanggalLahir ? 'Data wajib diisi' : null,
             ),
+            maxLength: 10,
             format: format,
             onShowPicker: (context, currentValue) {
               return showDatePicker(
@@ -845,7 +974,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             controller: textTanggalLahir,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -884,18 +1013,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
               errorText: _isAlamat ? 'Data wajib diisi' : null,
             ),
             keyboardType: TextInputType.multiline,
-            minLines: 1,
-            maxLines: 3,
+            minLines: 3,
+            maxLines: 4,
+            maxLength: 250,
             controller: textAlamatUser,
           ),
           SizedBox(
-            height: 10.sp,
+            height: 12.sp,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Telp / Hp',
+                'Nomor Hp',
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontFamily: 'Segoe ui',
@@ -925,12 +1055,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
-              errorText: _isTlpHp ? 'Data wajib diisi' : null,
+              errorText: _isTlpHp
+                  ? 'Data wajib diisi'
+                  : _isTlpHpValid
+                      ? 'Nomor hp salah'
+                      : null,
             ),
+            maxLength: 13,
             controller: textTelpUser,
           ),
           SizedBox(
-            height: 10.h,
+            height: 3.h,
           ),
           Text(
             'Fax',
@@ -952,7 +1087,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
+              errorText: _isFaxUserValid ? 'Nomor fax salah' : null,
             ),
+            maxLength: 10,
             controller: textFaxUser,
           ),
           SizedBox(
@@ -1032,7 +1169,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Text(
             'Kredit Limit',
@@ -1058,10 +1195,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
             inputFormatters: [ThousandsSeparatorInputFormatter()],
             minLines: 1,
             maxLines: 3,
+            maxLength: 15,
             controller: textKreditLimit,
           ),
           SizedBox(
-            height: 10.h,
+            height: 12.h,
           ),
           Text(
             'Catatan',
@@ -1085,8 +1223,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
             ),
             keyboardType: TextInputType.multiline,
-            minLines: 1,
-            maxLines: 3,
+            minLines: 3,
+            maxLines: 4,
+            maxLength: 250,
             controller: textCatatan,
           ),
           SizedBox(
@@ -1115,7 +1254,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
           ),
           SizedBox(
-            height: 10.h,
+            height: 20.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1165,6 +1304,62 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   iconSize: 27.r,
                   onPressed: () {
                     chooseSiup();
+                  },
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 15.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              showKartuNama(),
+              SizedBox(
+                width: 15.w,
+              ),
+              Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.blue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.camera_alt_outlined,
+                    color: Colors.white,
+                  ),
+                  iconSize: 27.r,
+                  onPressed: () {
+                    chooseKartuNama();
+                  },
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 15.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              showPendukung(),
+              SizedBox(
+                width: 15.w,
+              ),
+              Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.blue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.camera_alt_outlined,
+                    color: Colors.white,
+                  ),
+                  iconSize: 27.r,
+                  onPressed: () {
+                    choosePendukung();
                   },
                 ),
               ),
@@ -1223,7 +1418,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(),
                   primary: Colors.orange[800],
-                  padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
                 ),
                 child: Text(
                   'Hapus Ttd',

@@ -25,7 +25,7 @@ SliverPadding areaLineChartSync({List<Report> reportData}) {
                 title: ChartTitle(
                   text: 'Data Penjualan Sales',
                   textStyle: TextStyle(
-                    fontSize: 20.sp,
+                    fontSize: 18.sp,
                     fontFamily: 'Segoe Ui',
                     fontWeight: FontWeight.w600,
                     color: Colors.black.withOpacity(0.6),
@@ -34,6 +34,7 @@ SliverPadding areaLineChartSync({List<Report> reportData}) {
                 legend: Legend(
                   isVisible: true,
                   position: LegendPosition.bottom,
+                  overflowMode: LegendItemOverflowMode.scroll,
                 ),
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
@@ -43,28 +44,28 @@ SliverPadding areaLineChartSync({List<Report> reportData}) {
                     dataSource: reportData,
                     xValueMapper: (Report data, _) => data.category,
                     yValueMapper: (Report data, _) => data.sales1,
-                    name: "Bagol",
+                    name: "Sales A",
                     markerSettings: MarkerSettings(isVisible: true),
                   ),
                   LineSeries<Report, String>(
                     dataSource: reportData,
                     xValueMapper: (Report data, _) => data.category,
                     yValueMapper: (Report data, _) => data.sales2,
-                    name: "Sule",
+                    name: "Sales B",
                     markerSettings: MarkerSettings(isVisible: true),
                   ),
                   LineSeries<Report, String>(
                     dataSource: reportData,
                     xValueMapper: (Report data, _) => data.category,
                     yValueMapper: (Report data, _) => data.sales3,
-                    name: "Mayor",
+                    name: "Sales C",
                     markerSettings: MarkerSettings(isVisible: true),
                   ),
                   LineSeries<Report, String>(
                     dataSource: reportData,
                     xValueMapper: (Report data, _) => data.category,
                     yValueMapper: (Report data, _) => data.sales4,
-                    name: "Badrul",
+                    name: "Sales D",
                     markerSettings: MarkerSettings(isVisible: true),
                   ),
                 ],
@@ -124,6 +125,7 @@ SliverPadding areaPieChartSync({List<PieReport> dataPie}) {
                 legend: Legend(
                   isVisible: true,
                   position: LegendPosition.bottom,
+                  width: '100%',
                 ),
               ),
             ),

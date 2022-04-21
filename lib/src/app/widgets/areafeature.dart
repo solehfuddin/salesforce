@@ -15,13 +15,13 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
             Text(
               'Tanda tangan digital',
               style: TextStyle(
-                fontSize: 23.sp,
+                fontSize: 21.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(
-              height: 15.h,
+              height: 13.h,
             ),
             GestureDetector(
               child: Container(
@@ -55,7 +55,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                               // 'Set digital signed easily to save your',
                               'Tanda tangan digital untuk memudahkan',
                               style: TextStyle(
-                                fontSize: 16.sp,
+                                fontSize: 14.sp,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
@@ -63,7 +63,7 @@ SliverPadding areaFeature(double screenHeight, BuildContext context) {
                               // 'time when approved new customer',
                               'proses pengajuan kustomer baru',
                               style: TextStyle(
-                                fontSize: 16.sp,
+                                fontSize: 14.sp,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),

@@ -1,6 +1,6 @@
 class Monitoring {
   String idContract, idCustomer, namaKedua, alamatKedua, telpKedua, startDateContract, endDateContract,
-  namaUsaha, status;
+  namaUsaha, customerShipName, status;
 
   Monitoring.fromJson(Map json):
    idContract = json['id'],
@@ -11,6 +11,7 @@ class Monitoring {
    startDateContract = json['start_contract'],
    endDateContract = json['end_contract'],
    namaUsaha = json['nama_usaha'],
+   customerShipName = json['customer_ship_name'],
    status = json['status'];
 
    Map toJson(){
@@ -23,6 +24,7 @@ class Monitoring {
        'start_contract' : startDateContract,
        'end_contract' : endDateContract,
        'nama_usaha' : namaUsaha,
+       'customer_ship_name' : customerShipName,
        'status': status
      };
    }

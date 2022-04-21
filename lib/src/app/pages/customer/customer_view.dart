@@ -52,9 +52,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
   }
 
   getCustomerById(int input) async {
-    var url = input < 1 
-      ? 'http://timurrayalab.com/salesforce/server/api/customers'
-      :  'http://timurrayalab.com/salesforce/server/api/customers/getBySales?created_by=$input';
+    var url = input < 1
+        ? 'http://timurrayalab.com/salesforce/server/api/customers'
+        : 'http://timurrayalab.com/salesforce/server/api/customers/getBySales?created_by=$input';
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -205,33 +205,30 @@ class _CustomerScreenState extends State<CustomerScreen> {
                     if (data == null) {
                       return Center(child: CircularProgressIndicator());
                     } else {
-                      if (customerList.length < 1)
-                      {
+                      if (customerList.length < 1) {
                         return Column(
-                                children: [
-                                  Center(
-                                    child: Image.asset(
-                                      'assets/images/not_found.png',
-                                      width: 300.w,
-                                      height: 300.h,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Data tidak ditemukan',
-                                    style: TextStyle(
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[600],
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                  )
-                                ],
-                              );
-                      }
-                      else
-                      {
+                          children: [
+                            Center(
+                              child: Image.asset(
+                                'assets/images/not_found.png',
+                                width: 300.w,
+                                height: 300.h,
+                              ),
+                            ),
+                            Text(
+                              'Data tidak ditemukan',
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red[600],
+                                fontFamily: 'Montserrat',
+                              ),
+                            )
+                          ],
+                        );
+                      } else {
                         return listViewWidget(
-                          snapshot.data, snapshot.data.length, controller);
+                            snapshot.data, snapshot.data.length, controller);
                       }
                     }
                   }),
@@ -263,13 +260,23 @@ class _CustomerScreenState extends State<CustomerScreen> {
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
-                              color: customer[position].status.contains('Pending') || 
-                                     customer[position].status.contains('PENDING')
-                                  ? Colors.grey[600]
-                                  : customer[position].status.contains('Accepted') || 
-                                    customer[position].status.contains('ACCEPTED')
-                                      ? Colors.blue[600]
-                                      : Colors.red[600],
+                              color: customer[position].econtract.contains("1")
+                                  ? customer[position]
+                                              .status
+                                              .contains('Pending') ||
+                                          customer[position]
+                                              .status
+                                              .contains('PENDING')
+                                      ? Colors.grey[600]
+                                      : customer[position]
+                                                  .status
+                                                  .contains('Accepted') ||
+                                              customer[position]
+                                                  .status
+                                                  .contains('ACCEPTED')
+                                          ? Colors.blue[600]
+                                          : Colors.red[600]
+                                  : Colors.orange[800],
                               width: 5.w),
                         ),
                       ),
@@ -346,31 +353,49 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                 ),
                               ],
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 5.r,
-                                horizontal: 10.r,
-                              ),
-                              decoration: BoxDecoration(
-                                color: customer[position].status.contains('Pending') || 
-                                      customer[position].status.contains('PENDING')
-                                    ? Colors.grey[600]
-                                    : customer[position].status.contains('Accepted') || 
-                                      customer[position].status.contains('ACCEPTED')
-                                        ? Colors.blue[600]
-                                        : Colors.red[600],
-                                borderRadius: BorderRadius.circular(10.r),
-                              ),
-                              child: Text(
-                                customer[position].status,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontFamily: 'Segoe ui',
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
+                            customer[position].econtract.contains("1")
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 5.r,
+                                      horizontal: 10.r,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: customer[position]
+                                                  .status
+                                                  .contains('Pending') ||
+                                              customer[position]
+                                                  .status
+                                                  .contains('PENDING')
+                                          ? Colors.grey[600]
+                                          : customer[position]
+                                                      .status
+                                                      .contains('Accepted') ||
+                                                  customer[position]
+                                                      .status
+                                                      .contains('ACCEPTED')
+                                              ? Colors.blue[600]
+                                              : Colors.red[600],
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    child: Text(
+                                      customer[position].status,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontFamily: 'Segoe ui',
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    'Buat Kontrak',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontFamily: 'Segoe Ui',
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.orange[800],
+                                    ),
+                                  ),
                           ],
                         ),
                       ),

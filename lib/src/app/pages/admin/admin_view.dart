@@ -317,25 +317,25 @@ class _AdminScreenState extends State<AdminScreen> {
   List<PieReport> getReportPie() {
     final List<PieReport> dummy = [
       PieReport(
-        salesName: "Bagol",
+        salesName: "Sales A",
         perc: "30.5%",
         value: 20000,
         color: Color(0xff0293ee),
       ),
       PieReport(
-        salesName: "Sule",
+        salesName: "Sales B",
         perc: "20.5%",
         value: 11000,
         color: Color(0xfff8b250),
       ),
       PieReport(
-        salesName: "Mayor",
+        salesName: "Sales C",
         perc: "9%",
         value: 4200,
         color: Color(0xff845bef),
       ),
       PieReport(
-        salesName: "Badrul",
+        salesName: "Sales D",
         perc: "40%",
         value: 28000,
         color: Color(0xff13d38e),

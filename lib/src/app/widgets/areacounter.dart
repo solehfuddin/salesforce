@@ -26,12 +26,12 @@ SliverPadding areaCounter(
           Text(
             'Statistik',
             style: TextStyle(
-              fontSize: 25.sp,
+              fontSize: 21.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(
-            height: 15.h,
+            height: 13.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -54,7 +54,7 @@ SliverPadding areaCounter(
                           child: Text(
                             'Kustomer Baru',
                             style: TextStyle(
-                              fontSize: 18.sp,
+                              fontSize: 17.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Segoe ui',
                             ),
@@ -110,7 +110,7 @@ SliverPadding areaCounter(
                           child: Text(
                             'Kustomer Lama',
                             style: TextStyle(
-                              fontSize: 18.sp,
+                              fontSize: 17.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Segoe ui',
                             ),
@@ -197,7 +197,7 @@ SliverPadding areaCounter(
                         Text(
                           'Menunggu',
                           style: TextStyle(
-                            fontSize: 16.sp,
+                            fontSize: 15.sp,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
@@ -263,7 +263,7 @@ SliverPadding areaCounter(
                         Text(
                           'Disetujui',
                           style: TextStyle(
-                            fontSize: 16.sp,
+                            fontSize: 15.sp,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
@@ -329,7 +329,7 @@ SliverPadding areaCounter(
                         Text(
                           'Ditolak',
                           style: TextStyle(
-                            fontSize: 16.sp,
+                            fontSize: 15.sp,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),

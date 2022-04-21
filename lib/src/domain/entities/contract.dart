@@ -1,8 +1,8 @@
 class Contract {
   String idContract, idCustomer, namaPertama, jabatanPertama, alamatPertama, telpPertama, faxPertama,
   namaKedua, jabatanKedua, alamatKedua, telpKedua, faxKedua, tpNikon, tpLeinz, tpOriental, tpMoe, 
-  pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, status, customerShipName,
-  customerShipNumber, dateAdded, approvalSm, approvalAm, dateApprovalSm, dateApprovalAm;
+  pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, typeContract, status,
+  customerShipName, customerShipNumber, dateAdded, approvalSm, approvalAm, dateApprovalSm, dateApprovalAm;
 
   Contract.fromJson(Map json):
     idContract = json['id'],

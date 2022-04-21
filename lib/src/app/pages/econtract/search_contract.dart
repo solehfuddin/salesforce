@@ -241,7 +241,7 @@ class _SearchContractState extends State<SearchContract> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item[position].namaUsaha,
+                        item[position].namaUsaha != null ? item[position].namaUsaha : item[position].customerShipName,
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontFamily: 'Segoe Ui',

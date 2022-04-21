@@ -51,7 +51,7 @@ SliverPadding areaHeaderRenewal() {
             Text(
               'Pembaruan Kontrak',
               style: TextStyle(
-                fontSize: 23.sp,
+                fontSize: 21.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),

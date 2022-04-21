@@ -57,13 +57,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
   TextEditingController textValMoe = new TextEditingController();
   TextEditingController textTanggalSt = new TextEditingController();
   TextEditingController textTanggalEd = new TextEditingController();
-  bool _isValNikon = false;
-  bool _isValLeinz = false;
-  bool _isValOriental = false;
-  bool _isValMoe = false;
   bool _isTanggalSt = false;
   bool _isTanggalEd = false;
   bool _isRegularDisc = false;
+  bool _isFrameContract = false;
   var thisYear, nextYear;
   int formLen;
 
@@ -237,73 +234,70 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   checkInput(Function stop) async {
     if (_chosenNikon == null) {
-      _chosenNikon = 'Cash & Carry';
+      _chosenNikon = '-';
     }
 
     if (_chosenLeinz == null) {
-      _chosenLeinz = 'Cash & Carry';
+      _chosenLeinz = '-';
     }
 
     if (_chosenOriental == null) {
-      _chosenOriental = 'Cash & Carry';
+      _chosenOriental = '-';
     }
 
     if (_chosenMoe == null) {
-      _chosenMoe = 'Cash & Carry';
+      _chosenMoe = '-';
     }
 
     textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
     textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
-    textValNikon.text.isEmpty ? _isValNikon = true : _isValNikon = false;
-    textValLeinz.text.isEmpty ? _isValLeinz = true : _isValLeinz = false;
-    textValOriental.text.isEmpty
-        ? _isValOriental = true
-        : _isValOriental = false;
-    textValMoe.text.isEmpty ? _isValMoe = true : _isValMoe = false;
 
-    if (!_isTanggalSt &&
-        !_isTanggalEd &&
-        !_isValNikon &&
-        !_isValLeinz &&
-        !_isValOriental &&
-        !_isValMoe) {
-  var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-  var response = await http.post(
-    url,
-    body: {
-      'id_customer': idCustomer,
-      // 'nama_pertama': username,
-      'nama_pertama': name,
-      'jabatan_pertama': role,
-      'nama_kedua': namaKedua,
-      'jabatan_kedua': jabatanKedua,
-      'alamat_kedua': alamatKedua,
-      'telp_kedua': telpKedua,
-      'fax_kedua': faxKedua,
-      'tp_nikon': textValNikon.text.replaceAll('.', ''),
-      'tp_leinz': textValLeinz.text.replaceAll('.', ''),
-      'tp_oriental': textValOriental.text.replaceAll('.', ''),
-      'tp_moe': textValMoe.text.replaceAll('.', ''),
-      'pembayaran_nikon': _chosenNikon,
-      'pembayaran_leinz': _chosenLeinz,
-      'pembayaran_oriental': _chosenOriental,
-      'pembayaran_moe': _chosenMoe,
-      'start_contract': textTanggalSt.text,
-      'end_contract': textTanggalEd.text,
-      'ttd_pertama': ttdPertama,
-      'ttd_kedua': ttdKedua,
-      'created_by': id,
-    },
-  );
+    if (!_isTanggalSt && !_isTanggalEd) {
+      var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
+      var response = await http.post(
+        url,
+        body: {
+          'id_customer': idCustomer,
+          'nama_pertama': name,
+          'jabatan_pertama': role,
+          'nama_kedua': namaKedua,
+          'jabatan_kedua': jabatanKedua,
+          'alamat_kedua': alamatKedua,
+          'telp_kedua': telpKedua,
+          'fax_kedua': faxKedua,
+          'tp_nikon': textValNikon.text.length > 0
+              ? textValNikon.text.replaceAll('.', '')
+              : '0',
+          'tp_leinz': textValLeinz.text.length > 0
+              ? textValLeinz.text.replaceAll('.', '')
+              : '0',
+          'tp_oriental': textValOriental.text.length > 0
+              ? textValOriental.text.replaceAll('.', '')
+              : '0',
+          'tp_moe': textValMoe.text.length > 0
+              ? textValMoe.text.replaceAll('.', '')
+              : '0',
+          'pembayaran_nikon': _chosenNikon,
+          'pembayaran_leinz': _chosenLeinz,
+          'pembayaran_oriental': _chosenOriental,
+          'pembayaran_moe': _chosenMoe,
+          'start_contract': textTanggalSt.text,
+          'end_contract': textTanggalEd.text,
+          'type_contract' : _isFrameContract ? 'FRAME' : 'LENSA',
+          'ttd_pertama': ttdPertama,
+          'ttd_kedua': ttdKedua,
+          'created_by': id,
+        },
+      );
 
       print('ttd 1 : $ttdPertama');
       print('ttd 2 : $ttdKedua');
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-  var res = json.decode(response.body);
-  final bool sts = res['status'];
-  final String msg = res['message'];
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
 
       if (sts) {
         textTanggalSt.clear();
@@ -320,6 +314,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
       stop();
       setState(() {});
     } else {
+      handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
       stop();
     }
   }
@@ -338,7 +333,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Alias: ${item.proddiv.alias}");
           debugPrint("Diskon: ${item.proddiv.diskon}");
           debugPrint("Is Checked : ${item.proddiv.ischecked}");
-          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon, item.proddiv.alias);
+          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon,
+              item.proddiv.alias);
         }
       }
     } else {
@@ -358,8 +354,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Proddesc: ${item.product.proddesc}");
           debugPrint("Diskon: ${item.product.diskon}");
 
-          postMultiItem(idCustomer, item.product.categoryid, item.product.proddiv,
-              item.product.prodcat, item.product.proddesc, item.product.diskon);
+          postMultiItem(
+              idCustomer,
+              item.product.categoryid,
+              item.product.proddiv,
+              item.product.prodcat,
+              item.product.proddesc,
+              item.product.diskon);
         }
       }
     } else {
@@ -367,7 +368,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
-  postMultiDiv(String idCust, String proddiv, String diskon, String alias) async {
+  postMultiDiv(
+      String idCust, String proddiv, String diskon, String alias) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
     var response = await http.post(
@@ -376,7 +378,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
         'id_customer': idCust,
         'prod_div[]': proddiv,
         'discount[]': diskon,
-        'prodcat_description[]' : alias,
+        'prodcat_description[]': alias,
       },
     );
 
@@ -389,8 +391,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
-  postMultiItem(String idCust, String categoryId, String prodDiv, String prodCat,
-      String prodDesc, String disc) async {
+  postMultiItem(String idCust, String categoryId, String prodDiv,
+      String prodCat, String prodDesc, String disc) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
     var response = await http.post(
@@ -427,7 +429,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -786,7 +788,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 vertical: 8.r,
               ),
               child: Text(
-                'Target Pembelian yang disepakati : ',
+                'Target Pembelian yang disepakati / bulan : ',
                 style: TextStyle(
                     fontSize: 16.sp,
                     fontFamily: 'Montserrat',
@@ -807,13 +809,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     vertical: 3.r,
                     horizontal: 15.r,
                   ),
-                  errorText: _isValNikon ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
                 controller: textValNikon,
+                maxLength: 15,
               ),
             ),
             Container(
@@ -830,13 +832,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     vertical: 3.r,
                     horizontal: 15.r,
                   ),
-                  errorText: _isValLeinz ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
                 controller: textValLeinz,
+                maxLength: 15,
               ),
             ),
             Container(
@@ -853,13 +855,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     vertical: 3.r,
                     horizontal: 15.r,
                   ),
-                  errorText: _isValOriental ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
                 controller: textValOriental,
+                maxLength: 15,
               ),
             ),
             Container(
@@ -876,13 +878,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     vertical: 3.r,
                     horizontal: 15.r,
                   ),
-                  errorText: _isValMoe ? 'Data wajib diisi' : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5.r),
                   ),
                 ),
                 inputFormatters: [ThousandsSeparatorInputFormatter()],
                 controller: textValMoe,
+                maxLength: 15,
               ),
             ),
             SizedBox(
@@ -894,7 +896,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 vertical: 8.r,
               ),
               child: Text(
-                'Jangka waktu pembayaran : ',
+                'Jangka waktu pembayaran / bulan : ',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontFamily: 'Montserrat',
@@ -945,6 +947,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       value: _chosenNikon,
                       style: TextStyle(color: Colors.black54),
                       items: [
+                        '-',
                         'Cash & Carry',
                         'Transfer',
                         'Deposit',
@@ -1009,6 +1012,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       value: _chosenLeinz,
                       style: TextStyle(color: Colors.black54),
                       items: [
+                        '-',
                         'Cash & Carry',
                         'Transfer',
                         'Deposit',
@@ -1073,6 +1077,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       value: _chosenOriental,
                       style: TextStyle(color: Colors.black54),
                       items: [
+                        '-',
                         'Cash & Carry',
                         'Transfer',
                         'Deposit',
@@ -1137,6 +1142,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       value: _chosenMoe,
                       style: TextStyle(color: Colors.black54),
                       items: [
+                        '-',
                         'Cash & Carry',
                         'Transfer',
                         'Deposit',
@@ -1188,6 +1194,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   ),
                   errorText: _isTanggalSt ? 'Data wajib diisi' : null,
                 ),
+                maxLength: 10,
                 controller: textTanggalSt,
                 format: format,
                 onShowPicker: (context, currentValue) {
@@ -1213,6 +1220,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   ),
                   errorText: _isTanggalEd ? 'Data wajib diisi' : null,
                 ),
+                maxLength: 10,
                 controller: textTanggalEd,
                 format: format,
                 onShowPicker: (context, currentValue) {
@@ -1225,7 +1233,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
             SizedBox(
-              height: 20.h,
+              height: 10.h,
             ),
             Container(
               padding: EdgeInsets.symmetric(
@@ -1233,7 +1241,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 vertical: 8.r,
               ),
               child: Text(
-                'Kontrak Diskon Reguler : ',
+                'Kontrak Diskon Frame : ',
                 style: TextStyle(
                     fontSize: 16.sp,
                     fontFamily: 'Montserrat',
@@ -1251,7 +1259,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       vertical: 2.r,
                     ),
                     child: Text(
-                      'All Lensa Reguler',
+                      'Mengacu Surat Pesanan',
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontFamily: 'Montserrat',
@@ -1266,10 +1274,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     vertical: 2.r,
                   ),
                   child: Checkbox(
-                    value: this._isRegularDisc,
+                    value: this._isFrameContract,
                     onChanged: (bool value) {
                       setState(() {
-                        this._isRegularDisc = value;
+                        this._isFrameContract = value;
                         formDisc.clear();
                         formProduct.clear();
                         tmpDiv.clear();
@@ -1280,19 +1288,29 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 ),
               ],
             ),
-            SizedBox(
-              height: 20.h,
-            ),
-            _isRegularDisc
+            _isFrameContract
                 ? SizedBox(
-                    height: 5.h,
+                    width: 5.w,
                   )
-                : areaMultiFormDiv(),
-            _isRegularDisc
+                : areaLensaContract(),
+            _isFrameContract
                 ? SizedBox(
-                    height: 5.h,
+                    width: 5.w,
                   )
-                : areaMultiFormProduct(),
+                : _isRegularDisc
+                    ? SizedBox(
+                        height: 5.h,
+                      )
+                    : areaMultiFormDiv(),
+            _isFrameContract
+                ? SizedBox(
+                    width: 5.w,
+                  )
+                : _isRegularDisc
+                    ? SizedBox(
+                        height: 5.h,
+                      )
+                    : areaMultiFormProduct(),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 20.r,
@@ -1471,6 +1489,73 @@ class _EcontractScreenState extends State<EcontractScreen> {
             },
           ));
     });
+  }
+
+  Widget areaLensaContract() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 10.h,
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
+            vertical: 8.r,
+          ),
+          child: Text(
+            'Kontrak Diskon Reguler : ',
+            style: TextStyle(
+                fontSize: 16.sp,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w600),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: 200.w,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.r,
+                  vertical: 2.r,
+                ),
+                child: Text(
+                  'All Lensa Reguler',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20.r,
+                vertical: 2.r,
+              ),
+              child: Checkbox(
+                value: this._isRegularDisc,
+                onChanged: (bool value) {
+                  setState(() {
+                    this._isRegularDisc = value;
+                    formDisc.clear();
+                    formProduct.clear();
+                    tmpDiv.clear();
+                    tmpProduct.clear();
+                  });
+                },
+              ), //C
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 20.h,
+        ),
+      ],
+    );
   }
 
   Widget areaMultiFormDiv() {
