@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:in_app_update/in_app_update.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
+import 'package:sample/src/app/pages/econtract/detail_contract_rejected.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
@@ -31,34 +33,49 @@ waitingLoad() async {
 }
 
 login(String user, String pass, BuildContext context) async {
+  int timeout = 15;
   var url = 'http://timurrayalab.com/salesforce/server/api/auth/login';
-  var response =
-      await http.post(url, body: {'username': user, 'password': pass});
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
 
-  var data = json.decode(response.body);
-  final bool sts = data['status'];
-  final String msg = data['message'];
-  final int code = response.statusCode;
+  try {
+    var response = await http.post(url, body: {
+      'username': user,
+      'password': pass
+    }).timeout(Duration(seconds: timeout));
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
-  if (code == 200) {
-    if (sts) {
-      final String id = data['data']['id'];
-      final String name = data['data']['name'];
-      final String username = data['data']['username'];
-      final String accstatus = data['data']['status'];
-      final String role = data['data']['role'];
-      final String divisi = data['data']['divisi'];
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
+    final String msg = data['message'];
+    final int code = response.statusCode;
 
-      savePref(id, name, username, accstatus, role, divisi);
+    if (code == 200) {
+      if (sts) {
+        final String id = data['data']['id'];
+        final String name = data['data']['name'];
+        final String username = data['data']['username'];
+        final String accstatus = data['data']['status'];
+        final String role = data['data']['role'];
+        final String divisi = data['data']['divisi'];
 
-      if (role == 'admin') {
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => AdminScreen()));
+        savePref(id, name, username, accstatus, role, divisi);
+
+        if (role == 'admin') {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => AdminScreen()));
+        } else {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => HomeScreen()));
+        }
       } else {
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => HomeScreen()));
+        Fluttertoast.showToast(
+            msg: msg,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16);
       }
     } else {
       Fluttertoast.showToast(
@@ -70,15 +87,15 @@ login(String user, String pass, BuildContext context) async {
           textColor: Colors.white,
           fontSize: 16);
     }
-  } else {
-    Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16);
+  } on TimeoutException catch (e) {
+    print('Timeout Error : $e');
+    handleTimeout(context);
+  } on SocketException catch (e) {
+    print('Socket Error : $e');
+    handleSocket(context);
+  } on Error catch (e) {
+    print('General Error : $e');
+    handleStatus(context, e.toString(), false);
   }
 }
 
@@ -451,18 +468,74 @@ handleStatusChangeContract(
   showDialog(context: context, builder: (context) => alert);
 }
 
-Future<String> getTtdValid(String idUser, BuildContext context) async {
-  var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$idUser';
-  var response = await http.get(url);
-  var data = json.decode(response.body);
-  print(data);
-  String ttd = data['data'][0]['ttd'];
+handleConnection(BuildContext context) {
+  AlertDialog alert = AlertDialog(
+    title: Text("Informasi"),
+    content: Container(
+      child: Text("Sambungan terputus, ulangi proses!"),
+    ),
+    actions: [
+      TextButton(
+        child: Text('Ok'),
+        onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+            (route) => false),
+      ),
+    ],
+  );
 
-  return ttd;
+  showDialog(context: context, builder: (context) => alert);
+}
+
+handleConnectionAdmin(BuildContext context) {
+  AlertDialog alert = AlertDialog(
+    title: Text("Informasi"),
+    content: Container(
+      child: Text("Sambungan terputus, ulangi proses!"),
+    ),
+    actions: [
+      TextButton(
+        child: Text('Ok'),
+        onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => AdminScreen()),
+            (route) => false),
+      ),
+    ],
+  );
+
+  showDialog(context: context, builder: (context) => alert);
+}
+
+Future<String> getTtdValid(String idUser, BuildContext context,
+    {String role}) async {
+  const timeout = 15;
+  var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$idUser';
+
+  try {
+    var response = await http.get(url).timeout(Duration(seconds: timeout));
+    var data = json.decode(response.body);
+    print(data);
+    String ttd = data['data'][0]['ttd'];
+
+    return ttd;
+  } on TimeoutException catch (e) {
+    print('Timeout Error : $e');
+    handleTimeout(context);
+  } on SocketException catch (e) {
+    print('Socket Error : $e');
+    // handleSocket(context);
+    role.contains('admin')
+        ? handleConnectionAdmin(context)
+        : handleConnection(context);
+  } on Error catch (e) {
+    print('General Error : $e');
+    handleStatus(context, e.toString(), false);
+  }
 }
 
 handleDigitalSigned(
     SignatureController signController, BuildContext context, String id) async {
+  const timeout = 15;
   if (signController.isNotEmpty) {
     var data = await signController.toPngBytes();
     String signedImg = base64Encode(data);
@@ -470,24 +543,37 @@ handleDigitalSigned(
     print(id);
 
     var url = 'http://timurrayalab.com/salesforce/server/api/users/update';
-    var response = await http.post(
-      url,
-      body: {
-        'id': id,
-        'ttd': signedImg,
-      },
-    );
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+    try {
+      var response = await http.post(
+        url,
+        body: {
+          'id': id,
+          'ttd': signedImg,
+        },
+      ).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    handleStatus(context, capitalize(msg), sts);
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
+
+      handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   } else {
     Fluttertoast.showToast(
-        msg: 'Please signed the form',
+        // msg: 'Please signed the form',
+        msg: 'Mohon tanda tangani form',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
@@ -497,7 +583,14 @@ handleDigitalSigned(
   }
 }
 
-formWaiting(BuildContext context, List<Customer> customer, int position) {
+formWaiting(
+  BuildContext context,
+  List<Customer> customer,
+  int position, {
+  String reasonSM,
+  String reasonAM,
+  Contract contract,
+}) {
   return showModalBottomSheet(
     elevation: 2,
     backgroundColor: Colors.white,
@@ -577,12 +670,14 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                         ? Colors.green[600]
                         : Colors.red[700],
               ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
             ),
             SizedBox(
               height: 5.h,
             ),
             Text(
-              'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
+              'Diajukan tgl : ${convertDateWithMonth(customer[position].dateAdded)}',
               style: TextStyle(
                 fontSize: 12.sp,
                 fontFamily: 'Segoe ui',
@@ -614,10 +709,10 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
             Row(
               children: [
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
                 SizedBox(
-                  width: 50.w,
+                  width: 45.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       vertical: 5.r,
@@ -640,13 +735,13 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                   ),
                 ),
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         'Sales Manager',
                         style: TextStyle(
                           fontSize: 15.sp,
@@ -655,21 +750,56 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                           color: Colors.black87,
                         ),
                       ),
-                    ),
-                    Text(
-                      customer[position].ttdSalesManager == "0"
-                          ? 'Menunggu Persetujuan Sales Manager'
-                          : customer[position].ttdSalesManager == "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
-                              : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                      Text(
+                        customer[position].ttdSalesManager == "0"
+                            ? 'Menunggu Persetujuan Sales Manager'
+                            : customer[position].ttdSalesManager == "1"
+                                ? 'Disetujui oleh Sales Manager ${convertDateWithMonth(customer[position].dateSM)}'
+                                : 'Ditolak oleh Sales Manager ${convertDateWithMonth(customer[position].dateSM)}',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
                       ),
-                    ),
-                  ],
+                      contract.approvalSm.contains('2')
+                          ? SizedBox(
+                              height: 5.h,
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalSm.contains('2')
+                          ? Text(
+                              'Keterangan : ',
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalSm.contains('2')
+                          ? Text(
+                              reasonSM,
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -679,10 +809,10 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
             Row(
               children: [
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
                 SizedBox(
-                  width: 50.w,
+                  width: 45.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       vertical: 5.r,
@@ -704,34 +834,69 @@ formWaiting(BuildContext context, List<Customer> customer, int position) {
                   ),
                 ),
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AR Manager',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AR Manager',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
-                    Text(
-                      customer[position].ttdArManager == "0"
-                          ? 'Menunggu Persetujuan AR Manager'
-                          : customer[position].ttdArManager == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
-                              : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                      Text(
+                        customer[position].ttdArManager == "0"
+                            ? 'Menunggu Persetujuan AR Manager'
+                            : customer[position].ttdArManager == "1"
+                                ? 'Disetujui oleh AR Manager ${convertDateWithMonth(customer[position].dateAM)}'
+                                : 'Ditolak oleh AR Manager ${convertDateWithMonth(customer[position].dateAM)}',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                  ],
+                      contract.approvalAm.contains('2')
+                          ? SizedBox(
+                              height: 5.h,
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalAm.contains('2')
+                          ? Text(
+                              'Keterangan : ',
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalAm.contains('2')
+                          ? Text(
+                              reasonAM,
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -1203,8 +1368,18 @@ approveCustomerReject(BuildContext context, bool isAr, String idCust,
   handleStatus(context, capitalize(msg), sts);
 }
 
-formRejected(BuildContext context, List<Customer> customer, int position,
-    {String div, ttd, idCust, username}) {
+formRejected(
+  BuildContext context,
+  List<Customer> customer,
+  int position, {
+  String div,
+  ttd,
+  idCust,
+  username,
+  String reasonSM,
+  String reasonAM,
+  Contract contract,
+}) {
   return showModalBottomSheet(
     elevation: 2,
     backgroundColor: Colors.white,
@@ -1283,7 +1458,7 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               height: 5.h,
             ),
             Text(
-              'Diajukan tgl : ${convertDateIndo(customer[position].dateAdded)}',
+              'Diajukan tgl : ${convertDateWithMonth(customer[position].dateAdded)}',
               style: TextStyle(
                 fontSize: 12.sp,
                 fontFamily: 'Segoe ui',
@@ -1315,10 +1490,10 @@ formRejected(BuildContext context, List<Customer> customer, int position,
             Row(
               children: [
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
                 SizedBox(
-                  width: 50.w,
+                  width: 45.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       vertical: 5.r,
@@ -1341,13 +1516,13 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                   ),
                 ),
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         'Sales Manager',
                         style: TextStyle(
                           fontSize: 15.sp,
@@ -1356,83 +1531,156 @@ formRejected(BuildContext context, List<Customer> customer, int position,
                           color: Colors.black87,
                         ),
                       ),
-                    ),
-                    Text(
-                      customer[position].ttdSalesManager == "0"
-                          ? 'Menunggu Persetujuan Sales Manager'
-                          : customer[position].ttdSalesManager == "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}'
-                              : 'Ditolak oleh Sales Manager ${convertDateIndo(customer[position].dateSM)}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                      Text(
+                        customer[position].ttdSalesManager == "0"
+                            ? 'Menunggu Persetujuan Sales Manager'
+                            : customer[position].ttdSalesManager == "1"
+                                ? 'Disetujui oleh Sales Manager ${convertDateWithMonth(customer[position].dateSM)}'
+                                : 'Ditolak oleh Sales Manager ${convertDateWithMonth(customer[position].dateSM)}',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
                       ),
-                    ),
-                  ],
+                      contract.approvalSm.contains('2')
+                          ? SizedBox(
+                              height: 5.h,
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalSm.contains('2')
+                          ? Text(
+                              'Keterangan : ',
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalSm.contains('2')
+                          ? Text(
+                              reasonSM,
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                    ],
+                  ),
                 ),
               ],
             ),
             SizedBox(
-              height: 10.h,
+              height: 15.h,
             ),
             Row(
               children: [
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
                 SizedBox(
-                  width: 50.w,
+                  width: 45.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       vertical: 5.r,
-                      horizontal: 10.r,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black54),
                       borderRadius: BorderRadius.circular(5.r),
                     ),
-                    child: Text(
-                      'AM',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black54,
+                    child: Center(
+                      child: Text(
+                        'AM',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 SizedBox(
-                  width: 20.w,
+                  width: 15.w,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AR Manager',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AR Manager',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
-                    Text(
-                      customer[position].ttdArManager == "0"
-                          ? 'Menunggu Persetujuan AR Manager'
-                          : customer[position].ttdArManager == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateIndo(customer[position].dateAM)}'
-                              : 'Ditolak oleh AR Manager ${convertDateIndo(customer[position].dateAM)}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                      Text(
+                        customer[position].ttdArManager == "0"
+                            ? 'Menunggu Persetujuan AR Manager'
+                            : customer[position].ttdArManager == "1"
+                                ? 'Disetujui oleh AR Manager ${convertDateWithMonth(customer[position].dateAM)}'
+                                : 'Ditolak oleh AR Manager ${convertDateWithMonth(customer[position].dateAM)}',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
                       ),
-                    ),
-                  ],
+                      contract.approvalAm.contains('2')
+                          ? SizedBox(
+                              height: 5.h,
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalAm.contains('2')
+                          ? Text(
+                              'Keterangan : ',
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                      contract.approvalAm.contains('2')
+                          ? Text(
+                              reasonAM,
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontFamily: 'Segoe ui',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          : SizedBox(
+                              width: 3.w,
+                            ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -1440,75 +1688,51 @@ formRejected(BuildContext context, List<Customer> customer, int position,
               height: 20.h,
             ),
             Center(
-              child: Text(
-                'Apakah anda ingin menyetujui kontrak optik ini?',
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontFamily: 'Segoe ui',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.orange[800],
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 10.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ArgonButton(
-                  height: 40.h,
-                  width: 100.w,
-                  borderRadius: 30.0.r,
-                  color: Colors.blue[700],
-                  child: Text(
-                    "Approve",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700),
-                  ),
-                  loader: Container(
-                    padding: EdgeInsets.all(8.r),
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onTap: (startLoading, stopLoading, btnState) {
-                    if (btnState == ButtonState.Idle) {
-                      startLoading();
-                      waitingLoad();
-                      div == "AR"
-                          ? approveCustomerReject(
-                              context, true, idCust, ttd, username)
-                          : approveCustomerReject(
-                              context, false, idCust, ttd, username);
-                      // stopLoading();
-                    }
-                  },
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: StadiumBorder(),
-                    primary: Colors.red[800],
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
-                  ),
-                  child: Text(
-                    'Tutup',
-                    style: TextStyle(
+              child: ArgonButton(
+                height: 40.h,
+                width: 110.w,
+                borderRadius: 30.0.r,
+                color: Colors.blue[700],
+                child: Text(
+                  "Lebih Lengkap",
+                  style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Segoe ui',
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                      fontWeight: FontWeight.w700),
                 ),
-              ],
+                loader: Container(
+                  padding: EdgeInsets.all(8.r),
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
+                onTap: (startLoading, stopLoading, btnState) {
+                  if (btnState == ButtonState.Idle) {
+                    startLoading();
+                    waitingLoad();
+                    idCust != null
+                        ? Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DetailContractRejected(
+                                item: contract,
+                                div: div,
+                                ttd: ttd,
+                                username: username,
+                                isNewCust: true,
+                              ),
+                            ),
+                          )
+                        : handleStatus(
+                            context, 'Id customer tidak ditemukan', false);
+                    // div == "AR"
+                    //     ? approveCustomerReject(
+                    //         context, true, idCust, ttd, username)
+                    //     : approveCustomerReject(
+                    //         context, false, idCust, ttd, username);
+                    stopLoading();
+                  }
+                },
+              ),
             ),
             SizedBox(
               height: 10.h,
@@ -1642,23 +1866,36 @@ getCustomerContractNew(
     String username,
     bool isSales,
     bool isContract}) async {
+  const timeout = 15;
   var url =
       'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
-  var response = await http.get(url);
 
-  print('Response status: ${response.statusCode}');
+  try {
+    var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-  var data = json.decode(response.body);
-  final bool sts = data['status'];
+    print('Response status: ${response.statusCode}');
 
-  if (sts) {
-    var rest = data['data'];
-    print(rest);
-    itemContract = Contract.fromJson(rest[0]);
+    var data = json.decode(response.body);
+    final bool sts = data['status'];
 
-    openDialogNew(context, divisi, ttdPertama, username, isSales, isContract);
-  } else {
-    handleStatus(context, 'Harap ajukan kontrak baru', false);
+    if (sts) {
+      var rest = data['data'];
+      print(rest);
+      itemContract = Contract.fromJson(rest[0]);
+
+      openDialogNew(context, divisi, ttdPertama, username, isSales, isContract);
+    } else {
+      handleStatus(context, 'Harap ajukan kontrak baru', false);
+    }
+  } on TimeoutException catch (e) {
+    print('Timeout Error : $e');
+    handleTimeout(context);
+  } on SocketException catch (e) {
+    print('Socket Error : $e');
+    handleSocket(context);
+  } on Error catch (e) {
+    print('General Error : $e');
+    handleStatus(context, e.toString(), false);
   }
 }
 
@@ -1704,21 +1941,29 @@ signOut() async {
 
 handleLogout(BuildContext context) {
   AlertDialog alert = AlertDialog(
-    title: Text("Logout"),
+    title: Text("Informasi"),
     content: Container(
-      child: Text("Do you want to close app?"),
+      child: Text("Apakah anda yakin menutup aplikasi ini?"),
     ),
     actions: [
       TextButton(
-        child: Text('Ok'),
+        child: Text('Iya'),
         onPressed: () => signOut(),
       ),
       TextButton(
-        child: Text('Cancel'),
+        child: Text('Tidak'),
         onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
       ),
     ],
   );
 
   showDialog(context: context, builder: (context) => alert);
+}
+
+void handleTimeout(BuildContext context) {
+  handleStatus(context, 'Internet tidak stabil atau lambat', false);
+}
+
+void handleSocket(BuildContext context) {
+  handleStatus(context, 'Aktifkan paket data atau wifi', false);
 }

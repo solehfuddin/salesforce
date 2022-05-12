@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -37,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
       userUpper = username.toUpperCase();
       divisi = preferences.getString("divisi");
 
-      getMonitoringSales(int.tryParse(id));
       print("Dashboard : $role");
       getTtd(int.parse(id));
     });
@@ -50,28 +51,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdSales = data['data'][0]['ttd'];
-      print(ttdSales);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdSales = data['data'][0]['ttd'];
+        print(ttdSales);
+      }
+
+      getMonitoringSales(input);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socker Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   getMonitoringSales(int idSales) async {
     _isLoading = true;
-    
+
     await Future.delayed(Duration(seconds: 1));
     if (listMonitoring.length > 0) listMonitoring.clear();
 
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract/salesMonitoring?id=$idSales';
+
     var response = await http.get(url);
 
     print('Response status: ${response.statusCode}');
@@ -96,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshData() async {
     setState(() {
-      getMonitoringSales(int.tryParse(id));
       getTtd(int.parse(id));
     });
   }
@@ -120,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
               slivers: [
                 areaHeader(screenHeight, userUpper, context),
                 areaPoint(screenHeight, context),
-                areaMenu(screenHeight, context, id),
+                areaMenu(screenHeight, context, id, role),
                 areaHeaderMonitoring(),
                 _isLoading
                     ? areaLoading()

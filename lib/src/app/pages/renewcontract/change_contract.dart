@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -59,9 +61,9 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isTanggalSt = false;
   bool _isTanggalEd = false;
   bool _isRegularDisc = false;
+  bool _isConnected = false;
   var thisYear, nextYear;
   int formLen;
-  // Contract activeContract;
 
   callback(newVal) {
     setState(() {
@@ -85,49 +87,57 @@ class _ChangeContractState extends State<ChangeContract> {
       print('Next Year : $nextYear');
 
       print("Dashboard : $role");
-      getTtdSales(int.parse(id));
-
-      // ttdKedua = widget.customerList[widget.position].ttdCustomer;
-      // idCustomer = widget.customerList[widget.position].id;
       idCustomer = widget.oldCustomer.customerShipNumber;
-      // getContractActive();
     });
   }
 
   getTtdSales(int input) async {
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    if (_isConnected) {
+      var response = await http.get(url);
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
     }
   }
 
   Future<List<Discount>> getDiscountData(dynamic idCust) async {
     List<Discount> list;
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/getByIdCustomer?id_customer=$idCust';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   @override
@@ -135,24 +145,43 @@ class _ChangeContractState extends State<ChangeContract> {
     super.initState();
     getRole();
     getItemProdDiv();
-    getSearchProduct('');
   }
 
   getItemProdDiv() async {
+    const timeout = 15;
     var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      itemProdDiv =
-          rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
-      print("List Size: ${itemProdDiv.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        itemProdDiv =
+            rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
+        print("List Size: ${itemProdDiv.length}");
+      }
+
+      _isConnected = true;
+      getSearchProduct('');
+      getTtdSales(int.parse(id));
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+      _isConnected = false;
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnection(context);
+      _isConnected = false;
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+      _isConnected = false;
     }
   }
 
@@ -160,24 +189,27 @@ class _ChangeContractState extends State<ChangeContract> {
     List<Product> list;
     var url =
         'http://timurrayalab.com/salesforce/server/api/product/search?search=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    if (_isConnected) {
+      var response = await http.get(url);
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Product>((json) => Product.fromJson(json)).toList();
-      itemProduct =
-          rest.map<Product>((json) => Product.fromJson(json)).toList();
-      print("List Size: ${list.length}");
-      print("Product Size: ${itemProduct.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Product>((json) => Product.fromJson(json)).toList();
+        itemProduct =
+            rest.map<Product>((json) => Product.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+        print("Product Size: ${itemProduct.length}");
+      }
+
+      return list;
     }
-
-    return list;
   }
 
   getSelectedItem() {
@@ -232,26 +264,6 @@ class _ChangeContractState extends State<ChangeContract> {
         }
       });
     }
-  }
-
-  Future<List<Proddiv>> getProdDiv() async {
-    List<Proddiv> list;
-    var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
-    var response = await http.get(url);
-
-    print('Response status: ${response.statusCode}');
-
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
-
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
-      print("List Size: ${list.length}");
-    }
-
-    return list;
   }
 
   multipleInputDiskon() async {
@@ -383,64 +395,77 @@ class _ChangeContractState extends State<ChangeContract> {
         !_isValLeinz &&
         !_isValOriental &&
         !_isValMoe) {
+      const timeout = 15;
       var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-      var response = await http.post(
-        url,
-        body: {
-          'id_customer': idCustomer,
-          'nama_pertama': name,
-          'jabatan_pertama': role,
-          'nama_kedua': widget.oldCustomer.contactPerson,
-          'jabatan_kedua': jabatanKedua,
-          'alamat_kedua': widget.oldCustomer.address2,
-          'telp_kedua': widget.oldCustomer.phone,
-          'fax_kedua': '-',
-          'tp_nikon': textValNikon.text.replaceAll('.', ''),
-          'tp_leinz': textValLeinz.text.replaceAll('.', ''),
-          'tp_oriental': textValOriental.text.replaceAll('.', ''),
-          'tp_moe': textValMoe.text.replaceAll('.', ''),
-          'pembayaran_nikon': _chosenNikon,
-          'pembayaran_leinz': _chosenLeinz,
-          'pembayaran_oriental': _chosenOriental,
-          'pembayaran_moe': _chosenMoe,
-          'start_contract': textTanggalSt.text,
-          'end_contract': textTanggalEd.text,
-          'no_account': idCustomer,
-          'ttd_pertama': ttdPertama,
-          'ttd_kedua': ttdKedua,
-          'created_by': id,
-        },
-      );
 
-      print('ttd 1 : $ttdPertama');
-      print('ttd 2 : $ttdKedua');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      try {
+        var response = await http.post(
+          url,
+          body: {
+            'id_customer': idCustomer,
+            'nama_pertama': name,
+            'jabatan_pertama': role,
+            'nama_kedua': widget.oldCustomer.contactPerson,
+            'jabatan_kedua': jabatanKedua,
+            'alamat_kedua': widget.oldCustomer.address2,
+            'telp_kedua': widget.oldCustomer.phone,
+            'fax_kedua': '-',
+            'tp_nikon': textValNikon.text.replaceAll('.', ''),
+            'tp_leinz': textValLeinz.text.replaceAll('.', ''),
+            'tp_oriental': textValOriental.text.replaceAll('.', ''),
+            'tp_moe': textValMoe.text.replaceAll('.', ''),
+            'pembayaran_nikon': _chosenNikon,
+            'pembayaran_leinz': _chosenLeinz,
+            'pembayaran_oriental': _chosenOriental,
+            'pembayaran_moe': _chosenMoe,
+            'start_contract': textTanggalSt.text,
+            'end_contract': textTanggalEd.text,
+            'no_account': idCustomer,
+            'ttd_pertama': ttdPertama,
+            'ttd_kedua': ttdKedua,
+            'created_by': id,
+          },
+        ).timeout(Duration(seconds: timeout));
 
-      var res = json.decode(response.body);
-      final bool sts = res['status'];
-      final String msg = res['message'];
+        print('ttd 1 : $ttdPertama');
+        print('ttd 2 : $ttdKedua');
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
 
-      if (sts) {
-        textTanggalSt.clear();
-        textTanggalEd.clear();
-        textValLeinz.clear();
-        textValMoe.clear();
-        textValNikon.clear();
-        textValOriental.clear();
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        final String msg = res['message'];
 
-        _isRegularDisc ? simpanDiskon(idCustomer) : multipleInputDiskon();
+        if (sts) {
+          textTanggalSt.clear();
+          textTanggalEd.clear();
+          textValLeinz.clear();
+          textValMoe.clear();
+          textValNikon.clear();
+          textValOriental.clear();
+
+          _isRegularDisc ? simpanDiskon(idCustomer) : multipleInputDiskon();
+        }
+
+        handleStatusChangeContract(
+          widget.oldCustomer,
+          context,
+          capitalize(msg),
+          sts,
+          keyword: widget.keyword,
+        );
+        stop();
+        setState(() {});
+      } on TimeoutException catch (e) {
+        print('Timeout Error : $e');
+        handleTimeout(context);
+      } on SocketException catch (e) {
+        print('Socket Error : $e');
+        handleConnection(context);
+      } on Error catch (e) {
+        print('General Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      handleStatusChangeContract(
-        widget.oldCustomer,
-        context,
-        capitalize(msg),
-        sts,
-        keyword: widget.keyword,
-      );
-      stop();
-      setState(() {});
     } else {
       stop();
     }
@@ -564,8 +589,7 @@ class _ChangeContractState extends State<ChangeContract> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 20.w
-                  ,
+                  width: 20.w,
                 ),
                 Text(
                   'Telp : ',

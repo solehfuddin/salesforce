@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,70 +44,107 @@ class _SearchContractState extends State<SearchContract> {
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   Future<List<Monitoring>> getMonitoringData() async {
     List<Monitoring> list;
+    const timeout = 15;
+
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list =
+            rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Exception : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   Future<List<Monitoring>> getMonitoringBySearch(String input) async {
     List<Monitoring> list;
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract/search?search=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list =
+            rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
-
-    return list;
   }
 
-  Future<void> _refreshData() async{
+  Future<void> _refreshData() async {
     setState(() {
-      search.isNotEmpty
-                      ? getMonitoringBySearch(search)
-                      : getMonitoringData();
+      search.isNotEmpty ? getMonitoringBySearch(search) : getMonitoringData();
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,7 +264,9 @@ class _SearchContractState extends State<SearchContract> {
             itemBuilder: (context, position) {
               return InkWell(
                 child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 7.r,),
+                  margin: EdgeInsets.symmetric(
+                    vertical: 7.r,
+                  ),
                   padding: EdgeInsets.all(
                     15.r,
                   ),
@@ -241,7 +282,9 @@ class _SearchContractState extends State<SearchContract> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item[position].namaUsaha != null ? item[position].namaUsaha : item[position].customerShipName,
+                        item[position].namaUsaha != null
+                            ? item[position].namaUsaha
+                            : item[position].customerShipName,
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontFamily: 'Segoe Ui',
@@ -270,13 +313,14 @@ class _SearchContractState extends State<SearchContract> {
                                 height: 2.h,
                               ),
                               Text(
-                                capitalize(
-                                        item[position].status.toLowerCase()),
+                                capitalize(item[position].status.toLowerCase()),
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
-                                  color: item[position].status == "ACTIVE" ?  Colors.orange[800] : Colors.red[600],
+                                  color: item[position].status == "ACTIVE"
+                                      ? Colors.orange[800]
+                                      : Colors.red[600],
                                 ),
                               ),
                             ],
@@ -297,7 +341,8 @@ class _SearchContractState extends State<SearchContract> {
                                 height: 2.h,
                               ),
                               Text(
-                                getEndDays(input: item[position].endDateContract),
+                                getEndDays(
+                                    input: item[position].endDateContract),
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontFamily: 'Segoe Ui',
@@ -313,17 +358,18 @@ class _SearchContractState extends State<SearchContract> {
                   ),
                 ),
                 onTap: () {
-                  item[position].idCustomer != null ?
-                  getCustomerContractNew(
-                    context: context,
-                    idCust: item[position].idCustomer,
-                    username: username,
-                    divisi: divisi,
-                    ttdPertama: ttdPertama,
-                    isSales: true,
-                    isContract: false,
-                  )
-                  : handleStatus(context, 'Id customer tidak ditemukan', false);
+                  item[position].idCustomer != null
+                      ? getCustomerContractNew(
+                          context: context,
+                          idCust: item[position].idCustomer,
+                          username: username,
+                          divisi: divisi,
+                          ttdPertama: ttdPertama,
+                          isSales: true,
+                          isContract: false,
+                        )
+                      : handleStatus(
+                          context, 'Id customer tidak ditemukan', false);
                 },
               );
             }),

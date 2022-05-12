@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -30,31 +32,50 @@ class DetailContract extends StatefulWidget {
 class _DetailContractState extends State<DetailContract> {
   bool _isLoading = true;
   List<Discount> discList = List.empty(growable: true);
+  TextEditingController textReason = new TextEditingController();
+  String reasonVal;
+  bool _isReason = false;
 
   getDisc(dynamic idContract) async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      discList = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
-      print("List Size: ${discList.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-      discList.length > 0 ? widget.isHasDisc = true : widget.isHasDisc = false;
-    }
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        discList =
+            rest.map<Discount>((json) => Discount.fromJson(json)).toList();
+        print("List Size: ${discList.length}");
 
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
+        discList.length > 0
+            ? widget.isHasDisc = true
+            : widget.isHasDisc = false;
+      }
+
+      Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          _isLoading = false;
+        });
       });
-    });
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   @override
@@ -64,134 +85,203 @@ class _DetailContractState extends State<DetailContract> {
   }
 
   Future<List<Discount>> getDiscountData(dynamic idContract) async {
+    const timeout = 15;
     List<Discount> list;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   approveContract(bool isAr, String idCust, String username) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/approveContractAM';
 
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'approver_sm': username,
-            }
-          : {
-              'id_customer': idCust,
-              'approver_am': username,
-            },
-    );
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'approver_sm': username,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'approver_am': username,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
 
-    widget.isAdminRenewal
-        ? handleCustomStatus(context, capitalize(msg), sts)
-        : handleStatus(context, capitalize(msg), sts);
+      widget.isAdminRenewal
+          ? handleCustomStatus(context, capitalize(msg), sts)
+          : handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   approveCustomer(bool isAr, String idCust, String ttd, String username) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
 
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'nama_sales_manager': username,
-            }
-          : {
-              'id_customer': idCust,
-              'nama_ar_manager': username,
-            },
-    );
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'nama_sales_manager': username,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'nama_ar_manager': username,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    approveContract(isAr, idCust, username);
+      approveContract(isAr, idCust, username);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
-  rejectContract(bool isAr, String idCust, String username) async {
+  rejectContract(
+      bool isAr, String idCust, String username, String reason) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractAM';
 
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'approver_sm': username,
-            }
-          : {
-              'id_customer': idCust,
-              'approver_am': username,
-            },
-    );
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'approver_sm': username,
+                    'reason_sm': reason,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'approver_am': username,
+                    'reason_am': reason,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    print('Username : $username');
+      print('Username : $username');
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
 
-    widget.isAdminRenewal
-        ? handleCustomStatus(context, capitalize(msg), sts)
-        : handleStatus(context, capitalize(msg), sts);
+      widget.isAdminRenewal
+          ? handleCustomStatus(context, capitalize(msg), sts)
+          : handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
-  rejectCustomer(bool isAr, String idCust, String ttd, String username) async {
+  rejectCustomer(bool isAr, String idCust, String ttd, String username,
+      String reason) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/rejectAM';
 
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'nama_sales_manager': username,
-            }
-          : {
-              'id_customer': idCust,
-              'nama_ar_manager': username,
-            },
-    );
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'nama_sales_manager': username,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'nama_ar_manager': username,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    rejectContract(isAr, idCust, username);
+      rejectContract(isAr, idCust, username, reason);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   approveOldCustomer() {
@@ -210,16 +300,84 @@ class _DetailContractState extends State<DetailContract> {
 
   rejectOldCustomer() {
     widget.div == "AR"
-        ? rejectContract(true, widget.item.idCustomer, widget.username)
-        : rejectContract(false, widget.item.idCustomer, widget.username);
+        ? rejectContract(true, widget.item.idCustomer, widget.username,
+            textReason.text.trim())
+        : rejectContract(false, widget.item.idCustomer, widget.username,
+            textReason.text.trim());
   }
 
   rejectNewCustomer() {
     widget.div == "AR"
-        ? rejectCustomer(
-            true, widget.item.idCustomer, widget.ttd, widget.username)
-        : rejectCustomer(
-            false, widget.item.idCustomer, widget.ttd, widget.username);
+        ? rejectCustomer(true, widget.item.idCustomer, widget.ttd,
+            widget.username, textReason.text.trim())
+        : rejectCustomer(false, widget.item.idCustomer, widget.ttd,
+            widget.username, textReason.text.trim());
+  }
+
+  checkEntry() {
+    textReason.text.isEmpty ? _isReason = true : _isReason = false;
+
+    if (!_isReason) {
+      widget.isContract ? rejectOldCustomer() : rejectNewCustomer();
+      Navigator.of(context, rootNavigator: true).pop();
+    } else {
+      handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
+    }
+  }
+
+  handleRejection(BuildContext context, Function stop) {
+    AlertDialog alert = AlertDialog(
+      title: Center(
+        child: Text(
+          "Mengapa kontrak tidak disetujui ?",
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontFamily: 'Segoe ui',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      content: Form(
+          child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            textCapitalization: TextCapitalization.characters,
+            decoration: InputDecoration(
+              labelText: '',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+              ),
+              errorText: !_isReason ? 'Data wajib diisi' : null,
+            ),
+            keyboardType: TextInputType.multiline,
+            minLines: 5,
+            maxLines: 6,
+            maxLength: 100,
+            controller: textReason,
+          ),
+        ],
+      )),
+      actions: [
+        TextButton(
+          child: Text('Ok'),
+          onPressed: () {
+            stop();
+            checkEntry();
+          },
+        ),
+        TextButton(
+          child: Text('Cancel'),
+          onPressed: () {
+            stop();
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(context: context, builder: (context) => alert);
   }
 
   @override
@@ -293,6 +451,28 @@ class _DetailContractState extends State<DetailContract> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 5.r,
+                      horizontal: 10.r,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[600],
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Text(
+                      'KONTRAK ${widget.item.typeContract}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15.h,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1013,7 +1193,40 @@ class _DetailContractState extends State<DetailContract> {
                   SizedBox(
                     height: 10.h,
                   ),
-                  areaDiskon(widget.item),
+                  widget.item.typeContract.contains('FRAME')
+                      ? Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 5.h,
+                              ),
+                              Text(
+                                'KETERANGAN',
+                                style: TextStyle(
+                                  fontFamily: 'Segoe Ui',
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.5.r,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.h,
+                              ),
+                              Text(
+                                'Diskon khusus pada kontrak frame disesuakan dengan surat pesanan (SP) .',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.justify,
+                              ),
+                            ],
+                          ),
+                        )
+                      : areaDiskon(widget.item),
                   SizedBox(
                     height: 30.h,
                   ),
@@ -1262,7 +1475,8 @@ class _DetailContractState extends State<DetailContract> {
                 setState(() {
                   startLoading();
                   waitingLoad();
-                  widget.isContract ? rejectOldCustomer() : rejectNewCustomer();
+                  handleRejection(context, stopLoading);
+                  // widget.isContract ? rejectOldCustomer() : rejectNewCustomer();
                 });
               }
             },

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
@@ -47,72 +49,107 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   Future<List<Contract>> getApprovalData(bool isAr) async {
+    const timeout = 15;
     List<Contract> list;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/contract/acceptedContractOldCustSM'
         : 'http://timurrayalab.com/salesforce/server/api/contract/acceptedContractOldCustAM';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   Future<List<Contract>> getApprovalBySearch(String input, bool isAr) async {
+    const timeout = 15;
     List<Contract> list;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract/findOldCustContract';
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'search': input,
-              'approval_sm': '1',
-            }
-          : {
-              'search': input,
-              'approval_am': '1',
-            },
-    );
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'search': input,
+                    'approval_sm': '1',
+                  }
+                : {
+                    'search': input,
+                    'approval_am': '1',
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error :$e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   @override

@@ -6,7 +6,7 @@ import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/pages/renewcontract/renewal_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
-checkSigned(String id, BuildContext context) async {
+checkSigned(String id, String role, BuildContext context) async {
   String ttd = await getTtdValid(id, context);
   print(ttd);
   ttd == null
@@ -21,7 +21,7 @@ checkCustomer(String id, BuildContext context) {
 }
 
 SliverToBoxAdapter areaMenu(
-    double screenHeight, BuildContext context, String idSales) {
+    double screenHeight, BuildContext context, String idSales, String role) {
   return SliverToBoxAdapter(
     child: Container(
       padding: EdgeInsets.symmetric(vertical: 15.r, horizontal: 10.r),
@@ -59,7 +59,7 @@ SliverToBoxAdapter areaMenu(
                   ),
                 ),
                 onTap: () {
-                  checkSigned(idSales, context);
+                  checkSigned(idSales, role, context);
                 },
               ),
               GestureDetector(

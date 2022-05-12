@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
+import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -36,7 +39,6 @@ class _RenewalContractState extends State<RenewalContract> {
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
 
-      getTtd(int.parse(id));
       print("Search Contract : $role");
     });
   }
@@ -53,36 +55,64 @@ class _RenewalContractState extends State<RenewalContract> {
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
   }
 
   getAllOldCustomer() async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/customers/oldCustomer?limit=100&offset=0';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      oldCustomerList =
-          rest.map<OldCustomer>((json) => OldCustomer.fromJson(json)).toList();
-      print("List Size: ${oldCustomerList.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      getTtd(int.parse(id));
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        oldCustomerList = rest
+            .map<OldCustomer>((json) => OldCustomer.fromJson(json))
+            .toList();
+        print("List Size: ${oldCustomerList.length}");
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      widget.isAdmin
+          ? handleConnectionAdmin(context)
+          : handleConnection(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -105,27 +135,41 @@ class _RenewalContractState extends State<RenewalContract> {
 
   Future<List<OldCustomer>> getOldCustomerBySearch(String input) async {
     setState(() {});
-
+    const timeout = 15;
     List<OldCustomer> list;
     var url =
         'http://timurrayalab.com/salesforce/server/api/customers/searchOldCust?limit=100&offset=0&search=$input';
-    
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list =
-          rest.map<OldCustomer>((json) => OldCustomer.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest
+            .map<OldCustomer>((json) => OldCustomer.fromJson(json))
+            .toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      widget.isAdmin
+          ? handleConnectionAdmin(context)
+          : handleConnection(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
-
-    return list;
   }
 
   Future<void> _refreshData() async {
@@ -177,7 +221,7 @@ class _RenewalContractState extends State<RenewalContract> {
               autocorrect: true,
               controller: txtSearch,
               decoration: InputDecoration(
-                hintText:'Pencarian data..',
+                hintText: 'Pencarian data..',
                 prefixIcon: Icon(Icons.search),
                 hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
@@ -454,12 +498,13 @@ class _RenewalContractState extends State<RenewalContract> {
                           builder: (context) => HistoryContract(
                                 item[position],
                                 keyword: txtSearch.text,
-                                isAdmin: false,
+                                isAdmin: widget.isAdmin,
+                                // isAdmin: false,
                               ))).then((_) {
-                                setState(() {
-                                  _refreshData();
-                                });
-                              });
+                    setState(() {
+                      _refreshData();
+                    });
+                  });
                 },
               );
             }),

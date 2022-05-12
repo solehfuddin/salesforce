@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,6 +30,7 @@ class _HistoryContractState extends State<HistoryContract> {
   String search = '';
   String divisi = '';
   String ttdPertama;
+  bool _isConnected = false;
   List<Contract> activeContract = List.empty(growable: true);
 
   getRole() async {
@@ -38,7 +41,6 @@ class _HistoryContractState extends State<HistoryContract> {
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
 
-      getTtd(int.parse(id));
       print("Search Contract : $role");
       print("Keyword : ${widget.keyword}");
     });
@@ -67,42 +69,73 @@ class _HistoryContractState extends State<HistoryContract> {
   }
 
   getContractActive() async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract/getActiveContractById?id=${widget.item.customerShipNumber}';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      activeContract =
-          rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      getTtd(int.parse(id));
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        activeContract =
+            rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+      }
+      _isConnected = true;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+      _isConnected = false;
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      widget.isAdmin
+          ? handleConnectionAdmin(context)
+          : handleConnection(context);
+      _isConnected = false;
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+      _isConnected = false;
     }
   }
 
   Future<List<Contract>> getHistoryContract(String input) async {
+    const timeout = 15;
     List<Contract> list;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   Future<void> _refreshData() async {

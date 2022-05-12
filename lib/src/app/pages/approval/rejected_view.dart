@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -39,61 +41,104 @@ class _RejectedScreenState extends State<RejectedScreen> {
 
   Future<List<Customer>> getCustomerData(bool isAr) async {
     List<Customer> list;
+    const timeout = 15;
+
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
         : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
-    var response = await http.get(url);
+    const timeout = 15;
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      itemContract = Contract.fromJson(rest[0]);
-      await formRejected(context, listCust, pos,
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        itemContract = Contract.fromJson(rest[0]);
+        await formRejected(
+          context,
+          listCust,
+          pos,
           idCust: itemContract.idCustomer,
           div: divisi,
           username: username,
-          ttd: ttdPertama);
-      setState(() {});
+          ttd: ttdPertama,
+          reasonAM: itemContract.reasonAm,
+          reasonSM: itemContract.reasonSm,
+          contract: itemContract,
+        );
+        setState(() {});
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   getTtd(int input) async {
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
+    const timeout = 15;
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 

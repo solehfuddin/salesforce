@@ -2,7 +2,8 @@ class Contract {
   String idContract, idCustomer, namaPertama, jabatanPertama, alamatPertama, telpPertama, faxPertama,
   namaKedua, jabatanKedua, alamatKedua, telpKedua, faxKedua, tpNikon, tpLeinz, tpOriental, tpMoe, 
   pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, typeContract, status,
-  customerShipName, customerShipNumber, dateAdded, approvalSm, approvalAm, dateApprovalSm, dateApprovalAm;
+  customerShipName, customerShipNumber, dateAdded, approvalSm, reasonSm, approvalAm, reasonAm,
+  dateApprovalSm, dateApprovalAm;
 
   Contract.fromJson(Map json):
     idContract = json['id'],
@@ -27,12 +28,15 @@ class Contract {
     pembMoe = json['pembayaran_moe'],
     startContract = json['start_contract'],
     endContract = json['end_contract'],
+    typeContract = json['type_contract'],
     status = json['status'],
     customerShipName = json['customer_ship_name'],
     customerShipNumber = json['customer_ship_number'],
     dateAdded = json['date_added'],
     approvalAm = json['approval_am'],
+    reasonAm = json['reason_am'],
     approvalSm = json['approval_sm'],
+    reasonSm = json['reason_sm'],
     dateApprovalAm = json['date_approval_am'],
     dateApprovalSm = json['date_approval_sm'];
 
@@ -59,12 +63,15 @@ class Contract {
     this.pembMoe,
     this.startContract,
     this.endContract,
+    this.typeContract,
     this.status,
     this.customerShipName,
     this.customerShipNumber,
     this.dateAdded,
     this.approvalAm,
+    this.reasonAm,
     this.approvalSm,
+    this.reasonSm,
     this.dateApprovalAm,
     this.dateApprovalSm,
   );
@@ -93,12 +100,15 @@ class Contract {
       json['pembayaran_moe'] as String,
       json['start_contract'] as String,
       json['end_contract'] as String,
+      json['type_contract'] as String,
       json['status'] as String,
       json['customer_ship_name'] as String,
       json['customer_ship_number'] as String,
       json['date_added'] as String,
       json['approval_am'] as String,
+      json['reason_am'] as String,
       json['approval_sm'] as String,
+      json['reason_sm'] as String,
       json['date_approval_am'] as String,
       json['date_approval_sm'] as String,
     );

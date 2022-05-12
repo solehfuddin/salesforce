@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,45 +37,68 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   Future<List<Customer>> getCustomerData(bool isAr) async {
+    const timeout = 15;
     List<Customer> list;
     var url = !isAr
-       ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
-       : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
-    var response = await http.get(url);
+        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
+        : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
-
-    return list;
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      divisi == "AR" ? getCustomerData(true): getCustomerData(false);
+      divisi == "AR" ? getCustomerData(true) : getCustomerData(false);
     });
   }
 
@@ -80,6 +106,45 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
   void initState() {
     super.initState();
     getRole();
+  }
+
+  getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
+    const timeout = 15;
+    var url =
+        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        itemContract = Contract.fromJson(rest[0]);
+        await formWaiting(
+          context,
+          listCust,
+          pos,
+          reasonAM: itemContract.reasonAm,
+          reasonSM: itemContract.reasonSm,
+          contract: itemContract,
+        );
+        setState(() {});
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   @override
@@ -116,7 +181,9 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
             child: SizedBox(
               height: 100.h,
               child: FutureBuilder(
-                  future: divisi == "AR" ? getCustomerData(true): getCustomerData(false),
+                  future: divisi == "AR"
+                      ? getCustomerData(true)
+                      : getCustomerData(false),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
@@ -173,11 +240,19 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
-                              color: customer[position].status.contains('Pending') || 
-                                     customer[position].status.contains('PENDING')
+                              color: customer[position]
+                                          .status
+                                          .contains('Pending') ||
+                                      customer[position]
+                                          .status
+                                          .contains('PENDING')
                                   ? Colors.grey[600]
-                                  : customer[position].status.contains('Accepted') || 
-                                    customer[position].status.contains('ACCEPTED')
+                                  : customer[position]
+                                              .status
+                                              .contains('Accepted') ||
+                                          customer[position]
+                                              .status
+                                              .contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
                               width: 5.w),
@@ -267,7 +342,8 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                               ),
                               child: Text(
                                 customer[position].namaSalesman.length > 0
-                                    ? capitalize(customer[position].namaSalesman)
+                                    ? capitalize(
+                                        customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
                                   fontSize: 12.sp,
@@ -282,7 +358,8 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                       ),
                     ),
                     onTap: () {
-                      formWaiting(context, customer, position);
+                      getCustomerContract(
+                          customer, position, int.parse(customer[position].id));
                     },
                   ),
                   clipper: ShapeBorderClipper(

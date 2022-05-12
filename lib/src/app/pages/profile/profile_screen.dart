@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
@@ -46,29 +47,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   getData(int input) async {
     _isLoading = true;
+    int timeout = 5;
 
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      textNamaLengkap.text = data['data'][0]['name'];
-      status = data['data'][0]['status'];
-      base64Imgprofile = data['data'][0]['imgprofile'];
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-      print('Nama Lengkap : ${textNamaLengkap.text}');
-      print('Status : $status');
-    }
+      if (sts) {
+        textNamaLengkap.text = data['data'][0]['name'];
+        status = data['data'][0]['status'];
+        base64Imgprofile = data['data'][0]['imgprofile'];
 
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
+        print('Nama Lengkap : ${textNamaLengkap.text}');
+        print('Status : $status');
+      }
+
+      Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          _isLoading = false;
+        });
       });
-    });
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      // handleSocket(context);
+      role.contains('admin')
+          ? handleConnectionAdmin(context)
+          : handleConnection(context);
+    } on Error catch (e) {
+      print('Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   @override
@@ -135,49 +152,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   perbaruiProfil() async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/users/changeImageProfile';
-    var response = await http.post(
-      url,
-      body: {
-        'id': id,
-        'image': base64Imgprofile,
-      },
-    );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    try {
+      var response = await http.post(
+        url,
+        body: {
+          'id': id,
+          'image': base64Imgprofile,
+        },
+      ).timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   perbaruiData(Function stop, {bool isChangePassword}) async {
+    const timeout = 15;
     var url = 'http://timurrayalab.com/salesforce/server/api/users';
 
-    var response = isChangePassword
-        ? await http.put(
-            url,
-            body: {
-              'id': id,
-              'name': textNamaLengkap.text,
-              'password': textPassword.text,
-            },
-          )
-        : await http.put(
-            url,
-            body: {
-              'id': id,
-              'name': textNamaLengkap.text,
-            },
-          );
+    try {
+      var response = isChangePassword
+          ? await http.put(
+              url,
+              body: {
+                'id': id,
+                'name': textNamaLengkap.text,
+                'password': textPassword.text,
+              },
+            )
+          : await http.put(
+              url,
+              body: {
+                'id': id,
+                'name': textNamaLengkap.text,
+              },
+            ).timeout(Duration(seconds: timeout));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
+
+      handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
 
     stop();
-    handleStatus(context, capitalize(msg), sts);
   }
 
   @override

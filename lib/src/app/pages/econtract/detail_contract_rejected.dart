@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,8 +14,10 @@ class DetailContractRejected extends StatefulWidget {
   String div;
   String ttd;
   String username;
+  bool isNewCust;
 
-  DetailContractRejected({this.item, this.div, this.ttd, this.username});
+  DetailContractRejected(
+      {this.item, this.div, this.ttd, this.username, this.isNewCust});
 
   @override
   State<DetailContractRejected> createState() => _DetailContractRejectedState();
@@ -23,20 +27,33 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
   List<Discount> discList = List.empty(growable: true);
 
   getDisc(dynamic idContract) async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      discList = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
-      print("List Size: ${discList.length}");
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        discList =
+            rest.map<Discount>((json) => Discount.fromJson(json)).toList();
+        print("List Size: ${discList.length}");
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -48,53 +65,131 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
 
   Future<List<Discount>> getDiscountData(dynamic idContract) async {
     List<Discount> list;
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
-      print("List Size: ${list.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
+  }
 
-    return list;
+  approveCustomerReject(BuildContext context, bool isAr, String idCust,
+      String ttd, String username) async {
+    const timeout = 15;
+    var url = !isAr
+        ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
+        : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
+
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'ttd_sales_manager': ttd,
+                    'nama_sales_manager': username,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'ttd_ar_manager': ttd,
+                    'nama_ar_manager': username,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
+
+      approveContractReject(isAr, idCust, username);
+      handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
   }
 
   approveContractReject(bool isAr, String idCust, String username) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
         : 'http://timurrayalab.com/salesforce/server/api/approval/approveContractAM';
 
-    var response = await http.post(
-      url,
-      body: !isAr
-          ? {
-              'id_customer': idCust,
-              'approver_sm': username,
-            }
-          : {
-              'id_customer': idCust,
-              'approver_am': username,
-            },
-    );
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'approver_sm': username,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'approver_am': username,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
 
-    handleStatus(context, capitalize(msg), sts);
+      handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
   }
-  
+
+  void handleContract() {
+    widget.div == "AR"
+        ? approveContractReject(true, widget.item.idCustomer, widget.username)
+        : approveContractReject(false, widget.item.idCustomer, widget.username);
+  }
+
+  void handleCustomer() {
+    widget.div == "AR"
+        ? approveCustomerReject(
+            context, true, widget.item.idCustomer, widget.ttd, widget.username)
+        : approveCustomerReject(context, false, widget.item.idCustomer,
+            widget.ttd, widget.username);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -924,12 +1019,10 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                           if (btnState == ButtonState.Idle) {
                             startLoading();
                             waitingLoad();
-                            widget.div == "AR"
-                                ? approveContractReject(true,
-                                    widget.item.idCustomer, widget.username)
-                                : approveContractReject(false,
-                                    widget.item.idCustomer, widget.username);
-                            // stopLoading();
+                            widget.isNewCust
+                                ? handleCustomer()
+                                : handleContract();
+                            stopLoading();
                           }
                         },
                       ),
@@ -1074,7 +1167,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
         ),
         itemBuilder: (context, position) {
           return SizedBox(
-            height: 30.h,
+            height: 40.h,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

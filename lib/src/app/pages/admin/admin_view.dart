@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +34,7 @@ class _AdminScreenState extends State<AdminScreen> {
   String userUpper = '';
   bool _isLoading = true;
   bool _isLoadRenewal = true;
+  bool _isConnected = false;
   int totalWaiting = 0;
   int totalApproved = 0;
   int totalRejected = 0;
@@ -102,121 +105,200 @@ class _AdminScreenState extends State<AdminScreen> {
       divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
 
-      checkSigned();
       countNewCustomer();
       countOldCustomer();
 
       getTtd(int.parse(id));
-      getMonitoringData();
     });
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      checkSigned();
+      // countNewCustomer();
+      // countOldCustomer();
+      getMonitoringData();
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+
+      // divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
+      // divisi == "AR" ? getApprovedData(true) : getApprovedData(false);
+      // divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
+      // divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
+
+      _isConnected = true;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+      _isConnected = false;
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+      _isConnected = false;
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+      _isConnected = false;
     }
   }
 
   checkSigned() async {
-    String ttd = await getTtdValid(id, context);
-    print(ttd);
-    if (ttd == null) {
-      handleSigned(context);
+    if (_isConnected) {
+      String ttd = await getTtdValid(id, context, role: role);
+      print(ttd);
+      if (ttd == null) {
+        handleSigned(context);
+      }
     }
   }
 
   countNewCustomer() async {
+    const timeout = 15;
     var url = 'http://timurrayalab.com/salesforce/server/api/customers';
-    var response = await http.get(url);
 
-    print('Response status : ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status : ${response.statusCode}');
 
-    if (sts) {
-      totalNewCustomer = data['count'];
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        totalNewCustomer = data['count'];
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
   }
 
   countOldCustomer() async {
+    const timeout = 15;
+
     var url =
         'http://timurrayalab.com/salesforce/server/api/customers/oldCustomer';
-    var response = await http.get(url);
 
-    print('Response status : ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status : ${response.statusCode}');
 
-    if (sts) {
-      totalOldCustomer = data['total_row'];
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        totalOldCustomer = data['total_row'];
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
   }
 
   getWaitingData(bool isAr) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/customers/approvalSM?ttd_sales_manager=0'
         : 'http://timurrayalab.com/salesforce/server/api/customers/approvalAM?ttd_ar_manager=0';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      totalWaiting = data['count'];
-      print('Waiting : $totalWaiting');
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-      setState(() {});
+      if (sts) {
+        totalWaiting = data['count'];
+        print('Waiting : $totalWaiting');
+
+        setState(() {});
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
   }
 
   getApprovedData(bool isAr) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
         : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      setState(() {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
         totalApproved = data['count'];
         print('Approve : $totalApproved');
-      });
+
+        setState(() {});
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
   }
 
   getRejectedData(bool isAr) async {
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
         : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      setState(() {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
         totalRejected = data['count'];
         print('Rejected : $totalRejected');
-      });
+
+        setState(() {});
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
   }
 
@@ -225,69 +307,90 @@ class _AdminScreenState extends State<AdminScreen> {
 
     await Future.delayed(Duration(seconds: 1));
     if (listMonitoring.length > 0) listMonitoring.clear();
-
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      listMonitoring =
-          rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
-      print("List Size: ${listMonitoring.length}");
-    }
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        listMonitoring =
+            rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
+        print("List Size: ${listMonitoring.length}");
+      }
+
+      Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          _isLoading = false;
+        });
       });
-    });
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
   }
 
   getRenewalData(bool isAr) async {
     _isLoadRenewal = true;
 
+    const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustSM'
         : 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustAM';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      listContract =
-          rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-      print("List Size: ${listContract.length}");
-    }
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _isLoadRenewal = false;
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        listContract =
+            rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+        print("List Size: ${listContract.length}");
+      }
+
+      Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          _isLoadRenewal = false;
+        });
       });
-    });
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
   }
 
   Future<void> _refreshData() async {
     setState(() {
       if (listMonitoring.length > 0) listMonitoring.clear();
       if (listContract.length > 0) listContract.clear();
-
       divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
       divisi == "AR" ? getApprovedData(true) : getApprovedData(false);
       divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
-      getMonitoringData();
+
+      countNewCustomer();
+      countOldCustomer();
+
       getTtd(int.parse(id));
     });
   }

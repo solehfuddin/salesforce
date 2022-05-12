@@ -36,7 +36,7 @@ class _SignedScreenState extends State<SignedScreen> {
   }
 
   checkSigned(String idUser) async {
-    await getTtdValid(idUser, context).then((data) {
+    await getTtdValid(idUser, context, role: role).then((data) {
       setState(() {
         tmpTtd = data;
         print(tmpTtd);

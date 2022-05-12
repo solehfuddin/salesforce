@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -32,8 +34,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
   List<FormItemProduct> formProduct = List.empty(growable: true);
   List<String> tmpDiv = List.empty(growable: true);
   List<String> tmpProduct = List.empty(growable: true);
-  List<Proddiv> itemProdDiv;
-  List<Product> itemProduct;
+  List<Proddiv> itemProdDiv = List.empty(growable: true);
+  List<Product> itemProduct = List.empty(growable: true);
   Map<String, String> selectMapProddiv = {"": ""};
   Map<String, String> selectMapProduct = {"": ""};
   String search = '';
@@ -61,6 +63,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
   bool _isTanggalEd = false;
   bool _isRegularDisc = false;
   bool _isFrameContract = false;
+  bool _isChildContract = false;
+  bool _isNetworkConnected = true;
   var thisYear, nextYear;
   int formLen;
 
@@ -113,26 +117,39 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   Future<List<Product>> getSearchProduct(String input) async {
     List<Product> list;
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/product/search?search=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Product>((json) => Product.fromJson(json)).toList();
-      itemProduct =
-          rest.map<Product>((json) => Product.fromJson(json)).toList();
-      print("List Size: ${list.length}");
-      print("Product Size: ${itemProduct.length}");
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Product>((json) => Product.fromJson(json)).toList();
+        itemProduct =
+            rest.map<Product>((json) => Product.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+        print("Product Size: ${itemProduct.length}");
+      }
+
+      return list;
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
-
-    return list;
   }
 
   getSelectedItem() {
@@ -166,22 +183,39 @@ class _EcontractScreenState extends State<EcontractScreen> {
   void initState() {
     super.initState();
     getRole();
-    getItemProdDiv();
-    getSearchProduct('');
+    // getSearchProduct('');
   }
 
   getTtdSales(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+
+      getItemProdDiv();
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+      _isNetworkConnected = false;
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+      _isNetworkConnected = false;
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+      _isNetworkConnected = false;
     }
   }
 
@@ -254,65 +288,79 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
     if (!_isTanggalSt && !_isTanggalEd) {
       var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
-      var response = await http.post(
-        url,
-        body: {
-          'id_customer': idCustomer,
-          'nama_pertama': name,
-          'jabatan_pertama': role,
-          'nama_kedua': namaKedua,
-          'jabatan_kedua': jabatanKedua,
-          'alamat_kedua': alamatKedua,
-          'telp_kedua': telpKedua,
-          'fax_kedua': faxKedua,
-          'tp_nikon': textValNikon.text.length > 0
-              ? textValNikon.text.replaceAll('.', '')
-              : '0',
-          'tp_leinz': textValLeinz.text.length > 0
-              ? textValLeinz.text.replaceAll('.', '')
-              : '0',
-          'tp_oriental': textValOriental.text.length > 0
-              ? textValOriental.text.replaceAll('.', '')
-              : '0',
-          'tp_moe': textValMoe.text.length > 0
-              ? textValMoe.text.replaceAll('.', '')
-              : '0',
-          'pembayaran_nikon': _chosenNikon,
-          'pembayaran_leinz': _chosenLeinz,
-          'pembayaran_oriental': _chosenOriental,
-          'pembayaran_moe': _chosenMoe,
-          'start_contract': textTanggalSt.text,
-          'end_contract': textTanggalEd.text,
-          'type_contract' : _isFrameContract ? 'FRAME' : 'LENSA',
-          'ttd_pertama': ttdPertama,
-          'ttd_kedua': ttdKedua,
-          'created_by': id,
-        },
-      );
+      const timeout = 15;
 
-      print('ttd 1 : $ttdPertama');
-      print('ttd 2 : $ttdKedua');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      try {
+        var response = await http.post(
+          url,
+          body: {
+            'id_customer': idCustomer,
+            'nama_pertama': name,
+            'jabatan_pertama': role,
+            'nama_kedua': namaKedua,
+            'jabatan_kedua': jabatanKedua,
+            'alamat_kedua': alamatKedua,
+            'telp_kedua': telpKedua,
+            'fax_kedua': faxKedua,
+            'tp_nikon': textValNikon.text.length > 0
+                ? textValNikon.text.replaceAll('.', '')
+                : '0',
+            'tp_leinz': textValLeinz.text.length > 0
+                ? textValLeinz.text.replaceAll('.', '')
+                : '0',
+            'tp_oriental': textValOriental.text.length > 0
+                ? textValOriental.text.replaceAll('.', '')
+                : '0',
+            'tp_moe': textValMoe.text.length > 0
+                ? textValMoe.text.replaceAll('.', '')
+                : '0',
+            'pembayaran_nikon': _chosenNikon,
+            'pembayaran_leinz': _chosenLeinz,
+            'pembayaran_oriental': _chosenOriental,
+            'pembayaran_moe': _chosenMoe,
+            'start_contract': textTanggalSt.text,
+            'end_contract': textTanggalEd.text,
+            'type_contract': _isFrameContract ? 'FRAME' : 'LENSA',
+            'ttd_pertama': ttdPertama,
+            'ttd_kedua': ttdKedua,
+            'created_by': id,
+          },
+        ).timeout(Duration(seconds: timeout));
 
-      var res = json.decode(response.body);
-      final bool sts = res['status'];
-      final String msg = res['message'];
+        print('ttd 1 : $ttdPertama');
+        print('ttd 2 : $ttdKedua');
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
 
-      if (sts) {
-        textTanggalSt.clear();
-        textTanggalEd.clear();
-        textValLeinz.clear();
-        textValMoe.clear();
-        textValNikon.clear();
-        textValOriental.clear();
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        final String msg = res['message'];
 
-        _isRegularDisc ? simpanDiskon(idCustomer) : multipleInputDiskon();
+        if (sts) {
+          textTanggalSt.clear();
+          textTanggalEd.clear();
+          textValLeinz.clear();
+          textValMoe.clear();
+          textValNikon.clear();
+          textValOriental.clear();
+
+          _isRegularDisc ? simpanDiskon(idCustomer) : multipleInputDiskon();
+        }
+
+        handleStatus(context, capitalize(msg), sts);
+        setState(() {});
+      } on TimeoutException catch (e) {
+        print('Timeout Error : $e');
+        handleTimeout(context);
+      } on SocketException catch (e) {
+        print('Socket Error : $e');
+        handleSocket(context);
+      } on Error catch (e) {
+        print('General Error : $e');
+        handleStatus(context, e.toString(), false);
       }
 
-      handleStatus(context, capitalize(msg), sts);
       stop();
-      setState(() {});
     } else {
       handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
       stop();
@@ -370,64 +418,103 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   postMultiDiv(
       String idCust, String proddiv, String diskon, String alias) async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
-    var response = await http.post(
-      url,
-      body: {
-        'id_customer': idCust,
-        'prod_div[]': proddiv,
-        'discount[]': diskon,
-        'prodcat_description[]': alias,
-      },
-    );
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+    try {
+      var response = await http.post(
+        url,
+        body: {
+          'id_customer': idCust,
+          'prod_div[]': proddiv,
+          'discount[]': diskon,
+          'prodcat_description[]': alias,
+        },
+      ).timeout(Duration(seconds: timeout));
 
-    if (sts) {
-      print(msg);
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
+
+      if (sts) {
+        print(msg);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   postMultiItem(String idCust, String categoryId, String prodDiv,
       String prodCat, String prodDesc, String disc) async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
-    var response = await http.post(
-      url,
-      body: {
-        'id_customer': idCust,
-        'category_id[]': categoryId,
-        'prod_div[]': prodDiv,
-        'prodcat[]': prodCat,
-        'prodcat_description[]': prodDesc,
-        'discount[]': disc,
-      },
-    );
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+    try {
+      var response = await http.post(
+        url,
+        body: {
+          'id_customer': idCust,
+          'category_id[]': categoryId,
+          'prod_div[]': prodDiv,
+          'prodcat[]': prodCat,
+          'prodcat_description[]': prodDesc,
+          'discount[]': disc,
+        },
+      ).timeout(Duration(seconds: timeout));
 
-    if (sts) {
-      print(msg);
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
+
+      if (sts) {
+        print(msg);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
   simpanDiskon(String idCust) async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/defaultDiscount';
-    var response = await http.post(
-      url,
-      body: {
-        'id_customer': idCust,
-      },
-    );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    try {
+      var response = await http.post(
+        url,
+        body: {
+          'id_customer': idCust,
+        },
+      ).timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
   }
 
   @override
@@ -1232,68 +1319,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 },
               ),
             ),
-            SizedBox(
-              height: 10.h,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20.r,
-                vertical: 8.r,
-              ),
-              child: Text(
-                'Kontrak Diskon Frame : ',
-                style: TextStyle(
-                    fontSize: 16.sp,
-                    fontFamily: 'Montserrat',
-                    fontWeight: FontWeight.w600),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: 200.w,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20.r,
-                      vertical: 2.r,
-                    ),
-                    child: Text(
-                      'Mengacu Surat Pesanan',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.r,
-                    vertical: 2.r,
-                  ),
-                  child: Checkbox(
-                    value: this._isFrameContract,
-                    onChanged: (bool value) {
-                      setState(() {
-                        this._isFrameContract = value;
-                        formDisc.clear();
-                        formProduct.clear();
-                        tmpDiv.clear();
-                        tmpProduct.clear();
-                      });
-                    },
-                  ), //C
-                ),
-              ],
-            ),
-            _isFrameContract
+            areaFrameContract(),
+            _isFrameContract || _isChildContract
                 ? SizedBox(
                     width: 5.w,
                   )
                 : areaLensaContract(),
-            _isFrameContract
+            _isFrameContract || _isChildContract
                 ? SizedBox(
                     width: 5.w,
                   )
@@ -1302,7 +1334,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         height: 5.h,
                       )
                     : areaMultiFormDiv(),
-            _isFrameContract
+            _isFrameContract || _isChildContract
                 ? SizedBox(
                     width: 5.w,
                   )
@@ -1340,7 +1372,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     setState(() {
                       startLoading();
                       waitingLoad();
-                      checkInput(stopLoading);
+                      _isNetworkConnected
+                          ? checkInput(stopLoading)
+                          : handleConnection(context);
                     });
                   }
                 },
@@ -1491,6 +1525,118 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
+  Widget areaFrameContract() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 10.h,
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.r,
+            vertical: 8.r,
+          ),
+          child: Text(
+            'Tipe Kontrak : ',
+            style: TextStyle(
+                fontSize: 16.sp,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w600),
+          ),
+        ),
+        !_isChildContract
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 200.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.r,
+                        vertical: 2.r,
+                      ),
+                      child: Text(
+                        'Kontrak Frame (Sesuai SP)',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.r,
+                      vertical: 2.r,
+                    ),
+                    child: Checkbox(
+                      value: this._isFrameContract,
+                      onChanged: (bool value) {
+                        setState(() {
+                          this._isFrameContract = value;
+                          formDisc.clear();
+                          formProduct.clear();
+                          tmpDiv.clear();
+                          tmpProduct.clear();
+                        });
+                      },
+                    ), //C
+                  ),
+                ],
+              )
+            : SizedBox(
+                height: 5.w,
+              ),
+        !_isFrameContract
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 200.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.r,
+                        vertical: 2.r,
+                      ),
+                      child: Text(
+                        'Kontrak Sebagai Child',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.r,
+                      vertical: 2.r,
+                    ),
+                    child: Checkbox(
+                      value: this._isChildContract,
+                      onChanged: (bool value) {
+                        setState(() {
+                          this._isChildContract = value;
+                          formDisc.clear();
+                          formProduct.clear();
+                          tmpDiv.clear();
+                          tmpProduct.clear();
+                        });
+                      },
+                    ), //C
+                  ),
+                ],
+              )
+            : SizedBox(
+                width: 5.w,
+              ),
+      ],
+    );
+  }
+
   Widget areaLensaContract() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1551,16 +1697,17 @@ class _EcontractScreenState extends State<EcontractScreen> {
             ),
           ],
         ),
-        SizedBox(
-          height: 20.h,
-        ),
       ],
     );
   }
 
   Widget areaMultiFormDiv() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(
+          height: 20.h,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -1595,11 +1742,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   iconSize: 13.r,
                   color: Colors.white,
                   onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return dialogProddiv(itemProdDiv);
-                        });
+                    itemProdDiv.length < 1
+                        ? handleConnection(context)
+                        : showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return dialogProddiv(itemProdDiv);
+                            });
                   },
                 ),
               ),
@@ -1725,11 +1874,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   iconSize: 13.r,
                   color: Colors.white,
                   onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return customProduct();
-                        });
+                    _isNetworkConnected
+                        ? showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return customProduct();
+                            })
+                        : handleConnection(context);
                   },
                 ),
               ),

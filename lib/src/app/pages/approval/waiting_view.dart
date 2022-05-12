@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,17 +44,30 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
   }
 
   getTtd(int input) async {
+    const timeout = 15;
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -63,13 +78,14 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
   }
 
   Future<List<Customer>> getCustomerData(bool isAr) async {
+    const timeout = 15;
     List<Customer> list;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/customers/approvalSM?ttd_sales_manager=0'
         : 'http://timurrayalab.com/salesforce/server/api/customers/approvalAM?ttd_ar_manager=0';
 
     try {
-      var response = await http.get(url);
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
       print('Response status: ${response.statusCode}');
 
@@ -82,27 +98,44 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
         print("List Size: ${list.length}");
       }
-    } catch (e) {
-      print(e.toString());
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
     }
     return list;
   }
 
   getCustomerContract(dynamic idCust, bool isContract) async {
+    const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
-    var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+      print('Response status: ${response.statusCode}');
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      itemContract = Contract.fromJson(rest[0]);
-      openDialog(isContract);
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        itemContract = Contract.fromJson(rest[0]);
+        openDialog(isContract);
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -231,7 +264,10 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       height: 100.h,
                       decoration: BoxDecoration(
                         border: Border(
-                          left: BorderSide(color: Colors.grey[600], width: 5.r,),
+                          left: BorderSide(
+                            color: Colors.grey[600],
+                            width: 5.r,
+                          ),
                         ),
                       ),
                       child: Container(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
@@ -387,8 +388,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   simpanData(Function stop) async {
+    const timeout = 15;
     var url = 'http://timurrayalab.com/salesforce/server/api/customers';
-    var response = await http.post(
+
+    try {
+      var response = await http.post(
       url,
       body: {
         'nama': namaUser.toUpperCase(),
@@ -416,7 +420,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         'note': note.toUpperCase(),
         'created_by': id,
       },
-    );
+    ).timeout(Duration(seconds: timeout));
 
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
@@ -425,8 +429,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
     final bool sts = res['status'];
     final String msg = res['message'];
 
-    stop();
     handleStatus(context, capitalize(msg), sts);
+    } on TimeoutException catch(e){
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch(e){
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch(e){
+      print('General Error : $e');
+      handleStatus(context, e.toString(), false);
+    }
+
+    stop();
   }
 
   @override
