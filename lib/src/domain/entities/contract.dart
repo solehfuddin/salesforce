@@ -3,7 +3,7 @@ class Contract {
   namaKedua, jabatanKedua, alamatKedua, telpKedua, faxKedua, tpNikon, tpLeinz, tpOriental, tpMoe, 
   pembNikon, pembLeinz, pembOriental, pembMoe, startContract, endContract, typeContract, status,
   customerShipName, customerShipNumber, dateAdded, approvalSm, reasonSm, approvalAm, reasonAm,
-  dateApprovalSm, dateApprovalAm;
+  dateApprovalSm, dateApprovalAm, hasParent, idParent, idContractParent;
 
   Contract.fromJson(Map json):
     idContract = json['id'],
@@ -38,7 +38,10 @@ class Contract {
     approvalSm = json['approval_sm'],
     reasonSm = json['reason_sm'],
     dateApprovalAm = json['date_approval_am'],
-    dateApprovalSm = json['date_approval_sm'];
+    dateApprovalSm = json['date_approval_sm'],
+    hasParent = json['has_parent'],
+    idParent = json['id_parent'],
+    idContractParent = json['id_contract_parent'];
 
   Contract(
     this.idContract,
@@ -74,6 +77,9 @@ class Contract {
     this.reasonSm,
     this.dateApprovalAm,
     this.dateApprovalSm,
+    this.hasParent,
+    this.idParent,
+    this.idContractParent,
   );
 
   factory Contract.singleJson(dynamic json){
@@ -111,6 +117,9 @@ class Contract {
       json['reason_sm'] as String,
       json['date_approval_am'] as String,
       json['date_approval_sm'] as String,
+      json['has_parent'] as String,
+      json['id_parent'] as String,
+      json['id_contract_parent'] as String,
     );
   }
 }

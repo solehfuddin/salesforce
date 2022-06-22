@@ -42,15 +42,19 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        ttdPertama = data['data'][0]['ttd'];
-        print(ttdPertama);
+        if (sts) {
+          ttdPertama = data['data'][0]['ttd'];
+          print(ttdPertama);
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -73,20 +77,24 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
     } on SocketException catch (e) {
@@ -115,25 +123,29 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        itemContract = Contract.fromJson(rest[0]);
-        await formWaiting(
-          context,
-          listCust,
-          pos,
-          reasonAM: itemContract.reasonAm,
-          reasonSM: itemContract.reasonSm,
-          contract: itemContract,
-        );
-        setState(() {});
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          itemContract = Contract.fromJson(rest[0]);
+          await formWaiting(
+            context,
+            listCust,
+            pos,
+            reasonAM: itemContract.reasonAm,
+            reasonSM: itemContract.reasonSm,
+            contract: itemContract,
+          );
+          setState(() {});
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -149,6 +161,16 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape){
+        return childApproved(isHorizontal: true);
+      }
+
+      return childApproved(isHorizontal:  false);
+    });
+  }
+
+  Widget childApproved({bool isHorizontal}) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -156,7 +178,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
           'Approved Customer',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18.sp,
+            fontSize: isHorizontal ? 28.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -170,7 +192,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18.r,
+            size: isHorizontal ? 28.sp : 18.r,
           ),
         ),
       ),
@@ -191,20 +213,20 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                       default:
                         return snapshot.data != null
                             ? listViewWidget(
-                                snapshot.data, snapshot.data.length)
+                                snapshot.data, snapshot.data.length, isHorizontal: isHorizontal,)
                             : Column(
                                 children: [
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300.r,
-                                      height: 300.r,
+                                      width: isHorizontal ? 350.r : 300.r,
+                                      height: isHorizontal ? 350.r : 300.r,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18.sp,
+                                      fontSize: isHorizontal ? 28.sp : 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -221,14 +243,14 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len) {
+  Widget listViewWidget(List<Customer> customer, int len, {bool isHorizontal}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: 5.r,
-              vertical: 8.r,
+              horizontal: isHorizontal ? 20.r : 5.r,
+              vertical: isHorizontal ? 30.r : 8.r,
             ),
             itemBuilder: (context, position) {
               return Card(
@@ -236,7 +258,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: 100.h,
+                      height: isHorizontal ? 160.h : 100.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -255,7 +277,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                               .contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
-                              width: 5.w),
+                              width: isHorizontal ? 4.w : 5.w),
                         ),
                       ),
                       child: Container(
@@ -273,7 +295,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                 Text(
                                   customer[position].namaUsaha,
                                   style: TextStyle(
-                                    fontSize: 16.sp,
+                                    fontSize: isHorizontal ? 25.sp : 16.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -287,17 +309,17 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: 11.sp,
+                                          fontSize: isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                     SizedBox(
-                                      width: 40.w,
+                                      width: isHorizontal ? 35.w : 40.w,
                                     ),
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: 11.sp,
+                                          fontSize: isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -313,17 +335,17 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
                                     SizedBox(
-                                      width: 25.w,
+                                      width: isHorizontal ? 28.w : 25.w,
                                     ),
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -346,7 +368,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                         customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: isHorizontal ? 22.sp : 12.sp,
                                   fontFamily: 'Segoe ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/size_extension.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 
 class FormItemDisc extends StatefulWidget {
@@ -24,17 +25,27 @@ class _FormItemDiscState extends State<FormItemDisc> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if(constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape){
+        return childFormDisc(isHorizontal: true);
+      }
+
+      return childFormDisc(isHorizontal: false);
+    });
+  }
+
+  Widget childFormDisc({bool isHorizontal}){
     return Form(
       key: formKey,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: 200,
+          Expanded(
+            flex: isHorizontal ? 4 : 3,
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: isHorizontal ? 10.r : 5.r,
+                vertical: 2.r,
               ),
               child: Text(
                 widget.proddiv.alias,
@@ -47,12 +58,12 @@ class _FormItemDiscState extends State<FormItemDisc> {
               ),
             ),
           ),
-          SizedBox(
-            width: 100,
+          Expanded(
+             flex: 1,
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: 0.r,
+                vertical: 2.r,
               ),
               child: Checkbox(
                 value: this._isChecked,
@@ -66,24 +77,31 @@ class _FormItemDiscState extends State<FormItemDisc> {
               ),
             ),
           ),
-          SizedBox(
-            width: 100,
-            height: 42,
+          Expanded(
+            flex: 1,
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 5,
+                horizontal: isHorizontal ? 30.r : 10.r,
+                vertical: 5.r,
               ),
+              height: isHorizontal ? 80.r : 50.r,
               child: TextFormField(
                 enabled: _isDisabled,
                 keyboardType: TextInputType.number,
+                maxLength: 2,
                 decoration: InputDecoration(
                   hintText: '0',
+                  counterText: "",
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 20,
+                    horizontal: isHorizontal ? 20.r : 10.r,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
+                  ),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Segoe Ui',
+                    fontSize: isHorizontal ? 28.sp : 18.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 textAlign: TextAlign.center,

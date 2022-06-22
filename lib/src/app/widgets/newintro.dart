@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,8 +25,8 @@ class _NewIntroState extends State<NewIntro> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setBool('check', true);
 
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Login()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
   }
 
   List<MyIntroData> introScreen = [
@@ -33,48 +34,83 @@ class _NewIntroState extends State<NewIntro> {
       title: "Agenda",
       description: "Membuat rencana kerja Anda menjadi lebih terstruktur",
       imageAsset: "assets/images/agenda.png",
+      isHorizontal: false,
     ),
     MyIntroData(
       title: "Reporting",
       description: "Kelola laporan seluruh kegiatan untuk evaluasi kinerja",
       imageAsset: "assets/images/reporting.png",
+      isHorizontal: false,
     ),
     MyIntroData(
       title: "Dashboard",
       description: "Pantau kegiatan Anda dan kelola dengan lebih mudah",
       imageAsset: "assets/images/dashboard.png",
+      isHorizontal: false,
+    ),
+  ];
+
+  List<MyIntroData> introScreenHor = [
+    MyIntroData(
+      title: "Agenda",
+      description: "Membuat rencana kerja Anda menjadi lebih terstruktur",
+      imageAsset: "assets/images/agenda.png",
+      isHorizontal: true,
+    ),
+    MyIntroData(
+      title: "Reporting",
+      description: "Kelola laporan seluruh kegiatan untuk evaluasi kinerja",
+      imageAsset: "assets/images/reporting.png",
+      isHorizontal: true,
+    ),
+    MyIntroData(
+      title: "Dashboard",
+      description: "Pantau kegiatan Anda dan kelola dengan lebih mudah",
+      imageAsset: "assets/images/dashboard.png",
+      isHorizontal: true,
     ),
   ];
 
   List<Color> colorCustom = [Color(0xff388feb), Color(0xff2a81e4)];
-  // List<Color> colorCustom = [Color(0xffffffff)];
+
+  void platformDevice() {}
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom]);
     return Scaffold(
       body: Container(
-        child: MyIntros(
-          slides: introScreen,
-          onDone: () => changeIntro(),
-          onSkip: () => changeIntro(),
-          // footerGradients: colorCustom,
-          footerBgColor: Colors.white,
-          activeDotColor: MyColors.textColor,
-          textColor: MyColors.textColor,
-          footerRadius: 0,
-          indicatorType: IndicatorType.DIAMOND,
-          
+        child: LayoutBuilder(
+          builder: (context, constraint) {
+            if (constraint.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape) {
+              return MyIntros(
+                slides: introScreenHor,
+                onDone: () => changeIntro(),
+                onSkip: () => changeIntro(),
+                isHorizontal: true,
+                footerBgColor: Colors.white,
+                activeDotColor: MyColors.textColor,
+                textColor: MyColors.textColor,
+                footerRadius: 0,
+                indicatorType: IndicatorType.DIAMOND,
+              );
+            }
+
+            return MyIntros(
+              slides: introScreen,
+              onDone: () => changeIntro(),
+              onSkip: () => changeIntro(),
+              isHorizontal: false,
+              footerBgColor: Colors.white,
+              activeDotColor: MyColors.textColor,
+              textColor: MyColors.textColor,
+              footerRadius: 0,
+              indicatorType: IndicatorType.DIAMOND,
+            );
+          },
         ),
       ),
-      // ClipPath(
-      //   child: Container(
-      //     width: MediaQuery.of(context).size.width,
-      //     height: MediaQuery.of(context).size.height / 5,
-      //     color: Colors.green,
-      //   ),
-      //   clipper: CustomClip(),
-      // ),
     );
   }
 }

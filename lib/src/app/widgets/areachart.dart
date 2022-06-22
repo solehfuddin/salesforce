@@ -18,13 +18,6 @@ SliverPadding areaChartDonuts() {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Penjualan',
-                style: TextStyle(
-                  fontSize: 21.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               SizedBox(
                 height: 13.h,
               ),
@@ -42,8 +35,8 @@ SliverPadding areaChartDonuts() {
                           aspectRatio: 1.2,
                           child: PieChart(
                             PieChartData(
-                              pieTouchData:
-                                  PieTouchData(touchCallback: (pieTouchResponse) {
+                              pieTouchData: PieTouchData(
+                                  touchCallback: (pieTouchResponse) {
                                 state(() {
                                   if (pieTouchResponse.touchInput
                                           is FlLongPressEnd ||
@@ -119,7 +112,9 @@ SliverPadding areaChartDonuts() {
   );
 }
 
-SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGroupData> showingBarGroups}) {
+SliverPadding areaChart(
+    {List<BarChartGroupData> rawBarGroups,
+    List<BarChartGroupData> showingBarGroups}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15.r,
@@ -195,7 +190,8 @@ SliverPadding areaChart({List<BarChartGroupData> rawBarGroups, List<BarChartGrou
                                     if (response.spot == null) {
                                       state(() {
                                         touchedGroupIndex = -1;
-                                        showingBarGroups = List.of(rawBarGroups);
+                                        showingBarGroups =
+                                            List.of(rawBarGroups);
                                       });
                                       return;
                                     }
@@ -288,14 +284,12 @@ String bottomTitles(double value) {
   return text;
 }
 
-String leftTitles(double value){
+String leftTitles(double value) {
   if (value == 0) {
     return '1K';
-  }
-  else if (value == 10) {
+  } else if (value == 10) {
     return '5K';
-  }
-  else if (value == 19) {
+  } else if (value == 19) {
     return '10K';
   } else {
     return '';

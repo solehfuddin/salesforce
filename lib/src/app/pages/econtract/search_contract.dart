@@ -49,15 +49,19 @@ class _SearchContractState extends State<SearchContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        ttdPertama = data['data'][0]['ttd'];
-        print(ttdPertama);
+        if (sts) {
+          ttdPertama = data['data'][0]['ttd'];
+          print(ttdPertama);
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -80,21 +84,26 @@ class _SearchContractState extends State<SearchContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list =
-            rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<Monitoring>((json) => Monitoring.fromJson(json))
+              .toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
     } on SocketException catch (e) {
@@ -112,21 +121,26 @@ class _SearchContractState extends State<SearchContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list =
-            rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<Monitoring>((json) => Monitoring.fromJson(json))
+              .toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       handleTimeout(context);
@@ -147,6 +161,21 @@ class _SearchContractState extends State<SearchContract> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
+        return contractChild(
+          isHorizontal: true,
+        );
+      }
+
+      return contractChild(
+        isHorizontal: false,
+      );
+    });
+  }
+
+  Widget contractChild({bool isHorizontal}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -155,7 +184,7 @@ class _SearchContractState extends State<SearchContract> {
           'List Monitoring Contract',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18.sp,
+            fontSize: isHorizontal ? 30.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -167,7 +196,7 @@ class _SearchContractState extends State<SearchContract> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: 18.r,
+            size: isHorizontal ? 28.r : 18.r,
           ),
         ),
       ),
@@ -176,11 +205,11 @@ class _SearchContractState extends State<SearchContract> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20.r,
+              horizontal: isHorizontal ? 30.r : 20.r,
               vertical: 10.r,
             ),
             color: Colors.white,
-            height: 80.h,
+            height: isHorizontal ? 100.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -221,20 +250,23 @@ class _SearchContractState extends State<SearchContract> {
                       default:
                         return snapshot.data != null
                             ? listViewWidget(
-                                snapshot.data, snapshot.data.length)
+                                snapshot.data,
+                                snapshot.data.length,
+                                isHorizontal: isHorizontal,
+                              )
                             : Column(
                                 children: [
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300.r,
-                                      height: 300.r,
+                                      width: isHorizontal ? 340.r : 300.r,
+                                      height: isHorizontal ? 340.r : 300.r,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18.sp,
+                                      fontSize: isHorizontal ? 28.sp : 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -251,14 +283,14 @@ class _SearchContractState extends State<SearchContract> {
     );
   }
 
-  Widget listViewWidget(List<Monitoring> item, int len) {
+  Widget listViewWidget(List<Monitoring> item, int len, {bool isHorizontal}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: 5.r,
-              vertical: 15.r,
+              horizontal: isHorizontal ? 25.r : 10.r,
+              vertical: isHorizontal ? 30.r : 15.r,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
@@ -268,9 +300,9 @@ class _SearchContractState extends State<SearchContract> {
                     vertical: 7.r,
                   ),
                   padding: EdgeInsets.all(
-                    15.r,
+                    isHorizontal ? 25.r : 15.r,
                   ),
-                  height: 110.h,
+                  height: isHorizontal ? 170.h : 110.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15.r),
                     border: Border.all(
@@ -286,7 +318,7 @@ class _SearchContractState extends State<SearchContract> {
                             ? item[position].namaUsaha
                             : item[position].customerShipName,
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          fontSize: isHorizontal ? 28.sp : 18.sp,
                           fontFamily: 'Segoe Ui',
                           fontWeight: FontWeight.w600,
                         ),
@@ -303,7 +335,7 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 'Status',
                                 style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: isHorizontal ? 22.sp : 12.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[800],
@@ -315,7 +347,7 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 capitalize(item[position].status.toLowerCase()),
                                 style: TextStyle(
-                                  fontSize: 16.sp,
+                                  fontSize: isHorizontal ? 26.sp : 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
                                   color: item[position].status == "ACTIVE"
@@ -331,7 +363,7 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 'Sisa Kontrak',
                                 style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: isHorizontal ? 22.sp : 12.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[800],
@@ -344,7 +376,7 @@ class _SearchContractState extends State<SearchContract> {
                                 getEndDays(
                                     input: item[position].endDateContract),
                                 style: TextStyle(
-                                  fontSize: 16.sp,
+                                  fontSize: isHorizontal ? 26.sp : 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.red[700],

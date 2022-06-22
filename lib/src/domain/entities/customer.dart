@@ -4,6 +4,8 @@ class Customer {
   uploadDokumen, ttdCustomer, ttdArManager, ttdSalesManager, namaSalesman, namaArManager, note, 
   econtract, status, createdBy, dateAdded, dateSM, dateAM, namaSales, jabatanSales;
 
+  Customer();
+
   Customer.fromJson(Map json): 
     id = json['id'],
     nama = json['nama'],

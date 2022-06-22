@@ -54,15 +54,19 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        ttdPertama = data['data'][0]['ttd'];
-        print(ttdPertama);
+        if (sts) {
+          ttdPertama = data['data'][0]['ttd'];
+          print(ttdPertama);
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -85,20 +89,24 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
     } on SocketException catch (e) {
@@ -132,17 +140,22 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
 
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error :$e');
     } on SocketException catch (e) {
@@ -154,6 +167,17 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
+        return childApproveRenewal(isHorizontal: true);
+      }
+
+      return childApproveRenewal(isHorizontal: false);
+    });
+  }
+
+  Widget childApproveRenewal({bool isHorizontal}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -161,11 +185,11 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20.r,
-              vertical: 10.r,
+              horizontal: isHorizontal ? 30.r : 20.r,
+              vertical: isHorizontal ? 20.r : 10.r,
             ),
             color: Colors.white,
-            height: 80.h,
+            height: isHorizontal ? 110.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -209,20 +233,23 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                       default:
                         return snapshot.data != null
                             ? listViewWidget(
-                                snapshot.data, snapshot.data.length)
+                                snapshot.data,
+                                snapshot.data.length,
+                                isHorizontal: isHorizontal,
+                              )
                             : Column(
                                 children: [
                                   Center(
                                     child: Image.asset(
                                       'assets/images/not_found.png',
-                                      width: 300.r,
-                                      height: 300.r,
+                                      width: isHorizontal ? 275.r : 300.r,
+                                      height: isHorizontal ? 275.r : 300.r,
                                     ),
                                   ),
                                   Text(
                                     'Data tidak ditemukan',
                                     style: TextStyle(
-                                      fontSize: 18.sp,
+                                      fontSize: isHorizontal ? 28.sp : 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.red[600],
                                       fontFamily: 'Montserrat',
@@ -239,14 +266,14 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
     );
   }
 
-  Widget listViewWidget(List<Contract> item, int len) {
+  Widget listViewWidget(List<Contract> item, int len, {bool isHorizontal}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: 5.r,
-              vertical: 15.r,
+              horizontal: isHorizontal ? 30.r : 5.r,
+              vertical: isHorizontal ? 20.r : 15.r,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
@@ -255,11 +282,11 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                   margin: EdgeInsets.only(
                     bottom: 10.r,
                   ),
-                  padding: EdgeInsets.all(15.r),
-                  height: 80.h,
+                  padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
+                  height: isHorizontal ? 110.h : 80.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
-                      Radius.circular(15.r),
+                      Radius.circular(isHorizontal ? 20.r : 15.r),
                     ),
                     border: Border.all(
                       color: Colors.black26,
@@ -272,11 +299,11 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                       Image.asset(
                         'assets/images/e_contract_new.png',
                         filterQuality: FilterQuality.medium,
-                        width: 35.r,
-                        height: 35.r,
+                        width: isHorizontal ? 60.r : 35.r,
+                        height: isHorizontal ? 60.r : 35.r,
                       ),
                       SizedBox(
-                        width: 10.w,
+                        width: isHorizontal ? 5.w : 10.w,
                       ),
                       Expanded(
                         flex: 1,
@@ -285,7 +312,7 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                               ? item[position].customerShipName
                               : '-',
                           style: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: isHorizontal ? 22.sp : 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black87,
@@ -300,7 +327,7 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                           Text(
                             convertDateWithMonth(item[position].dateAdded),
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: isHorizontal ? 22.sp : 14.sp,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Segoe ui',
                               color: Colors.black,
@@ -309,7 +336,7 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                           Text(
                             'ACTIVE',
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: isHorizontal ? 22.sp : 14.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Segoe ui',
                               color: Colors.green.shade700,

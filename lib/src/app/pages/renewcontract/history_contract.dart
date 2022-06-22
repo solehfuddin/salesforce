@@ -56,15 +56,19 @@ class _HistoryContractState extends State<HistoryContract> {
   getTtd(int input) async {
     var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
     var response = await http.get(url);
-
     print('Response status: ${response.statusCode}');
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    if (sts) {
-      ttdPertama = data['data'][0]['ttd'];
-      print(ttdPertama);
+      if (sts) {
+        ttdPertama = data['data'][0]['ttd'];
+        print(ttdPertama);
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -75,21 +79,25 @@ class _HistoryContractState extends State<HistoryContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      getTtd(int.parse(id));
+        getTtd(int.parse(id));
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        activeContract =
-            rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          activeContract =
+              rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+        }
+        _isConnected = true;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-      _isConnected = true;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       handleTimeout(context);
@@ -115,20 +123,24 @@ class _HistoryContractState extends State<HistoryContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
     } on SocketException catch (e) {
@@ -146,6 +158,17 @@ class _HistoryContractState extends State<HistoryContract> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
+        return childHistoryContract(isHorizontal: true);
+      }
+
+      return childHistoryContract(isHorizontal: false);
+    });
+  }
+
+  Widget childHistoryContract({bool isHorizontal}) {
     return Scaffold(
       body: Column(
         children: [
@@ -160,20 +183,24 @@ class _HistoryContractState extends State<HistoryContract> {
                     children: [
                       Container(
                         width: double.infinity.w,
-                        height: 280.h,
+                        height: isHorizontal ? 400.h : 280.h,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(bottom: 190.r),
+                              padding: EdgeInsets.only(
+                                  bottom: isHorizontal
+                                      ? MediaQuery.of(context).size.height / 3.4
+                                      : MediaQuery.of(context).size.width /
+                                          2.7),
                               child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
                                 child: Icon(
                                   Icons.arrow_back_ios_new,
-                                  size: 15.r,
+                                  size: isHorizontal ? 25.r : 15.r,
                                 ),
                                 style: ButtonStyle(
                                   shape:
@@ -187,12 +214,14 @@ class _HistoryContractState extends State<HistoryContract> {
                             ),
                             Container(
                               width: double.infinity.w,
-                              height: 25.h,
+                              height: isHorizontal ? 35.h : 25.h,
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade50,
                                 borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(30.r),
-                                  topRight: Radius.circular(30.r),
+                                  topLeft: Radius.circular(
+                                      isHorizontal ? 60.r : 30.r),
+                                  topRight: Radius.circular(
+                                      isHorizontal ? 60.r : 30.r),
                                 ),
                               ),
                             ),
@@ -208,185 +237,217 @@ class _HistoryContractState extends State<HistoryContract> {
                         ),
                       ),
                       Container(
-                        height: 230.h,
-                        padding: EdgeInsets.symmetric(horizontal: 20.r),
+                        height: isHorizontal ? 270.r : 230.h,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: isHorizontal ? 30.r : 20.r),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              widget.item.customerShipName,
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18.sp,
-                                fontFamily: 'Montserrat',
-                              ),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            isHorizontal
+                                ? Center(
+                                    child: Text(
+                                      widget.item.customerShipName,
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 28.sp,
+                                        fontFamily: 'Montserrat',
+                                      ),
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  )
+                                : Text(
+                                    widget.item.customerShipName,
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18.sp,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                             SizedBox(
-                              height: 10.h,
+                              height: isHorizontal ? 20.h : 10.h,
                             ),
-                            Container(
-                              width: double.infinity.w,
-                              height: 180.h,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15.r),
-                                border: Border.all(
-                                  color: Colors.black12,
-                                  width: 1.8.r,
+                            Center(
+                              child: Container(
+                                width: isHorizontal
+                                    ? MediaQuery.of(context).size.width / 1.1
+                                    : double.infinity.w,
+                                height: isHorizontal ? 210.h : 180.h,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15.r),
+                                  border: Border.all(
+                                    color: Colors.black12,
+                                    width: 1.8.r,
+                                  ),
                                 ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.r,
-                                          ),
-                                          child: Text(
-                                            'Penanggung Jawab',
-                                            style: TextStyle(
-                                              fontFamily: 'Segoe ui',
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black54,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.r,
                                             ),
-                                            textAlign: TextAlign.end,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.r,
-                                          ),
-                                          child: Text(
-                                            widget.item.contactPerson.trim(),
-                                            style: TextStyle(
-                                              fontFamily: 'Segoe ui',
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
+                                            child: Text(
+                                              'Penanggung Jawab',
+                                              style: TextStyle(
+                                                fontFamily: 'Segoe ui',
+                                                fontSize: isHorizontal
+                                                    ? 25.sp
+                                                    : 15.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black54,
+                                              ),
+                                              textAlign: TextAlign.end,
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    height: 1.8.h,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black12,
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.r,
+                                            ),
+                                            child: Text(
+                                              widget.item.contactPerson.trim(),
+                                              style: TextStyle(
+                                                fontFamily: 'Segoe ui',
+                                                fontSize: isHorizontal
+                                                    ? 25.sp
+                                                    : 15.sp,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.r,
-                                          ),
-                                          child: Text(
-                                            'Nomor Akun',
-                                            style: TextStyle(
-                                              fontFamily: 'Segoe ui',
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black54,
-                                            ),
-                                            textAlign: TextAlign.end,
-                                          ),
-                                        ),
+                                    Container(
+                                      height: 1.8.h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black12,
                                       ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.r,
-                                          ),
-                                          child: Text(
-                                            widget.item.customerShipNumber,
-                                            style: TextStyle(
-                                              fontFamily: 'Segoe ui',
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    height: 1.8.h,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black12,
                                     ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.r,
-                                          ),
-                                          child: Text(
-                                            'Status Akun',
-                                            style: TextStyle(
-                                              fontFamily: 'Segoe ui',
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black54,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.r,
                                             ),
-                                            textAlign: TextAlign.end,
-                                          ),
-                                        ),
-                                      ),
-                                      Flexible(
-                                        flex: 1,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 10.r,
-                                            vertical: 3.r,
-                                          ),
-                                          margin: EdgeInsets.only(left: 7.r),
-                                          decoration: BoxDecoration(
-                                            color: widget.item.status == "A"
-                                                ? Colors.orange[100]
-                                                : Colors.red[100],
-                                            borderRadius:
-                                                BorderRadius.circular(3.r),
-                                          ),
-                                          child: Text(
-                                            widget.item.status == 'A'
-                                                ? 'AKTIF'
-                                                : 'TIDAK AKTIF',
-                                            style: TextStyle(
-                                              fontFamily: 'Segoe ui',
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: widget.item.status == 'A'
-                                                  ? Colors.orange[800]
-                                                  : Colors.red[800],
+                                            child: Text(
+                                              'Nomor Akun',
+                                              style: TextStyle(
+                                                fontFamily: 'Segoe ui',
+                                                fontSize: isHorizontal
+                                                    ? 25.sp
+                                                    : 15.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black54,
+                                              ),
+                                              textAlign: TextAlign.end,
                                             ),
                                           ),
                                         ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.r,
+                                            ),
+                                            child: Text(
+                                              widget.item.customerShipNumber,
+                                              style: TextStyle(
+                                                fontFamily: 'Segoe ui',
+                                                fontSize: isHorizontal
+                                                    ? 25.sp
+                                                    : 15.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.orange,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Container(
+                                      height: 1.8.h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black12,
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.r,
+                                            ),
+                                            child: Text(
+                                              'Status Akun',
+                                              style: TextStyle(
+                                                fontFamily: 'Segoe ui',
+                                                fontSize: isHorizontal
+                                                    ? 25.sp
+                                                    : 15.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black54,
+                                              ),
+                                              textAlign: TextAlign.end,
+                                            ),
+                                          ),
+                                        ),
+                                        Flexible(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10.r,
+                                              vertical: 3.r,
+                                            ),
+                                            margin: EdgeInsets.only(left: 7.r),
+                                            decoration: BoxDecoration(
+                                              color: widget.item.status == "A"
+                                                  ? Colors.orange[100]
+                                                  : Colors.red[100],
+                                              borderRadius:
+                                                  BorderRadius.circular(3.r),
+                                            ),
+                                            child: Text(
+                                              widget.item.status == 'A'
+                                                  ? 'AKTIF'
+                                                  : 'TIDAK AKTIF',
+                                              style: TextStyle(
+                                                fontFamily: 'Segoe ui',
+                                                fontSize: isHorizontal
+                                                    ? 25.sp
+                                                    : 15.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: widget.item.status == 'A'
+                                                    ? Colors.orange[800]
+                                                    : Colors.red[800],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -394,8 +455,8 @@ class _HistoryContractState extends State<HistoryContract> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 20.r,
-                          vertical: 10.r,
+                          horizontal: isHorizontal ? 48.r : 20.r,
+                          vertical: isHorizontal ? 20.r : 10.r,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,15 +468,16 @@ class _HistoryContractState extends State<HistoryContract> {
                                 : Container(
                                     alignment: Alignment.centerRight,
                                     child: ArgonButton(
-                                      height: 30.h,
-                                      width: 100.w,
-                                      borderRadius: 30.0.r,
+                                      height: isHorizontal ? 55.h : 30.h,
+                                      width: isHorizontal ? 85.w : 100.w,
+                                      borderRadius: isHorizontal ? 60.r : 30.0.r,
                                       color: Colors.blue[600],
                                       child: Text(
                                         "Ubah kontrak",
                                         style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 12.sp,
+                                            fontSize:
+                                                isHorizontal ? 24.sp : 12.sp,
                                             fontWeight: FontWeight.w700),
                                       ),
                                       loader: Container(
@@ -443,19 +505,29 @@ class _HistoryContractState extends State<HistoryContract> {
                                     ),
                                   ),
                             SizedBox(
-                              height: 15.h,
+                              height: isHorizontal ? 30.h : 15.h,
                             ),
-                            Text(
-                              'Riwayat Kontrak',
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
+                            isHorizontal
+                                ? Center(
+                                    child: Text('Riwayat Kontrak',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 28.sp,
+                                          fontFamily: 'Montserrat',
+                                        )),
+                                  )
+                                : Text(
+                                    'Riwayat Kontrak',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
                             SizedBox(
-                              height: 10.h,
+                              height: isHorizontal ? 20.h : 10.h,
                             ),
                             FutureBuilder(
                                 future: getHistoryContract(
@@ -467,21 +539,30 @@ class _HistoryContractState extends State<HistoryContract> {
                                           child: CircularProgressIndicator());
                                     default:
                                       return snapshot.data != null
-                                          ? listViewWidget(snapshot.data,
-                                              snapshot.data.length)
+                                          ? listViewWidget(
+                                              snapshot.data,
+                                              snapshot.data.length,
+                                              isHorizontal: isHorizontal,
+                                            )
                                           : Column(
                                               children: [
                                                 Center(
                                                   child: Image.asset(
                                                     'assets/images/not_found.png',
-                                                    width: 150.w,
-                                                    height: 150.h,
+                                                    width: isHorizontal
+                                                        ? 280.w
+                                                        : 150.w,
+                                                    height: isHorizontal
+                                                        ? 280.h
+                                                        : 150.h,
                                                   ),
                                                 ),
                                                 Text(
                                                   'Data tidak ditemukan',
                                                   style: TextStyle(
-                                                    fontSize: 15.sp,
+                                                    fontSize: isHorizontal
+                                                        ? 25.sp
+                                                        : 15.sp,
                                                     fontWeight: FontWeight.w600,
                                                     color: Colors.red[600],
                                                     fontFamily: 'Montserrat',
@@ -508,10 +589,15 @@ class _HistoryContractState extends State<HistoryContract> {
     );
   }
 
-  Widget listViewWidget(List<Contract> item, int len) {
+  Widget listViewWidget(List<Contract> item, int len, {bool isHorizontal}) {
     return RefreshIndicator(
       child: ListView.builder(
-        padding: EdgeInsets.zero,
+        padding: isHorizontal
+            ? EdgeInsets.symmetric(
+                horizontal: 5.r,
+                vertical: 10.r,
+              )
+            : EdgeInsets.zero,
         itemCount: len,
         shrinkWrap: true,
         itemBuilder: (context, position) {
@@ -520,11 +606,11 @@ class _HistoryContractState extends State<HistoryContract> {
               margin: EdgeInsets.only(
                 bottom: 5.r,
               ),
-              padding: EdgeInsets.all(15.r),
-              height: 75.h,
+              padding: EdgeInsets.all(isHorizontal ? 25.r : 15.r),
+              height: isHorizontal ? 120.h : 75.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(
-                  Radius.circular(15.r),
+                  Radius.circular(isHorizontal ? 25.r : 15.r),
                 ),
                 border: Border.all(
                   color: Colors.black26,
@@ -539,14 +625,14 @@ class _HistoryContractState extends State<HistoryContract> {
                     filterQuality: FilterQuality.medium,
                   ),
                   SizedBox(
-                    width: 10.w,
+                    width: isHorizontal ? 5.w : 10.w,
                   ),
                   Expanded(
                     flex: 1,
                     child: Text(
                       'Kontrak tahun ${item[position].startContract.substring(0, 4)}',
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Segoe ui',
                         color: Colors.black87,
@@ -559,7 +645,7 @@ class _HistoryContractState extends State<HistoryContract> {
                       Text(
                         convertDateWithMonth(item[position].startContract),
                         style: TextStyle(
-                          fontSize: 14.sp,
+                          fontSize: isHorizontal ? 24.sp : 14.sp,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Segoe ui',
                           color: Colors.black,
@@ -568,7 +654,7 @@ class _HistoryContractState extends State<HistoryContract> {
                       Text(
                         item[position].status,
                         style: TextStyle(
-                          fontSize: 14.sp,
+                          fontSize: isHorizontal ? 24.sp : 14.sp,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Segoe ui',
                           color: item[position].status == "ACTIVE"

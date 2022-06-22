@@ -43,6 +43,16 @@ class _CompleteRenewalState extends State<CompleteRenewal>
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape){
+        return childCompleteRenewal(isHorizontal: true);
+      }
+
+      return childCompleteRenewal(isHorizontal: false);
+    });
+  }
+
+  Widget childCompleteRenewal({bool isHorizontal}){
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -53,7 +63,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
             'List Perubahan Kontrak',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 18.sp,
+              fontSize: isHorizontal ? 28.sp : 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
             ),
@@ -66,7 +76,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: 18.r,
+              size: isHorizontal ? 28.sp : 18.r,
             ),
           ),
           bottom: TabBar(

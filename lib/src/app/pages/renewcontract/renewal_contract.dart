@@ -60,15 +60,19 @@ class _RenewalContractState extends State<RenewalContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        ttdPertama = data['data'][0]['ttd'];
-        print(ttdPertama);
+        if (sts) {
+          ttdPertama = data['data'][0]['ttd'];
+          print(ttdPertama);
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -86,21 +90,25 @@ class _RenewalContractState extends State<RenewalContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      getTtd(int.parse(id));
+        getTtd(int.parse(id));
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        oldCustomerList = rest
-            .map<OldCustomer>((json) => OldCustomer.fromJson(json))
-            .toList();
-        print("List Size: ${oldCustomerList.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          oldCustomerList = rest
+              .map<OldCustomer>((json) => OldCustomer.fromJson(json))
+              .toList();
+          print("List Size: ${oldCustomerList.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -134,7 +142,7 @@ class _RenewalContractState extends State<RenewalContract> {
   }
 
   Future<List<OldCustomer>> getOldCustomerBySearch(String input) async {
-    setState(() {});
+    // setState(() {});
     const timeout = 15;
     List<OldCustomer> list;
     var url =
@@ -142,22 +150,26 @@ class _RenewalContractState extends State<RenewalContract> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list = rest
-            .map<OldCustomer>((json) => OldCustomer.fromJson(json))
-            .toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<OldCustomer>((json) => OldCustomer.fromJson(json))
+              .toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       handleTimeout(context);
@@ -183,6 +195,17 @@ class _RenewalContractState extends State<RenewalContract> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
+        return childRenewalContract(isHorizontal: true);
+      }
+
+      return childRenewalContract(isHorizontal: false);
+    });
+  }
+
+  Widget childRenewalContract({bool isHorizontal}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -191,7 +214,7 @@ class _RenewalContractState extends State<RenewalContract> {
           'List Customer Lama',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18.sp,
+            fontSize: isHorizontal ? 28.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -202,7 +225,7 @@ class _RenewalContractState extends State<RenewalContract> {
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(
               Icons.arrow_back_ios_new,
-              size: 18.r,
+              size: isHorizontal ? 28.sp : 18.r,
               color: Colors.black54,
             )),
       ),
@@ -211,11 +234,11 @@ class _RenewalContractState extends State<RenewalContract> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 20.r,
-              vertical: 10.r,
+              horizontal: isHorizontal ? 30.r : 20.r,
+              vertical: isHorizontal ? 15.r : 10.r,
             ),
             color: Colors.white,
-            height: 80.h,
+            height: isHorizontal ? 110.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -256,7 +279,6 @@ class _RenewalContractState extends State<RenewalContract> {
                     ? getOldCustomerBySearch(search)
                     : getOldCustomerByIdLimit(_count),
                 builder: (context, snapshot) {
-                  final data = snapshot.data;
                   final controller = ScrollController();
                   controller.addListener(() {
                     final pos =
@@ -270,34 +292,38 @@ class _RenewalContractState extends State<RenewalContract> {
                       }
                     }
                   });
-                  if (data == null) {
-                    return Center(child: CircularProgressIndicator());
-                  } else {
-                    if (oldCustomerList.length < 1) {
-                      return Column(
-                        children: [
-                          Center(
-                            child: Image.asset(
-                              'assets/images/not_found.png',
-                              width: 300.w,
-                              height: 300.h,
-                            ),
-                          ),
-                          Text(
-                            'Data tidak ditemukan',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.red[600],
-                              fontFamily: 'Montserrat',
-                            ),
-                          )
-                        ],
-                      );
-                    } else {
-                      return listViewWidget(
-                          snapshot.data, snapshot.data.length, controller);
-                    }
+
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                      return Center(child: CircularProgressIndicator());
+                    default:
+                      return snapshot.data != null
+                          ? listViewWidget(
+                              snapshot.data,
+                              snapshot.data.length,
+                              controller,
+                              isHorizontal: isHorizontal,
+                            )
+                          : Column(
+                              children: [
+                                Center(
+                                  child: Image.asset(
+                                    'assets/images/not_found.png',
+                                    width: isHorizontal ? 275.w : 300.w,
+                                    height: isHorizontal ? 275.h : 300.h,
+                                  ),
+                                ),
+                                Text(
+                                  'Data tidak ditemukan',
+                                  style: TextStyle(
+                                    fontSize: isHorizontal ? 28.sp : 18.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.red[600],
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                )
+                              ],
+                            );
                   }
                 },
               ),
@@ -309,26 +335,27 @@ class _RenewalContractState extends State<RenewalContract> {
   }
 
   Widget listViewWidget(
-      List<OldCustomer> item, int len, ScrollController controller) {
+      List<OldCustomer> item, int len, ScrollController controller,
+      {bool isHorizontal}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             controller: controller,
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: 10.h,
+              horizontal: isHorizontal ? 28.h : 10.h,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
               return InkWell(
                 child: Container(
                   margin: EdgeInsets.symmetric(
-                    vertical: 7.r,
+                    vertical: isHorizontal ? 12.r : 7.r,
                   ),
-                  padding: EdgeInsets.all(15.r),
-                  height: 150.h,
+                  padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
+                  height: isHorizontal ? 185.h : 150.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15.r),
+                    borderRadius: BorderRadius.circular(isHorizontal ? 30.r : 15.r),
                     border: Border.all(
                       color: Colors.black26,
                     ),
@@ -348,7 +375,7 @@ class _RenewalContractState extends State<RenewalContract> {
                               softWrap: false,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 16.sp,
+                                fontSize: isHorizontal ? 24.sp : 16.sp,
                                 fontFamily: 'Segoe Ui',
                                 fontWeight: FontWeight.w600,
                               ),
@@ -357,7 +384,7 @@ class _RenewalContractState extends State<RenewalContract> {
                           Text(
                             item[position].customerShipNumber,
                             style: TextStyle(
-                              fontSize: 16.sp,
+                              fontSize: isHorizontal ? 24.sp : 16.sp,
                               fontFamily: 'Segoe Ui',
                               fontWeight: FontWeight.w600,
                               color: Colors.orange,
@@ -366,7 +393,7 @@ class _RenewalContractState extends State<RenewalContract> {
                         ],
                       ),
                       SizedBox(
-                        height: 2.h,
+                        height: isHorizontal ? 8.h : 2.h,
                       ),
                       Row(
                         children: [
@@ -386,7 +413,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                   ? 'AKTIF'
                                   : 'TIDAK AKTIF',
                               style: TextStyle(
-                                fontSize: 12.sp,
+                                fontSize: isHorizontal ? 20.sp : 12.sp,
                                 fontFamily: 'Segoe ui',
                                 fontWeight: FontWeight.bold,
                                 color: item[position].status == "A"
@@ -414,7 +441,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                     child: Icon(
                                       Icons.pin_drop_sharp,
                                       color: Colors.blue[800],
-                                      size: 14.r,
+                                      size: isHorizontal ? 24.sp : 14.r,
                                     ),
                                   ),
                                   WidgetSpan(
@@ -427,7 +454,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                   TextSpan(
                                     text: item[position].city,
                                     style: TextStyle(
-                                      fontSize: 12.sp,
+                                      fontSize: isHorizontal ? 20.sp : 12.sp,
                                       fontFamily: 'Segoe ui',
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue[800],
@@ -449,13 +476,13 @@ class _RenewalContractState extends State<RenewalContract> {
                                   child: Icon(
                                     Icons.attach_file,
                                     color: Colors.grey[600],
-                                    size: 19.r,
+                                    size: isHorizontal ? 31.sp : 19.r,
                                   ),
                                 ),
                                 TextSpan(
                                   text: item[position].totalContract,
                                   style: TextStyle(
-                                    fontSize: 15.sp,
+                                    fontSize: isHorizontal ? 27.sp : 15.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey[600],
@@ -470,7 +497,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                 Text(
                                   item[position].contactPerson,
                                   style: TextStyle(
-                                    fontSize: 13.sp,
+                                    fontSize: isHorizontal ? 23.sp : 13.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
@@ -481,7 +508,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                 ),
                                 Image.asset(
                                   'assets/images/avatar_user.png',
-                                  width: 28.w,
+                                  width: isHorizontal ? 18.w : 28.w,
                                 ),
                               ],
                             ),

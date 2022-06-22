@@ -49,20 +49,24 @@ class _RejectedScreenState extends State<RejectedScreen> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
-        print("List Size: ${list.length}");
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          print("List Size: ${list.length}");
+        }
+
+        return list;
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
-
-      return list;
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
     } on SocketException catch (e) {
@@ -79,29 +83,33 @@ class _RejectedScreenState extends State<RejectedScreen> {
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
-
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        var rest = data['data'];
-        print(rest);
-        itemContract = Contract.fromJson(rest[0]);
-        await formRejected(
-          context,
-          listCust,
-          pos,
-          idCust: itemContract.idCustomer,
-          div: divisi,
-          username: username,
-          ttd: ttdPertama,
-          reasonAM: itemContract.reasonAm,
-          reasonSM: itemContract.reasonSm,
-          contract: itemContract,
-        );
-        setState(() {});
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          itemContract = Contract.fromJson(rest[0]);
+          await formRejected(
+            context,
+            listCust,
+            pos,
+            idCust: itemContract.idCustomer,
+            div: divisi,
+            username: username,
+            ttd: ttdPertama,
+            reasonAM: itemContract.reasonAm,
+            reasonSM: itemContract.reasonSm,
+            contract: itemContract,
+          );
+          setState(() {});
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -123,12 +131,17 @@ class _RejectedScreenState extends State<RejectedScreen> {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
-      var data = json.decode(response.body);
-      final bool sts = data['status'];
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
 
-      if (sts) {
-        ttdPertama = data['data'][0]['ttd'];
-        print(ttdPertama);
+        if (sts) {
+          ttdPertama = data['data'][0]['ttd'];
+          print(ttdPertama);
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -155,11 +168,11 @@ class _RejectedScreenState extends State<RejectedScreen> {
   }
 
   Future<bool> _onBackPressed() async {
-    if (role == 'admin') {
+    if (role == 'ADMIN') {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => AdminScreen()));
       return true;
-    } else if (role == 'sales') {
+    } else if (role == 'SALES') {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => HomeScreen()));
       return true;
@@ -169,6 +182,17 @@ class _RejectedScreenState extends State<RejectedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
+        return childRejected(isHorizontal: true);
+      }
+
+      return childRejected(isHorizontal: false);
+    });
+  }
+
+  Widget childRejected({bool isHorizontal}) {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -178,7 +202,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
             'Reject Customer',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 18.sp,
+              fontSize: isHorizontal ? 28.sp : 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
             ),
@@ -187,10 +211,10 @@ class _RejectedScreenState extends State<RejectedScreen> {
           centerTitle: true,
           leading: IconButton(
             onPressed: () {
-              if (role == 'admin') {
+              if (role == 'ADMIN') {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (context) => AdminScreen()));
-              } else if (role == 'sales') {
+              } else if (role == 'SALES') {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (context) => HomeScreen()));
               }
@@ -198,7 +222,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: 18.r,
+              size: isHorizontal ? 28.sp : 18.r,
             ),
           ),
         ),
@@ -219,20 +243,23 @@ class _RejectedScreenState extends State<RejectedScreen> {
                         default:
                           return snapshot.data != null
                               ? listViewWidget(
-                                  snapshot.data, snapshot.data.length)
+                                  snapshot.data,
+                                  snapshot.data.length,
+                                  isHorizontal: isHorizontal,
+                                )
                               : Column(
                                   children: [
                                     Center(
                                       child: Image.asset(
                                         'assets/images/not_found.png',
-                                        width: 300.r,
-                                        height: 300.r,
+                                        width: isHorizontal ? 350.r : 300.r,
+                                        height: isHorizontal ? 350.r : 300.r,
                                       ),
                                     ),
                                     Text(
                                       'Data tidak ditemukan',
                                       style: TextStyle(
-                                        fontSize: 18.sp,
+                                        fontSize: isHorizontal ? 28.sp : 18.sp,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.red[600],
                                         fontFamily: 'Montserrat',
@@ -250,14 +277,14 @@ class _RejectedScreenState extends State<RejectedScreen> {
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len) {
+  Widget listViewWidget(List<Customer> customer, int len, {bool isHorizontal}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: 5.r,
-              vertical: 8.r,
+              horizontal: isHorizontal ? 20.r : 5.r,
+              vertical: isHorizontal ? 30.r : 8.r,
             ),
             itemBuilder: (context, position) {
               return Card(
@@ -265,7 +292,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: 100.h,
+                      height: isHorizontal ? 160.h : 100.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -284,7 +311,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                               .contains('ACCEPTED')
                                       ? Colors.blue[600]
                                       : Colors.red[600],
-                              width: 5.r),
+                              width: isHorizontal ? 4.w : 5.r),
                         ),
                       ),
                       child: Container(
@@ -302,7 +329,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                 Text(
                                   customer[position].namaUsaha,
                                   style: TextStyle(
-                                    fontSize: 16.sp,
+                                    fontSize: isHorizontal ? 25.sp : 16.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -316,17 +343,17 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: 11.sp,
+                                          fontSize: isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
                                     SizedBox(
-                                      width: 40.w,
+                                      width: isHorizontal ? 35.w : 40.w,
                                     ),
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: 11.sp,
+                                          fontSize: isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -342,17 +369,17 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
                                     SizedBox(
-                                      width: 25.w,
+                                      width: isHorizontal ? 28.w : 25.w,
                                     ),
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -375,7 +402,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                         customer[position].namaSalesman)
                                     : 'Admin',
                                 style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: isHorizontal ? 22.sp : 12.sp,
                                   fontFamily: 'Segoe ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,

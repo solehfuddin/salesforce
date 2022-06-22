@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
+import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/product.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,23 +24,27 @@ class _MultiProductDiscState extends State<MultiProductDisc> {
     var url =
         'http://timurrayalab.com/salesforce/server/api/product/search?search=$input';
     var response = await http.get(url);
-
     print('Response status: ${response.statusCode}');
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      list = rest.map<Product>((json) => Product.fromJson(json)).toList();
-      itemProduct =
-          rest.map<Product>((json) => Product.fromJson(json)).toList();
-      print("List Size: ${list.length}");
-      print("Product Size: ${itemProduct.length}");
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        list = rest.map<Product>((json) => Product.fromJson(json)).toList();
+        itemProduct =
+            rest.map<Product>((json) => Product.fromJson(json)).toList();
+        print("List Size: ${list.length}");
+        print("Product Size: ${itemProduct.length}");
+      }
+
+      return list;
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+      handleStatus(context, e.toString(), false);
     }
-
-    return list;
   }
 
   getSelectedItem() {

@@ -37,10 +37,10 @@ SliverToBoxAdapter areaLoadingRenewal() {
   );
 }
 
-SliverPadding areaHeaderRenewal() {
+SliverPadding areaHeaderRenewal({bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15.r,
+      horizontal: isHorizontal ? 35.r : 15.r,
       vertical: 5.r,
     ),
     sliver: SliverToBoxAdapter(
@@ -51,13 +51,13 @@ SliverPadding areaHeaderRenewal() {
             Text(
               'Pembaruan Kontrak',
               style: TextStyle(
-                fontSize: 21.sp,
+                fontSize: isHorizontal ? 35.sp : 21.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(
-              height: 10.h,
+              height: isHorizontal ? 20.sp : 10.h,
             ),
           ]),
     ),
@@ -65,14 +65,14 @@ SliverPadding areaHeaderRenewal() {
 }
 
 SliverPadding areaRenewal(List<Contract> item, BuildContext context,
-    String ttdPertama, String username, String divisi) {
+    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
   return SliverPadding(
-    padding: EdgeInsets.symmetric(horizontal: 15.r, vertical: 0.r),
+    padding: EdgeInsets.symmetric(horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
           return itemRenewal(
-              item, index, context, ttdPertama, username, divisi);
+              item, index, context, ttdPertama, username, divisi, isHorizontal: isHorizontal);
         },
         childCount: item.length,
       ),
@@ -81,14 +81,14 @@ SliverPadding areaRenewal(List<Contract> item, BuildContext context,
 }
 
 Widget itemRenewal(List<Contract> item, int index, BuildContext context,
-    String ttdPertama, String username, String divisi) {
+    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
   return InkWell(
     child: Container(
       margin: EdgeInsets.only(
         bottom: 10.r,
       ),
-      padding: EdgeInsets.all(15.r),
-      height: 80,
+      padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
+      height: isHorizontal ? 120.h :  80.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
           Radius.circular(15.r),
@@ -104,11 +104,11 @@ Widget itemRenewal(List<Contract> item, int index, BuildContext context,
           Image.asset(
             'assets/images/e_contract_new.png',
             filterQuality: FilterQuality.medium,
-            width: 35.r,
-            height: 35.r,
+            width: isHorizontal ? 50.r : 35.r,
+            height: isHorizontal ? 50.r : 35.r,
           ),
           SizedBox(
-            width: 10.w,
+            width: isHorizontal ? 5.w : 10.w,
           ),
           Expanded(
             flex: 1,
@@ -117,7 +117,7 @@ Widget itemRenewal(List<Contract> item, int index, BuildContext context,
                   ? item[index].customerShipName
                   : '-',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: isHorizontal ? 22.sp : 14.sp,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Segoe ui',
                 color: Colors.black87,
@@ -132,7 +132,7 @@ Widget itemRenewal(List<Contract> item, int index, BuildContext context,
               Text(
                 convertDateWithMonth(item[index].dateAdded),
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: isHorizontal ? 22.sp : 14.sp,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Segoe ui',
                   color: Colors.black,
@@ -141,7 +141,7 @@ Widget itemRenewal(List<Contract> item, int index, BuildContext context,
               Text(
                 item[index].status,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: isHorizontal ? 22.sp : 14.sp,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Segoe ui',
                   color: item[index].status == "ACTIVE"
@@ -176,11 +176,11 @@ Widget itemRenewal(List<Contract> item, int index, BuildContext context,
   );
 }
 
-SliverPadding areaRenewalNotFound(BuildContext context) {
+SliverPadding areaRenewalNotFound(BuildContext context, {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15.r,
-      vertical: 0.r,
+      vertical: isHorizontal ? 5.r : 0.r,
     ),
     sliver: SliverToBoxAdapter(
       child: Column(
@@ -188,33 +188,33 @@ SliverPadding areaRenewalNotFound(BuildContext context) {
           Center(
             child: Image.asset(
               'assets/images/not_found.png',
-              width: 300.w,
-              height: 300.h,
+              width: isHorizontal ? 370.w : 300.w,
+              height: isHorizontal ? 370.h : 300.h,
             ),
           ),
           Text(
             'Data tidak ditemukan',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: isHorizontal ? 28.sp : 18.sp,
               fontWeight: FontWeight.w600,
               color: Colors.red[600],
               fontFamily: 'Montserrat',
             ),
           ),
           SizedBox(
-            height: 25.h,
+            height: isHorizontal ? 35.h : 25.h,
           ),
           Center(
             child: ArgonButton(
-              height: 40.h,
-              width: 130.w,
+              height: isHorizontal ? 60.h : 40.h,
+              width: isHorizontal ? 90.w : 130.w,
               borderRadius: 30.0.r,
               color: Colors.blue[600],
               child: Text(
                 "Search Contract",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14.sp,
+                    fontSize: isHorizontal ? 24.sp : 14.sp,
                     fontWeight: FontWeight.w700),
               ),
               loader: Container(
@@ -243,25 +243,25 @@ SliverPadding areaRenewalNotFound(BuildContext context) {
   );
 }
 
-SliverPadding areaButtonRenewal(BuildContext context, bool isShow) {
+SliverPadding areaButtonRenewal(BuildContext context, bool isShow, {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15.r,
-      vertical: 10.r,
+      horizontal:  isHorizontal ? 25.r : 15.r,
+      vertical: isHorizontal ? 20.r : 10.r,
     ),
     sliver: SliverToBoxAdapter(
       child: isShow
           ? Center(
               child: ArgonButton(
-                height: 40.h,
-                width: 130.w,
+                height: isHorizontal ? 60.h : 40.h,
+                width:  isHorizontal ? 90.w : 130.w,
                 borderRadius: 30.0.r,
                 color: Colors.blue[600],
                 child: Text(
                   "Selengkapnya",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14.sp,
+                      fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(

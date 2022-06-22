@@ -36,10 +36,10 @@ SliverToBoxAdapter areaLoading() {
   );
 }
 
-SliverPadding areaHeaderMonitoring() {
+SliverPadding areaHeaderMonitoring({bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15.r,
+      horizontal: isHorizontal ? 35.r : 15.r,
       vertical: 5.r,
     ),
     sliver: SliverToBoxAdapter(
@@ -50,13 +50,13 @@ SliverPadding areaHeaderMonitoring() {
             Text(
               'Kontrak segera berakhir',
               style: TextStyle(
-                fontSize: 21.sp,
+                fontSize: isHorizontal ? 35.sp : 21.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(
-              height: 10.h,
+              height: isHorizontal ? 20.sp : 10.h,
             ),
           ]),
     ),
@@ -64,14 +64,14 @@ SliverPadding areaHeaderMonitoring() {
 }
 
 SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
-    String ttdPertama, String username, String divisi) {
+    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
   return SliverPadding(
-    padding: EdgeInsets.symmetric(horizontal: 15.r, vertical: 0.r),
+    padding: EdgeInsets.symmetric(horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
           return itemMonitoring(
-              item, index, context, ttdPertama, username, divisi);
+              item, index, context, ttdPertama, username, divisi, isHorizontal: isHorizontal,);
         },
         childCount: item.length,
       ),
@@ -79,11 +79,11 @@ SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
   );
 }
 
-SliverPadding areaMonitoringNotFound(BuildContext context) {
+SliverPadding areaMonitoringNotFound(BuildContext context, {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15.r,
-      vertical: 0.r,
+      vertical: isHorizontal ? 5.r : 0.r,
     ),
     sliver: SliverToBoxAdapter(
       child: Column(
@@ -91,33 +91,33 @@ SliverPadding areaMonitoringNotFound(BuildContext context) {
           Center(
             child: Image.asset(
               'assets/images/not_found.png',
-              width: 300.w,
-              height: 300.h,
+              width: isHorizontal ? 370.w : 300.w,
+              height: isHorizontal ? 370.h : 300.h,
             ),
           ),
           Text(
             'Data tidak ditemukan',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: isHorizontal ? 28.sp : 18.sp,
               fontWeight: FontWeight.w600,
               color: Colors.red[600],
               fontFamily: 'Montserrat',
             ),
           ),
           SizedBox(
-            height: 25.h,
+            height: isHorizontal ? 35.h : 25.h,
           ),
           Center(
             child: ArgonButton(
-              height: 40.h,
-              width: 130.w,
+              height: isHorizontal ? 60.h : 40.h,
+              width: isHorizontal ? 90.w : 130.w,
               borderRadius: 30.0.r,
               color: Colors.blue[600],
               child: Text(
                 "Search Contract",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14.sp,
+                    fontSize: isHorizontal ? 24.sp : 14.sp,
                     fontWeight: FontWeight.w700),
               ),
               loader: Container(
@@ -146,25 +146,25 @@ SliverPadding areaMonitoringNotFound(BuildContext context) {
   );
 }
 
-SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
+SliverPadding areaButtonMonitoring(BuildContext context, bool isShow, {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: 15.r,
-      vertical: 10.r,
+      horizontal: isHorizontal ? 25.r : 15.r,
+      vertical: isHorizontal ? 20.r : 10.r,
     ),
     sliver: SliverToBoxAdapter(
       child: isShow
           ? Center(
               child: ArgonButton(
-                height: 40.h,
-                width: 130.w,
+                height: isHorizontal ? 60.h : 40.h,
+                width: isHorizontal ? 90.w : 130.w,
                 borderRadius: 30.0.r,
                 color: Colors.blue[600],
                 child: Text(
                   "Selengkapnya",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14.sp,
+                      fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(
@@ -195,18 +195,18 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow) {
 }
 
 Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
-    String ttdPertama, String username, String divisi) {
+    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
   return InkWell(
     child: Container(
       margin: EdgeInsets.symmetric(
         vertical: 7.r,
       ),
       padding: EdgeInsets.all(
-        15.r,
+        isHorizontal ? 20.r : 15.r,
       ),
-      height: 115.h,
+      height: isHorizontal ? 176.h : 115.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
+        borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 15.r),
         border: Border.all(
           color: Colors.black26,
         ),
@@ -217,13 +217,13 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
           Text(
             item[index].namaUsaha != null ? item[index].namaUsaha : item[index].customerShipName,
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: isHorizontal ? 28.sp : 18.sp,
               fontFamily: 'Segoe Ui',
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: 15.h,
+            height: isHorizontal ? 25.h : 15.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -234,19 +234,19 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: isHorizontal ? 23.sp : 13.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
                     ),
                   ),
                   SizedBox(
-                    height: 2.h,
+                    height: isHorizontal ? 5.h : 2.h,
                   ),
                   Text(
                     capitalize(item[index].status.toLowerCase()),
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: isHorizontal ? 26.sp : 16.sp,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.orange[800],
@@ -260,19 +260,19 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Sisa Kontrak',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: isHorizontal ? 23.sp : 13.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
                     ),
                   ),
                   SizedBox(
-                    height: 2.h,
+                    height: isHorizontal ? 5.h : 2.h,
                   ),
                   Text(
                     getEndDays(input: item[index].endDateContract),
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: isHorizontal ? 26.sp : 16.sp,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.red[700],

@@ -18,6 +18,8 @@ class MyIntros extends StatefulWidget {
   @override
   _MyIntrosState createState() => _MyIntrosState();
 
+  final bool isHorizontal;
+
   ///sets the indicator type for your slides
   ///[IndicatorType]
   final IndicatorType indicatorType;
@@ -85,6 +87,7 @@ class MyIntros extends StatefulWidget {
   final ScrollPhysics physics;
 
   const MyIntros({
+    this.isHorizontal,
     @required this.slides,
     this.footerRadius = 12.0,
     this.footerGradients = const [],
@@ -190,7 +193,6 @@ class _MyIntrosState extends State<MyIntros> with TickerProviderStateMixin {
       ),
       child: Container(
         color: Colors.white,
-        //  height: MediaQuery.of(context).size.height / 5,
         width: double.infinity,
         child: Stack(
           overflow: Overflow.visible,
@@ -207,10 +209,8 @@ class _MyIntrosState extends State<MyIntros> with TickerProviderStateMixin {
                   });
                   if (currentPage == widget.slides.length - 1) {
                     lastPage = true;
-                    // animationController.forward();
                   } else {
                     lastPage = false;
-                    // animationController.reverse();
                   }
                 });
               },
@@ -241,58 +241,62 @@ class _MyIntrosState extends State<MyIntros> with TickerProviderStateMixin {
               },
             ),
             //footer widget
-            Positioned.fill(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height * .71,
-              child: Container(
-                padding: widget.footerPadding,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(widget.footerRadius.toDouble()),
-                    topLeft: Radius.circular(widget.footerRadius.toDouble()),
-                  ),
-                  color: widget.footerBgColor,
-                  gradient: gradients,
-                ),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 7,
-                      ),
-                      Text(
-                        currentScreen.title,
-                        softWrap: true,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textStyle?.apply(
-                          // color: widget.textColor,
-                          color: MyColors.textColor,
-                          fontWeightDelta: 12,
-                          fontSizeDelta: 10,
+            widget.isHorizontal
+                ? SizedBox(
+                    height: 0,
+                  )
+                : Positioned.fill(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    top: MediaQuery.of(context).size.height * .71,
+                    child: Container(
+                      padding: widget.footerPadding,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topRight:
+                              Radius.circular(widget.footerRadius.toDouble()),
+                          topLeft:
+                              Radius.circular(widget.footerRadius.toDouble()),
                         ),
-                        textAlign: TextAlign.center,
+                        color: widget.footerBgColor,
+                        gradient: gradients,
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        currentScreen.description,
-                        softWrap: true,
-                        style: textStyle?.apply(
-                          // color: TinyColor(widget.textColor).darken(8).color,
-                          color: MyColors.textColor,
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(
+                              height: 7,
+                            ),
+                            Text(
+                              currentScreen.title,
+                              softWrap: true,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: textStyle?.apply(
+                                color: MyColors.textColor,
+                                fontWeightDelta: 12,
+                                fontSizeDelta: 10,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              currentScreen.description,
+                              softWrap: true,
+                              style: textStyle?.apply(
+                                color: MyColors.textColor,
+                              ),
+                              textAlign: TextAlign.center,
+                            )
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
             //controls widget
             Positioned(
               left: 0,
@@ -370,20 +374,6 @@ class _MyIntrosState extends State<MyIntros> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            //app title
-            /*Positioned(
-              top: 20,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  widget.appTitle,
-                  style: textStyle.apply(
-                      fontSizeDelta: 12, fontWeightDelta: 8, color: Colors.red),
-                ),
-              ),
-            ),*/
           ],
         ),
       ),
@@ -391,7 +381,6 @@ class _MyIntrosState extends State<MyIntros> with TickerProviderStateMixin {
   }
 
   Widget buildPage({int index, double angle = 0.0, double scale = 0.0}) {
-    // print(pageOffset - index);
     return Container(
       color: Colors.transparent,
       child: Transform(

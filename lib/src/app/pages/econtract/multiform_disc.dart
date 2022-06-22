@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
+import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,18 +27,22 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
   getItemProdDiv() async {
     var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
     var response = await http.get(url);
-
     print('Response status: ${response.statusCode}');
 
-    var data = json.decode(response.body);
-    final bool sts = data['status'];
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
 
-    if (sts) {
-      var rest = data['data'];
-      print(rest);
-      itemProdDiv =
-          rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
-      print("List Size: ${itemProdDiv.length}");
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        itemProdDiv =
+            rest.map<Proddiv>((json) => Proddiv.fromJson(json)).toList();
+        print("List Size: ${itemProdDiv.length}");
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -49,15 +54,16 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
         if (item.ischecked) {
           selectMapProddiv[item.proddiv] = item.alias;
           Proddiv itemProddiv = Proddiv(item.alias, item.proddiv, item.diskon);
-          if (!tmpDiv.contains(item.proddiv))
-          {
+          if (!tmpDiv.contains(item.proddiv)) {
             tmpDiv.add(item.proddiv);
-            tmpDiv.forEach((element) { print(element); });
+            tmpDiv.forEach((element) {
+              print(element);
+            });
 
             setState(() {
-                formDisc.add(FormItemDisc(
-                  index: formDisc.length,
-                  proddiv: itemProddiv,
+              formDisc.add(FormItemDisc(
+                index: formDisc.length,
+                proddiv: itemProddiv,
               ));
             });
           }
@@ -104,12 +110,19 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
       },
     );
 
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
+    try {
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+      final String msg = res['message'];
 
-    if (sts) {
-      print(msg);
+      if (sts) {
+        print(msg);
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+      if (mounted) {
+        handleStatus(context, e.toString(), false);
+      }
     }
   }
 

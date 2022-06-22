@@ -23,10 +23,10 @@ class _SplashScreenState extends State<SplashScreen> {
       if (_isLogin) {
         String role = pref.getString("role");
 
-        if (role == 'admin') {
+        if (role == 'ADMIN') {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => AdminScreen()));
-        } else if (role == 'sales') {
+        } else if (role == 'SALES') {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => HomeScreen()));
         } else {
@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     checkIntro();
-    // checkUpdate(context);
+    checkUpdate(context);
   }
 
   @override

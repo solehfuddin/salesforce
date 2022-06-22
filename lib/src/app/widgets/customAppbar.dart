@@ -4,6 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomAppBar extends StatefulWidget with PreferredSizeWidget {
+  bool isHorizontal = false;
+
+  CustomAppBar({this.isHorizontal});
+
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
 
@@ -47,7 +51,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         child: Text(
           "Coming Soon",
           style: TextStyle(
-            fontSize: 20.sp,
+            fontSize: widget.isHorizontal ? 30.sp : 20.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -56,8 +60,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
       content: Container(
         child: Image.asset(
           'assets/images/coming_soon.png',
-          width: 80.r,
-          height: 80.r,
+          width: widget.isHorizontal ? 110.sp : 80.r,
+          height: widget.isHorizontal ? 110.sp : 80.r,
         ),
       ),
       actions: [
@@ -66,13 +70,13 @@ class _CustomAppBarState extends State<CustomAppBar> {
             style: ElevatedButton.styleFrom(
               shape: StadiumBorder(),
               primary: Colors.indigo[600],
-              padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
+              padding: EdgeInsets.symmetric(horizontal: widget.isHorizontal ? 30.r : 20.r, vertical: widget.isHorizontal ? 20.r : 10.r),
             ),
             child: Text(
               'Kembali',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 14.sp,
+                fontSize: widget.isHorizontal ? 24.sp : 14.sp,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Segoe ui',
               ),
@@ -90,25 +94,50 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.green[500],
-      elevation: 0.0,
-      leading: IconButton(
-        icon: Icon(Icons.exit_to_app),
-        iconSize: 28.r,
-        onPressed: () {
-          handleLogout();
-        },
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.notifications),
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape) {
+        return AppBar(
+          backgroundColor: Colors.green[500],
+          elevation: 0.0,
+          leading: IconButton(
+            icon: Icon(Icons.exit_to_app),
+            iconSize: 45.r,
+            onPressed: () {
+              handleLogout();
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.notifications),
+              iconSize: 45.r,
+              onPressed: () {
+                handleComing();
+              },
+            )
+          ],
+        );
+      }
+
+      return AppBar(
+        backgroundColor: Colors.green[500],
+        elevation: 0.0,
+        leading: IconButton(
+          icon: Icon(Icons.exit_to_app),
           iconSize: 28.r,
           onPressed: () {
-            handleComing();
+            handleLogout();
           },
-        )
-      ],
-    );
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            iconSize: 28.r,
+            onPressed: () {
+              handleComing();
+            },
+          )
+        ],
+      );
+    });
   }
 }
