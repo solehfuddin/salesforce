@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
-import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:http/http.dart' as http;
 
@@ -42,7 +41,6 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
       }
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -87,7 +85,6 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
           debugPrint("Proddiv: ${item.proddiv.proddiv}");
           debugPrint("Alias: ${item.proddiv.alias}");
           debugPrint("Diskon: ${item.proddiv.diskon}");
-          // postMulti(item.proddiv.proddiv, item.proddiv.diskon);
         }
       }
     } else {
@@ -96,34 +93,6 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
 
     print("Test submit form");
     stop();
-  }
-
-  postMulti(String proddiv, String diskon) async {
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
-    var response = await http.post(
-      url,
-      body: {
-        'id_customer': '9999',
-        'prod_div[]': proddiv,
-        'discount[]': diskon,
-      },
-    );
-
-    try {
-      var res = json.decode(response.body);
-      final bool sts = res['status'];
-      final String msg = res['message'];
-
-      if (sts) {
-        print(msg);
-      }
-    } on FormatException catch (e) {
-      print('Format Error : $e');
-      if (mounted) {
-        handleStatus(context, e.toString(), false);
-      }
-    }
   }
 
   @override

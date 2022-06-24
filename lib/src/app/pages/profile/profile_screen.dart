@@ -32,6 +32,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isRePassword = false;
   File tmpFile;
   String tmpName, base64Imgprofile;
+  bool _isHidePass = true;
+  bool _isReHidePass = true;
+
+  void _tooglePassVisibility() {
+    setState(() {
+      _isHidePass = !_isHidePass;
+    });
+  }
+
+  void _toogleRePassVisibility() {
+    setState(() {
+      _isReHidePass = !_isReHidePass;
+    });
+  }
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -75,7 +89,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -88,7 +101,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : handleConnection(context);
     } on Error catch (e) {
       print('Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -98,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     getRole();
   }
 
-  checkEntry(Function stop) async {
+  checkEntry(Function stop, {bool isHorizontal}) async {
     textNamaLengkap.text.isEmpty
         ? _isNamaLengkap = true
         : _isNamaLengkap = false;
@@ -113,28 +125,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
           perbaruiData(
             stop,
             isChangePassword: true,
+            isHorizontal: isHorizontal,
           );
 
           print('Eksekusi dengan password');
         } else {
-          handleStatus(context, 'Password tidak sesuai', false);
+          handleStatus(
+            context,
+            'Password tidak sesuai',
+            false,
+            isHorizontal: isHorizontal,
+          );
           stop();
         }
       } else {
         perbaruiData(
           stop,
           isChangePassword: false,
+          isHorizontal: isHorizontal,
         );
 
         print('Eksekusi nama saja');
       }
     } else {
-      handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
+      handleStatus(
+        context,
+        'Harap lengkapi data terlebih dahulu',
+        false,
+        isHorizontal: isHorizontal,
+      );
       stop();
     }
   }
 
-  Future chooseImage() async {
+  Future chooseImage({bool isHorizontal}) async {
     var imgFile = await ImagePicker().getImage(
       source: ImageSource.camera,
       imageQuality: 25,
@@ -183,13 +207,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } on Error catch (e) {
       print('Error : $e');
-      if (mounted) {
-        handleStatus(context, e.toString(), false);
-      }
     }
   }
 
-  perbaruiData(Function stop, {bool isChangePassword}) async {
+  perbaruiData(
+    Function stop, {
+    bool isChangePassword,
+    bool isHorizontal,
+  }) async {
     const timeout = 15;
     var url = 'http://timurrayalab.com/salesforce/server/api/users';
 
@@ -219,13 +244,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final bool sts = res['status'];
         final String msg = res['message'];
         if (mounted) {
-          handleStatus(context, capitalize(msg), sts);
+          handleStatus(
+            context,
+            capitalize(msg),
+            sts,
+            isHorizontal: isHorizontal,
+          );
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        if (mounted) {
-          handleStatus(context, e.toString(), false);
-        }
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -239,9 +266,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } on Error catch (e) {
       print('General Error : $e');
-      if (mounted) {
-        handleStatus(context, e.toString(), false);
-      }
     }
 
     stop();
@@ -348,9 +372,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Text(
                       role.contains('SALES')
                           ? capitalize(role)
-                          : capitalize(role) +
-                              ' ' +
-                              capitalize(divisi.toLowerCase()),
+                          : capitalize(role) + ' ' + capitalize(
+                              // divisi.toLowerCase(),
+                              divisi),
                       style: TextStyle(
                         color: Colors.grey.shade700,
                         fontSize: 24.sp,
@@ -447,9 +471,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15.r),
                       ),
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          _tooglePassVisibility();
+                        },
+                        child: Icon(
+                          _isHidePass ? Icons.visibility_off : Icons.visibility,
+                          color: _isHidePass ? Colors.grey : Colors.blue,
+                        ),
+                      ),
                     ),
                     controller: textPassword,
-                    obscureText: true,
+                    obscureText: _isHidePass,
                   ),
                   SizedBox(
                     height: 25.h,
@@ -478,9 +511,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15.r),
                       ),
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          _toogleRePassVisibility();
+                        },
+                        child: Icon(
+                          _isReHidePass
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: _isReHidePass ? Colors.grey : Colors.blue,
+                        ),
+                      ),
                     ),
                     controller: textRePassword,
-                    obscureText: true,
+                    obscureText: _isReHidePass,
                   ),
                   SizedBox(
                     height: 30.h,
@@ -510,7 +554,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           if (btnState == ButtonState.Idle) {
                             startLoading();
                             waitingLoad();
-                            checkEntry(stopLoading);
+                            checkEntry(
+                              stopLoading,
+                              isHorizontal: true,
+                            );
                             // stopLoading();
                           }
                         },
@@ -719,9 +766,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        _tooglePassVisibility();
+                      },
+                      child: Icon(
+                        _isHidePass ? Icons.visibility_off : Icons.visibility,
+                        color: _isHidePass ? Colors.grey : Colors.blue,
+                      ),
+                    ),
                   ),
                   controller: textPassword,
-                  obscureText: true,
+                  obscureText: _isHidePass,
                 ),
                 SizedBox(
                   height: 15.h,
@@ -750,9 +806,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        _toogleRePassVisibility();
+                      },
+                      child: Icon(
+                        _isReHidePass ? Icons.visibility_off : Icons.visibility,
+                        color: _isReHidePass ? Colors.grey : Colors.blue,
+                      ),
+                    ),
                   ),
                   controller: textRePassword,
-                  obscureText: true,
+                  obscureText: _isReHidePass,
                 ),
                 SizedBox(
                   height: 25.h,
@@ -782,7 +847,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (btnState == ButtonState.Idle) {
                           startLoading();
                           waitingLoad();
-                          checkEntry(stopLoading);
+                          checkEntry(
+                            stopLoading,
+                            isHorizontal: false,
+                          );
                           // stopLoading();
                         }
                       },

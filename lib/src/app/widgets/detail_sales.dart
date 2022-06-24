@@ -23,45 +23,48 @@ class DetailSales extends StatefulWidget {
 
 class _DetailSalesState extends State<DetailSales> {
   List<SalesArea> areaList = [
-  SalesArea(
-    kodeArea: 'OK1',
-    cakupanArea: 'Sumatera Utara & NAD',
-  ),
-  SalesArea(
-    kodeArea: 'OK2',
-    cakupanArea:
-        'Jabodetabek, Jawa Barat, Banten, Lampung, Sumatera Selatan, Jambi, Bengkulu, Sumatera Barat, Riau, Kepri, Babel & Kalbar',
-  ),
-  SalesArea(
-    kodeArea: 'OK3',
-    cakupanArea: 'Jawa Tengah & DI Yogyakarta',
-  ),
-  SalesArea(
-    kodeArea: 'OK4',
-    cakupanArea:
-        'Jawa Timur, Bali, NTB, NTT, Sulawesi, Maluku, Papua, Kalsel, Kalteng, Kaltim & Kaltara',
-  ),
-  SalesArea(
-    kodeArea: 'MK1',
-    cakupanArea: 'Sumatera Utara & NAD',
-  ),
-  SalesArea(
-    kodeArea: 'MK2',
-    cakupanArea:
-        'Jabodetabek, Jawa Barat, Banten, Lampung, Sumatera Selatan, Jambi, Bengkulu, Sumatera Barat, Riau, Kepri, Kalimantan',
-  ),
-  SalesArea(
-    kodeArea: 'MK3',
-    cakupanArea: 'Jawa Tengah & DI Yogyakarta',
-  ),
-  SalesArea(
-    kodeArea: 'MK4',
-    cakupanArea: 'Jawa Timur, Bali, NTB, NTT, Sulawesi, Maluku & Papua',
-  ),
-];
+    SalesArea(
+      kodeArea: 'OK1',
+      cakupanArea: 'Sumatera Utara & NAD',
+    ),
+    SalesArea(
+      kodeArea: 'OK2',
+      cakupanArea:
+          'Jabodetabek, Jawa Barat, Banten, Lampung, Sumatera Selatan, Jambi, Bengkulu, Sumatera Barat, Riau, Kepri, Babel & Kalbar',
+    ),
+    SalesArea(
+      kodeArea: 'OK3',
+      cakupanArea: 'Jawa Tengah & DI Yogyakarta',
+    ),
+    SalesArea(
+      kodeArea: 'OK4',
+      cakupanArea:
+          'Jawa Timur, Bali, NTB, NTT, Sulawesi, Maluku, Papua, Kalsel, Kalteng, Kaltim & Kaltara',
+    ),
+    SalesArea(
+      kodeArea: 'MK1',
+      cakupanArea: 'Sumatera Utara & NAD',
+    ),
+    SalesArea(
+      kodeArea: 'MK2',
+      cakupanArea:
+          'Jabodetabek, Jawa Barat, Banten, Lampung, Sumatera Selatan, Jambi, Bengkulu, Sumatera Barat, Riau, Kepri, Kalimantan',
+    ),
+    SalesArea(
+      kodeArea: 'MK3',
+      cakupanArea: 'Jawa Tengah & DI Yogyakarta',
+    ),
+    SalesArea(
+      kodeArea: 'MK4',
+      cakupanArea: 'Jawa Timur, Bali, NTB, NTT, Sulawesi, Maluku & Papua',
+    ),
+  ];
 
   Future<List<SalesDetail>> getSalesDetail(BuildContext context,
-      {String stDate, String edDate, dynamic salesRepId}) async {
+      {String stDate,
+      String edDate,
+      dynamic salesRepId,
+      bool isHorizontal}) async {
     const timeout = 15;
     List<SalesDetail> list = List.empty(growable: true);
     List<SalesDetail> dummyList = List.empty(growable: true);
@@ -69,57 +72,74 @@ class _DetailSalesState extends State<DetailSales> {
     list.clear();
     dummyList.clear();
 
-    var url =
-        'https://timurrayalab.com/salesforce/server/api/performance/detailPerformance?from=$stDate&to=$edDate&salesrep_id=$salesRepId';
+    print('Start Date : $stDate');
+    print('End Date : $edDate');
+    print('Sales Rep id : $salesRepId');
 
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
+    if (stDate == null && edDate == null) {
+      handleStatus(
+        context,
+        'Terjadi kesalahan, coba lagi',
+        false,
+        isHorizontal: isHorizontal,
+      );
+    } else {
+      var url =
+          'https://timurrayalab.com/salesforce/server/api/performance/detailPerformance?from=$stDate&to=$edDate&salesrep_id=$salesRepId';
 
       try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
+        var response = await http.get(url).timeout(Duration(seconds: timeout));
+        print('Response status: ${response.statusCode}');
 
-        if (sts) {
-          var rest = data['data'];
-          print(rest);
-          list = rest
-              .map<SalesDetail>((json) => SalesDetail.fromJson(json))
-              .toList();
-          print("List Size: ${list.length}");
+        try {
+          var data = json.decode(response.body);
+          final bool sts = data['status'];
 
-          for (int i = 0; i < list.length; i++) {
-            dynamic cakupan;
+          if (sts) {
+            var rest = data['data'];
+            print(rest);
+            list = rest
+                .map<SalesDetail>((json) => SalesDetail.fromJson(json))
+                .toList();
+            print("List Size: ${list.length}");
 
-            for (int j = 0; j < areaList.length; j++) {
-              if (areaList[j].kodeArea == list[i].area) {
-                cakupan = areaList[j].cakupanArea;
-                print('Area cakupan : $cakupan');
+            for (int i = 0; i < list.length; i++) {
+              dynamic cakupan;
+
+              for (int j = 0; j < areaList.length; j++) {
+                if (areaList[j].kodeArea == list[i].area) {
+                  cakupan = areaList[j].cakupanArea;
+                  print('Area cakupan : $cakupan');
+                }
               }
+
+              dummyList.add(SalesDetail(
+                area: list[i].area,
+                cakupan: cakupan,
+                salesPerson: list[i].salesPerson,
+                penjualan: list[i].penjualan,
+              ));
             }
 
-            dummyList.add(SalesDetail(
-              area: list[i].area,
-              cakupan: cakupan,
-              salesPerson: list[i].salesPerson,
-              penjualan: list[i].penjualan,
-            ));
+            return dummyList;
           }
-
-          return dummyList;
+        } on FormatException catch (e) {
+          print('Format Error : $e');
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+      } on TimeoutException catch (e) {
+        print('Timeout Error : $e');
+      } on SocketException catch (e) {
+        print('Socket Error : $e');
+      } on Error catch (e) {
+        print('General Error : $e');
       }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
     }
-    // return dummyList;
   }
 
   @override
@@ -196,6 +216,7 @@ class _DetailSalesState extends State<DetailSales> {
                   stDate: widget.startDate,
                   edDate: widget.endDate,
                   salesRepId: widget.sales.salesRepId,
+                  isHorizontal: isHorizontal,
                 ),
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
@@ -241,14 +262,14 @@ class _DetailSalesState extends State<DetailSales> {
                                 Center(
                                   child: Image.asset(
                                     'assets/images/not_found.png',
-                                    width: 100.r,
-                                    height: 100.r,
+                                    width: isHorizontal ? 125.r : 100.r,
+                                    height: isHorizontal ? 125.r : 100.r,
                                   ),
                                 ),
                                 Text(
                                   'Data tidak ditemukan',
                                   style: TextStyle(
-                                    fontSize: 14.sp,
+                                    fontSize: isHorizontal ? 24.sp : 14.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.red[600],
                                     fontFamily: 'Montserrat',

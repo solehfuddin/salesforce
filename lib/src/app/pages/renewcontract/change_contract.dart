@@ -109,12 +109,12 @@ class _ChangeContractState extends State<ChangeContract> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     }
   }
 
-  Future<List<Discount>> getDiscountData(dynamic idCust) async {
+  Future<List<Discount>> getDiscountData(dynamic idCust,
+      {bool isHorizontal}) async {
     List<Discount> list;
     const timeout = 15;
     var url =
@@ -138,7 +138,12 @@ class _ChangeContractState extends State<ChangeContract> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -181,7 +186,6 @@ class _ChangeContractState extends State<ChangeContract> {
         getTtdSales(int.parse(id));
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -193,7 +197,6 @@ class _ChangeContractState extends State<ChangeContract> {
       _isConnected = false;
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
       _isConnected = false;
     }
   }
@@ -226,7 +229,6 @@ class _ChangeContractState extends State<ChangeContract> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -291,7 +293,7 @@ class _ChangeContractState extends State<ChangeContract> {
     }
   }
 
-  multipleInputDiskon() async {
+  multipleInputDiskon({bool isHorizontal}) async {
     bool allValid = true;
 
     formDisc
@@ -305,8 +307,13 @@ class _ChangeContractState extends State<ChangeContract> {
           debugPrint("Alias: ${item.proddiv.alias}");
           debugPrint("Diskon: ${item.proddiv.diskon}");
           debugPrint("Is Checked : ${item.proddiv.ischecked}");
-          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon,
-              item.proddiv.alias);
+          postMultiDiv(
+            idCustomer,
+            item.proddiv.proddiv,
+            item.proddiv.diskon,
+            item.proddiv.alias,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } else {
@@ -327,12 +334,14 @@ class _ChangeContractState extends State<ChangeContract> {
           debugPrint("Diskon: ${item.product.diskon}");
 
           postMultiItem(
-              idCustomer,
-              item.product.categoryid,
-              item.product.proddiv,
-              item.product.prodcat,
-              item.product.proddesc,
-              item.product.diskon);
+            idCustomer,
+            item.product.categoryid,
+            item.product.proddiv,
+            item.product.prodcat,
+            item.product.proddesc,
+            item.product.diskon,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } else {
@@ -340,8 +349,8 @@ class _ChangeContractState extends State<ChangeContract> {
     }
   }
 
-  postMultiDiv(
-      String idCust, String proddiv, String diskon, String alias) async {
+  postMultiDiv(String idCust, String proddiv, String diskon, String alias,
+      {bool isHorizontal}) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
     var response = await http.post(
@@ -365,13 +374,19 @@ class _ChangeContractState extends State<ChangeContract> {
     } on FormatException catch (e) {
       print('Format Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
   postMultiItem(String idCust, String categoryId, String prodDiv,
-      String prodCat, String prodDesc, String disc) async {
+      String prodCat, String prodDesc, String disc,
+      {bool isHorizontal}) async {
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
     var response = await http.post(
@@ -397,12 +412,17 @@ class _ChangeContractState extends State<ChangeContract> {
     } on FormatException catch (e) {
       print('Format Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
-  checkInput(Function stop) async {
+  checkInput(Function stop, {bool isHorizontal}) async {
     if (_chosenNikon == null) {
       _chosenNikon = 'Cash & Carry';
     }
@@ -483,7 +503,11 @@ class _ChangeContractState extends State<ChangeContract> {
             textValNikon.clear();
             textValOriental.clear();
 
-            _isRegularDisc ? simpanDiskon(idCustomer) : multipleInputDiskon();
+            _isRegularDisc
+                ? simpanDiskon(idCustomer)
+                : multipleInputDiskon(
+                    isHorizontal: isHorizontal,
+                  );
           }
 
           handleStatusChangeContract(
@@ -492,13 +516,19 @@ class _ChangeContractState extends State<ChangeContract> {
             capitalize(msg),
             sts,
             keyword: widget.keyword,
+            isHorizontal: isHorizontal,
           );
           stop();
           setState(() {});
         } on FormatException catch (e) {
           print('Format Error : $e');
           if (mounted) {
-            handleStatus(context, e.toString(), false);
+            handleStatus(
+              context,
+              e.toString(),
+              false,
+              isHorizontal: isHorizontal,
+            );
           }
         }
       } on TimeoutException catch (e) {
@@ -514,7 +544,12 @@ class _ChangeContractState extends State<ChangeContract> {
       } on Error catch (e) {
         print('General Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } else {
@@ -1504,7 +1539,10 @@ class _ChangeContractState extends State<ChangeContract> {
                       setState(() {
                         startLoading();
                         waitingLoad();
-                        checkInput(stopLoading);
+                        checkInput(
+                          stopLoading,
+                          isHorizontal: isHorizontal,
+                        );
                       });
                     }
                   },
@@ -2166,7 +2204,10 @@ class _ChangeContractState extends State<ChangeContract> {
           width: double.maxFinite.w,
           height: isHorizontal ? 300.h : 150.h,
           child: FutureBuilder(
-              future: getDiscountData(item.idCustomer),
+              future: getDiscountData(
+                item.idCustomer,
+                isHorizontal: isHorizontal,
+              ),
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:

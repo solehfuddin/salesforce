@@ -66,7 +66,6 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -76,7 +75,6 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -105,7 +103,6 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -116,7 +113,8 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
     }
   }
 
-  Future<List<Contract>> getApprovalBySearch(String input, bool isAr) async {
+  Future<List<Contract>> getApprovalBySearch(String input, bool isAr,
+      {bool isHorizontal}) async {
     const timeout = 15;
     List<Contract> list;
     var url =
@@ -154,7 +152,12 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error :$e');
@@ -222,7 +225,10 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
               child: FutureBuilder(
                   future: search.isNotEmpty
                       ? getApprovalBySearch(
-                          search, divisi == "AR" ? true : false)
+                          search,
+                          divisi == "AR" ? true : false,
+                          isHorizontal: isHorizontal,
+                        )
                       : divisi == "AR"
                           ? getApprovalData(true)
                           : getApprovalData(false),
@@ -363,7 +369,11 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                           ),
                         )
                       : handleStatus(
-                          context, 'Id customer tidak ditemukan', false);
+                          context,
+                          'Id customer tidak ditemukan',
+                          false,
+                          isHorizontal: isHorizontal,
+                        );
                 },
               );
             }),

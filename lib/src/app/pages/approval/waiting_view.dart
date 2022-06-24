@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -61,7 +62,6 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -71,7 +71,6 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
       handleConnectionAdmin(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -104,7 +103,6 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -116,7 +114,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     return list;
   }
 
-  getCustomerContract(dynamic idCust, bool isContract) async {
+  getCustomerContract(dynamic idCust, bool isContract,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
@@ -137,7 +136,12 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -147,7 +151,12 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
+      handleStatus(
+        context,
+        e.toString(),
+        false,
+        isHorizontal: isHorizontal,
+      );
     }
   }
 
@@ -325,7 +334,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 21.sp : 11.sp,
+                                          fontSize:
+                                              isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -335,7 +345,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 21.sp : 11.sp,
+                                          fontSize:
+                                              isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -351,7 +362,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 23.sp : 13.sp,
+                                          fontSize:
+                                              isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -361,7 +373,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 23.sp : 13.sp,
+                                          fontSize:
+                                              isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -397,7 +410,11 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     ),
                     onTap: () {
                       setState(() {
-                        getCustomerContract(customer[position].id, false);
+                        getCustomerContract(
+                          customer[position].id,
+                          false,
+                          isHorizontal: isHorizontal,
+                        );
                       });
                     },
                   ),

@@ -80,7 +80,6 @@ class _DetailContractState extends State<DetailContract> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -90,7 +89,6 @@ class _DetailContractState extends State<DetailContract> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -122,7 +120,6 @@ class _DetailContractState extends State<DetailContract> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -170,22 +167,18 @@ class _DetailContractState extends State<DetailContract> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
-      // this._isContractActive = false;
     } on SocketException catch (e) {
       print('Socket Error : $e');
-      // this._isContractActive = false;
     } on Error catch (e) {
       print('General Error : $e');
     }
-
-    // print('Is disabled : $_isContractActive');
   }
 
-  Future<List<Discount>> getDiscountData(dynamic idContract) async {
+  Future<List<Discount>> getDiscountData(dynamic idContract,
+      {bool isHorizontal}) async {
     const timeout = 15;
     List<Discount> list;
     var url =
@@ -204,16 +197,17 @@ class _DetailContractState extends State<DetailContract> {
           print(rest);
           list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
           print("List Size: ${list.length}");
-
-          // getDisc(widget.item.hasParent.contains('1')
-          //     ? widget.item.idContractParent
-          //     : widget.item.idContract);
         }
 
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -224,7 +218,8 @@ class _DetailContractState extends State<DetailContract> {
     }
   }
 
-  approveContract(bool isAr, String idCust, String username) async {
+  approveContract(bool isAr, String idCust, String username,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
@@ -255,12 +250,27 @@ class _DetailContractState extends State<DetailContract> {
         final String msg = res['message'];
 
         widget.isAdminRenewal
-            ? handleCustomStatus(context, capitalize(msg), sts)
-            : handleStatus(context, capitalize(msg), sts);
+            ? handleCustomStatus(
+                context,
+                capitalize(msg),
+                sts,
+                isHorizontal: isHorizontal,
+              )
+            : handleStatus(
+                context,
+                capitalize(msg),
+                sts,
+                isHorizontal: isHorizontal,
+              );
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -276,12 +286,18 @@ class _DetailContractState extends State<DetailContract> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
-  approveCustomer(bool isAr, String idCust, String ttd, String username) async {
+  approveCustomer(bool isAr, String idCust, String ttd, String username,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
@@ -306,7 +322,12 @@ class _DetailContractState extends State<DetailContract> {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      approveContract(isAr, idCust, username);
+      approveContract(
+        isAr,
+        idCust,
+        username,
+        isHorizontal: isHorizontal,
+      );
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       if (mounted) {
@@ -320,13 +341,18 @@ class _DetailContractState extends State<DetailContract> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
-  rejectContract(
-      bool isAr, String idCust, String username, String reason) async {
+  rejectContract(bool isAr, String idCust, String username, String reason,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractSM'
@@ -360,12 +386,27 @@ class _DetailContractState extends State<DetailContract> {
         final String msg = res['message'];
 
         widget.isAdminRenewal
-            ? handleCustomStatus(context, capitalize(msg), sts)
-            : handleStatus(context, capitalize(msg), sts);
+            ? handleCustomStatus(
+                context,
+                capitalize(msg),
+                sts,
+                isHorizontal: isHorizontal,
+              )
+            : handleStatus(
+                context,
+                capitalize(msg),
+                sts,
+                isHorizontal: isHorizontal,
+              );
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -381,13 +422,19 @@ class _DetailContractState extends State<DetailContract> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
-  rejectCustomer(bool isAr, String idCust, String ttd, String username,
-      String reason) async {
+  rejectCustomer(
+      bool isAr, String idCust, String ttd, String username, String reason,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectSM'
@@ -412,7 +459,13 @@ class _DetailContractState extends State<DetailContract> {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      rejectContract(isAr, idCust, username, reason);
+      rejectContract(
+        isAr,
+        idCust,
+        username,
+        reason,
+        isHorizontal: isHorizontal,
+      );
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       if (mounted) {
@@ -426,96 +479,168 @@ class _DetailContractState extends State<DetailContract> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
-  approveOldCustomer() {
+  approveOldCustomer({bool isHorizontal}) {
     widget.div == "AR"
-        ? approveContract(true, widget.item.idCustomer, widget.username)
-        : approveContract(false, widget.item.idCustomer, widget.username);
+        ? approveContract(
+            true,
+            widget.item.idCustomer,
+            widget.username,
+            isHorizontal: isHorizontal,
+          )
+        : approveContract(
+            false,
+            widget.item.idCustomer,
+            widget.username,
+            isHorizontal: isHorizontal,
+          );
   }
 
-  approveNewCustomer() {
+  approveNewCustomer({bool isHorizontal}) {
     widget.div == "AR"
         ? approveCustomer(
-            true, widget.item.idCustomer, widget.ttd, widget.username)
+            true,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            isHorizontal: isHorizontal,
+          )
         : approveCustomer(
-            false, widget.item.idCustomer, widget.ttd, widget.username);
+            false,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            isHorizontal: isHorizontal,
+          );
   }
 
-  rejectOldCustomer() {
+  rejectOldCustomer({bool isHorizontal}) {
     widget.div == "AR"
-        ? rejectContract(true, widget.item.idCustomer, widget.username,
-            textReason.text.trim())
-        : rejectContract(false, widget.item.idCustomer, widget.username,
-            textReason.text.trim());
+        ? rejectContract(
+            true,
+            widget.item.idCustomer,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          )
+        : rejectContract(
+            false,
+            widget.item.idCustomer,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          );
   }
 
-  rejectNewCustomer() {
+  rejectNewCustomer({bool isHorizontal}) {
     widget.div == "AR"
-        ? rejectCustomer(true, widget.item.idCustomer, widget.ttd,
-            widget.username, textReason.text.trim())
-        : rejectCustomer(false, widget.item.idCustomer, widget.ttd,
-            widget.username, textReason.text.trim());
+        ? rejectCustomer(
+            true,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          )
+        : rejectCustomer(
+            false,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          );
   }
 
-  checkEntry() {
+  checkEntry({bool isHorizontal}) {
     textReason.text.isEmpty ? _isReason = true : _isReason = false;
 
     if (!_isReason) {
-      widget.isContract ? rejectOldCustomer() : rejectNewCustomer();
+      widget.isContract
+          ? rejectOldCustomer(
+              isHorizontal: isHorizontal,
+            )
+          : rejectNewCustomer(
+              isHorizontal: isHorizontal,
+            );
       Navigator.of(context, rootNavigator: true).pop();
     } else {
-      handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
+      handleStatus(
+        context,
+        'Harap lengkapi data terlebih dahulu',
+        false,
+        isHorizontal: isHorizontal,
+      );
     }
   }
 
-  handleRejection(BuildContext context, Function stop) {
+  handleRejection(BuildContext context, Function stop, {bool isHorizontal}) {
     AlertDialog alert = AlertDialog(
+      scrollable: true,
       title: Center(
         child: Text(
           "Mengapa kontrak tidak disetujui ?",
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: isHorizontal ? 20.sp : 14.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       content: Form(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            textCapitalization: TextCapitalization.characters,
-            decoration: InputDecoration(
-              labelText: '',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.r),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                labelText: '',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.r),
+                ),
+                errorText: !_isReason ? 'Data wajib diisi' : null,
               ),
-              errorText: !_isReason ? 'Data wajib diisi' : null,
+              keyboardType: TextInputType.multiline,
+              minLines: isHorizontal ? 3 : 4,
+              maxLines: isHorizontal ? 4 : 5,
+              maxLength: 100,
+              controller: textReason,
             ),
-            keyboardType: TextInputType.multiline,
-            minLines: 5,
-            maxLines: 6,
-            maxLength: 100,
-            controller: textReason,
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
       actions: [
         TextButton(
-          child: Text('Ok'),
+          child: Text(
+            'Ok',
+            style: TextStyle(
+              fontSize: isHorizontal ? 22.sp : 14.sp,
+            ),
+          ),
           onPressed: () {
             stop();
-            checkEntry();
+            checkEntry(
+              isHorizontal: isHorizontal,
+            );
           },
         ),
         TextButton(
-          child: Text('Cancel'),
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              fontSize: isHorizontal ? 22.sp : 14.sp,
+            ),
+          ),
           onPressed: () {
             stop();
             Navigator.of(context, rootNavigator: true).pop();
@@ -524,7 +649,11 @@ class _DetailContractState extends State<DetailContract> {
       ],
     );
 
-    showDialog(context: context, builder: (context) => alert);
+    showDialog(
+      context: context,
+      builder: (context) => alert,
+      barrierDismissible: false,
+    );
   }
 
   @override
@@ -1617,9 +1746,12 @@ class _DetailContractState extends State<DetailContract> {
           width: double.maxFinite.w,
           height: 170.h,
           child: FutureBuilder(
-              future: getDiscountData(widget.item.hasParent.contains('1')
-                  ? widget.item.idContractParent
-                  : widget.item.idContract),
+              future: getDiscountData(
+                widget.item.hasParent.contains('1')
+                    ? widget.item.idContractParent
+                    : widget.item.idContract,
+                isHorizontal: isHorizontal,
+              ),
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
@@ -1739,7 +1871,11 @@ class _DetailContractState extends State<DetailContract> {
                 setState(() {
                   startLoading();
                   waitingLoad();
-                  handleRejection(context, stopLoading);
+                  handleRejection(
+                    context,
+                    stopLoading,
+                    isHorizontal: isHorizontal,
+                  );
                 });
               }
             },
@@ -1775,8 +1911,12 @@ class _DetailContractState extends State<DetailContract> {
                   startLoading();
                   waitingLoad();
                   widget.isContract
-                      ? approveOldCustomer()
-                      : approveNewCustomer();
+                      ? approveOldCustomer(
+                          isHorizontal: isHorizontal,
+                        )
+                      : approveNewCustomer(
+                          isHorizontal: isHorizontal,
+                        );
                 });
               }
             },

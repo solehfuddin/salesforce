@@ -147,7 +147,6 @@ class _AdminScreenState extends State<AdminScreen> {
         _isConnected = true;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -159,7 +158,6 @@ class _AdminScreenState extends State<AdminScreen> {
       _isConnected = false;
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
       _isConnected = false;
     }
   }
@@ -191,7 +189,6 @@ class _AdminScreenState extends State<AdminScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -221,7 +218,6 @@ class _AdminScreenState extends State<AdminScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -254,7 +250,6 @@ class _AdminScreenState extends State<AdminScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -287,7 +282,6 @@ class _AdminScreenState extends State<AdminScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -320,7 +314,6 @@ class _AdminScreenState extends State<AdminScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -364,7 +357,6 @@ class _AdminScreenState extends State<AdminScreen> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -406,7 +398,6 @@ class _AdminScreenState extends State<AdminScreen> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -458,7 +449,6 @@ class _AdminScreenState extends State<AdminScreen> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -904,9 +894,12 @@ class _AdminScreenState extends State<AdminScreen> {
                             startDate: stDate,
                             endDate: edDate),
                     areaInfoDonut(
-                        sales: listPerform,
-                        totalSales: _totalSales,
-                        context: context),
+                      sales: listPerform,
+                      totalSales: _totalSales,
+                      context: context,
+                      stDate: stDate,
+                      edDate: edDate,
+                    ),
                     areaHeaderRenewal(isHorizontal: false),
                     _isLoadRenewal
                         ? areaLoadingRenewal()

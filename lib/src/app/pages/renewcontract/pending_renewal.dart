@@ -65,7 +65,6 @@ class _PendingRenewalState extends State<PendingRenewal> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -75,11 +74,11 @@ class _PendingRenewalState extends State<PendingRenewal> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
-  Future<List<Contract>> getPendingBySearch(String input, bool isAr) async {
+  Future<List<Contract>> getPendingBySearch(String input, bool isAr,
+      {bool isHorizontal}) async {
     List<Contract> list;
     const timeout = 15;
     var url =
@@ -117,7 +116,12 @@ class _PendingRenewalState extends State<PendingRenewal> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -153,7 +157,6 @@ class _PendingRenewalState extends State<PendingRenewal> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -220,7 +223,10 @@ class _PendingRenewalState extends State<PendingRenewal> {
               child: FutureBuilder(
                   future: search.isNotEmpty
                       ? getPendingBySearch(
-                          search, divisi == "AR" ? true : false)
+                          search,
+                          divisi == "AR" ? true : false,
+                          isHorizontal: isHorizontal,
+                        )
                       : divisi == "AR"
                           ? getPendingData(true)
                           : getPendingData(false),
@@ -361,7 +367,11 @@ class _PendingRenewalState extends State<PendingRenewal> {
                           ),
                         )
                       : handleStatus(
-                          context, 'Id customer tidak ditemukan', false);
+                          context,
+                          'Id customer tidak ditemukan',
+                          false,
+                          isHorizontal: isHorizontal,
+                        );
                 },
               );
             }),

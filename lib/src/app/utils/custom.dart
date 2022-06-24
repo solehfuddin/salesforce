@@ -12,13 +12,11 @@ import 'package:http/http.dart' as http;
 import 'package:in_app_update/in_app_update.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
-import 'package:sample/src/app/pages/econtract/detail_contract_rejected.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
-import 'package:sample/src/app/pages/signed/signed_view.dart';
-import 'package:sample/src/app/utils/colors.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
 import 'package:sample/src/app/widgets/detail_waiting.dart';
+import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
@@ -35,7 +33,8 @@ waitingLoad() async {
   await Future.delayed(Duration(seconds: 2));
 }
 
-login(String user, String pass, BuildContext context) async {
+login(String user, String pass, BuildContext context,
+    {bool isHorizontal}) async {
   int timeout = 15;
   var url = 'http://timurrayalab.com/salesforce/server/api/auth/login';
 
@@ -93,7 +92,12 @@ login(String user, String pass, BuildContext context) async {
       }
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
+      handleStatus(
+        context,
+        e.toString(),
+        false,
+        isHorizontal: isHorizontal,
+      );
     }
   } on TimeoutException catch (e) {
     print('Timeout Error : $e');
@@ -103,7 +107,12 @@ login(String user, String pass, BuildContext context) async {
     handleSocket(context);
   } on Error catch (e) {
     print('General Error : $e');
-    handleStatus(context, e.toString(), false);
+    handleStatus(
+      context,
+      e.toString(),
+      false,
+      isHorizontal: isHorizontal,
+    );
   }
 }
 
@@ -173,116 +182,17 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
 }
 
 handleSigned(BuildContext context) {
-  AlertDialog alert = AlertDialog(
-    title: Center(
-      child: Text(
-        "Digital Signed",
-        style: TextStyle(
-          fontSize: 20,
-          fontFamily: 'Segoe ui',
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-    content: Container(
-      padding: EdgeInsets.only(
-        top: 20,
-      ),
-      height: 150,
-      child: Column(
-        children: [
-          Center(
-            child: Image.asset(
-              'assets/images/digital_sign.png',
-              width: 60,
-              height: 60,
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Center(
-            child: Text(
-              "Setup digital signed easily to save your",
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          Center(
-            child: Text(
-              "time when approve new customer",
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-    actions: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: StadiumBorder(),
-              primary: Colors.orange[800],
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              'Next time',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Segoe ui',
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: StadiumBorder(),
-              primary: Colors.indigo[600],
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              'Setup now',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Segoe ui',
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SignedScreen()));
-            },
-          ),
-        ],
-      ),
-    ],
-  );
-
-  showDialog(context: context, builder: (context) => alert);
+  showDialog(context: context, builder: (context) => DialogSigned());
 }
 
-handleStatus(BuildContext context, String msg, bool status) {
-  AlertDialog alert = AlertDialog(
+handleStatus(BuildContext context, String msg, bool status,
+    {bool isHorizontal = false}) {
+  AlertDialog dialog = new AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
         top: 20.r,
       ),
-      height: 120.h,
+      height: isHorizontal ? 325.h : 205.h,
       child: Column(
         children: [
           Center(
@@ -290,55 +200,56 @@ handleStatus(BuildContext context, String msg, bool status) {
               status
                   ? 'assets/images/success.png'
                   : 'assets/images/failure.png',
-              width: 60.r,
-              height: 60.r,
+              width: isHorizontal ? 110.r : 70.r,
+              height: isHorizontal ? 110.r : 70.r,
             ),
           ),
           SizedBox(
-            height: 20.h,
+            height: isHorizontal ? 20.h : 20.h,
           ),
           Center(
             child: Text(
               msg,
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: isHorizontal ? 22.sp : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
+          SizedBox(
+            height: isHorizontal ? 20.h : 20.h,
+          ),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                primary: Colors.indigo[600],
+                padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
+              ),
+              child: Text(
+                'Ok',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isHorizontal ? 22.sp : 14.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Segoe ui',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop(context);
+                if (status) {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ),
         ],
       ),
     ),
-    actions: [
-      Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: StadiumBorder(),
-            primary: Colors.indigo[600],
-            padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
-          ),
-          child: Text(
-            'Ok',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Segoe ui',
-            ),
-          ),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(context);
-            if (status) {
-              Navigator.pop(context);
-            }
-          },
-        ),
-      ),
-    ],
   );
 
-  showDialog(context: context, builder: (context) => alert);
+  showDialog(context: context, builder: (context) => dialog);
 }
 
 DateTimeRange _selectedDateRange;
@@ -396,13 +307,14 @@ void showDateRange(BuildContext context) async {
   }
 }
 
-handleCustomStatus(BuildContext context, String msg, bool status) {
+handleCustomStatus(BuildContext context, String msg, bool status,
+    {bool isHorizontal}) {
   AlertDialog alert = AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
-        top: 20,
+        top: 20.r,
       ),
-      height: 120,
+      height: isHorizontal ? 325.h : 205.h,
       child: Column(
         children: [
           Center(
@@ -410,53 +322,59 @@ handleCustomStatus(BuildContext context, String msg, bool status) {
               status
                   ? 'assets/images/success.png'
                   : 'assets/images/failure.png',
-              width: 60,
-              height: 60,
+              width: isHorizontal ? 110.r : 70.r,
+              height: isHorizontal ? 110.r : 70.r,
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 20.h,
+          ),
+          Container(
+            child: Center(
+              child: Text(
+                msg,
+                style: TextStyle(
+                  fontSize: isHorizontal ? 22.sp : 14.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20.h,
           ),
           Center(
-            child: Text(
-              msg,
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                primary: Colors.indigo[600],
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
+              child: Text(
+                'Ok',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isHorizontal ? 22.sp : 14.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Segoe ui',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop(context);
+                if (status) {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => AdminScreen()));
+                }
+              },
             ),
           ),
         ],
       ),
     ),
-    actions: [
-      Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: StadiumBorder(),
-            primary: Colors.indigo[600],
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          ),
-          child: Text(
-            'Ok',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Segoe ui',
-            ),
-          ),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(context);
-            if (status) {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen()));
-            }
-          },
-        ),
-      ),
-    ],
+    // actions: [
+
+    // ],
   );
 
   showDialog(context: context, builder: (context) => alert);
@@ -464,13 +382,13 @@ handleCustomStatus(BuildContext context, String msg, bool status) {
 
 handleStatusChangeContract(
     OldCustomer item, BuildContext context, String msg, bool status,
-    {dynamic keyword}) {
+    {dynamic keyword, bool isHorizontal}) {
   AlertDialog alert = AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
-        top: 20,
+        top: 20.r,
       ),
-      height: 120,
+      height: isHorizontal ? 325.h : 205.h,
       child: Column(
         children: [
           Center(
@@ -478,57 +396,61 @@ handleStatusChangeContract(
               status
                   ? 'assets/images/success.png'
                   : 'assets/images/failure.png',
-              width: 60,
-              height: 60,
+              width: isHorizontal ? 110.r : 70.r,
+              height: isHorizontal ? 110.r : 70.r,
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 20.h,
           ),
           Center(
             child: Text(
               msg,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: isHorizontal ? 22.sp : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
+          SizedBox(
+            height: 20.h,
+          ),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                primary: Colors.indigo[600],
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: Text(
+                'Ok',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isHorizontal ? 22.sp : 14.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Segoe ui',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop(context);
+                if (status) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => HistoryContract(
+                            item,
+                            keyword: keyword,
+                            isAdmin: false,
+                          )));
+                }
+              },
+            ),
+          ),
         ],
       ),
     ),
-    actions: [
-      Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: StadiumBorder(),
-            primary: Colors.indigo[600],
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          ),
-          child: Text(
-            'Ok',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Segoe ui',
-            ),
-          ),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(context);
-            if (status) {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => HistoryContract(
-                        item,
-                        keyword: keyword,
-                        isAdmin: false,
-                      )));
-            }
-          },
-        ),
-      ),
-    ],
+    // actions: [
+
+    // ],
   );
 
   showDialog(context: context, builder: (context) => alert);
@@ -588,7 +510,6 @@ Future<String> getTtdValid(String idUser, BuildContext context,
       return ttd;
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   } on TimeoutException catch (e) {
     print('Timeout Error : $e');
@@ -601,12 +522,12 @@ Future<String> getTtdValid(String idUser, BuildContext context,
         : handleConnection(context);
   } on Error catch (e) {
     print('General Error : $e');
-    handleStatus(context, e.toString(), false);
   }
 }
 
 handleDigitalSigned(
-    SignatureController signController, BuildContext context, String id) async {
+    SignatureController signController, BuildContext context, String id,
+    {bool isHorizontal}) async {
   const timeout = 15;
   if (signController.isNotEmpty) {
     var data = await signController.toPngBytes();
@@ -632,10 +553,20 @@ handleDigitalSigned(
         final bool sts = res['status'];
         final String msg = res['message'];
 
-        handleStatus(context, capitalize(msg), sts);
+        handleStatus(
+          context,
+          capitalize(msg),
+          sts,
+          isHorizontal: isHorizontal,
+        );
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -645,7 +576,12 @@ handleDigitalSigned(
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
+      handleStatus(
+        context,
+        e.toString(),
+        false,
+        isHorizontal: isHorizontal,
+      );
     }
   } else {
     Fluttertoast.showToast(
@@ -1061,44 +997,6 @@ approveCustomerContract(bool isAr, String idCust, String username) async {
   print('Response body: ${response.body}');
 }
 
-approveCustomerReject(BuildContext context, bool isAr, String idCust,
-    String ttd, String username) async {
-  var url = !isAr
-      ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
-      : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
-
-  var response = await http.post(
-    url,
-    body: !isAr
-        ? {
-            'id_customer': idCust,
-            'ttd_sales_manager': ttd,
-            'nama_sales_manager': username,
-          }
-        : {
-            'id_customer': idCust,
-            'ttd_ar_manager': ttd,
-            'nama_ar_manager': username,
-          },
-  );
-
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
-  try {
-    var res = json.decode(response.body);
-    final bool sts = res['status'];
-    final String msg = res['message'];
-
-    approveCustomerContract(isAr, idCust, username);
-
-    handleStatus(context, capitalize(msg), sts);
-  } on FormatException catch (e) {
-    print('Format Error : $e');
-    handleStatus(context, e.toString(), false);
-  }
-}
-
 formRejected(
   BuildContext context,
   List<Customer> customer,
@@ -1134,349 +1032,6 @@ formRejected(
         reasonAM: reasonAM,
         contract: contract,
       );
-      // return Container(
-      //   padding: EdgeInsets.all(15.r),
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     mainAxisSize: MainAxisSize.min,
-      //     children: [
-      //       Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //         children: [
-      //           Text(
-      //             customer[position].namaUsaha,
-      //             style: TextStyle(
-      //               fontSize: 20.sp,
-      //               fontFamily: 'Segoe ui',
-      //               fontWeight: FontWeight.bold,
-      //             ),
-      //           ),
-      //           Container(
-      //             padding: EdgeInsets.symmetric(
-      //               vertical: 5.r,
-      //               horizontal: 10.r,
-      //             ),
-      //             decoration: BoxDecoration(
-      //               color: customer[position].status == "Pending"
-      //                   ? Colors.grey[600]
-      //                   : customer[position].status == "Accepted"
-      //                       ? Colors.blue[600]
-      //                       : Colors.red[600],
-      //               borderRadius: BorderRadius.circular(10.r),
-      //             ),
-      //             child: Text(
-      //               customer[position].status,
-      //               style: TextStyle(
-      //                 fontSize: 13.sp,
-      //                 fontFamily: 'Segoe ui',
-      //                 fontWeight: FontWeight.w600,
-      //                 color: Colors.white,
-      //               ),
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //       SizedBox(
-      //         height: 8.h,
-      //       ),
-      //       Text(
-      //         customer[position].status == "Pending"
-      //             ? 'Pengajuan e-kontrak sedang diproses'
-      //             : customer[position].status == "Accepted"
-      //                 ? 'Pengajuan e-kontrak diterima'
-      //                 : 'Pengajuan e-kontrak ditolak',
-      //         style: TextStyle(
-      //           fontSize: 14.sp,
-      //           fontFamily: 'Segoe ui',
-      //           fontWeight: FontWeight.w600,
-      //           color: customer[position].status == "Pending"
-      //               ? Colors.grey[600]
-      //               : customer[position].status == "Accepted"
-      //                   ? Colors.green[600]
-      //                   : Colors.red[700],
-      //         ),
-      //       ),
-      //       SizedBox(
-      //         height: 5.h,
-      //       ),
-      //       Text(
-      //         'Diajukan tgl : ${convertDateWithMonth(customer[position].dateAdded)}',
-      //         style: TextStyle(
-      //           fontSize: 12.sp,
-      //           fontFamily: 'Segoe ui',
-      //           fontWeight: FontWeight.w500,
-      //           color: Colors.black87,
-      //         ),
-      //       ),
-      //       SizedBox(
-      //         height: 3.h,
-      //       ),
-      //       Divider(
-      //         color: Colors.black54,
-      //       ),
-      //       SizedBox(
-      //         height: 5.h,
-      //       ),
-      //       Text(
-      //         'Detail Status',
-      //         style: TextStyle(
-      //           fontSize: 18.sp,
-      //           fontFamily: 'Segoe ui',
-      //           fontWeight: FontWeight.w600,
-      //           color: Colors.black87,
-      //         ),
-      //       ),
-      //       SizedBox(
-      //         height: 10.h,
-      //       ),
-      //       Row(
-      //         children: [
-      //           SizedBox(
-      //             width: 15.w,
-      //           ),
-      //           SizedBox(
-      //             width: 45.w,
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                 vertical: 5.r,
-      //               ),
-      //               decoration: BoxDecoration(
-      //                 border: Border.all(color: Colors.black54),
-      //                 borderRadius: BorderRadius.circular(5.r),
-      //               ),
-      //               child: Center(
-      //                 child: Text(
-      //                   'SM',
-      //                   style: TextStyle(
-      //                     fontSize: 15.sp,
-      //                     fontFamily: 'Segoe ui',
-      //                     fontWeight: FontWeight.w600,
-      //                     color: Colors.black54,
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //           SizedBox(
-      //             width: 15.w,
-      //           ),
-      //           Expanded(
-      //             child: Column(
-      //               crossAxisAlignment: CrossAxisAlignment.start,
-      //               children: [
-      //                 Text(
-      //                   'Sales Manager',
-      //                   style: TextStyle(
-      //                     fontSize: 15.sp,
-      //                     fontFamily: 'Segoe ui',
-      //                     fontWeight: FontWeight.w600,
-      //                     color: Colors.black87,
-      //                   ),
-      //                 ),
-      //                 Text(
-      //                   customer[position].ttdSalesManager == "0"
-      //                       ? 'Menunggu Persetujuan Sales Manager'
-      //                       : customer[position].ttdSalesManager == "1"
-      //                           ? 'Disetujui oleh Sales Manager ${convertDateWithMonth(customer[position].dateSM)}'
-      //                           : 'Ditolak oleh Sales Manager ${convertDateWithMonth(customer[position].dateSM)}',
-      //                   style: TextStyle(
-      //                     fontSize: 14.sp,
-      //                     fontFamily: 'Segoe ui',
-      //                     fontWeight: FontWeight.w500,
-      //                     color: Colors.black,
-      //                   ),
-      //                   softWrap: true,
-      //                   overflow: TextOverflow.visible,
-      //                 ),
-      //                 contract.approvalSm.contains('2')
-      //                     ? SizedBox(
-      //                         height: 5.h,
-      //                       )
-      //                     : SizedBox(
-      //                         width: 3.w,
-      //                       ),
-      //                 contract.approvalSm.contains('2')
-      //                     ? Text(
-      //                         'Keterangan : ',
-      //                         style: TextStyle(
-      //                           fontSize: 15.sp,
-      //                           fontFamily: 'Segoe ui',
-      //                           fontWeight: FontWeight.w600,
-      //                         ),
-      //                       )
-      //                     : SizedBox(
-      //                         width: 3.w,
-      //                       ),
-      //                 contract.approvalSm.contains('2')
-      //                     ? Text(
-      //                         reasonSM,
-      //                         softWrap: true,
-      //                         overflow: TextOverflow.visible,
-      //                         style: TextStyle(
-      //                           fontSize: 14.sp,
-      //                           fontFamily: 'Segoe ui',
-      //                           fontWeight: FontWeight.w500,
-      //                         ),
-      //                       )
-      //                     : SizedBox(
-      //                         width: 3.w,
-      //                       ),
-      //               ],
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //       SizedBox(
-      //         height: 15.h,
-      //       ),
-      //       Row(
-      //         children: [
-      //           SizedBox(
-      //             width: 15.w,
-      //           ),
-      //           SizedBox(
-      //             width: 45.w,
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                 vertical: 5.r,
-      //               ),
-      //               decoration: BoxDecoration(
-      //                 border: Border.all(color: Colors.black54),
-      //                 borderRadius: BorderRadius.circular(5.r),
-      //               ),
-      //               child: Center(
-      //                 child: Text(
-      //                   'AM',
-      //                   style: TextStyle(
-      //                     fontSize: 15.sp,
-      //                     fontFamily: 'Segoe ui',
-      //                     fontWeight: FontWeight.w600,
-      //                     color: Colors.black54,
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //           SizedBox(
-      //             width: 15.w,
-      //           ),
-      //           Expanded(
-      //             child: Column(
-      //               crossAxisAlignment: CrossAxisAlignment.start,
-      //               children: [
-      //                 Text(
-      //                   'AR Manager',
-      //                   style: TextStyle(
-      //                     fontSize: 15.sp,
-      //                     fontFamily: 'Segoe ui',
-      //                     fontWeight: FontWeight.w600,
-      //                     color: Colors.black87,
-      //                   ),
-      //                 ),
-      //                 Text(
-      //                   customer[position].ttdArManager == "0"
-      //                       ? 'Menunggu Persetujuan AR Manager'
-      //                       : customer[position].ttdArManager == "1"
-      //                           ? 'Disetujui oleh AR Manager ${convertDateWithMonth(customer[position].dateAM)}'
-      //                           : 'Ditolak oleh AR Manager ${convertDateWithMonth(customer[position].dateAM)}',
-      //                   style: TextStyle(
-      //                     fontSize: 14.sp,
-      //                     fontFamily: 'Segoe ui',
-      //                     fontWeight: FontWeight.w500,
-      //                     color: Colors.black,
-      //                   ),
-      //                   softWrap: true,
-      //                   overflow: TextOverflow.visible,
-      //                 ),
-      //                 contract.approvalAm.contains('2')
-      //                     ? SizedBox(
-      //                         height: 5.h,
-      //                       )
-      //                     : SizedBox(
-      //                         width: 3.w,
-      //                       ),
-      //                 contract.approvalAm.contains('2')
-      //                     ? Text(
-      //                         'Keterangan : ',
-      //                         style: TextStyle(
-      //                           fontSize: 15.sp,
-      //                           fontFamily: 'Segoe ui',
-      //                           fontWeight: FontWeight.w600,
-      //                         ),
-      //                       )
-      //                     : SizedBox(
-      //                         width: 3.w,
-      //                       ),
-      //                 contract.approvalAm.contains('2')
-      //                     ? Text(
-      //                         reasonAM,
-      //                         softWrap: true,
-      //                         overflow: TextOverflow.visible,
-      //                         style: TextStyle(
-      //                           fontSize: 14.sp,
-      //                           fontFamily: 'Segoe ui',
-      //                           fontWeight: FontWeight.w500,
-      //                         ),
-      //                       )
-      //                     : SizedBox(
-      //                         width: 3.w,
-      //                       ),
-      //               ],
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //       SizedBox(
-      //         height: 20.h,
-      //       ),
-      //       Center(
-      //         child: ArgonButton(
-      //           height: 40.h,
-      //           width: 110.w,
-      //           borderRadius: 30.0.r,
-      //           color: Colors.blue[700],
-      //           child: Text(
-      //             "Lebih Lengkap",
-      //             style: TextStyle(
-      //                 color: Colors.white,
-      //                 fontSize: 14.sp,
-      //                 fontWeight: FontWeight.w700),
-      //           ),
-      //           loader: Container(
-      //             padding: EdgeInsets.all(8.r),
-      //             child: CircularProgressIndicator(
-      //               color: Colors.white,
-      //             ),
-      //           ),
-      //           onTap: (startLoading, stopLoading, btnState) {
-      //             if (btnState == ButtonState.Idle) {
-      //               startLoading();
-      //               waitingLoad();
-      //               idCust != null
-      //                   ? Navigator.of(context).push(
-      //                       MaterialPageRoute(
-      //                         builder: (context) => DetailContractRejected(
-      //                           item: contract,
-      //                           div: div,
-      //                           ttd: ttd,
-      //                           username: username,
-      //                           isNewCust: true,
-      //                         ),
-      //                       ),
-      //                     )
-      //                   : handleStatus(
-      //                       context, 'Id customer tidak ditemukan', false);
-      //               stopLoading();
-      //             }
-      //           },
-      //         ),
-      //       ),
-      //       SizedBox(
-      //         height: 10.h,
-      //       ),
-      //     ],
-      //   ),
-      // );
     },
   );
 }
@@ -1602,14 +1157,16 @@ void checkUpdate(BuildContext context) {
   }
 }
 
-getCustomerContractNew(
-    {BuildContext context,
-    dynamic idCust,
-    String divisi,
-    String ttdPertama,
-    String username,
-    bool isSales,
-    bool isContract}) async {
+getCustomerContractNew({
+  BuildContext context,
+  dynamic idCust,
+  String divisi,
+  String ttdPertama,
+  String username,
+  bool isSales,
+  bool isContract,
+  bool isHorizontal,
+}) async {
   const timeout = 15;
   var url =
       'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
@@ -1636,11 +1193,21 @@ getCustomerContractNew(
           isContract,
         );
       } else {
-        handleStatus(context, 'Harap ajukan kontrak baru', false);
+        handleStatus(
+          context,
+          'Harap ajukan kontrak baru',
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
+      handleStatus(
+        context,
+        e.toString(),
+        false,
+        isHorizontal: isHorizontal,
+      );
     }
   } on TimeoutException catch (e) {
     print('Timeout Error : $e');
@@ -1650,7 +1217,12 @@ getCustomerContractNew(
     handleSocket(context);
   } on Error catch (e) {
     print('General Error : $e');
-    handleStatus(context, e.toString(), false);
+    handleStatus(
+      context,
+      e.toString(),
+      false,
+      isHorizontal: isHorizontal,
+    );
   }
 }
 

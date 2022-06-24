@@ -68,7 +68,7 @@ class _SignedScreenState extends State<SignedScreen> {
           ),
           Container(
             width: MediaQuery.of(context).size.width,
-            height: isHorizontal ? 200.sp : 150.h,
+            height: isHorizontal ? 250.h : 150.h,
             decoration: BoxDecoration(
               border: Border.all(
                 color: Colors.black54,
@@ -167,7 +167,7 @@ class _SignedScreenState extends State<SignedScreen> {
                     ),
                     Signature(
                       controller: _signController,
-                      height: 200.h,
+                      height: 250.h,
                       backgroundColor: Colors.blueGrey.shade50,
                     ),
                     SizedBox(
@@ -214,7 +214,12 @@ class _SignedScreenState extends State<SignedScreen> {
                             ),
                           ),
                           onPressed: () {
-                            handleDigitalSigned(_signController, context, id);
+                            handleDigitalSigned(
+                              _signController,
+                              context,
+                              id,
+                              isHorizontal: true,
+                            );
                           },
                         ),
                       ],
@@ -348,7 +353,12 @@ class _SignedScreenState extends State<SignedScreen> {
                           ),
                         ),
                         onPressed: () {
-                          handleDigitalSigned(_signController, context, id);
+                          handleDigitalSigned(
+                            _signController,
+                            context,
+                            id,
+                            isHorizontal: false,
+                          );
                         },
                       ),
                     ],

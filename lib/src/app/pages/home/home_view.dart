@@ -100,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _isConnected = true;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -112,7 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _isConnected = false;
     } on Error catch (e) {
       print('Error : $e');
-      handleStatus(context, e.toString(), false);
       _isConnected = false;
     }
   }
@@ -148,7 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -204,7 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');

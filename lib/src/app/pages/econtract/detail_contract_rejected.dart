@@ -51,7 +51,6 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -61,7 +60,6 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
       handleConnectionAdmin(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -93,7 +91,6 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -114,7 +111,8 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
     getCustomer(widget.item.idCustomer);
   }
 
-  Future<List<Discount>> getDiscountData(dynamic idContract) async {
+  Future<List<Discount>> getDiscountData(dynamic idContract,
+      {bool isHorizontal}) async {
     List<Discount> list;
     const timeout = 15;
     var url =
@@ -138,7 +136,12 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -150,7 +153,8 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
   }
 
   approveCustomerReject(BuildContext context, bool isAr, String idCust,
-      String ttd, String username) async {
+      String ttd, String username,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
@@ -182,11 +186,22 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
         final bool sts = res['status'];
         final String msg = res['message'];
 
-        approveContractReject(isAr, idCust, username, isCust: true);
+        approveContractReject(
+          isAr,
+          idCust,
+          username,
+          isCust: true,
+          isHorizontal: isHorizontal,
+        );
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -202,13 +217,18 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
   approveContractReject(bool isAr, String idCust, String username,
-      {bool isCust}) async {
+      {bool isCust, bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
         ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
@@ -238,11 +258,21 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
         final bool sts = res['status'];
         final String msg = res['message'];
 
-        handleCustomStatus(context, capitalize(msg), sts);
+        handleCustomStatus(
+          context,
+          capitalize(msg),
+          sts,
+          isHorizontal: isHorizontal,
+        );
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -251,33 +281,52 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
       !isCust ? handleConnectionAdmin(context) : print('Socket Error : $e');
     } on Error catch (e) {
       !isCust
-          ? handleStatus(context, e.toString(), false)
+          ? handleStatus(
+              context,
+              e.toString(),
+              false,
+              isHorizontal: isHorizontal,
+            )
           : print('General Error : $e');
     }
   }
 
-  void handleContract() {
+  void handleContract({bool isHorizontal}) {
     widget.div == "AR"
         ? approveContractReject(
             true,
             widget.item.idCustomer,
             widget.username,
             isCust: false,
+            isHorizontal: isHorizontal,
           )
         : approveContractReject(
             false,
             widget.item.idCustomer,
             widget.username,
             isCust: false,
+            isHorizontal: isHorizontal,
           );
   }
 
-  void handleCustomer() {
+  void handleCustomer({bool isHorizontal}) {
     widget.div == "AR"
         ? approveCustomerReject(
-            context, true, widget.item.idCustomer, widget.ttd, widget.username)
-        : approveCustomerReject(context, false, widget.item.idCustomer,
-            widget.ttd, widget.username);
+            context,
+            true,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            isHorizontal: isHorizontal,
+          )
+        : approveCustomerReject(
+            context,
+            false,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            isHorizontal: isHorizontal,
+          );
   }
 
   @override
@@ -1215,8 +1264,12 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                             startLoading();
                             waitingLoad();
                             widget.isNewCust
-                                ? handleCustomer()
-                                : handleContract();
+                                ? handleCustomer(
+                                    isHorizontal: isHor,
+                                  )
+                                : handleContract(
+                                    isHorizontal: isHor,
+                                  );
                             stopLoading();
                           }
                         },
@@ -1315,9 +1368,12 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
           width: double.maxFinite.w,
           height: 170.h,
           child: FutureBuilder(
-              future: getDiscountData(widget.item.hasParent.contains('1')
-                  ? widget.item.idContractParent
-                  : widget.item.idContract),
+              future: getDiscountData(
+                widget.item.hasParent.contains('1')
+                    ? widget.item.idContractParent
+                    : widget.item.idContract,
+                isHorizontal: isHorizontal,
+              ),
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
@@ -1372,7 +1428,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
             child: Row(
               children: [
                 Container(
-                   width: isHorizontal
+                  width: isHorizontal
                       ? MediaQuery.of(context).size.width * 0.64
                       : MediaQuery.of(context).size.width * 0.62,
                   child: Text(

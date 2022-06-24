@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
-import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/product.dart';
 import 'package:http/http.dart' as http;
 
@@ -43,7 +42,6 @@ class _MultiProductDiscState extends State<MultiProductDisc> {
       return list;
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -87,7 +85,6 @@ class _MultiProductDiscState extends State<MultiProductDisc> {
           debugPrint("Prodcat: ${item.product.prodcat}");
           debugPrint("Proddesc: ${item.product.proddesc}");
           debugPrint("Diskon: ${item.product.diskon}");
-          // postMulti(item.proddiv.proddiv, item.proddiv.diskon);
         }
       }
     } else {

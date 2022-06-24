@@ -123,7 +123,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -161,7 +160,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -176,10 +174,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('Is disabled : $_isContractActive');
   }
 
-  void handleContractActive() {
+  void handleContractActive({bool isHorizontal}) {
     _isContractActive
         ? Navigator.pop(context)
-        : handleStatus(context, 'Optik tidak memiliki kontrak active', false);
+        : handleStatus(
+            context,
+            'Optik tidak memiliki kontrak active',
+            false,
+            isHorizontal: isHorizontal,
+          );
   }
 
   Future<List<StbCustomer>> getSearchParent(String input) async {
@@ -211,7 +214,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -221,7 +223,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -252,7 +253,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -262,7 +262,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -320,7 +319,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
         getItemProdDiv();
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -332,7 +330,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
       _isNetworkConnected = false;
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
       _isNetworkConnected = false;
     }
   }
@@ -384,11 +381,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
       return list;
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
-  checkInput(Function stop) async {
+  checkInput(Function stop, {bool isHorizontal}) async {
     if (_chosenNikon == null) {
       _chosenNikon = '-';
     }
@@ -473,19 +469,34 @@ class _EcontractScreenState extends State<EcontractScreen> {
             _isContractActive
                 ? print('Ini child')
                 : _isRegularDisc
-                    ? simpanDiskon(idCustomer)
-                    : multipleInputDiskon();
+                    ? simpanDiskon(
+                        idCustomer,
+                        isHorizontal: isHorizontal,
+                      )
+                    : multipleInputDiskon(
+                        isHorizontal: isHorizontal,
+                      );
           }
 
           if (mounted) {
-            handleStatus(context, capitalize(msg), sts);
+            handleStatus(
+              context,
+              capitalize(msg),
+              sts,
+              isHorizontal: isHorizontal,
+            );
           }
 
           setState(() {});
         } on FormatException catch (e) {
           print('Format Error : $e');
           if (mounted) {
-            handleStatus(context, e.toString(), false);
+            handleStatus(
+              context,
+              e.toString(),
+              false,
+              isHorizontal: isHorizontal,
+            );
           }
         }
       } on TimeoutException catch (e) {
@@ -501,18 +512,28 @@ class _EcontractScreenState extends State<EcontractScreen> {
       } on Error catch (e) {
         print('General Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
 
       stop();
     } else {
-      handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
+      handleStatus(
+        context,
+        'Harap lengkapi data terlebih dahulu',
+        false,
+        isHorizontal: isHorizontal,
+      );
       stop();
     }
   }
 
-  multipleInputDiskon() async {
+  multipleInputDiskon({bool isHorizontal}) async {
     bool allValid = true;
 
     formDisc
@@ -526,8 +547,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Alias: ${item.proddiv.alias}");
           debugPrint("Diskon: ${item.proddiv.diskon}");
           debugPrint("Is Checked : ${item.proddiv.ischecked}");
-          postMultiDiv(idCustomer, item.proddiv.proddiv, item.proddiv.diskon,
-              item.proddiv.alias);
+          postMultiDiv(
+            idCustomer,
+            item.proddiv.proddiv,
+            item.proddiv.diskon,
+            item.proddiv.alias,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } else {
@@ -548,12 +574,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
           debugPrint("Diskon: ${item.product.diskon}");
 
           postMultiItem(
-              idCustomer,
-              item.product.categoryid,
-              item.product.proddiv,
-              item.product.prodcat,
-              item.product.proddesc,
-              item.product.diskon);
+            idCustomer,
+            item.product.categoryid,
+            item.product.proddiv,
+            item.product.prodcat,
+            item.product.proddesc,
+            item.product.diskon,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } else {
@@ -561,8 +589,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
-  postMultiDiv(
-      String idCust, String proddiv, String diskon, String alias) async {
+  postMultiDiv(String idCust, String proddiv, String diskon, String alias,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
@@ -589,7 +617,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -605,13 +638,19 @@ class _EcontractScreenState extends State<EcontractScreen> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
   postMultiItem(String idCust, String categoryId, String prodDiv,
-      String prodCat, String prodDesc, String disc) async {
+      String prodCat, String prodDesc, String disc,
+      {bool isHorizontal}) async {
     const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
@@ -640,7 +679,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -656,12 +700,17 @@ class _EcontractScreenState extends State<EcontractScreen> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
 
-  simpanDiskon(String idCust) async {
+  simpanDiskon(String idCust, {bool isHorizontal}) async {
     const timeout = 15;
     var url =
         'http://timurrayalab.com/salesforce/server/api/discount/defaultDiscount';
@@ -689,7 +738,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
   }
@@ -1622,7 +1676,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         startLoading();
                         waitingLoad();
                         _isNetworkConnected
-                            ? checkInput(stopLoading)
+                            ? checkInput(
+                                stopLoading,
+                                isHorizontal: isHorizontal,
+                              )
                             : handleConnection(context);
                       });
                     }
@@ -1675,7 +1732,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
-  Widget selectParent() {
+  Widget selectParent({bool isHorizontal}) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
         title: Text('Pilih Optik Parent'),
@@ -1701,7 +1758,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   child: Text("Batal"),
                 ),
                 ElevatedButton(
-                  onPressed: () => handleContractActive(),
+                  onPressed: () => handleContractActive(
+                    isHorizontal: isHorizontal,
+                  ),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.blue,
                   ),
@@ -2009,7 +2068,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                   barrierDismissible: false,
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return selectParent();
+                                    return selectParent(
+                                      isHorizontal: isHorizontal,
+                                    );
                                   }).then((_) => setState(() {}))
                               : itemStbCust.clear();
                         });

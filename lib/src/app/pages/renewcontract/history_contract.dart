@@ -68,7 +68,6 @@ class _HistoryContractState extends State<HistoryContract> {
       }
     } on FormatException catch (e) {
       print('Format Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -96,7 +95,6 @@ class _HistoryContractState extends State<HistoryContract> {
         _isConnected = true;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -110,7 +108,6 @@ class _HistoryContractState extends State<HistoryContract> {
       _isConnected = false;
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
       _isConnected = false;
     }
   }
@@ -139,7 +136,6 @@ class _HistoryContractState extends State<HistoryContract> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -470,7 +466,8 @@ class _HistoryContractState extends State<HistoryContract> {
                                     child: ArgonButton(
                                       height: isHorizontal ? 55.h : 30.h,
                                       width: isHorizontal ? 85.w : 100.w,
-                                      borderRadius: isHorizontal ? 60.r : 30.0.r,
+                                      borderRadius:
+                                          isHorizontal ? 60.r : 30.0.r,
                                       color: Colors.blue[600],
                                       child: Text(
                                         "Ubah kontrak",
@@ -685,9 +682,14 @@ class _HistoryContractState extends State<HistoryContract> {
                           ttdPertama: ttdPertama,
                           isSales: true,
                           isContract: false,
+                          isHorizontal: isHorizontal,
                         )
                       : handleStatus(
-                          context, 'Id customer tidak ditemukan', false);
+                          context,
+                          'Id customer tidak ditemukan',
+                          false,
+                          isHorizontal: isHorizontal,
+                        );
             },
           );
         },

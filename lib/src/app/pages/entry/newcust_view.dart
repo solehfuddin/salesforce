@@ -281,7 +281,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  checkEntry(Function stop) async {
+  checkEntry(Function stop, {bool isHorizontal}) async {
     textNamaUser.text.isEmpty ? _isNamaUser = true : _isNamaUser = false;
     textTempatLahir.text.isEmpty
         ? _isTempatLahir = true
@@ -347,11 +347,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
     }
 
     if (_chosenValue == null) {
-      _chosenValue = 'Islam';
+      _chosenValue = 'ISLAM';
     }
 
     if (_chosenBilling == null) {
-      _chosenBilling = 'Cash & Carry';
+      _chosenBilling = 'CASH & CARRY';
     }
 
     sistemPembayaran = _chosenBilling;
@@ -382,10 +382,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
         !_isFaxUserValid &&
         !_isNamaPic) {
       if (_isFotoKtp) {
-        handleStatus(context, 'Silahkan foto ktp terlebih dahulu', false);
+        handleStatus(
+          context,
+          'Silahkan foto ktp terlebih dahulu',
+          false,
+          isHorizontal: isHorizontal,
+        );
         stop();
       } else if (_signController.isEmpty) {
-        handleStatus(context, 'Silahkan tanda tangan terlebih dahulu', false);
+        handleStatus(
+          context,
+          'Silahkan tanda tangan terlebih dahulu',
+          false,
+          isHorizontal: isHorizontal,
+        );
         stop();
       } else {
         var data = await _signController.toPngBytes();
@@ -395,15 +405,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
         if (base64ImageSiup == null) {
           base64ImageSiup = 'kosong';
         }
-        simpanData(stop);
+        simpanData(stop, isHorizontal: isHorizontal);
       }
     } else {
-      handleStatus(context, 'Harap lengkapi data terlebih dahulu', false);
+      handleStatus(
+        context,
+        'Harap lengkapi data terlebih dahulu',
+        false,
+        isHorizontal: isHorizontal,
+      );
       stop();
     }
   }
 
-  simpanData(Function stop) async {
+  simpanData(Function stop, {bool isHorizontal}) async {
     const timeout = 15;
     var url = 'http://timurrayalab.com/salesforce/server/api/customers';
 
@@ -447,12 +462,22 @@ class _NewcustScreenState extends State<NewcustScreen> {
         final String msg = res['message'];
 
         if (mounted) {
-          handleStatus(context, capitalize(msg), sts);
+          handleStatus(
+            context,
+            capitalize(msg),
+            sts,
+            isHorizontal: isHorizontal,
+          );
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
         if (mounted) {
-          handleStatus(context, e.toString(), false);
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
         }
       }
     } on TimeoutException catch (e) {
@@ -468,7 +493,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
     } on Error catch (e) {
       print('General Error : $e');
       if (mounted) {
-        handleStatus(context, e.toString(), false);
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
       }
     }
 
@@ -1603,8 +1633,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     setState(() {
                       startLoading();
                       waitingLoad();
-                      checkEntry(stopLoading);
-                      // stopLoading();
+                      checkEntry(
+                        stopLoading,
+                        isHorizontal: isHorizontal,
+                      );
                     });
                   }
                 },

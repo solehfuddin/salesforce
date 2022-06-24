@@ -78,7 +78,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -90,7 +89,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -118,7 +116,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -128,7 +125,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -169,7 +165,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -179,7 +174,6 @@ class _CustomerScreenState extends State<CustomerScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 

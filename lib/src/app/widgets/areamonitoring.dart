@@ -294,6 +294,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
         idCust: item[index].idCustomer,
         isSales: true,
         isContract: false,
+        isHorizontal: isHorizontal,
       );
     },
   );

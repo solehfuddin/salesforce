@@ -25,7 +25,7 @@ class _LoginState extends State<Login> {
   bool _isUsername = false;
   bool _isPassword = false;
 
-  check() {
+  check({bool isHorizontal}) {
     textUsername.text.isEmpty ? _isUsername = true : _isUsername = false;
     textPassword.text.isEmpty ? _isPassword = true : _isPassword = false;
 
@@ -34,7 +34,12 @@ class _LoginState extends State<Login> {
 
     username = textUsername.text;
     password = textPassword.text;
-    login(username, password, context);
+    login(
+      username,
+      password,
+      context,
+      isHorizontal: isHorizontal,
+    );
   }
 
   @override
@@ -109,8 +114,14 @@ class _LoginState extends State<Login> {
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 50.r),
-                          child: LoginTextfield(15, 0, "USERNAME", "USERNAME",
-                              textUsername, _isUsername),
+                          child: LoginTextfield(
+                            15,
+                            0,
+                            "USERNAME",
+                            "USERNAME",
+                            textUsername,
+                            _isUsername,
+                          ),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 50.r),
@@ -127,7 +138,9 @@ class _LoginState extends State<Login> {
                             child: ElevatedButton.icon(
                               onPressed: () {
                                 setState(() {
-                                  check();
+                                  check(
+                                    isHorizontal: true,
+                                  );
                                 });
                               },
                               icon: Icon(

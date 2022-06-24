@@ -61,7 +61,6 @@ class _SearchContractState extends State<SearchContract> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -71,7 +70,6 @@ class _SearchContractState extends State<SearchContract> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -102,7 +100,6 @@ class _SearchContractState extends State<SearchContract> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -139,7 +136,6 @@ class _SearchContractState extends State<SearchContract> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -149,7 +145,6 @@ class _SearchContractState extends State<SearchContract> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -358,7 +353,7 @@ class _SearchContractState extends State<SearchContract> {
                             ],
                           ),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
                                 'Sisa Kontrak',
@@ -399,9 +394,14 @@ class _SearchContractState extends State<SearchContract> {
                           ttdPertama: ttdPertama,
                           isSales: true,
                           isContract: false,
+                          isHorizontal: isHorizontal,
                         )
                       : handleStatus(
-                          context, 'Id customer tidak ditemukan', false);
+                          context,
+                          'Id customer tidak ditemukan',
+                          false,
+                          isHorizontal: isHorizontal,
+                        );
                 },
               );
             }),

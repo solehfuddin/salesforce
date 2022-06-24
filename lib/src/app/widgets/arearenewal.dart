@@ -65,14 +65,16 @@ SliverPadding areaHeaderRenewal({bool isHorizontal}) {
 }
 
 SliverPadding areaRenewal(List<Contract> item, BuildContext context,
-    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
+    String ttdPertama, String username, String divisi,
+    {bool isHorizontal}) {
   return SliverPadding(
-    padding: EdgeInsets.symmetric(horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
+    padding: EdgeInsets.symmetric(
+        horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
-          return itemRenewal(
-              item, index, context, ttdPertama, username, divisi, isHorizontal: isHorizontal);
+          return itemRenewal(item, index, context, ttdPertama, username, divisi,
+              isHorizontal: isHorizontal);
         },
         childCount: item.length,
       ),
@@ -81,14 +83,15 @@ SliverPadding areaRenewal(List<Contract> item, BuildContext context,
 }
 
 Widget itemRenewal(List<Contract> item, int index, BuildContext context,
-    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
+    String ttdPertama, String username, String divisi,
+    {bool isHorizontal}) {
   return InkWell(
     child: Container(
       margin: EdgeInsets.only(
         bottom: 10.r,
       ),
       padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
-      height: isHorizontal ? 120.h :  80.h,
+      height: isHorizontal ? 120.h : 80.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
           Radius.circular(15.r),
@@ -171,7 +174,12 @@ Widget itemRenewal(List<Contract> item, int index, BuildContext context,
                 ),
               ),
             )
-          : handleStatus(context, 'Id customer tidak ditemukan', false);
+          : handleStatus(
+              context,
+              'Id customer tidak ditemukan',
+              false,
+              isHorizontal: isHorizontal,
+            );
     },
   );
 }
@@ -243,10 +251,11 @@ SliverPadding areaRenewalNotFound(BuildContext context, {bool isHorizontal}) {
   );
 }
 
-SliverPadding areaButtonRenewal(BuildContext context, bool isShow, {bool isHorizontal}) {
+SliverPadding areaButtonRenewal(BuildContext context, bool isShow,
+    {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal:  isHorizontal ? 25.r : 15.r,
+      horizontal: isHorizontal ? 25.r : 15.r,
       vertical: isHorizontal ? 20.r : 10.r,
     ),
     sliver: SliverToBoxAdapter(
@@ -254,7 +263,7 @@ SliverPadding areaButtonRenewal(BuildContext context, bool isShow, {bool isHoriz
           ? Center(
               child: ArgonButton(
                 height: isHorizontal ? 60.h : 40.h,
-                width:  isHorizontal ? 90.w : 130.w,
+                width: isHorizontal ? 90.w : 130.w,
                 borderRadius: 30.0.r,
                 color: Colors.blue[600],
                 child: Text(

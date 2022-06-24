@@ -18,7 +18,7 @@ class _LoginFormState extends State<LoginForm> {
   bool _isUsername = false;
   bool _isPassword = false;
 
-  check() {
+  check({bool isHorizontal}) {
     textUsername.text.isEmpty ? _isUsername = true : _isUsername = false;
     textPassword.text.isEmpty ? _isPassword = true : _isPassword = false;
 
@@ -27,7 +27,12 @@ class _LoginFormState extends State<LoginForm> {
 
     username = textUsername.text;
     password = textPassword.text;
-    login(username, password, context);
+    login(
+      username,
+      password,
+      context,
+      isHorizontal: isHorizontal,
+    );
   }
 
   @override
@@ -84,7 +89,9 @@ class _LoginFormState extends State<LoginForm> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
-                      check();
+                      check(
+                        isHorizontal: false,
+                      );
                     });
                   },
                   icon: Icon(

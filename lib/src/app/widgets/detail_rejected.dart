@@ -70,7 +70,8 @@ class _DetailRejectedState extends State<DetailRejected> {
                       : widget.customer[widget.position].status == "Accepted"
                           ? Colors.blue[600]
                           : Colors.red[600],
-                  borderRadius: BorderRadius.circular(isHorizontal ? 15.r : 10.r),
+                  borderRadius:
+                      BorderRadius.circular(isHorizontal ? 15.r : 10.r),
                 ),
                 child: Text(
                   widget.customer[widget.position].status,
@@ -150,7 +151,8 @@ class _DetailRejectedState extends State<DetailRejected> {
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black54),
-                    borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 5.r),
+                    borderRadius:
+                        BorderRadius.circular(isHorizontal ? 10.r : 5.r),
                   ),
                   child: Center(
                     child: Text(
@@ -236,7 +238,7 @@ class _DetailRejectedState extends State<DetailRejected> {
             ],
           ),
           SizedBox(
-            height:  isHorizontal ? 20.h : 15.h,
+            height: isHorizontal ? 20.h : 15.h,
           ),
           Row(
             children: [
@@ -244,14 +246,15 @@ class _DetailRejectedState extends State<DetailRejected> {
                 width: isHorizontal ? 10.w : 15.w,
               ),
               SizedBox(
-                width:isHorizontal ? 30.w :  45.w,
+                width: isHorizontal ? 30.w : 45.w,
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    vertical:  isHorizontal ? 10.r : 5.r,
+                    vertical: isHorizontal ? 10.r : 5.r,
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black54),
-                    borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 5.r),
+                    borderRadius:
+                        BorderRadius.circular(isHorizontal ? 10.r : 5.r),
                   ),
                   child: Center(
                     child: Text(
@@ -299,7 +302,7 @@ class _DetailRejectedState extends State<DetailRejected> {
                     ),
                     widget.contract.approvalAm.contains('2')
                         ? SizedBox(
-                            height:  isHorizontal ? 8.h : 5.h,
+                            height: isHorizontal ? 8.h : 5.h,
                           )
                         : SizedBox(
                             width: 3.w,
@@ -340,7 +343,7 @@ class _DetailRejectedState extends State<DetailRejected> {
           ),
           Center(
             child: ArgonButton(
-              height: isHorizontal ? 70.h: 40.h,
+              height: isHorizontal ? 70.h : 40.h,
               width: isHorizontal ? 80.w : 110.w,
               borderRadius: isHorizontal ? 60.r : 30.0.r,
               color: Colors.blue[700],
@@ -374,7 +377,11 @@ class _DetailRejectedState extends State<DetailRejected> {
                           ),
                         )
                       : handleStatus(
-                          context, 'Id customer tidak ditemukan', false);
+                          context,
+                          'Id customer tidak ditemukan',
+                          false,
+                          isHorizontal: isHorizontal,
+                        );
                   stopLoading();
                 }
               },

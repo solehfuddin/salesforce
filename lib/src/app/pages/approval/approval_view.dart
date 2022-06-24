@@ -54,7 +54,6 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -64,7 +63,6 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
       handleConnectionAdmin(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -93,7 +91,6 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -145,7 +142,6 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -155,7 +151,6 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 

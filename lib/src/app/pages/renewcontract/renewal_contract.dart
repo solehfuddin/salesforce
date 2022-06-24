@@ -72,7 +72,6 @@ class _RenewalContractState extends State<RenewalContract> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -108,7 +107,6 @@ class _RenewalContractState extends State<RenewalContract> {
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -120,7 +118,6 @@ class _RenewalContractState extends State<RenewalContract> {
           : handleConnection(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
@@ -168,7 +165,6 @@ class _RenewalContractState extends State<RenewalContract> {
         return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
-        handleStatus(context, e.toString(), false);
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
@@ -180,7 +176,6 @@ class _RenewalContractState extends State<RenewalContract> {
           : handleConnection(context);
     } on Error catch (e) {
       print('General Error : $e');
-      handleStatus(context, e.toString(), false);
     }
   }
 
