@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     checkIntro();
-    checkUpdate(context);git 
+    checkUpdate(context);
   }
 
   @override
