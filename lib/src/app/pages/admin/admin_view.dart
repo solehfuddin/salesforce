@@ -718,7 +718,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         ),
                       ),
                       _isPerform
-                          ? areaLoadingRenewal()
+                          ? areaLoadingRenewal(isHorizontal: true,)
                           : areaDonutChartHor(
                               dataPie: _samplePie,
                               startDate: stDate,
@@ -728,7 +728,7 @@ class _AdminScreenState extends State<AdminScreen> {
                               context: context),
                       areaHeaderRenewal(isHorizontal: true),
                       _isLoadRenewal
-                          ? areaLoadingRenewal()
+                          ? areaLoadingRenewal(isHorizontal: true,)
                           : listContract.length > 0
                               ? areaRenewal(listContract, context, ttdPertama,
                                   username, divisi,
@@ -744,7 +744,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       ),
                       areaHeaderMonitoring(isHorizontal: true),
                       _isLoading
-                          ? areaLoading()
+                          ? areaLoading(isHorizontal: true,)
                           : listMonitoring.length > 0
                               ? areaMonitoring(
                                   listMonitoring,
@@ -888,7 +888,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       ),
                     ),
                     _isPerform
-                        ? areaLoadingRenewal()
+                        ? areaLoadingRenewal(isHorizontal: false,)
                         : areaDonutChart(
                             dataPie: _samplePie,
                             startDate: stDate,
@@ -902,7 +902,7 @@ class _AdminScreenState extends State<AdminScreen> {
                     ),
                     areaHeaderRenewal(isHorizontal: false),
                     _isLoadRenewal
-                        ? areaLoadingRenewal()
+                        ? areaLoadingRenewal(isHorizontal: false,)
                         : listContract.length > 0
                             ? areaRenewal(listContract, context, ttdPertama,
                                 username, divisi,
@@ -916,7 +916,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         isHorizontal: false),
                     areaHeaderMonitoring(isHorizontal: false),
                     _isLoading
-                        ? areaLoading()
+                        ? areaLoading(isHorizontal: false,)
                         : listMonitoring.length > 0
                             ? areaMonitoring(
                                 listMonitoring,

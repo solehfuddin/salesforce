@@ -174,7 +174,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('Is disabled : $_isContractActive');
   }
 
-  void handleContractActive({bool isHorizontal}) {
+  void handleContractActive({bool isHorizontal, BuildContext context,}) {
     _isContractActive
         ? Navigator.pop(context)
         : handleStatus(
@@ -1735,100 +1735,103 @@ class _EcontractScreenState extends State<EcontractScreen> {
   Widget selectParent({bool isHorizontal}) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
+        scrollable: true,
         title: Text('Pilih Optik Parent'),
-        actions: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20.r,
-              vertical: 5.r,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red.shade700,
+        content: Container(
+          height: MediaQuery.of(context).size.height / 1.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 350.w,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 5.r,
+                  vertical: 10.r,
+                ),
+                color: Colors.white,
+                height: 80.h,
+                child: TextField(
+                  textInputAction: TextInputAction.search,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                    hintText: 'Pencarian data ...',
+                    prefixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white70,
+                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
+                    ),
                   ),
-                  onPressed: () {
-                    this._isChildContract = false;
-                    itemStbCust.clear();
-                    itemActiveContract.clear();
-                    Navigator.pop(context);
+                  onSubmitted: (value) {
+                    setState(() {
+                      search = value;
+                    });
                   },
-                  child: Text("Batal"),
                 ),
-                ElevatedButton(
-                  onPressed: () => handleContractActive(
-                    isHorizontal: isHorizontal,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.blue,
-                  ),
-                  child: Text("Pilih"),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 100.h,
+                  child: FutureBuilder(
+                      future: search.isNotEmpty
+                          ? getSearchParent(search)
+                          : getSearchParent(''),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Center(child: CircularProgressIndicator());
+                          default:
+                            return snapshot.data != null
+                                ? listParentWidget(itemStbCust)
+                                : Center(
+                                    child: Text('Data tidak ditemukan'),
+                                  );
+                        }
+                      }),
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.r,
+                  vertical: 5.r,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red.shade700,
+                      ),
+                      onPressed: () {
+                        this._isChildContract = false;
+                        itemStbCust.clear();
+                        itemActiveContract.clear();
+                        Navigator.pop(context);
+                      },
+                      child: Text("Batal"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => handleContractActive(
+                        isHorizontal: isHorizontal,
+                        context: context,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.blue,
+                      ),
+                      child: Text("Pilih"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: 350.w,
-              padding: EdgeInsets.symmetric(
-                horizontal: 5.r,
-                vertical: 10.r,
-              ),
-              color: Colors.white,
-              height: 80.h,
-              child: TextField(
-                textInputAction: TextInputAction.search,
-                autocorrect: true,
-                decoration: InputDecoration(
-                  hintText: 'Pencarian data ...',
-                  prefixIcon: Icon(Icons.search),
-                  hintStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white70,
-                  contentPadding: EdgeInsets.symmetric(vertical: 3.r),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
-                    borderSide: BorderSide(color: Colors.grey, width: 2.r),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
-                    borderSide: BorderSide(color: Colors.blue, width: 2.r),
-                  ),
-                ),
-                onSubmitted: (value) {
-                  setState(() {
-                    search = value;
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: SizedBox(
-                height: 100.h,
-                child: FutureBuilder(
-                    future: search.isNotEmpty
-                        ? getSearchParent(search)
-                        : getSearchParent(''),
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Center(child: CircularProgressIndicator());
-                        default:
-                          return snapshot.data != null
-                              ? listParentWidget(itemStbCust)
-                              : Center(
-                                  child: Text('Data tidak ditemukan'),
-                                );
-                      }
-                    }),
-              ),
-            ),
-          ],
         ),
       );
     });
@@ -2091,10 +2094,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 child: Card(
                   elevation: 2,
                   child: Container(
-                    height: 60.w,
+                    height: isHorizontal ? 115.h : 65.h,
                     padding: EdgeInsets.symmetric(
-                      horizontal: 15.r,
-                      vertical: 10.r,
+                      horizontal: isHorizontal ? 25.r : 15.r,
+                      vertical: isHorizontal ? 20.r : 10.r,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2107,7 +2110,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               child: Text(
                                 itemActiveContract[0].customerBillName,
                                 style: TextStyle(
-                                  fontSize: 14.sp,
+                                  fontSize: isHorizontal ? 24.sp : 14.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -2118,7 +2121,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               child: Text(
                                 'Kontrak tahun ${itemActiveContract[0].startContract.substring(0, 4)}',
                                 style: TextStyle(
-                                  fontSize: 14.sp,
+                                  fontSize: isHorizontal ? 24.sp : 14.sp,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Segoe ui',
                                   color: Colors.black87,
@@ -2129,8 +2132,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         ),
                         Image.asset(
                           'assets/images/success.png',
-                          width: 25.r,
-                          height: 25.r,
+                          width: isHorizontal ? 45.r : 25.r,
+                          height: isHorizontal ? 45.r : 25.r,
                         ),
                       ],
                     ),

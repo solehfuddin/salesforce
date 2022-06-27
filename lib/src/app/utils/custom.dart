@@ -17,6 +17,7 @@ import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
 import 'package:sample/src/app/widgets/detail_waiting.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
+import 'package:sample/src/app/widgets/dialogstatus.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
@@ -187,69 +188,77 @@ handleSigned(BuildContext context) {
 
 handleStatus(BuildContext context, String msg, bool status,
     {bool isHorizontal = false}) {
-  AlertDialog dialog = new AlertDialog(
-    content: Container(
-      padding: EdgeInsets.only(
-        top: 20.r,
-      ),
-      height: isHorizontal ? 325.h : 205.h,
-      child: Column(
-        children: [
-          Center(
-            child: Image.asset(
-              status
-                  ? 'assets/images/success.png'
-                  : 'assets/images/failure.png',
-              width: isHorizontal ? 110.r : 70.r,
-              height: isHorizontal ? 110.r : 70.r,
-            ),
-          ),
-          SizedBox(
-            height: isHorizontal ? 20.h : 20.h,
-          ),
-          Center(
-            child: Text(
-              msg,
-              style: TextStyle(
-                fontSize: isHorizontal ? 22.sp : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: isHorizontal ? 20.h : 20.h,
-          ),
-          Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                primary: Colors.indigo[600],
-                padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
-              ),
-              child: Text(
-                'Ok',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: isHorizontal ? 22.sp : 14.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Segoe ui',
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop(context);
-                if (status) {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+  // AlertDialog dialog = new AlertDialog(
+  //   content: Container(
+  //     padding: EdgeInsets.only(
+  //       top: 20.r,
+  //     ),
+  //     height: isHorizontal ? 325.h : 205.h,
+  //     child: Column(
+  //       children: [
+  //         Center(
+  //           child: Image.asset(
+  //             status
+  //                 ? 'assets/images/success.png'
+  //                 : 'assets/images/failure.png',
+  //             width: isHorizontal ? 110.r : 70.r,
+  //             height: isHorizontal ? 110.r : 70.r,
+  //           ),
+  //         ),
+  //         SizedBox(
+  //           height: isHorizontal ? 20.h : 20.h,
+  //         ),
+  //         Center(
+  //           child: Text(
+  //             msg,
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 22.sp : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         SizedBox(
+  //           height: isHorizontal ? 20.h : 20.h,
+  //         ),
+  //         Center(
+  //           child: ElevatedButton(
+  //             style: ElevatedButton.styleFrom(
+  //               shape: StadiumBorder(),
+  //               primary: Colors.indigo[600],
+  //               padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
+  //             ),
+  //             child: Text(
+  //               'Ok',
+  //               style: TextStyle(
+  //                 color: Colors.white,
+  //                 fontSize: isHorizontal ? 22.sp : 14.sp,
+  //                 fontWeight: FontWeight.bold,
+  //                 fontFamily: 'Segoe ui',
+  //               ),
+  //             ),
+  //             onPressed: () {
+  //               Navigator.of(context, rootNavigator: true).pop(context);
+  //               if (status) {
+  //                 Navigator.pop(context);
+  //               }
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   ),
+  // );
+
+  // showDialog(context: context, builder: (context) => dialog);
+
+  showDialog(
+    context: context,
+    builder: (context) => DialogStatus(
+      msg: msg,
+      status: status,
     ),
   );
-
-  showDialog(context: context, builder: (context) => dialog);
 }
 
 DateTimeRange _selectedDateRange;

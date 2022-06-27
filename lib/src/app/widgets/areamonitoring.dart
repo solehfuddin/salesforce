@@ -5,7 +5,7 @@ import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
 
-SliverToBoxAdapter areaLoading() {
+SliverToBoxAdapter areaLoading({bool isHorizontal}) {
   return SliverToBoxAdapter(
     child: Column(
       children: [
@@ -22,7 +22,7 @@ SliverToBoxAdapter areaLoading() {
           child: Text(
             'Processing ...',
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: isHorizontal ? 25.sp : 15.sp,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
             ),
@@ -91,8 +91,8 @@ SliverPadding areaMonitoringNotFound(BuildContext context, {bool isHorizontal}) 
           Center(
             child: Image.asset(
               'assets/images/not_found.png',
-              width: isHorizontal ? 370.w : 300.w,
-              height: isHorizontal ? 370.h : 300.h,
+              width: isHorizontal ? 370.w : 230.w,
+              height: isHorizontal ? 370.h : 230.h,
             ),
           ),
           Text(

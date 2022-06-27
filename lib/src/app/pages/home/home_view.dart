@@ -407,7 +407,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         _isPerform
-                            ? areaLoadingRenewal()
+                            ? areaLoadingRenewal(
+                                isHorizontal: true,
+                              )
                             : areaDonutChartHor(
                                 dataPie: _samplePie,
                                 startDate: stDate,
@@ -417,7 +419,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context: context),
                         areaHeaderMonitoring(isHorizontal: true),
                         _isLoading
-                            ? areaLoading()
+                            ? areaLoading(isHorizontal: true,)
                             : listMonitoring.length > 0
                                 ? areaMonitoring(
                                     listMonitoring,
@@ -567,7 +569,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     _isPerform
-                        ? areaLoadingRenewal()
+                        ? areaLoadingRenewal(
+                            isHorizontal: false,
+                          )
                         : areaDonutChart(
                             dataPie: _samplePie,
                             startDate: stDate,
@@ -583,7 +587,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       isHorizontal: false,
                     ),
                     _isLoading
-                        ? areaLoading()
+                        ? areaLoading(isHorizontal: false,)
                         : listMonitoring.length > 0
                             ? areaMonitoring(
                                 listMonitoring,
