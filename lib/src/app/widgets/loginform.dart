@@ -131,7 +131,7 @@ class _LoginFormState extends State<LoginForm> {
             Padding(
               padding: EdgeInsets.only(left: 50, bottom: 35),
               child: Text(
-                'v 1.1.0',
+                'v 1.2.0',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,

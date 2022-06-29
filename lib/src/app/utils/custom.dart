@@ -1119,51 +1119,49 @@ void showError(BuildContext context, dynamic exception) {
   ));
 }
 
-void checkUpdate(BuildContext context) {
-  if (Platform.isAndroid) {
-    AppUpdateInfo _updateInfo;
+Future<void> checkUpdate(BuildContext context) async {
+  AppUpdateInfo _updateInfo;
 
-    InAppUpdate.checkForUpdate().then((info) {
-      _updateInfo = info;
-      if (_updateInfo.updateAvailable) {
-        print('Info : $_updateInfo');
-        print('Update please');
+  InAppUpdate.checkForUpdate().then((info) {
+    _updateInfo = info;
+    if (_updateInfo.updateAvailable) {
+      print('Info : $_updateInfo');
+      print('Update please');
 
-        InAppUpdate.performImmediateUpdate().catchError((e) =>
-            Fluttertoast.showToast(
-                msg: e.toString(),
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16));
+      InAppUpdate.performImmediateUpdate().catchError((e) =>
+          Fluttertoast.showToast(
+              msg: e.toString(),
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16));
 
-        // InAppUpdate.startFlexibleUpdate()
-        //     .then((value) => print('Update please'))
-        //     .catchError((e) => Fluttertoast.showToast(
-        //         msg: e.toString(),
-        //         toastLength: Toast.LENGTH_SHORT,
-        //         gravity: ToastGravity.BOTTOM,
-        //         timeInSecForIosWeb: 1,
-        //         backgroundColor: Colors.red,
-        //         textColor: Colors.white,
-        //         fontSize: 16));
-        SystemNavigator.pop();
-      }
-    }).catchError((e) {
-      Fluttertoast.showToast(
-          msg: 'Pastikan aplikasimu sudah versi terbaru',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16);
+      // InAppUpdate.startFlexibleUpdate()
+      //     .then((value) => print('Update please'))
+      //     .catchError((e) => Fluttertoast.showToast(
+      //         msg: e.toString(),
+      //         toastLength: Toast.LENGTH_SHORT,
+      //         gravity: ToastGravity.BOTTOM,
+      //         timeInSecForIosWeb: 1,
+      //         backgroundColor: Colors.red,
+      //         textColor: Colors.white,
+      //         fontSize: 16));
+      SystemNavigator.pop();
+    }
+  }).catchError((e) {
+    Fluttertoast.showToast(
+        msg: 'Pastikan aplikasimu sudah versi terbaru',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16);
 
-      print(e.toString());
-    });
-  }
+    print(e.toString());
+  });
 }
 
 getCustomerContractNew({

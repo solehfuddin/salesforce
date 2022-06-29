@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
@@ -48,7 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     checkIntro();
-    checkUpdate(context);
+    if (Platform.isAndroid){
+      checkUpdate(context);
+    }
   }
 
   @override

@@ -94,7 +94,7 @@ class _LoginState extends State<Login> {
                                 ),
                               ),
                               Text(
-                                'v 1.1.0',
+                                'v 1.2.0',
                                 style: TextStyle(
                                   fontSize: 27.sp,
                                   fontWeight: FontWeight.bold,
