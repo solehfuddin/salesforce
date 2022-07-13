@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
@@ -78,7 +79,7 @@ class _SearchContractState extends State<SearchContract> {
     const timeout = 15;
 
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
+        '$API_URL/contract/monitoring';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -114,7 +115,7 @@ class _SearchContractState extends State<SearchContract> {
     List<Monitoring> list;
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/search?search=$input';
+        '$API_URL/contract/search?search=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

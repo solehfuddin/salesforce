@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/domain/entities/product.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,7 +22,7 @@ class _MultiProductDiscState extends State<MultiProductDisc> {
   Future<List<Product>> getSearchProduct(String input) async {
     List<Product> list;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/product/search?search=$input';
+        '$API_URL/product/search?search=$input';
     var response = await http.get(url);
     print('Response status: ${response.statusCode}');
 
@@ -52,7 +53,7 @@ class _MultiProductDiscState extends State<MultiProductDisc> {
       if (item.ischecked) {
         selectMapProduct[item.proddiv] = item.proddesc;
         Product itemProduct = Product(item.categoryid, item.proddiv,
-            item.prodcat, item.proddesc, item.status);
+            item.prodcat, item.proddesc, item.diskon, item.status);
         if (!tmpProduct.contains(item.proddesc)) {
           tmpProduct.add(item.proddesc);
           tmpProduct.forEach((element) {

@@ -54,7 +54,7 @@ class _DialogStatusState extends State<DialogStatus> {
         padding: EdgeInsets.only(
           top: 20.r,
         ),
-        height: isHorizontal ? 325.h : 205.h,
+        height: isHorizontal ? 290.h : 225.h,
         child: Column(
           children: [
             Center(
@@ -77,6 +77,7 @@ class _DialogStatusState extends State<DialogStatus> {
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w500,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
             SizedBox(

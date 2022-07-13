@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
@@ -70,8 +71,8 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
     const timeout = 15;
     List<Customer> list;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
-        : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
+        ? '$API_URL/customers/approvedSM'
+        : '$API_URL/customers/approvedAM';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -116,7 +117,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
   getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+        '$API_URL/contract?id_customer=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

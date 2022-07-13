@@ -6,6 +6,7 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/actcontract.dart';
 import 'package:sample/src/domain/entities/contract.dart';
@@ -51,7 +52,7 @@ class _DetailContractState extends State<DetailContract> {
   getDisc(dynamic idContract) async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
+        '$API_URL/discount/getByIdContract?id_contract=$idContract';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -95,7 +96,7 @@ class _DetailContractState extends State<DetailContract> {
   getCustomer(dynamic idCust) async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/customers?id=$idCust';
+        '$API_URL/customers?id=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -146,7 +147,7 @@ class _DetailContractState extends State<DetailContract> {
     itemActiveContract.clear();
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/parentCheck?id_customer=$input';
+        '$API_URL/contract/parentCheck?id_customer=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -182,7 +183,7 @@ class _DetailContractState extends State<DetailContract> {
     const timeout = 15;
     List<Discount> list;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
+        '$API_URL/discount/getByIdContract?id_contract=$idContract';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -222,8 +223,8 @@ class _DetailContractState extends State<DetailContract> {
       {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/approveContractAM';
+        ? '$API_URL/approval/approveContractSM'
+        : '$API_URL/approval/approveContractAM';
 
     try {
       var response = await http
@@ -300,8 +301,8 @@ class _DetailContractState extends State<DetailContract> {
       {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
+        ? '$API_URL/approval/approveSM'
+        : '$API_URL/approval/approveAM';
 
     try {
       var response = await http
@@ -355,8 +356,8 @@ class _DetailContractState extends State<DetailContract> {
       {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/rejectContractAM';
+        ? '$API_URL/approval/rejectContractSM'
+        : '$API_URL/approval/rejectContractAM';
 
     try {
       var response = await http
@@ -437,8 +438,8 @@ class _DetailContractState extends State<DetailContract> {
       {bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/rejectSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/rejectAM';
+        ? '$API_URL/approval/rejectSM'
+        : '$API_URL/approval/rejectAM';
 
     try {
       var response = await http

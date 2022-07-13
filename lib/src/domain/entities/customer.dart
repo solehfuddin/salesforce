@@ -2,7 +2,7 @@ class Customer {
   String id, nama, agama, tempatLahir, tanggalLahir, alamat, noTlp, fax, noIdentitas, uploadIdentitas,
   namaUsaha, alamatUsaha, tlpUsaha, faxUsaha, emailUsaha, namaPj, sistemPembayaran, kreditLimit, 
   uploadDokumen, ttdCustomer, ttdArManager, ttdSalesManager, namaSalesman, namaArManager, note, 
-  econtract, status, createdBy, dateAdded, dateSM, dateAM, namaSales, jabatanSales;
+  econtract, status, isRevisi, createdBy, dateAdded, dateSM, dateAM, namaSales, jabatanSales;
 
   Customer();
 
@@ -34,6 +34,7 @@ class Customer {
     note = json['note'],
     econtract = json['e_contract'],
     status = json['status'],
+    isRevisi = json['is_revisi'],
     createdBy = json['created_by'],
     dateAdded = json['date_added'],
     dateSM = json['date_approved_sm'],
@@ -69,6 +70,7 @@ class Customer {
       'nama_ar_manager' : namaArManager,
       'note' : note,
       'status': status,
+      'is_revisi' : isRevisi,
       'e_contract' : econtract,
       'created_by' : createdBy,
       'date_added' : dateAdded,

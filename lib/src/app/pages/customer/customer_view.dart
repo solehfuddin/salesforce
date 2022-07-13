@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/econtract/econtract_view.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
@@ -58,8 +59,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
 
     try {
       var url = input < 1
-          ? 'http://timurrayalab.com/salesforce/server/api/customers'
-          : 'http://timurrayalab.com/salesforce/server/api/customers/getBySales?created_by=$input';
+          ? '$API_URL/customers'
+          : '$API_URL/customers/getBySales?created_by=$input';
 
       var response = await http.get(url).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
@@ -96,7 +97,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
     List<Customer> list;
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/search?search=$input';
+        '$API_URL/customers/search?search=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -139,7 +140,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
   getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+        '$API_URL/contract?id_customer=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -370,7 +371,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         child: Text(
                                           'Tgl entry : ',
                                           style: TextStyle(
-                                              fontSize: isHorizontal ? 21.sp : 11.sp,
+                                              fontSize:
+                                                  isHorizontal ? 21.sp : 11.sp,
                                               fontFamily: 'Montserrat',
                                               fontWeight: FontWeight.w500),
                                         ),
@@ -380,7 +382,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         child: Text(
                                           'Pemilik : ',
                                           style: TextStyle(
-                                              fontSize: isHorizontal ? 21.sp : 11.sp,
+                                              fontSize:
+                                                  isHorizontal ? 21.sp : 11.sp,
                                               fontFamily: 'Montserrat',
                                               fontWeight: FontWeight.w500),
                                         ),
@@ -403,7 +406,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                           convertDateIndo(
                                               customer[position].dateAdded),
                                           style: TextStyle(
-                                              fontSize: isHorizontal ? 22.sp : 12.sp,
+                                              fontSize:
+                                                  isHorizontal ? 22.sp : 12.sp,
                                               fontFamily: 'Montserrat',
                                               fontWeight: FontWeight.w600),
                                         ),
@@ -413,7 +417,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                         child: Text(
                                           customer[position].nama,
                                           style: TextStyle(
-                                            fontSize: isHorizontal ? 22.sp : 12.sp,
+                                            fontSize:
+                                                isHorizontal ? 22.sp : 12.sp,
                                             fontFamily: 'Montserrat',
                                             fontWeight: FontWeight.w600,
                                             overflow: TextOverflow.ellipsis,
@@ -476,8 +481,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
                       customer[position].econtract == "0"
                           ? Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      EcontractScreen(customer, position)))
+                                builder: (context) => EcontractScreen(
+                                  customer,
+                                  position,
+                                  isRevisi: false,
+                                ),
+                              ),
+                            )
                           : getCustomerContract(customer, position,
                               int.parse(customer[position].id));
                     },

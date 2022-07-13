@@ -184,18 +184,21 @@ class _DetailRejectedState extends State<DetailRejected> {
                       ),
                     ),
                     Text(
-                      widget.customer[widget.position].ttdSalesManager == "0"
+                      // widget.customer[widget.position].ttdSalesManager == "0"
+                      widget.contract.approvalSm == "0"
                           ? 'Menunggu Persetujuan Sales Manager'
-                          : widget.customer[widget.position].ttdSalesManager ==
-                                  "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonth(widget.customer[widget.position].dateSM)}'
-                              : 'Ditolak oleh Sales Manager ${convertDateWithMonth(widget.customer[widget.position].dateSM)}',
+                          : widget.contract.approvalSm == "1"
+                              // : widget.customer[widget.position].ttdSalesManager ==
+                              //         "1"
+                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonthHour(widget.contract.dateApprovalSm)}'
+                              : 'Ditolak oleh Sales Manager ${convertDateWithMonthHour(widget.contract.dateApprovalSm)}',
                       style: TextStyle(
                         fontSize: isHorizontal ? 22.sp : 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
+                      textAlign: TextAlign.justify,
                       softWrap: true,
                       overflow: TextOverflow.visible,
                     ),
@@ -286,17 +289,20 @@ class _DetailRejectedState extends State<DetailRejected> {
                       ),
                     ),
                     Text(
-                      widget.customer[widget.position].ttdArManager == "0"
+                      // widget.customer[widget.position].ttdArManager == "0"
+                      widget.contract.approvalAm == "0"
                           ? 'Menunggu Persetujuan AR Manager'
-                          : widget.customer[widget.position].ttdArManager == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateWithMonth(widget.customer[widget.position].dateAM)}'
-                              : 'Ditolak oleh AR Manager ${convertDateWithMonth(widget.customer[widget.position].dateAM)}',
+                          // : widget.customer[widget.position].ttdArManager == "1"
+                          : widget.contract.approvalAm == "1"
+                              ? 'Disetujui oleh AR Manager ${convertDateWithMonthHour(widget.contract.dateApprovalAm)}'
+                              : 'Ditolak oleh AR Manager ${convertDateWithMonthHour(widget.contract.dateApprovalAm)}',
                       style: TextStyle(
                         fontSize: isHorizontal ? 22.sp : 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
+                      textAlign: TextAlign.justify,
                       softWrap: true,
                       overflow: TextOverflow.visible,
                     ),
@@ -346,7 +352,9 @@ class _DetailRejectedState extends State<DetailRejected> {
               height: isHorizontal ? 70.h : 40.h,
               width: isHorizontal ? 80.w : 110.w,
               borderRadius: isHorizontal ? 60.r : 30.0.r,
-              color: Colors.blue[700],
+              color: widget.customer[widget.position].isRevisi != "1"
+                  ? Colors.blue[300]
+                  : Colors.blue[700],
               child: Text(
                 "Lebih Lengkap",
                 style: TextStyle(
@@ -362,27 +370,29 @@ class _DetailRejectedState extends State<DetailRejected> {
               ),
               onTap: (startLoading, stopLoading, btnState) {
                 if (btnState == ButtonState.Idle) {
-                  startLoading();
-                  waitingLoad();
-                  widget.idCust != null
-                      ? Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => DetailContractRejected(
-                              item: widget.contract,
-                              div: widget.div,
-                              ttd: widget.ttd,
-                              username: widget.username,
-                              isNewCust: true,
+                  if (widget.customer[widget.position].isRevisi != "0") {
+                    startLoading();
+                    waitingLoad();
+                    widget.idCust != null
+                        ? Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DetailContractRejected(
+                                item: widget.contract,
+                                div: widget.div,
+                                ttd: widget.ttd,
+                                username: widget.username,
+                                isNewCust: true,
+                              ),
                             ),
-                          ),
-                        )
-                      : handleStatus(
-                          context,
-                          'Id customer tidak ditemukan',
-                          false,
-                          isHorizontal: isHorizontal,
-                        );
-                  stopLoading();
+                          )
+                        : handleStatus(
+                            context,
+                            'Id customer tidak ditemukan',
+                            false,
+                            isHorizontal: isHorizontal,
+                          );
+                    stopLoading();
+                  }
                 }
               },
             ),

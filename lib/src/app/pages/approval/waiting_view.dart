@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,8 +85,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     const timeout = 15;
     List<Customer> list;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvalSM?ttd_sales_manager=0'
-        : 'http://timurrayalab.com/salesforce/server/api/customers/approvalAM?ttd_ar_manager=0';
+        ? '$API_URL/customers/approvalSM?ttd_sales_manager=0'
+        : '$API_URL/customers/approvalAM?ttd_ar_manager=0';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -118,7 +119,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
       {bool isHorizontal}) async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+        '$API_URL/contract?id_customer=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

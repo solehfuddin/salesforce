@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -85,7 +86,7 @@ class _RenewalContractState extends State<RenewalContract> {
   getAllOldCustomer() async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/oldCustomer?limit=100&offset=0';
+        '$API_URL/customers/oldCustomer?limit=100&offset=0';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -143,7 +144,7 @@ class _RenewalContractState extends State<RenewalContract> {
     const timeout = 15;
     List<OldCustomer> list;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/searchOldCust?limit=100&offset=0&search=$input';
+        '$API_URL/customers/searchOldCust?limit=100&offset=0&search=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/size_extension.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/areabanner.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
@@ -122,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (listMonitoring.length > 0) listMonitoring.clear();
 
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/salesMonitoring?id=$idSales';
+        '$API_URL/contract/salesMonitoring?id=$idSales';
 
     var response = await http.get(url);
     print('Response status: ${response.statusCode}');

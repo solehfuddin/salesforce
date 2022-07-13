@@ -7,6 +7,7 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -182,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   perbaruiProfil() async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/users/changeImageProfile';
+        '$API_URL/users/changeImageProfile';
 
     try {
       var response = await http.post(
@@ -216,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool isHorizontal,
   }) async {
     const timeout = 15;
-    var url = 'http://timurrayalab.com/salesforce/server/api/users';
+    var url = '$API_URL/users';
 
     try {
       var response = isChangePassword

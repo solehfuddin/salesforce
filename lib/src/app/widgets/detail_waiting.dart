@@ -1,9 +1,11 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/size_extension.dart';
+import 'package:sample/src/app/pages/econtract/econtract_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailWaiting extends StatefulWidget {
   List<Customer> customer;
@@ -25,6 +27,24 @@ class DetailWaiting extends StatefulWidget {
 }
 
 class _DetailWaitingState extends State<DetailWaiting> {
+  String id, role, username, name;
+
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      username = preferences.getString("username");
+      name = preferences.getString("name");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -61,14 +81,19 @@ class _DetailWaitingState extends State<DetailWaiting> {
                   horizontal: isHorizontal ? 15.r : 10.r,
                 ),
                 decoration: BoxDecoration(
-                  color: widget.customer[widget.position].status.contains('Pending') ||
-                          widget.customer[widget.position].status.contains('PENDING')
+                  color: widget.customer[widget.position].status
+                              .contains('Pending') ||
+                          widget.customer[widget.position].status
+                              .contains('PENDING')
                       ? Colors.grey[600]
-                      : widget.customer[widget.position].status.contains('Accepted') ||
-                              widget.customer[widget.position].status.contains('ACCEPTED')
+                      : widget.customer[widget.position].status
+                                  .contains('Accepted') ||
+                              widget.customer[widget.position].status
+                                  .contains('ACCEPTED')
                           ? Colors.blue[600]
                           : Colors.red[600],
-                  borderRadius: BorderRadius.circular(isHorizontal ? 15.r : 10.r),
+                  borderRadius:
+                      BorderRadius.circular(isHorizontal ? 15.r : 10.r),
                 ),
                 child: Text(
                   widget.customer[widget.position].status,
@@ -89,21 +114,27 @@ class _DetailWaitingState extends State<DetailWaiting> {
             widget.customer[widget.position].status.contains('Pending') ||
                     widget.customer[widget.position].status.contains('PENDING')
                 ? 'Pengajuan e-kontrak sedang diproses'
-                : widget.customer[widget.position].status.contains('Accepted') ||
-                        widget.customer[widget.position].status.contains('ACCEPTED')
+                : widget.customer[widget.position].status
+                            .contains('Accepted') ||
+                        widget.customer[widget.position].status
+                            .contains('ACCEPTED')
                     ? 'Pengajuan e-kontrak diterima'
                     : 'Pengajuan e-kontrak ditolak',
             style: TextStyle(
               fontSize: isHorizontal ? 20.sp : 14.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
-              color: widget.customer[widget.position].status.contains('Pending') ||
-                      widget.customer[widget.position].status.contains('PENDING')
-                  ? Colors.grey[600]
-                  : widget.customer[widget.position].status.contains('Accepted') ||
-                          widget.customer[widget.position].status.contains('ACCEPTED')
-                      ? Colors.green[600]
-                      : Colors.red[700],
+              color:
+                  widget.customer[widget.position].status.contains('Pending') ||
+                          widget.customer[widget.position].status
+                              .contains('PENDING')
+                      ? Colors.grey[600]
+                      : widget.customer[widget.position].status
+                                  .contains('Accepted') ||
+                              widget.customer[widget.position].status
+                                  .contains('ACCEPTED')
+                          ? Colors.green[600]
+                          : Colors.red[700],
             ),
             softWrap: true,
             overflow: TextOverflow.visible,
@@ -154,7 +185,8 @@ class _DetailWaitingState extends State<DetailWaiting> {
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black54),
-                    borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 5.r),
+                    borderRadius:
+                        BorderRadius.circular(isHorizontal ? 10.r : 5.r),
                   ),
                   child: Center(
                     child: Text(
@@ -186,17 +218,19 @@ class _DetailWaitingState extends State<DetailWaiting> {
                       ),
                     ),
                     Text(
-                      widget.customer[widget.position].ttdSalesManager == "0"
+                      // widget.customer[widget.position].ttdSalesManager == "0"
+                      widget.contract.approvalSm == "0"
                           ? 'Menunggu Persetujuan Sales Manager'
-                          : widget.customer[widget.position].ttdSalesManager == "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonth(widget.customer[widget.position].dateSM)}'
-                              : 'Ditolak oleh Sales Manager ${convertDateWithMonth(widget.customer[widget.position].dateSM)}',
+                          : widget.contract.approvalSm == "1"
+                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonthHour(widget.contract.dateApprovalSm)}'
+                              : 'Ditolak oleh Sales Manager ${convertDateWithMonthHour(widget.contract.dateApprovalSm)}',
                       style: TextStyle(
                         fontSize: isHorizontal ? 22.sp : 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
+                      textAlign: TextAlign.justify,
                       softWrap: true,
                       overflow: TextOverflow.visible,
                     ),
@@ -254,7 +288,8 @@ class _DetailWaitingState extends State<DetailWaiting> {
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black54),
-                    borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 5.r),
+                    borderRadius:
+                        BorderRadius.circular(isHorizontal ? 10.r : 5.r),
                   ),
                   child: Center(
                     child: Text(
@@ -286,17 +321,22 @@ class _DetailWaitingState extends State<DetailWaiting> {
                       ),
                     ),
                     Text(
-                      widget.customer[widget.position].ttdArManager == "0"
+                      // widget.customer[widget.position].ttdArManager == "0"
+                      widget.contract.approvalAm == "0"
                           ? 'Menunggu Persetujuan AR Manager'
-                          : widget.customer[widget.position].ttdArManager == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateWithMonth(widget.customer[widget.position].dateAM)}'
-                              : 'Ditolak oleh AR Manager ${convertDateWithMonth(widget.customer[widget.position].dateAM)}',
+                          // : widget.customer[widget.position].ttdArManager == "1"
+                          : widget.contract.approvalAm == "1"
+                              ? 'Disetujui oleh AR Manager ${convertDateWithMonthHour(widget.contract.dateApprovalAm)}'
+                              : 'Ditolak oleh AR Manager ${convertDateWithMonthHour(widget.contract.dateApprovalAm)}',
                       style: TextStyle(
                         fontSize: isHorizontal ? 22.sp : 14.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
+                      textAlign: TextAlign.justify,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
                     ),
                     widget.contract.approvalAm.contains('2')
                         ? SizedBox(
@@ -342,39 +382,81 @@ class _DetailWaitingState extends State<DetailWaiting> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ArgonButton(
-                height: isHorizontal ? 70.h: 40.h,
-                width: isHorizontal ? 90.w : 120.w,
-                borderRadius: isHorizontal ? 60.r : 30.r,
-                color: Colors.blue[700],
-                child: Text(
-                  "Unduh Data",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
-                      fontWeight: FontWeight.w700),
-                ),
-                loader: Container(
-                  padding: EdgeInsets.all(8.r),
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                ),
-                onTap: (startLoading, stopLoading, btnState) {
-                  if (btnState == ButtonState.Idle) {
-                    startLoading();
-                    waitingLoad();
-                    donwloadCustomer(
-                        int.parse(widget.customer[widget.position].id), stopLoading());
-                  }
-                },
-              ),
+              widget.customer[widget.position].status == "REJECTED" &&
+                      role != "ADMIN"
+                  ? ArgonButton(
+                      height: isHorizontal ? 70.h : 40.h,
+                      width: isHorizontal ? 90.w : 120.w,
+                      borderRadius: isHorizontal ? 60.r : 30.r,
+                      color: widget.customer[widget.position].isRevisi == "0"
+                          ? Colors.orange[700]
+                          : Colors.orange[300],
+                      child: Text(
+                        "Revisi Data",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isHorizontal ? 24.sp : 14.sp,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      loader: Container(
+                        padding: EdgeInsets.all(8.r),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onTap: (startLoading, stopLoading, btnState) {
+                        if (btnState == ButtonState.Idle) {
+                          if (widget.customer[widget.position].isRevisi == "0") {
+                            startLoading();
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => EcontractScreen(
+                                  widget.customer,
+                                  widget.position,
+                                  isRevisi: true,
+                                ),
+                              ),
+                            );
+                            stopLoading();
+                          }
+                        }
+                      },
+                    )
+                  : ArgonButton(
+                      height: isHorizontal ? 70.h : 40.h,
+                      width: isHorizontal ? 90.w : 120.w,
+                      borderRadius: isHorizontal ? 60.r : 30.r,
+                      color: Colors.blue[700],
+                      child: Text(
+                        "Unduh Data",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isHorizontal ? 24.sp : 14.sp,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      loader: Container(
+                        padding: EdgeInsets.all(8.r),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onTap: (startLoading, stopLoading, btnState) {
+                        if (btnState == ButtonState.Idle) {
+                          startLoading();
+                          waitingLoad();
+                          donwloadCustomer(
+                              int.parse(widget.customer[widget.position].id),
+                              stopLoading());
+                        }
+                      },
+                    ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(),
                   primary: Colors.red[800],
-                  padding:
-                      EdgeInsets.symmetric(horizontal: isHorizontal ? 40.r : 20.r, vertical: 10.r),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isHorizontal ? 40.r : 20.r, vertical: 10.r),
                 ),
                 child: Text(
                   'Tutup',

@@ -5,6 +5,7 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/renewcontract/change_contract.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
@@ -74,7 +75,7 @@ class _HistoryContractState extends State<HistoryContract> {
   getContractActive() async {
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/getActiveContractById?id=${widget.item.customerShipNumber}';
+        '$API_URL/contract/getActiveContractById?id=${widget.item.customerShipNumber}';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -116,7 +117,7 @@ class _HistoryContractState extends State<HistoryContract> {
     const timeout = 15;
     List<Contract> list;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$input';
+        '$API_URL/contract?id_customer=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

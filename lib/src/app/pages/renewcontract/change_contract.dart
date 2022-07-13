@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/contract.dart';
@@ -118,7 +119,7 @@ class _ChangeContractState extends State<ChangeContract> {
     List<Discount> list;
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/getByIdCustomer?id_customer=$idCust';
+        '$API_URL/discount/getByIdCustomer?id_customer=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -163,7 +164,7 @@ class _ChangeContractState extends State<ChangeContract> {
 
   getItemProdDiv() async {
     const timeout = 15;
-    var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
+    var url = '$API_URL/product/getProDiv';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -206,7 +207,7 @@ class _ChangeContractState extends State<ChangeContract> {
     const timeout = 15;
 
     var url =
-        'http://timurrayalab.com/salesforce/server/api/product/search?search=$input';
+        '$API_URL/product/search?search=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -247,7 +248,7 @@ class _ChangeContractState extends State<ChangeContract> {
         if (item.ischecked) {
           selectMapProduct[item.proddiv] = item.proddesc;
           Product itemProduct = Product(item.categoryid, item.proddiv,
-              item.prodcat, item.proddesc, item.status);
+              item.prodcat, item.proddesc, item.diskon, item.status);
           if (!tmpProduct.contains(item.proddesc)) {
             tmpProduct.add(item.proddesc);
             tmpProduct.forEach((element) {
@@ -352,7 +353,7 @@ class _ChangeContractState extends State<ChangeContract> {
   postMultiDiv(String idCust, String proddiv, String diskon, String alias,
       {bool isHorizontal}) async {
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/divCustomDiscount';
+        '$API_URL/discount/divCustomDiscount';
     var response = await http.post(
       url,
       body: {
@@ -388,7 +389,7 @@ class _ChangeContractState extends State<ChangeContract> {
       String prodCat, String prodDesc, String disc,
       {bool isHorizontal}) async {
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/customDiscount';
+        '$API_URL/discount/customDiscount';
     var response = await http.post(
       url,
       body: {
@@ -424,19 +425,19 @@ class _ChangeContractState extends State<ChangeContract> {
 
   checkInput(Function stop, {bool isHorizontal}) async {
     if (_chosenNikon == null) {
-      _chosenNikon = 'Cash & Carry';
+      _chosenNikon = 'COD';
     }
 
     if (_chosenLeinz == null) {
-      _chosenLeinz = 'Cash & Carry';
+      _chosenLeinz = 'COD';
     }
 
     if (_chosenOriental == null) {
-      _chosenOriental = 'Cash & Carry';
+      _chosenOriental = 'COD';
     }
 
     if (_chosenMoe == null) {
-      _chosenMoe = 'Cash & Carry';
+      _chosenMoe = 'COD';
     }
 
     textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
@@ -444,7 +445,7 @@ class _ChangeContractState extends State<ChangeContract> {
 
     if (!_isTanggalSt && !_isTanggalEd) {
       const timeout = 15;
-      var url = 'http://timurrayalab.com/salesforce/server/api/contract/upload';
+      var url = '$API_URL/contract/upload';
 
       try {
         var response = await http.post(
@@ -559,7 +560,7 @@ class _ChangeContractState extends State<ChangeContract> {
 
   simpanDiskon(String idCust) async {
     var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/defaultDiscount';
+        '$API_URL/discount/defaultDiscount';
     var response = await http.post(
       url,
       body: {
@@ -1171,10 +1172,10 @@ class _ChangeContractState extends State<ChangeContract> {
                               fontWeight: FontWeight.w600,
                             ),
                             items: [
-                              'Cash & Carry',
-                              'Transfer',
-                              'Deposit',
-                              'Bulanan',
+                              'COD',
+                              'TRANSFER',
+                              'DEPOSIT',
+                              'KREDIT',
                             ].map((e) {
                               return DropdownMenuItem(
                                 value: e,
@@ -1238,10 +1239,10 @@ class _ChangeContractState extends State<ChangeContract> {
                               fontWeight: FontWeight.w600,
                             ),
                             items: [
-                              'Cash & Carry',
-                              'Transfer',
-                              'Deposit',
-                              'Bulanan',
+                              'COD',
+                              'TRANSFER',
+                              'DEPOSIT',
+                              'KREDIT',
                             ].map((e) {
                               return DropdownMenuItem(
                                 value: e,
@@ -1305,10 +1306,10 @@ class _ChangeContractState extends State<ChangeContract> {
                               fontWeight: FontWeight.w600,
                             ),
                             items: [
-                              'Cash & Carry',
-                              'Transfer',
-                              'Deposit',
-                              'Bulanan',
+                              'COD',
+                              'TRANSFER',
+                              'DEPOSIT',
+                              'KREDIT',
                             ].map((e) {
                               return DropdownMenuItem(
                                 value: e,
@@ -1372,10 +1373,10 @@ class _ChangeContractState extends State<ChangeContract> {
                               fontWeight: FontWeight.w600,
                             ),
                             items: [
-                              'Cash & Carry',
-                              'Transfer',
-                              'Deposit',
-                              'Bulanan',
+                              'COD',
+                              'TRANSFER',
+                              'DEPOSIT',
+                              'KREDIT',
                             ].map((e) {
                               return DropdownMenuItem(
                                 value: e,

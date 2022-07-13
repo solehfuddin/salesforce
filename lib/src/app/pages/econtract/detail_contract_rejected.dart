@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
@@ -27,12 +28,14 @@ class DetailContractRejected extends StatefulWidget {
 class _DetailContractRejectedState extends State<DetailContractRejected> {
   List<Discount> discList = List.empty(growable: true);
   List<Customer> custList = List.empty(growable: true);
+  TextEditingController textReason = new TextEditingController();
+  String reasonVal;
   bool _isLoadingTitle = true;
+  bool _isReason = false;
 
   getDisc(dynamic idContract) async {
     const timeout = 15;
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
+    var url = '$API_URL/discount/getByIdContract?id_contract=$idContract';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -65,8 +68,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
 
   getCustomer(dynamic idCust) async {
     const timeout = 15;
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/customers?id=$idCust';
+    var url = '$API_URL/customers?id=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -115,8 +117,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
       {bool isHorizontal}) async {
     List<Discount> list;
     const timeout = 15;
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/discount/getByIdContract?id_contract=$idContract';
+    var url = '$API_URL/discount/getByIdContract?id_contract=$idContract';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -152,13 +153,202 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
     }
   }
 
+  rejectOldCustomer({bool isHorizontal}) {
+    widget.div == "AR"
+        ? rejectContract(
+            true,
+            widget.item.idCustomer,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          )
+        : rejectContract(
+            false,
+            widget.item.idCustomer,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          );
+  }
+
+  rejectNewCustomer({bool isHorizontal}) {
+    widget.div == "AR"
+        ? rejectCustomer(
+            true,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          )
+        : rejectCustomer(
+            false,
+            widget.item.idCustomer,
+            widget.ttd,
+            widget.username,
+            textReason.text.trim(),
+            isHorizontal: isHorizontal,
+          );
+  }
+
+  checkEntry({bool isHorizontal}) {
+    textReason.text.isEmpty ? _isReason = true : _isReason = false;
+
+    if (!_isReason) {
+      widget.isNewCust
+          ? rejectOldCustomer(
+              isHorizontal: isHorizontal,
+            )
+          : rejectNewCustomer(
+              isHorizontal: isHorizontal,
+            );
+      Navigator.of(context, rootNavigator: true).pop();
+    } else {
+      handleStatus(
+        context,
+        'Harap lengkapi data terlebih dahulu',
+        false,
+        isHorizontal: isHorizontal,
+      );
+    }
+  }
+
+  rejectContract(bool isAr, String idCust, String username, String reason,
+      {bool isHorizontal}) async {
+    const timeout = 15;
+    var url = !isAr
+        ? '$API_URL/approval/rejectContractSM'
+        : '$API_URL/approval/rejectContractAM';
+
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'approver_sm': username,
+                    'reason_sm': reason,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'approver_am': username,
+                    'reason_am': reason,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      print('Username : $username');
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        final String msg = res['message'];
+
+        handleCustomStatus(
+          context,
+          capitalize(msg),
+          sts,
+          isHorizontal: isHorizontal,
+        );
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        if (mounted) {
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+          );
+        }
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : $e');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
+      }
+    }
+  }
+
+  rejectCustomer(
+      bool isAr, String idCust, String ttd, String username, String reason,
+      {bool isHorizontal}) async {
+    const timeout = 15;
+    var url =
+        !isAr ? '$API_URL/approval/rejectSM' : '$API_URL/approval/rejectAM';
+
+    try {
+      var response = await http
+          .post(
+            url,
+            body: !isAr
+                ? {
+                    'id_customer': idCust,
+                    'nama_sales_manager': username,
+                  }
+                : {
+                    'id_customer': idCust,
+                    'nama_ar_manager': username,
+                  },
+          )
+          .timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      rejectContract(
+        isAr,
+        idCust,
+        username,
+        reason,
+        isHorizontal: isHorizontal,
+      );
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : $e');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+        );
+      }
+    }
+  }
+
   approveCustomerReject(BuildContext context, bool isAr, String idCust,
       String ttd, String username,
       {bool isHorizontal}) async {
     const timeout = 15;
-    var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/approveSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/approveAM';
+    var url =
+        !isAr ? '$API_URL/approval/approveSM' : '$API_URL/approval/approveAM';
 
     try {
       var response = await http
@@ -231,8 +421,8 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
       {bool isCust, bool isHorizontal}) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
-        : 'http://timurrayalab.com/salesforce/server/api/approval/approveContractAM';
+        ? '$API_URL/approval/approveContractSM'
+        : '$API_URL/approval/approveContractAM';
 
     try {
       var response = await http
@@ -327,6 +517,79 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
             widget.username,
             isHorizontal: isHorizontal,
           );
+  }
+
+  handleRejection(BuildContext context, Function stop, {bool isHorizontal}) {
+    AlertDialog alert = AlertDialog(
+      scrollable: true,
+      title: Center(
+        child: Text(
+          "Mengapa kontrak tidak disetujui ?",
+          style: TextStyle(
+            fontSize: isHorizontal ? 20.sp : 14.sp,
+            fontFamily: 'Segoe ui',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      content: Form(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                labelText: '',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.r),
+                ),
+                errorText: !_isReason ? 'Data wajib diisi' : null,
+              ),
+              keyboardType: TextInputType.multiline,
+              minLines: isHorizontal ? 3 : 4,
+              maxLines: isHorizontal ? 4 : 5,
+              maxLength: 100,
+              controller: textReason,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          child: Text(
+            'Ok',
+            style: TextStyle(
+              fontSize: isHorizontal ? 22.sp : 14.sp,
+            ),
+          ),
+          onPressed: () {
+            stop();
+            checkEntry(
+              isHorizontal: isHorizontal,
+            );
+          },
+        ),
+        TextButton(
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              fontSize: isHorizontal ? 22.sp : 14.sp,
+            ),
+          ),
+          onPressed: () {
+            stop();
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => alert,
+      barrierDismissible: false,
+    );
   }
 
   @override
@@ -1242,6 +1505,38 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ArgonButton(
+                        height: isHor ? 60.h : 40.h,
+                        width: isHor ? 80.w : 100.w,
+                        borderRadius: isHor ? 60.r : 30.r,
+                        color: Colors.red[700],
+                        child: Text(
+                          "Reject",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isHor ? 24.sp : 14.sp,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        loader: Container(
+                          padding: EdgeInsets.all(8.r),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onTap: (startLoading, stopLoading, btnState) {
+                          if (btnState == ButtonState.Idle) {
+                            setState(() {
+                              startLoading();
+                              waitingLoad();
+                              handleRejection(
+                                context,
+                                stopLoading,
+                                isHorizontal: isHor,
+                              );
+                            });
+                          }
+                        },
+                      ),
+                      ArgonButton(
                         height: isHor ? 70.h : 40.h,
                         width: isHor ? 80.w : 100.w,
                         borderRadius: isHor ? 60.r : 30.r,
@@ -1274,27 +1569,27 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                           }
                         },
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: StadiumBorder(),
-                          primary: Colors.red[800],
-                          padding: EdgeInsets.symmetric(
-                              horizontal: isHor ? 50.r : 20.r,
-                              vertical: isHor ? 15.r : 10.r),
-                        ),
-                        child: Text(
-                          'Tutup',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: isHor ? 24.sp : 14.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Segoe ui',
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
+                      // ElevatedButton(
+                      //   style: ElevatedButton.styleFrom(
+                      //     shape: StadiumBorder(),
+                      //     primary: Colors.red[800],
+                      //     padding: EdgeInsets.symmetric(
+                      //         horizontal: isHor ? 50.r : 20.r,
+                      //         vertical: isHor ? 15.r : 10.r),
+                      //   ),
+                      //   child: Text(
+                      //     'Tutup',
+                      //     style: TextStyle(
+                      //       color: Colors.white,
+                      //       fontSize: isHor ? 24.sp : 14.sp,
+                      //       fontWeight: FontWeight.bold,
+                      //       fontFamily: 'Segoe ui',
+                      //     ),
+                      //   ),
+                      //   onPressed: () {
+                      //     Navigator.pop(context);
+                      //   },
+                      // ),
                     ],
                   ),
                   SizedBox(

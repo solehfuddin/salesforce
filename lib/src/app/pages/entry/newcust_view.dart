@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:io' as Io;
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
+import 'package:sample/src/app/widgets/syaratketentuan.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 
@@ -28,6 +32,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textEmailOptik = new TextEditingController();
   TextEditingController textPicOptik = new TextEditingController();
   TextEditingController textIdentitas = new TextEditingController();
+  TextEditingController textNpwp = new TextEditingController();
   TextEditingController textNamaUser = new TextEditingController();
   TextEditingController textAlamatUser = new TextEditingController();
   TextEditingController textTempatLahir = new TextEditingController();
@@ -41,8 +46,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textPathKartuNama = new TextEditingController();
   TextEditingController textPathPendukung = new TextEditingController();
   String _chosenValue;
-  String _chosenBilling;
-  final format = DateFormat("yyyy-MM-dd");
+  String _chosenBilling, _chosenKredit;
+  final format = DateFormat("dd MMM yyyy");
   String base64ImageKtp, signedImage;
   File tmpFile, tmpSiupFile, tmpKartuFile, tmpPendukungFile;
   String tmpName,
@@ -55,7 +60,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
       alamat,
       tlpHp,
       faxUsaha,
-      noIdentitas;
+      noIdentitas,
+      noNpwp;
   String namaOptik, alamatUsaha, tlpUsaha, emailUsaha, namaPic, fax;
   String sistemPembayaran, kreditLimit, note;
   String errMessage = 'Error Uploading Image';
@@ -75,6 +81,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isFaxUserValid = false;
   bool _isNoIdentitas = false;
   bool _isNoIdentitasValid = false;
+  bool _isNoNpwpValid = false;
   bool _isNamaOptik = false;
   bool _isAlamatUsaha = false;
   bool _isTlpUsaha = false;
@@ -83,6 +90,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isNamaPic = false;
   bool _isEmailValid = true;
   bool _isFotoKtp = false;
+  bool _isChecked = false;
   Map<String, TextEditingController> myMap;
 
   final SignatureController _signController = SignatureController(
@@ -298,6 +306,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
     textIdentitas.text.length < 16
         ? _isNoIdentitasValid = true
         : _isNoIdentitasValid = false;
+    textNpwp.text.length > 0 && textNpwp.text.length < 15
+        ? _isNoNpwpValid = true
+        : _isNoNpwpValid = false;
 
     textNamaOptik.text.isEmpty ? _isNamaOptik = true : _isNamaOptik = false;
     textAlamatOptik.text.isEmpty
@@ -326,11 +337,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
     namaUser = textNamaUser.text;
     tempatLahir = textTempatLahir.text;
-    tanggalLahir = textTanggalLahir.text;
+    tanggalLahir = convertDateSql(textTanggalLahir.text);
     alamat = textAlamatUser.text;
     tlpHp = textTelpUser.text;
     faxUsaha = textFaxOptik.text;
     noIdentitas = textIdentitas.text;
+    noNpwp = textNpwp.text;
 
     namaOptik = textNamaOptik.text;
     alamatUsaha = textAlamatOptik.text;
@@ -344,6 +356,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
               .hasMatch(emailUsaha)
           ? _isEmailValid = true
           : _isEmailValid = false;
+    } else {
+      _isEmailValid = true;
     }
 
     if (_chosenValue == null) {
@@ -351,10 +365,16 @@ class _NewcustScreenState extends State<NewcustScreen> {
     }
 
     if (_chosenBilling == null) {
-      _chosenBilling = 'CASH & CARRY';
+      _chosenBilling = 'COD';
     }
 
-    sistemPembayaran = _chosenBilling;
+    if (_chosenKredit == null) {
+      _chosenKredit = '7 HARI';
+    }
+
+    sistemPembayaran = _chosenBilling == 'KREDIT'
+        ? _chosenBilling + '-' + _chosenKredit
+        : _chosenBilling;
     kreditLimit = textKreditLimit.text;
     note = textCatatan.text;
 
@@ -374,6 +394,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         !_isTlpHpValid &&
         !_isNoIdentitas &&
         !_isNoIdentitasValid &&
+        !_isNoNpwpValid &&
         !_isNamaOptik &&
         !_isAlamatUsaha &&
         !_isTlpUsaha &&
@@ -392,7 +413,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
       } else if (_signController.isEmpty) {
         handleStatus(
           context,
-          'Silahkan tanda tangan terlebih dahulu',
+          'Silahkan tanda tangan dahulu',
           false,
           isHorizontal: isHorizontal,
         );
@@ -405,7 +426,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
         if (base64ImageSiup == null) {
           base64ImageSiup = 'kosong';
         }
-        simpanData(stop, isHorizontal: isHorizontal);
+
+        if (_isChecked) {
+          simpanData(stop, isHorizontal: isHorizontal);
+        } else {
+          handleStatus(
+            context,
+            'Harap ceklist syarat dan ketentuan',
+            false,
+            isHorizontal: isHorizontal,
+          );
+
+          stop();
+        }
       }
     } else {
       handleStatus(
@@ -420,7 +453,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   simpanData(Function stop, {bool isHorizontal}) async {
     const timeout = 15;
-    var url = 'http://timurrayalab.com/salesforce/server/api/customers';
+    var url = '$API_URL/customers';
 
     try {
       var response = await http.post(
@@ -434,6 +467,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'no_telp': tlpHp,
           'fax': fax,
           'no_identitas': noIdentitas,
+          'no_npwp': noNpwp,
           'upload_identitas': base64ImageKtp,
           'nama_usaha': namaOptik.toUpperCase(),
           'alamat_usaha': alamatUsaha.toUpperCase(),
@@ -839,6 +873,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Widget _areaDataPribadi({bool isHorizontal}) {
+    // final format = DateFormat("dd-MM-yyyy");
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
@@ -863,7 +898,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Nomor SIM/KTP',
+                'Nomor KTP',
                 style: TextStyle(
                   fontSize: isHorizontal ? 22.sp : 12.sp,
                   fontFamily: 'Montserrat',
@@ -901,6 +936,42 @@ class _NewcustScreenState extends State<NewcustScreen> {
             ),
             maxLength: 16,
             controller: textIdentitas,
+            style: TextStyle(
+              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontFamily: 'Segoe Ui',
+            ),
+          ),
+          SizedBox(
+            height: isHorizontal ? 22.h : 12.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Nomor NPWP',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 18.h : 8.h,
+          ),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: '0925429XXXXXXXX',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+              ),
+              errorText: _isNoNpwpValid ? 'Nomor npwp salah' : null,
+            ),
+            maxLength: 15,
+            controller: textNpwp,
             style: TextStyle(
               fontSize: isHorizontal ? 24.sp : 14.sp,
               fontFamily: 'Segoe Ui',
@@ -1089,7 +1160,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
           DateTimeField(
             decoration: InputDecoration(
-              hintText: 'yyyy-mm-dd',
+              hintText: 'dd mon yyyy',
               // labelText: 'Tanggal Lahir',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
@@ -1100,7 +1171,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 fontFamily: 'Segoe Ui',
               ),
             ),
-            maxLength: 10,
+            maxLength: 11,
             format: format,
             onShowPicker: (context, currentValue) {
               return showDatePicker(
@@ -1301,10 +1372,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 fontWeight: FontWeight.w600,
               ),
               items: [
-                'CASH & CARRY',
+                'COD',
                 'TRANSFER',
                 'DEPOSIT',
-                'BULANAN',
+                'KREDIT',
               ].map((e) {
                 return DropdownMenuItem(
                   value: e,
@@ -1333,6 +1404,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
           ),
+          _chosenBilling == "KREDIT"
+              ? _areaKredit(
+                  isHorizontal: isHorizontal,
+                )
+              : SizedBox(
+                  width: 20.w,
+                ),
           Text(
             'Kredit Limit',
             style: TextStyle(
@@ -1403,6 +1481,75 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _areaKredit({bool isHorizontal}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Durasi Kredit',
+          style: TextStyle(
+            fontSize: isHorizontal ? 22.sp : 12.sp,
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        SizedBox(
+          height: isHorizontal ? 18.h : 8.h,
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+          decoration: BoxDecoration(
+              color: Colors.white70,
+              border: Border.all(color: Colors.black54),
+              borderRadius: BorderRadius.circular(5.r)),
+          child: DropdownButton(
+            underline: SizedBox(),
+            isExpanded: true,
+            value: _chosenKredit,
+            style: TextStyle(
+              color: Colors.black54,
+              fontFamily: 'Segoe Ui',
+              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
+            items: [
+              '7 HARI',
+              '14 HARI',
+              '30 HARI',
+              '60 HARI',
+            ].map((e) {
+              return DropdownMenuItem(
+                value: e,
+                child: Text(e,
+                    style: TextStyle(
+                      color: Colors.black54,
+                    )),
+              );
+            }).toList(),
+            hint: Text(
+              "Pilih Durasi Kredit",
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: isHorizontal ? 24.sp : 14.sp,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Segoe Ui',
+              ),
+            ),
+            onChanged: (String value) {
+              setState(() {
+                _chosenKredit = value;
+              });
+            },
+          ),
+        ),
+        SizedBox(
+          height: isHorizontal ? 22.h : 12.h,
+        ),
+      ],
     );
   }
 
@@ -1554,7 +1701,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'E. TTD CUSTOMER',
+            'E. PERSETUJUAN CUSTOMER',
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Montserrat',
@@ -1573,14 +1720,76 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: isHorizontal ? 30.h : 15.h,
           ),
-          Text(
-            'Dengan menandatangani dokumen ini secara elektronik, saya setuju bahwa tanda tangan tersebut akan sama validnya dengan tanda tangan tulisan sesuai hukum setempat',
-            style: TextStyle(
-                fontSize: isHorizontal ? 22.sp : 13.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-                color: Colors.black87),
-            textAlign: TextAlign.justify,
+          // Text(
+          //   'Dengan menandatangani dokumen ini secara elektronik, saya setuju bahwa tanda tangan tersebut akan sama validnya dengan tanda tangan tulisan sesuai hukum setempat',
+          //   style: TextStyle(
+          //       fontSize: isHorizontal ? 22.sp : 13.sp,
+          //       fontFamily: 'Montserrat',
+          //       fontWeight: FontWeight.w500,
+          //       color: Colors.black87),
+          //   textAlign: TextAlign.justify,
+          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Checkbox(
+                value: this._isChecked,
+                checkColor: Colors.white,
+                activeColor: Colors.blue.shade700,
+                autofocus: this._isChecked ? false : true,
+                onChanged: (bool value) {
+                  setState(() {
+                    this._isChecked = value;
+                  });
+                },
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      textAlign: TextAlign.justify,
+                      text: TextSpan(
+                        text: 'Saya telah membaca dan setuju dengan ',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 24.sp : 14.sp,
+                          fontFamily: 'Segoe Ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: ' syarat dan ketentuan',
+                            style: TextStyle(
+                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontFamily: 'Segoe Ui',
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black54,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                showKetentuan(
+                                  isHorizontal: isHorizontal,
+                                );
+                              },
+                          ),
+                          TextSpan(
+                            text: ' yang berlaku.',
+                            style: TextStyle(
+                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontFamily: 'Segoe Ui',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           SizedBox(
             height: isHorizontal ? 30.h : 20.h,
@@ -1614,13 +1823,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 height: isHorizontal ? 60.h : 40.h,
                 width: isHorizontal ? 90.w : 100.w,
                 borderRadius: isHorizontal ? 60.r : 30.r,
-                color: Colors.blue[700],
+                color: _isChecked ? Colors.blue[700] : Colors.blue[200],
                 child: Text(
                   "Simpan",
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
-                      fontWeight: FontWeight.w700),
+                    color: Colors.white,
+                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 loader: Container(
                   padding: EdgeInsets.all(8.r),
@@ -1629,15 +1839,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   ),
                 ),
                 onTap: (startLoading, stopLoading, btnState) {
-                  if (btnState == ButtonState.Idle) {
-                    setState(() {
-                      startLoading();
-                      waitingLoad();
-                      checkEntry(
-                        stopLoading,
-                        isHorizontal: isHorizontal,
-                      );
-                    });
+                  if (_isChecked) {
+                    if (btnState == ButtonState.Idle) {
+                      setState(() {
+                        startLoading();
+                        waitingLoad();
+                        checkEntry(
+                          stopLoading,
+                          isHorizontal: isHorizontal,
+                        );
+                      });
+                    }
                   }
                 },
               ),
@@ -1648,6 +1860,22 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  showKetentuan({bool isHorizontal}) {
+    return showModalBottomSheet(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(isHorizontal ? 25.r : 15.r),
+          topRight: Radius.circular(isHorizontal ? 25.r : 15.r),
+        ),
+      ),
+      context: context,
+      builder: (context) {
+        return SyaratKetentuan();
+      },
     );
   }
 }

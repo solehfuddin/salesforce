@@ -15,7 +15,7 @@
          
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Sales App"
+        android:label="My Leinz"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

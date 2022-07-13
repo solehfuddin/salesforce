@@ -14,6 +14,7 @@ import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
 import 'package:sample/src/app/widgets/detail_waiting.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
@@ -37,7 +38,16 @@ waitingLoad() async {
 login(String user, String pass, BuildContext context,
     {bool isHorizontal}) async {
   int timeout = 15;
-  var url = 'http://timurrayalab.com/salesforce/server/api/auth/login';
+  var url = '$API_URL/auth/login';
+
+  if (url.contains("dev"))
+  {
+    print('DEV MODE');
+  }
+  else
+  {
+    print('PROD MODE');
+  }
 
   try {
     var response = await http.post(url, body: {
@@ -544,7 +554,7 @@ handleDigitalSigned(
     print(signedImg);
     print(id);
 
-    var url = 'http://timurrayalab.com/salesforce/server/api/users/update';
+    var url = '$API_URL/users/update';
 
     try {
       var response = await http.post(
@@ -986,8 +996,8 @@ donwloadContract(dynamic idCust, Function stopLoading()) async {
 
 approveCustomerContract(bool isAr, String idCust, String username) async {
   var url = !isAr
-      ? 'http://timurrayalab.com/salesforce/server/api/approval/approveContractSM'
-      : 'http://timurrayalab.com/salesforce/server/api/approval/approveContractAM';
+      ? '$API_URL/approval/approveContractSM'
+      : '$API_URL/approval/approveContractAM';
 
   var response = await http.post(
     url,
@@ -1059,6 +1069,54 @@ convertDateIndo(String tgl) {
   return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
 }
 
+convertDateSql(String tgl) {
+  var split = tgl.split(" ");
+  var month = convertMonth(split[1]);
+
+  return "${split[2]}-$month-${split[0]}";
+}
+
+convertMonth(String input) {
+  switch (input) {
+    case 'Jan':
+      return '01';
+      break;
+    case 'Feb':
+      return '02';
+      break;
+    case 'Mar':
+      return '03';
+      break;
+    case 'Apr':
+      return '04';
+      break;
+    case 'May':
+      return '05';
+      break;
+    case 'Jun':
+      return '06';
+      break;
+    case 'Jul':
+      return '07';
+      break;
+    case 'Aug':
+      return '08';
+      break;
+    case 'Sep':
+      return '09';
+      break;
+    case 'Oct':
+      return '10';
+      break;
+    case 'Nov':
+      return '11';
+      break;
+    default:
+      return '12';
+      break;
+  }
+}
+
 convertDateWithMonth(String tgl) {
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
   DateTime date = dateFormat.parse(tgl);
@@ -1081,6 +1139,28 @@ convertDateWithMonth(String tgl) {
   return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()}";
 }
 
+convertDateWithMonthHour(String tgl) {
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+  DateTime date = dateFormat.parse(tgl);
+
+  List<String> months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Des'
+  ];
+
+  return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()} Pukul ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}";
+}
+
 String convertToIdr(dynamic number, int decimalDigit) {
   NumberFormat currencyFormatter = NumberFormat.currency(
     locale: 'id',
@@ -1100,9 +1180,8 @@ String convertThousand(dynamic number, int decimalDigit) {
 }
 
 int counterTwoDays(DateTime from, DateTime to) {
-  from = DateTime(from.year, from.month, from.day);
-  to = DateTime(to.year, to.month, to.day);
-  return (to.difference(from).inHours / 24).round();
+  Duration diff = to.difference(from);
+  return diff.inDays;
 }
 
 String getEndDays({String input}) {
@@ -1176,7 +1255,7 @@ getCustomerContractNew({
 }) async {
   const timeout = 15;
   var url =
-      'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+      '$API_URL/contract?id_customer=$idCust';
 
   try {
     var response = await http.get(url).timeout(Duration(seconds: timeout));

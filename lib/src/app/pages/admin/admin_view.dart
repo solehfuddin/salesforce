@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/areachart.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
@@ -174,7 +175,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
   countNewCustomer() async {
     const timeout = 15;
-    var url = 'http://timurrayalab.com/salesforce/server/api/customers';
+    var url = '$API_URL/customers';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -203,7 +204,7 @@ class _AdminScreenState extends State<AdminScreen> {
     const timeout = 15;
 
     var url =
-        'http://timurrayalab.com/salesforce/server/api/customers/oldCustomer';
+        '$API_URL/customers/oldCustomer';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -231,8 +232,8 @@ class _AdminScreenState extends State<AdminScreen> {
   getWaitingData(bool isAr) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvalSM?ttd_sales_manager=0'
-        : 'http://timurrayalab.com/salesforce/server/api/customers/approvalAM?ttd_ar_manager=0';
+        ? '$API_URL/customers/approvalSM?ttd_sales_manager=0'
+        : '$API_URL/customers/approvalAM?ttd_ar_manager=0';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -263,8 +264,8 @@ class _AdminScreenState extends State<AdminScreen> {
   getApprovedData(bool isAr) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/customers/approvedSM'
-        : 'http://timurrayalab.com/salesforce/server/api/customers/approvedAM';
+        ? '$API_URL/customers/approvedSM'
+        : '$API_URL/customers/approvedAM';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -295,8 +296,8 @@ class _AdminScreenState extends State<AdminScreen> {
   getRejectedData(bool isAr) async {
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
-        : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
+        ? '$API_URL/customers/rejectedSM'
+        : '$API_URL/customers/rejectedAM';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -331,7 +332,7 @@ class _AdminScreenState extends State<AdminScreen> {
     if (listMonitoring.length > 0) listMonitoring.clear();
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/monitoring';
+        '$API_URL/contract/monitoring';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -372,8 +373,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustSM'
-        : 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustAM';
+        ? '$API_URL/contract/pendingContractOldCustSM'
+        : '$API_URL/contract/pendingContractOldCustAM';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

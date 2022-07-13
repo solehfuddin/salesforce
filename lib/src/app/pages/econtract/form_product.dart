@@ -11,7 +11,7 @@ class FormItemProduct extends StatefulWidget {
 
   @override
   _FormItemProductState createState() {
-    return state; 
+    return state;
   }
 
   TextEditingController _discvalController = TextEditingController();
@@ -24,17 +24,30 @@ class _FormItemProductState extends State<FormItemProduct> {
   bool _isDisabled = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.product.diskon != null) {
+      widget._discvalController.text = widget.product.diskon;
+      _isChecked = true;
+      _isDisabled = true;
+      widget.product.ischecked = _isChecked;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if(constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape){
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
         return childFormProduct(isHorizontal: true);
       }
 
       return childFormProduct(isHorizontal: false);
-    }); 
+    });
   }
 
-  Widget childFormProduct({bool isHorizontal}){
+  Widget childFormProduct({bool isHorizontal}) {
     return Form(
       key: formKey,
       child: Row(

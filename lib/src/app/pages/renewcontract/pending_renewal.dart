@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:http/http.dart' as http;
@@ -82,7 +83,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
     List<Contract> list;
     const timeout = 15;
     var url =
-        'http://timurrayalab.com/salesforce/server/api/contract/findOldCustContract';
+        '$API_URL/contract/findOldCustContract';
 
     try {
       var response = await http
@@ -136,8 +137,8 @@ class _PendingRenewalState extends State<PendingRenewal> {
     List<Contract> list;
     const timeout = 15;
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustSM'
-        : 'http://timurrayalab.com/salesforce/server/api/contract/pendingContractOldCustAM';
+        ? '$API_URL/contract/pendingContractOldCustSM'
+        : '$API_URL/contract/pendingContractOldCustAM';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));

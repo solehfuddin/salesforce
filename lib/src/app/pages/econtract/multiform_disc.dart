@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,7 +25,7 @@ class _MultiFormDiscState extends State<MultiFormDisc> {
   Map<String, String> selectMapProddiv = {"": ""};
 
   getItemProdDiv() async {
-    var url = 'http://timurrayalab.com/salesforce/server/api/product/getProDiv';
+    var url = '$API_URL/product/getProDiv';
     var response = await http.get(url);
     print('Response status: ${response.statusCode}');
 

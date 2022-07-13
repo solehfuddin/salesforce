@@ -24,6 +24,18 @@ class _FormItemDiscState extends State<FormItemDisc> {
   bool _isDisabled = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.proddiv.diskon != null){
+      widget._discvalController.text = widget.proddiv.diskon;
+      _isChecked = true;
+      _isDisabled = true;
+      widget.proddiv.ischecked = _isChecked;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       if(constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape){

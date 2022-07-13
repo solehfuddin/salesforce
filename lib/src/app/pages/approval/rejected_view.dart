@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
@@ -44,8 +45,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
     const timeout = 15;
 
     var url = !isAr
-        ? 'http://timurrayalab.com/salesforce/server/api/customers/rejectedSM'
-        : 'http://timurrayalab.com/salesforce/server/api/customers/rejectedAM';
+        ? '$API_URL/customers/rejectedSM'
+        : '$API_URL/customers/rejectedAM';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -76,8 +77,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
   }
 
   getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
-    var url =
-        'http://timurrayalab.com/salesforce/server/api/contract?id_customer=$idCust';
+    var url = '$API_URL/contract?id_customer=$idCust';
     const timeout = 15;
 
     try {
@@ -305,7 +305,9 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                               .status
                                               .contains('ACCEPTED')
                                       ? Colors.blue[600]
-                                      : Colors.red[600],
+                                      : customer[position].isRevisi == "1"
+                                          ? Colors.orange
+                                          : Colors.red[600],
                               width: isHorizontal ? 4.w : 5.r),
                         ),
                       ),
@@ -338,7 +340,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                     Text(
                                       'Tgl entry : ',
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 21.sp : 11.sp,
+                                          fontSize:
+                                              isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -348,7 +351,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                     Text(
                                       'Pemilik : ',
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 21.sp : 11.sp,
+                                          fontSize:
+                                              isHorizontal ? 21.sp : 11.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -364,7 +368,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                       convertDateIndo(
                                           customer[position].dateAdded),
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 23.sp : 13.sp,
+                                          fontSize:
+                                              isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -374,7 +379,8 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                     Text(
                                       customer[position].nama,
                                       style: TextStyle(
-                                          fontSize: isHorizontal ? 23.sp : 13.sp,
+                                          fontSize:
+                                              isHorizontal ? 23.sp : 13.sp,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600),
                                     ),
