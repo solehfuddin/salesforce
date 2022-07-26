@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/utils/dbhelper.dart';
 import 'package:sample/src/app/widgets/areachart.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
@@ -17,12 +19,14 @@ import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
+import 'package:sample/src/domain/entities/notifikasi.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
 import 'package:sample/src/domain/entities/report.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesSize.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 class AdminScreen extends StatefulWidget {
   @override
@@ -30,6 +34,9 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  DbHelper dbHelper = DbHelper();
+  List<Notifikasi> listNotifLocal = List.empty(growable: true);
   String id = '';
   String role = '';
   String username = '';
@@ -40,6 +47,7 @@ class _AdminScreenState extends State<AdminScreen> {
   bool _isLoadRenewal = true;
   bool _isConnected = false;
   bool _isPerform = true;
+  bool _isBadge = false;
   int totalWaiting = 0;
   int totalApproved = 0;
   int totalRejected = 0;
@@ -64,6 +72,8 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   void initState() {
     super.initState();
+    _firebaseMessaging.subscribeToTopic("alladmin");
+    _firebaseMessaging.unsubscribeFromTopic("allsales");
     if (listContract.length > 0) listContract.clear();
 
     DateTime now = new DateTime.now();
@@ -123,12 +133,14 @@ class _AdminScreenState extends State<AdminScreen> {
       getPerformSales(stDate, edDate);
 
       getTtd(int.parse(id));
+
+      getLocalNotif();
     });
   }
 
   getTtd(int input) async {
     const timeout = 15;
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -142,7 +154,7 @@ class _AdminScreenState extends State<AdminScreen> {
         getMonitoringData();
 
         if (sts) {
-          ttdPertama = data['data'][0]['ttd'];
+          ttdPertama = data['data']['ttd'];
           print(ttdPertama);
         }
         _isConnected = true;
@@ -203,8 +215,7 @@ class _AdminScreenState extends State<AdminScreen> {
   countOldCustomer() async {
     const timeout = 15;
 
-    var url =
-        '$API_URL/customers/oldCustomer';
+    var url = '$API_URL/customers/oldCustomer';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -331,8 +342,7 @@ class _AdminScreenState extends State<AdminScreen> {
     await Future.delayed(Duration(seconds: 1));
     if (listMonitoring.length > 0) listMonitoring.clear();
     const timeout = 15;
-    var url =
-        '$API_URL/contract/monitoring';
+    var url = '$API_URL/contract/monitoring';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -460,6 +470,114 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
+  void addLocalNotif(Notifikasi item) async {
+    if (item.idUser == null) {
+      item.idUser = "0";
+    }
+    int res = await dbHelper.insert(item);
+    if (res > 0) {
+      getLocalNotif();
+    }
+  }
+
+  void isReadLocal() async {
+    _isBadge = await dbHelper.selectByRead();
+  }
+
+  void existLocalNotif(Notifikasi item) async {
+    List<Notifikasi> result = await dbHelper.selectById(item);
+    if (result.length > 0) {
+      print('Data has exist');
+    } else {
+      addLocalNotif(item);
+    }
+    result.clear();
+  }
+
+  void getLocalNotif() {
+    final Future<Database> dbFuture = dbHelper.initDb();
+    dbFuture.then((value) {
+      Future<List<Notifikasi>> listNotif = dbHelper.getNotifikasi();
+      listNotif.then((value) {
+        setState(() {
+          listNotifLocal = value;
+
+          for (int i = 0; i < listNotifLocal.length; i++) {
+            print('Id Notif : ${listNotifLocal[i].idNotif}');
+            print('Id User : ${listNotifLocal[i].idUser}');
+            print('Type Template : ${listNotifLocal[i].typeTemplate}');
+            print('Type Notif : ${listNotifLocal[i].typeNotif}');
+            print('Judul : ${listNotifLocal[i].judul}');
+            print('Isi : ${listNotifLocal[i].isi}');
+            print('Tanggal : ${listNotifLocal[i].tanggal}');
+            print('Is Read : ${listNotifLocal[i].isRead}');
+          }
+
+          role == "ADMIN"
+              ? getNotifikasiRemote(
+                  true,
+                  idUser: id,
+                )
+              : getNotifikasiRemote(
+                  false,
+                  idUser: id,
+                );
+        });
+      });
+    });
+  }
+
+  getNotifikasiRemote(bool isAdmin, {dynamic idUser}) async {
+    const timeout = 15;
+    List<Notifikasi> list;
+
+    var url = isAdmin
+        ? '$API_URL/notification/getNotifAdmin/?id=$idUser'
+        : '$API_URL/notification/getNotifSales/?id=$idUser';
+
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<Notifikasi>((json) => Notifikasi.fromJson(json))
+              .toList();
+
+          if (listNotifLocal.length < 1) {
+            for (int i = 0; i < list.length; i++) {
+              addLocalNotif(list[i]);
+            }
+          } else {
+            for (int i = 0; i < list.length; i++) {
+              existLocalNotif(list[i]);
+            }
+          }
+
+          Future.delayed(Duration(seconds: 3), () {
+            isReadLocal();
+          });
+          print("List Size: ${list.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+    return list;
+  }
+
   Future<void> _refreshData() async {
     setState(() {
       if (listMonitoring.length > 0) listMonitoring.clear();
@@ -473,6 +591,8 @@ class _AdminScreenState extends State<AdminScreen> {
       countOldCustomer();
 
       getTtd(int.parse(id));
+
+      getLocalNotif();
     });
   }
 
@@ -615,6 +735,7 @@ class _AdminScreenState extends State<AdminScreen> {
               return Scaffold(
                 appBar: CustomAppBar(
                   isHorizontal: true,
+                  isBadge: _isBadge,
                 ),
                 body: RefreshIndicator(
                   child: CustomScrollView(
@@ -719,7 +840,9 @@ class _AdminScreenState extends State<AdminScreen> {
                         ),
                       ),
                       _isPerform
-                          ? areaLoadingRenewal(isHorizontal: true,)
+                          ? areaLoadingRenewal(
+                              isHorizontal: true,
+                            )
                           : areaDonutChartHor(
                               dataPie: _samplePie,
                               startDate: stDate,
@@ -729,7 +852,9 @@ class _AdminScreenState extends State<AdminScreen> {
                               context: context),
                       areaHeaderRenewal(isHorizontal: true),
                       _isLoadRenewal
-                          ? areaLoadingRenewal(isHorizontal: true,)
+                          ? areaLoadingRenewal(
+                              isHorizontal: true,
+                            )
                           : listContract.length > 0
                               ? areaRenewal(listContract, context, ttdPertama,
                                   username, divisi,
@@ -745,7 +870,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       ),
                       areaHeaderMonitoring(isHorizontal: true),
                       _isLoading
-                          ? areaLoading(isHorizontal: true,)
+                          ? areaLoading(
+                              isHorizontal: true,
+                            )
                           : listMonitoring.length > 0
                               ? areaMonitoring(
                                   listMonitoring,
@@ -779,6 +906,7 @@ class _AdminScreenState extends State<AdminScreen> {
             return Scaffold(
               appBar: CustomAppBar(
                 isHorizontal: false,
+                isBadge: _isBadge,
               ),
               body: RefreshIndicator(
                 child: CustomScrollView(
@@ -889,7 +1017,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       ),
                     ),
                     _isPerform
-                        ? areaLoadingRenewal(isHorizontal: false,)
+                        ? areaLoadingRenewal(
+                            isHorizontal: false,
+                          )
                         : areaDonutChart(
                             dataPie: _samplePie,
                             startDate: stDate,
@@ -903,7 +1033,9 @@ class _AdminScreenState extends State<AdminScreen> {
                     ),
                     areaHeaderRenewal(isHorizontal: false),
                     _isLoadRenewal
-                        ? areaLoadingRenewal(isHorizontal: false,)
+                        ? areaLoadingRenewal(
+                            isHorizontal: false,
+                          )
                         : listContract.length > 0
                             ? areaRenewal(listContract, context, ttdPertama,
                                 username, divisi,
@@ -917,7 +1049,9 @@ class _AdminScreenState extends State<AdminScreen> {
                         isHorizontal: false),
                     areaHeaderMonitoring(isHorizontal: false),
                     _isLoading
-                        ? areaLoading(isHorizontal: false,)
+                        ? areaLoading(
+                            isHorizontal: false,
+                          )
                         : listMonitoring.length > 0
                             ? areaMonitoring(
                                 listMonitoring,

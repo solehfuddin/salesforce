@@ -50,7 +50,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
 
   getTtd(int input) async {
     const timeout = 15;
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -61,7 +61,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
         final bool sts = data['status'];
 
         if (sts) {
-          ttdPertama = data['data'][0]['ttd'];
+          ttdPertama = data['data']['ttd'];
           print(ttdPertama);
         }
       } on FormatException catch (e) {

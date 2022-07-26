@@ -10,6 +10,7 @@ import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/discount.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailContractRejected extends StatefulWidget {
   Contract item;
@@ -26,12 +27,93 @@ class DetailContractRejected extends StatefulWidget {
 }
 
 class _DetailContractRejectedState extends State<DetailContractRejected> {
+  String id = '';
+  String role = '';
+  String divisi = '';
+  String tokenAdmin, tokenSales;
   List<Discount> discList = List.empty(growable: true);
   List<Customer> custList = List.empty(growable: true);
   TextEditingController textReason = new TextEditingController();
   String reasonVal;
   bool _isLoadingTitle = true;
   bool _isReason = false;
+
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      divisi = preferences.getString("divisi");
+
+      getAdmToken(int.parse(id));
+      if (double.tryParse(widget.item.createdBy) == null) {
+        print('The input is not a numeric string');
+      } else {
+        print('Yes, it is a numeric string');
+        getSalesToken(int.parse(widget.item.createdBy));
+      }
+    });
+  }
+
+  getAdmToken(int input) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$input';
+
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          tokenAdmin = data['data']['gentoken'];
+          print('Token admin : $tokenAdmin');
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
+  getSalesToken(int input) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$input';
+
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          tokenSales = data['data']['gentoken'];
+          print('Token sales : $tokenSales');
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
 
   getDisc(dynamic idContract) async {
     const timeout = 15;
@@ -106,7 +188,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
   @override
   initState() {
     super.initState();
-    // getDisc(widget.item.idContract);
+    getRole();
     getDisc(widget.item.hasParent.contains('1')
         ? widget.item.idContractParent
         : widget.item.idContract);
@@ -252,6 +334,30 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
           capitalize(msg),
           sts,
           isHorizontal: isHorizontal,
+        );
+
+        //Send to sales spesifik
+        pushNotif(
+          9,
+          3,
+          idUser: widget.item.createdBy,
+          rcptToken: tokenSales,
+          admName: username,
+          opticName: widget.item.customerShipName != null
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
+        );
+
+        //Send to me
+        pushNotif(
+          8,
+          3,
+          idUser: id,
+          rcptToken: tokenAdmin,
+          salesName: widget.item.namaPertama,
+          opticName: widget.item.customerShipName != null
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
         );
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -453,6 +559,30 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
           capitalize(msg),
           sts,
           isHorizontal: isHorizontal,
+        );
+
+        //Send to sales spesifik
+        pushNotif(
+          7,
+          3,
+          idUser: widget.item.createdBy,
+          rcptToken: tokenSales,
+          admName: username,
+          opticName: widget.item.customerShipName != null
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
+        );
+
+        //Send to me
+        pushNotif(
+          6,
+          3,
+          idUser: id,
+          rcptToken: tokenAdmin,
+          salesName: widget.item.namaPertama,
+          opticName: widget.item.customerShipName != null
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
         );
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -1569,27 +1699,6 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                           }
                         },
                       ),
-                      // ElevatedButton(
-                      //   style: ElevatedButton.styleFrom(
-                      //     shape: StadiumBorder(),
-                      //     primary: Colors.red[800],
-                      //     padding: EdgeInsets.symmetric(
-                      //         horizontal: isHor ? 50.r : 20.r,
-                      //         vertical: isHor ? 15.r : 10.r),
-                      //   ),
-                      //   child: Text(
-                      //     'Tutup',
-                      //     style: TextStyle(
-                      //       color: Colors.white,
-                      //       fontSize: isHor ? 24.sp : 14.sp,
-                      //       fontWeight: FontWeight.bold,
-                      //       fontFamily: 'Segoe ui',
-                      //     ),
-                      //   ),
-                      //   onPressed: () {
-                      //     Navigator.pop(context);
-                      //   },
-                      // ),
                     ],
                   ),
                   SizedBox(

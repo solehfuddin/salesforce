@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/notification/notif_view.dart';
+import 'package:sample/src/app/widgets/mybadge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomAppBar extends StatefulWidget with PreferredSizeWidget {
   bool isHorizontal = false;
+  bool isBadge = false;
 
-  CustomAppBar({this.isHorizontal});
+  CustomAppBar({this.isHorizontal, this.isBadge});
 
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
@@ -70,7 +73,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
             style: ElevatedButton.styleFrom(
               shape: StadiumBorder(),
               primary: Colors.indigo[600],
-              padding: EdgeInsets.symmetric(horizontal: widget.isHorizontal ? 30.r : 20.r, vertical: widget.isHorizontal ? 20.r : 10.r),
+              padding: EdgeInsets.symmetric(
+                  horizontal: widget.isHorizontal ? 30.r : 20.r,
+                  vertical: widget.isHorizontal ? 20.r : 10.r),
             ),
             child: Text(
               'Kembali',
@@ -95,7 +100,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape) {
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
         return AppBar(
           backgroundColor: Colors.green[500],
           elevation: 0.0,
@@ -107,13 +113,32 @@ class _CustomAppBarState extends State<CustomAppBar> {
             },
           ),
           actions: [
-            IconButton(
-              icon: Icon(Icons.notifications),
-              iconSize: 45.r,
-              onPressed: () {
-                handleComing();
-              },
-            )
+            widget.isBadge
+                ? MyBadge(
+                    top: 27.r,
+                    right: 27.r,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.notifications,
+                        size: 45.r,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => NotifScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : IconButton(
+                    icon: Icon(Icons.notifications),
+                    iconSize: 45.r,
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => NotifScreen()));
+                    },
+                  ),
           ],
         );
       }
@@ -129,13 +154,32 @@ class _CustomAppBarState extends State<CustomAppBar> {
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            iconSize: 28.r,
-            onPressed: () {
-              handleComing();
-            },
-          )
+          widget.isBadge
+              ? MyBadge(
+                  top: 18.r,
+                  right: 18.r,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.notifications,
+                      size: 28.r,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => NotifScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              : IconButton(
+                  icon: Icon(Icons.notifications),
+                  iconSize: 28.r,
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => NotifScreen()));
+                  },
+                ),
         ],
       );
     });

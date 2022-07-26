@@ -1,12 +1,7 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/size_extension.dart';
-import 'package:sample/src/app/utils/colors.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/app/widgets/backgroundlogin.dart';
-import 'package:sample/src/app/widgets/loginform.dart';
-import 'package:sample/src/app/widgets/logintextfield.dart';
-import 'package:sample/src/app/widgets/passwordtextfield.dart';
-import 'package:sample/src/app/widgets/waveFooter.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -14,16 +9,29 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  static const List<Color> customColor = [
-    Color(0xff64c856),
-    Color(0xff7dd571),
-  ];
+  String messageTitle = "Empty";
+  String notificationAlert = "alert";
+  var token;
 
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  
   TextEditingController textUsername = TextEditingController();
   TextEditingController textPassword = TextEditingController();
   String username, password;
   bool _isUsername = false;
   bool _isPassword = false;
+  bool _isHidePass = true;
+
+  void _tooglePassVisibility() {
+    setState(() {
+      _isHidePass = !_isHidePass;
+    });
+  }
+
+  generateTokenFCM() async {
+    token = await _firebaseMessaging.getToken();
+    print('Akses token : $token');
+  }
 
   check({bool isHorizontal}) {
     textUsername.text.isEmpty ? _isUsername = true : _isUsername = false;
@@ -34,71 +42,196 @@ class _LoginState extends State<Login> {
 
     username = textUsername.text;
     password = textPassword.text;
+
     login(
       username,
       password,
       context,
       isHorizontal: isHorizontal,
+      token: token,
     );
   }
 
   @override
   void initState() {
     super.initState();
+    generateTokenFCM();
+
+    _firebaseMessaging.configure(
+      onMessage: (message) async {
+        setState(() {
+          messageTitle = message["notification"]["title"];
+          notificationAlert = "New Notification Alert";
+        });
+      },
+      onResume: (message) async {
+        setState(() {
+          messageTitle = message["data"]["title"];
+          notificationAlert = "Application opened from Notification";
+        });
+      },
+    );
+
+    _firebaseMessaging.subscribeToTopic("all");
   }
 
   @override
   Widget build(BuildContext context) {
+    bool _isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
+
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: LayoutBuilder(builder: (context, constraints) {
         if (constraints.maxWidth > 600 ||
             MediaQuery.of(context).orientation == Orientation.landscape) {
           return Stack(
+            alignment: Alignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0XFF3BC937),
+                      Color(0XFF00962A),
+                    ],
+                  ),
+                ),
+              ),
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          height: 10.h,
-                        ),
                         Center(
                           child: Image.asset(
-                            'assets/images/newlogin.png',
-                            width: MediaQuery.of(context).size.width / 2.47,
+                            'assets/images/leinzlogo.png',
                             fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width * 0.42,
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 30.r,
-                            vertical: 10.r,
-                          ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 2,
                           child: Column(
                             children: [
-                              Text(
-                                "e-SALES",
-                                style: TextStyle(
-                                  fontSize: 36.sp,
-                                  color: MyColors.bgColor,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Montserrat',
-                                  fontStyle: FontStyle.italic,
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.14,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20.r,
+                                  vertical: 10.r,
+                                ),
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.r),
+                                    ),
+                                    hintText: 'Username',
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 15,
+                                      horizontal: 10,
+                                    ),
+                                    errorStyle: TextStyle(
+                                      fontSize: 22.sp,
+                                      fontFamily: 'Segoe Ui',
+                                      color: Colors.white,
+                                    ),
+                                    errorText: _isUsername
+                                        ? 'Username harus diisi'
+                                        : null,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 26.sp,
+                                    fontFamily: 'Segoe Ui',
+                                  ),
+                                  controller: textUsername,
                                 ),
                               ),
-                              Text(
-                                'v 1.2.0',
-                                style: TextStyle(
-                                  fontSize: 27.sp,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Segoe ui',
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20.r,
+                                  vertical: 10.r,
+                                ),
+                                child: TextFormField(
+                                  obscureText: _isHidePass,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.r),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 15,
+                                      horizontal: 10,
+                                    ),
+                                    hintText: 'Password',
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    suffixIcon: GestureDetector(
+                                      onTap: () {
+                                        _tooglePassVisibility();
+                                      },
+                                      child: Icon(
+                                        _isHidePass
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: _isHidePass
+                                            ? Colors.grey
+                                            : Colors.blue,
+                                      ),
+                                    ),
+                                    errorStyle: TextStyle(
+                                      fontSize: 22.sp,
+                                      fontFamily: 'Segoe Ui',
+                                      color: Colors.white,
+                                    ),
+                                    errorText: _isPassword
+                                        ? 'Password harus diisi'
+                                        : null,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 26.sp,
+                                    fontFamily: 'Segoe Ui',
+                                  ),
+                                  controller: textPassword,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.h,
+                              ),
+                              Container(
+                                alignment: Alignment.topRight,
+                                child: Container(
+                                  padding: EdgeInsets.only(right: 20.r),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        check(
+                                          isHorizontal: true,
+                                        );
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.login,
+                                      size: 50.r,
+                                      color: Colors.black,
+                                    ),
+                                    label: Text(''),
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10.w, vertical: 8.h),
+                                        elevation: 0.0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.r),
+                                        )),
+                                  ),
                                 ),
                               ),
                             ],
@@ -106,86 +239,193 @@ class _LoginState extends State<Login> {
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2.17,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 50.r),
-                          child: LoginTextfield(
-                            15,
-                            0,
-                            "USERNAME",
-                            "USERNAME",
-                            textUsername,
-                            _isUsername,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 50.r),
-                          child: PasswordTextField(
-                              0, 15, "PASSWORD", textPassword, _isPassword),
-                        ),
-                        SizedBox(
-                          height: 18.h,
-                        ),
-                        Container(
-                          alignment: Alignment.topRight,
-                          child: Container(
-                            padding: EdgeInsets.only(right: 15.w),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  check(
-                                    isHorizontal: true,
-                                  );
-                                });
-                              },
-                              icon: Icon(
-                                Icons.login,
-                                size: 40.r,
-                              ),
-                              label: Text(''),
-                              style: ElevatedButton.styleFrom(
-                                  primary: Colors.deepOrange[600],
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8.w, vertical: 12.h),
-                                  elevation: 0.0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(35.r),
-                                  )),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: <Widget>[
-                    WaveFooter(
-                      customColor: customColor,
-                    ),
                   ],
                 ),
               ),
+              !_isKeyboard
+                  ? Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 15.r,
+                        ),
+                        child: Text(
+                          'versi 1.2.0',
+                          style: TextStyle(
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Segoe ui',
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox(
+                      width: 5.r,
+                    ),
             ],
           );
         }
 
         return Stack(
-          children: <Widget>[
-            BackgroundLogin(),
-            Padding(
-              padding: const EdgeInsets.only(top: 40),
-              child: LoginForm(),
+          children: [
+            Container(
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0XFF3BC937),
+                    Color(0XFF00962A),
+                  ],
+                ),
+              ),
             ),
+            SingleChildScrollView(
+              clipBehavior: Clip.hardEdge,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.18,
+                  ),
+                  Center(
+                    child: Image.asset(
+                      'assets/images/leinzlogo.png',
+                      fit: BoxFit.cover,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.r,
+                      vertical: 10.r,
+                    ),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15.r),
+                        ),
+                        hintText: 'Username',
+                        fillColor: Colors.white,
+                        filled: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        errorStyle: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Segoe Ui',
+                          color: Colors.white,
+                        ),
+                        errorText: _isUsername ? 'Username harus diisi' : null,
+                      ),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontFamily: 'Segoe Ui',
+                      ),
+                      controller: textUsername,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.r,
+                      vertical: 10.r,
+                    ),
+                    child: TextFormField(
+                      obscureText: _isHidePass,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15.r),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        hintText: 'Password',
+                        fillColor: Colors.white,
+                        filled: true,
+                        suffixIcon: GestureDetector(
+                          onTap: () {
+                            _tooglePassVisibility();
+                          },
+                          child: Icon(
+                            _isHidePass
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: _isHidePass ? Colors.grey : Colors.blue,
+                          ),
+                        ),
+                        errorStyle: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Segoe Ui',
+                          color: Colors.white,
+                        ),
+                        errorText: _isPassword ? 'Password harus diisi' : null,
+                      ),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontFamily: 'Segoe Ui',
+                      ),
+                      controller: textPassword,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Container(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      padding: EdgeInsets.only(right: 20.r),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            check(
+                              isHorizontal: false,
+                            );
+                          });
+                        },
+                        icon: Icon(
+                          Icons.login,
+                          size: 33.r,
+                          color: Colors.black,
+                        ),
+                        label: Text(''),
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15.w, vertical: 8.h),
+                            elevation: 0.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.r),
+                            )),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            !_isKeyboard
+                ? Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10.r),
+                      child: Text(
+                        'versi 1.2.0',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Segoe ui',
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    width: 5.r,
+                  ),
           ],
         );
       }),

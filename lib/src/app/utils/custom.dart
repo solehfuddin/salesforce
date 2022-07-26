@@ -35,24 +35,65 @@ waitingLoad() async {
   await Future.delayed(Duration(seconds: 2));
 }
 
+dialogLogin(BuildContext context, BuildContext dialogContext,
+    {bool isHorizontal}) {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        dialogContext = context;
+        return AlertDialog(
+          content: Container(
+            height: isHorizontal ? 250.h : 185.h,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: CircularProgressIndicator(),
+                ),
+                SizedBox(
+                  height: 20.h,
+                ),
+                Center(
+                  child: Text(
+                    'Mohon menunggu',
+                    style: TextStyle(
+                      fontSize: isHorizontal ? 25.sp : 15.sp,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+}
+
 login(String user, String pass, BuildContext context,
-    {bool isHorizontal}) async {
+    {bool isHorizontal, var token}) async {
+  BuildContext dialogContext;
+
+  dialogLogin(
+    context,
+    dialogContext,
+    isHorizontal: isHorizontal,
+  );
+
   int timeout = 15;
   var url = '$API_URL/auth/login';
 
-  if (url.contains("dev"))
-  {
+  if (url.contains("dev")) {
     print('DEV MODE');
-  }
-  else
-  {
+  } else {
     print('PROD MODE');
   }
 
   try {
     var response = await http.post(url, body: {
       'username': user,
-      'password': pass
+      'password': pass,
+      'gentoken': token
     }).timeout(Duration(seconds: timeout));
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
@@ -90,6 +131,7 @@ login(String user, String pass, BuildContext context,
               backgroundColor: Colors.red,
               textColor: Colors.white,
               fontSize: 16);
+          Navigator.of(context).pop();
         }
       } else {
         Fluttertoast.showToast(
@@ -100,6 +142,7 @@ login(String user, String pass, BuildContext context,
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16);
+        Navigator.of(context).pop();
       }
     } on FormatException catch (e) {
       print('Format Error : $e');
@@ -109,13 +152,16 @@ login(String user, String pass, BuildContext context,
         false,
         isHorizontal: isHorizontal,
       );
+      Navigator.of(context).pop();
     }
   } on TimeoutException catch (e) {
     print('Timeout Error : $e');
     handleTimeout(context);
+    Navigator.of(context).pop();
   } on SocketException catch (e) {
     print('Socket Error : $e');
     handleSocket(context);
+    Navigator.of(context).pop();
   } on Error catch (e) {
     print('General Error : $e');
     handleStatus(
@@ -124,6 +170,178 @@ login(String user, String pass, BuildContext context,
       false,
       isHorizontal: isHorizontal,
     );
+    Navigator.of(context).pop();
+  }
+}
+
+String getNotifImg({int template}) {
+  switch (template) {
+    case 0:
+    case 1:
+      return 'assets/images/e_contract_new.png';
+      break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      return 'assets/images/renew_contract.png';
+      break;
+    case 6:
+    case 7:
+      return 'assets/images/success.png';
+      break;
+    case 8:
+    case 9:
+      return 'assets/images/failure.png';
+      break;
+    default:
+      return 'assets/images/myleinz.png';
+      break;
+  }
+}
+
+pushNotif(
+  int template,
+  int type, {
+  String idUser,
+  dynamic rcptToken,
+  String opticName,
+  String salesName,
+  String admName,
+}) async {
+  const timeout = 15;
+  var url = '';
+  var tmplate, notifType, title, body, to;
+
+  switch (type) {
+    case 3:
+      url = '$API_URL/notification/sendByToken';
+      break;
+    default:
+      url = '$API_URL/notification/sendBroadcast';
+      break;
+  }
+
+  switch (template) {
+    case 0:
+      title = 'Pengajuan Kontrak Sukses';
+      body =
+          'Pengajuan kontrak $opticName berhasil di-input kedalam sistem. Mohon menunggu untuk persetujuan sales manager dan ar manager';
+      tmplate = '0';
+      break;
+    case 1:
+      title = 'Ada Kontrak Baru';
+      body =
+          '$salesName mengajukan kontrak $opticName. Mohon segera proses pengajuan kontrak tersebut';
+      tmplate = '1';
+      break;
+    case 2:
+      title = 'Revisi Kontrak Sukses';
+      body =
+          'Kontrak $opticName berhasil direvisi. Mohon menunggu untuk persetujuan kontrak tersebut';
+      tmplate = '2';
+      break;
+    case 3:
+      title = 'Ada Revisi Kontrak';
+      body =
+          '$salesName telah merevisi kontrak $opticName. Mohon segera proses pengajuan kontrak tersebut';
+      tmplate = '3';
+      break;
+    case 4:
+      title = 'Pengajuan Perubahan Kontrak';
+      body =
+          'Perubahan kontrak $opticName berhasil di-input kedalam sistem. Mohon menunggu untuk persetujuan sales manager dan ar manager';
+      tmplate = '4';
+      break;
+    case 5:
+      title = 'Ada Perubahan Kontrak';
+      body =
+          '$salesName telah merubah kontrak $opticName. Mohon segera proses pengajuan kontrak tersebut';
+      tmplate = '5';
+      break;
+    case 6:
+      title = 'Kontrak Disetujui';
+      body =
+          'Pengajuan kontrak $opticName sudah disetujui dan berhasil diinformasikan ke akun sales $salesName.';
+      tmplate = '6';
+      break;
+    case 7:
+      title = 'Kontrak Telah Diapprove';
+      body =
+          'Hai, pengajuan kontrak $opticName telah disetujui oleh $admName. Selalu periksa status pengajuan kontrak anda';
+      tmplate = '7';
+      break;
+    case 8:
+      title = 'Kontrak Ditangguhkan';
+      body =
+          'Pengajuan kontrak $opticName berhasil ditangguhkan dan akan segera direvisi oleh sales $salesName.';
+      tmplate = '8';
+      break;
+    case 9:
+      title = 'Kontrak Telah Ditolak';
+      body =
+          'Hai, pengajuan kontrak $opticName telah ditolak oleh $admName. Segera revisi pengajuan kontrak tersebut agar segera diproses admin';
+      tmplate = '9';
+      break;
+  }
+
+  switch (type) {
+    case 1:
+      to = "/topics/alladmin";
+      notifType = '1';
+      break;
+    case 2:
+      to = "/topics/allsales";
+      notifType = '2';
+      break;
+    case 3:
+      to = rcptToken;
+      notifType = '3';
+      break;
+    default:
+      to = "/topics/all";
+      notifType = '0';
+      break;
+  }
+
+  try {
+    var response = await http.post(url, body: {
+      'to': to,
+      'body': body,
+      'title': title,
+      'priority': 'high',
+      'type_template': tmplate,
+      'type_notifikasi': notifType,
+      'id_user': idUser,
+    }).timeout(Duration(seconds: timeout));
+
+    print('To : $to');
+    print('Body : $body');
+    print('Title : $title');
+    print('Type Notif : $notifType');
+    print('Id User : $idUser');
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    try {
+      var res = json.decode(response.body);
+      final bool sts = res['status'];
+
+      if (!sts) {
+        print('Gagal kirim notifikasi');
+      } else {
+        print('Sukses');
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+    }
+  } on TimeoutException catch (e) {
+    print('Timeout Error : $e');
+  } on SocketException catch (e) {
+    print('Socket Error : $e');
+  } on Error catch (e) {
+    print('General Error : $e');
   }
 }
 
@@ -516,7 +734,7 @@ handleConnectionAdmin(BuildContext context) {
 Future<String> getTtdValid(String idUser, BuildContext context,
     {String role}) async {
   const timeout = 15;
-  var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$idUser';
+  var url = '$API_URL/users?id=$idUser';
 
   try {
     var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -524,7 +742,7 @@ Future<String> getTtdValid(String idUser, BuildContext context,
     try {
       var data = json.decode(response.body);
       print(data);
-      String ttd = data['data'][0]['ttd'];
+      String ttd = data['data']['ttd'];
 
       return ttd;
     } on FormatException catch (e) {
@@ -1139,7 +1357,10 @@ convertDateWithMonth(String tgl) {
   return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()}";
 }
 
-convertDateWithMonthHour(String tgl) {
+convertDateWithMonthHour(
+  String tgl, {
+  bool isPukul = true,
+}) {
   DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
   DateTime date = dateFormat.parse(tgl);
 
@@ -1158,7 +1379,7 @@ convertDateWithMonthHour(String tgl) {
     'Des'
   ];
 
-  return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()} Pukul ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}";
+  return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()} ${isPukul ? 'Pukul' : ''} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}";
 }
 
 String convertToIdr(dynamic number, int decimalDigit) {
@@ -1254,8 +1475,7 @@ getCustomerContractNew({
   bool isHorizontal,
 }) async {
   const timeout = 15;
-  var url =
-      '$API_URL/contract?id_customer=$idCust';
+  var url = '$API_URL/contract?id_customer=$idCust';
 
   try {
     var response = await http.get(url).timeout(Duration(seconds: timeout));

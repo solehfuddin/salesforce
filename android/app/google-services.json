@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "888181814340",
+    "project_id": "sample-notification-9d0eb",
+    "storage_bucket": "sample-notification-9d0eb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888181814340:android:57735119d02a1e377b7811",
+        "android_client_info": {
+          "package_name": "com.example.sample_notification"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "888181814340-586o4qchh59c145aeq47ltp6j7h215qb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJztVR74i79O187XCEHgLqALxxkvKBrO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "888181814340-586o4qchh59c145aeq47ltp6j7h215qb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888181814340:android:5dd163ebb813ec3f7b7811",
+        "android_client_info": {
+          "package_name": "com.sofudev.salesengagement"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "888181814340-586o4qchh59c145aeq47ltp6j7h215qb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJztVR74i79O187XCEHgLqALxxkvKBrO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "888181814340-586o4qchh59c145aeq47ltp6j7h215qb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

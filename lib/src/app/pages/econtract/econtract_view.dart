@@ -57,6 +57,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   String role = '';
   String username = '';
   String name = '';
+  String token = '';
   String idCustomer,
       namaKedua,
       jabatanKedua,
@@ -398,7 +399,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 }
               }
             }
-            itemProdDiv.removeWhere((item) => item.ischecked);
+            // itemProdDiv.removeWhere((item) => item.ischecked);
           }
         }
       } on FormatException catch (e) {
@@ -537,7 +538,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 }
               }
             }
-            itemProduct.removeWhere((item) => item.ischecked);
+            // itemProduct.removeWhere((item) => item.ischecked);
           }
         }
 
@@ -595,7 +596,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   getTtdSales(int input) async {
     const timeout = 15;
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -606,8 +607,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
         final bool sts = data['status'];
 
         if (sts) {
-          ttdPertama = data['data'][0]['ttd'];
+          ttdPertama = data['data']['ttd'];
+          token = data['data']['gentoken'];
           print(ttdPertama);
+          print(token);
         }
 
         getItemProdDiv();
@@ -678,9 +681,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
-  updateDiskon({bool isHorizontal}) async {
+  updateDiskon({
+    bool isHorizontal,
+    dynamic idContract,
+  }) async {
     const timeout = 15;
-    var url = '$API_URL/discount/delete/${dtContract[0].idContract}';
+    var url = '$API_URL/discount/delete/$idContract';
 
     try {
       var response = await http
@@ -696,9 +702,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
         if (sts) {
           print(msg);
-          multipleInputDiskon(
-            isHorizontal: isHorizontal,
-          );
+          _isRegularDisc
+              ? simpanDiskon(
+                  idCustomer,
+                  isHorizontal: isHorizontal,
+                )
+              : multipleInputDiskon(
+                  isHorizontal: isHorizontal,
+                );
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -864,11 +875,32 @@ class _EcontractScreenState extends State<EcontractScreen> {
             textValNikon.clear();
             textValOriental.clear();
 
+            print('RUN UPDATE DISKON : ${dtContract[0].idContract}');
+
             dtCustomDisc.length > 0
                 ? updateDiskon(
                     isHorizontal: isHorizontal,
+                    idContract: dtContract[0].idContract,
                   )
                 : print('Tidak update diskon');
+
+            //Send to all admin
+            pushNotif(
+              3,
+              1,
+              salesName: name,
+              opticName: widget.customerList[widget.position].namaUsaha,
+              idUser: '',
+            );
+
+            //Send to me
+            pushNotif(
+              2,
+              3,
+              idUser: id,
+              rcptToken: token,
+              opticName: widget.customerList[widget.position].namaUsaha,
+            );
           }
           if (mounted) {
             handleStatus(
@@ -1036,6 +1068,29 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     : multipleInputDiskon(
                         isHorizontal: isHorizontal,
                       );
+
+            //Send to all admin
+            pushNotif(
+              1,
+              1,
+              salesName: name,
+              opticName: widget.customerList[0].namaUsaha,
+              idUser: '',
+            );
+
+            //Send to me
+            pushNotif(
+              0,
+              3,
+              idUser: id,
+              rcptToken: token,
+              opticName: widget.customerList[widget.position].namaUsaha,
+            );
+
+            print('Id User : $id');
+            print('Token : $token');
+            print(
+                'Optic Name : ${widget.customerList[widget.position].namaUsaha}');
           }
 
           if (mounted) {

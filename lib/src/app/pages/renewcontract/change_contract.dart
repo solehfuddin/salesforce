@@ -46,6 +46,7 @@ class _ChangeContractState extends State<ChangeContract> {
   String username = '';
   String name = '';
   String ttdKedua = '';
+  String token = '';
   String idCustomer, jabatanKedua, ttdPertama;
   String _chosenNikon, _chosenLeinz, _chosenOriental, _chosenMoe;
   final format = DateFormat("yyyy-MM-dd");
@@ -94,7 +95,7 @@ class _ChangeContractState extends State<ChangeContract> {
   }
 
   getTtdSales(int input) async {
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
 
     if (_isConnected) {
       var response = await http.get(url);
@@ -105,7 +106,8 @@ class _ChangeContractState extends State<ChangeContract> {
         final bool sts = data['status'];
 
         if (sts) {
-          ttdPertama = data['data'][0]['ttd'];
+          ttdPertama = data['data']['ttd'];
+          token = data['data']['gentoken'];
           print(ttdPertama);
         }
       } on FormatException catch (e) {
@@ -509,6 +511,24 @@ class _ChangeContractState extends State<ChangeContract> {
                 : multipleInputDiskon(
                     isHorizontal: isHorizontal,
                   );
+
+            //Send to all admin
+            pushNotif(
+              5,
+              1,
+              salesName: name,
+              opticName: widget.oldCustomer.customerShipName,
+              idUser: '',
+            );
+
+            //Send to me
+            pushNotif(
+              4,
+              3,
+              idUser: id,
+              rcptToken: token,
+              opticName: widget.oldCustomer.customerShipName,
+            );
           }
 
           handleStatusChangeContract(

@@ -55,7 +55,7 @@ class _HistoryContractState extends State<HistoryContract> {
   }
 
   getTtd(int input) async {
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
     var response = await http.get(url);
     print('Response status: ${response.statusCode}');
 
@@ -64,7 +64,7 @@ class _HistoryContractState extends State<HistoryContract> {
       final bool sts = data['status'];
 
       if (sts) {
-        ttdPertama = data['data'][0]['ttd'];
+        ttdPertama = data['data']['ttd'];
         print(ttdPertama);
       }
     } on FormatException catch (e) {

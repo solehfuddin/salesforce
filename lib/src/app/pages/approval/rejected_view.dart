@@ -121,7 +121,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
   }
 
   getTtd(int input) async {
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
     const timeout = 15;
 
     try {
@@ -133,7 +133,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
         final bool sts = data['status'];
 
         if (sts) {
-          ttdPertama = data['data'][0]['ttd'];
+          ttdPertama = data['data']['ttd'];
           print(ttdPertama);
         }
       } on FormatException catch (e) {

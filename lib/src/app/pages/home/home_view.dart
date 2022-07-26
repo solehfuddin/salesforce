@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/size_extension.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/utils/dbhelper.dart';
 import 'package:sample/src/app/widgets/areabanner.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamenu.dart';
@@ -16,11 +18,13 @@ import 'package:sample/src/app/widgets/areasyncchart.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
+import 'package:sample/src/domain/entities/notifikasi.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesSize.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -28,6 +32,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  DbHelper dbHelper = DbHelper();
+  List<Notifikasi> listNotifLocal = List.empty(growable: true);
   String id = '';
   String role = '';
   String username = '';
@@ -37,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _isConnected = false;
   bool _isPerform = true;
+  bool _isBadge = false;
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<SalesPerform> listPerform = List.empty(growable: true);
   List<PieReport> _samplePie = List.empty(growable: true);
@@ -59,12 +67,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
       print("Dashboard : $role");
       getTtd(int.parse(id));
+
+      getLocalNotif();
     });
   }
 
   @override
   void initState() {
     super.initState();
+    _firebaseMessaging.subscribeToTopic("allsales");
+    _firebaseMessaging.unsubscribeFromTopic("alladmin");
     getRole();
 
     DateTime now = new DateTime.now();
@@ -82,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getTtd(int input) async {
     const timeout = 15;
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -93,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final bool sts = data['status'];
 
         if (sts) {
-          ttdSales = data['data'][0]['ttd'];
+          ttdSales = data['data']['ttd'];
           print(ttdSales);
         }
 
@@ -153,6 +165,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _refreshData() async {
     setState(() {
       getTtd(int.parse(id));
+
+      getLocalNotif();
     });
   }
 
@@ -210,6 +224,114 @@ class _HomeScreenState extends State<HomeScreen> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+  }
+
+  void addLocalNotif(Notifikasi item) async {
+    if (item.idUser == null) {
+      item.idUser = "0";
+    }
+    int res = await dbHelper.insert(item);
+    if (res > 0) {
+      getLocalNotif();
+    }
+  }
+
+  void isReadLocal() async {
+    _isBadge = await dbHelper.selectByRead();
+  }
+
+  void existLocalNotif(Notifikasi item) async {
+    List<Notifikasi> result = await dbHelper.selectById(item);
+    if (result.length > 0) {
+      print('Data has exist');
+    } else {
+      addLocalNotif(item);
+    }
+    result.clear();
+  }
+
+  void getLocalNotif() {
+    final Future<Database> dbFuture = dbHelper.initDb();
+    dbFuture.then((value) {
+      Future<List<Notifikasi>> listNotif = dbHelper.getNotifikasi();
+      listNotif.then((value) {
+        setState(() {
+          listNotifLocal = value;
+
+          for (int i = 0; i < listNotifLocal.length; i++) {
+            print('Id Notif : ${listNotifLocal[i].idNotif}');
+            print('Id User : ${listNotifLocal[i].idUser}');
+            print('Type Template : ${listNotifLocal[i].typeTemplate}');
+            print('Type Notif : ${listNotifLocal[i].typeNotif}');
+            print('Judul : ${listNotifLocal[i].judul}');
+            print('Isi : ${listNotifLocal[i].isi}');
+            print('Tanggal : ${listNotifLocal[i].tanggal}');
+            print('Is Read : ${listNotifLocal[i].isRead}');
+          }
+
+          role == "ADMIN"
+              ? getNotifikasiRemote(
+                  true,
+                  idUser: id,
+                )
+              : getNotifikasiRemote(
+                  false,
+                  idUser: id,
+                );
+        });
+      });
+    });
+  }
+
+  getNotifikasiRemote(bool isAdmin, {dynamic idUser}) async {
+    const timeout = 15;
+    List<Notifikasi> list;
+
+    var url = isAdmin
+        ? '$API_URL/notification/getNotifAdmin/?id=$idUser'
+        : '$API_URL/notification/getNotifSales/?id=$idUser';
+
+    try {
+      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<Notifikasi>((json) => Notifikasi.fromJson(json))
+              .toList();
+
+          if (listNotifLocal.length < 1) {
+            for (int i = 0; i < list.length; i++) {
+              addLocalNotif(list[i]);
+            }
+          } else {
+            for (int i = 0; i < list.length; i++) {
+              existLocalNotif(list[i]);
+            }
+          }
+
+          Future.delayed(Duration(seconds: 3), () {
+            isReadLocal();
+          });
+          print("List Size: ${list.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+    return list;
   }
 
   List<PieReport> generateReport(double totalSales) {
@@ -291,6 +413,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return Scaffold(
                 appBar: CustomAppBar(
                   isHorizontal: true,
+                  isBadge : _isBadge,
                 ),
                 body: RefreshIndicator(
                     child: CustomScrollView(
@@ -458,6 +581,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return Scaffold(
               appBar: CustomAppBar(
                 isHorizontal: false,
+                isBadge : _isBadge,
               ),
               body: RefreshIndicator(
                 child: CustomScrollView(

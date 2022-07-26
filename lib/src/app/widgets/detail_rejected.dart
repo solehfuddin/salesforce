@@ -190,8 +190,14 @@ class _DetailRejectedState extends State<DetailRejected> {
                           : widget.contract.approvalSm == "1"
                               // : widget.customer[widget.position].ttdSalesManager ==
                               //         "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonthHour(widget.contract.dateApprovalSm)}'
-                              : 'Ditolak oleh Sales Manager ${convertDateWithMonthHour(widget.contract.dateApprovalSm)}',
+                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonthHour(
+                                  widget.contract.dateApprovalSm,
+                                  isPukul: true,
+                                )}'
+                              : 'Ditolak oleh Sales Manager ${convertDateWithMonthHour(
+                                  widget.contract.dateApprovalSm,
+                                  isPukul: true,
+                                )}',
                       style: TextStyle(
                         fontSize: isHorizontal ? 22.sp : 14.sp,
                         fontFamily: 'Segoe ui',
@@ -294,8 +300,14 @@ class _DetailRejectedState extends State<DetailRejected> {
                           ? 'Menunggu Persetujuan AR Manager'
                           // : widget.customer[widget.position].ttdArManager == "1"
                           : widget.contract.approvalAm == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateWithMonthHour(widget.contract.dateApprovalAm)}'
-                              : 'Ditolak oleh AR Manager ${convertDateWithMonthHour(widget.contract.dateApprovalAm)}',
+                              ? 'Disetujui oleh AR Manager ${convertDateWithMonthHour(
+                                  widget.contract.dateApprovalAm,
+                                  isPukul: true,
+                                )}'
+                              : 'Ditolak oleh AR Manager ${convertDateWithMonthHour(
+                                  widget.contract.dateApprovalAm,
+                                  isPukul: true,
+                                )}',
                       style: TextStyle(
                         fontSize: isHorizontal ? 22.sp : 14.sp,
                         fontFamily: 'Segoe ui',
