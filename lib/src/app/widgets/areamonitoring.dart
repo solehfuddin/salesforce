@@ -64,14 +64,23 @@ SliverPadding areaHeaderMonitoring({bool isHorizontal}) {
 }
 
 SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
-    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
+    String ttdPertama, String username, String divisi,
+    {bool isHorizontal}) {
   return SliverPadding(
-    padding: EdgeInsets.symmetric(horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
+    padding: EdgeInsets.symmetric(
+        horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
           return itemMonitoring(
-              item, index, context, ttdPertama, username, divisi, isHorizontal: isHorizontal,);
+            item,
+            index,
+            context,
+            ttdPertama,
+            username,
+            divisi,
+            isHorizontal: isHorizontal,
+          );
         },
         childCount: item.length,
       ),
@@ -79,7 +88,8 @@ SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
   );
 }
 
-SliverPadding areaMonitoringNotFound(BuildContext context, {bool isHorizontal}) {
+SliverPadding areaMonitoringNotFound(BuildContext context,
+    {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15.r,
@@ -146,7 +156,8 @@ SliverPadding areaMonitoringNotFound(BuildContext context, {bool isHorizontal}) 
   );
 }
 
-SliverPadding areaButtonMonitoring(BuildContext context, bool isShow, {bool isHorizontal}) {
+SliverPadding areaButtonMonitoring(BuildContext context, bool isShow,
+    {bool isHorizontal}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: isHorizontal ? 25.r : 15.r,
@@ -195,7 +206,8 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow, {bool isHo
 }
 
 Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
-    String ttdPertama, String username, String divisi, {bool isHorizontal}) {
+    String ttdPertama, String username, String divisi,
+    {bool isHorizontal}) {
   return InkWell(
     child: Container(
       margin: EdgeInsets.symmetric(
@@ -214,12 +226,20 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            item[index].namaUsaha != null ? item[index].namaUsaha : item[index].customerShipName,
-            style: TextStyle(
-              fontSize: isHorizontal ? 28.sp : 18.sp,
-              fontFamily: 'Segoe Ui',
-              fontWeight: FontWeight.w600,
+          Expanded(
+            flex: 1,
+            child: Text(
+              item[index].namaUsaha != null
+                  ? item[index].namaUsaha
+                  : item[index].customerShipName,
+              style: TextStyle(
+                fontSize: isHorizontal ? 28.sp : 18.sp,
+                fontFamily: 'Segoe Ui',
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           SizedBox(

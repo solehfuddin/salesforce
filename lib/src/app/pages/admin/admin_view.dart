@@ -72,8 +72,6 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   void initState() {
     super.initState();
-    _firebaseMessaging.subscribeToTopic("alladmin");
-    _firebaseMessaging.unsubscribeFromTopic("allsales");
     if (listContract.length > 0) listContract.clear();
 
     DateTime now = new DateTime.now();
@@ -123,13 +121,21 @@ class _AdminScreenState extends State<AdminScreen> {
       username = preferences.getString("username");
       userUpper = username.toUpperCase();
       divisi = preferences.getString("divisi");
-      divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
-      divisi == "AR" ? getApprovedData(true) : getApprovedData(false);
-      divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
+      divisi == "AR" ? getCounterData(true) : getCounterData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
 
-      countNewCustomer();
-      countOldCustomer();
+      if (divisi == 'AR')
+      {
+        _firebaseMessaging.subscribeToTopic("allar");
+        _firebaseMessaging.unsubscribeFromTopic("alladmin");
+        _firebaseMessaging.unsubscribeFromTopic("allsales");
+      }
+      else {
+        _firebaseMessaging.subscribeToTopic("allsales");
+        _firebaseMessaging.unsubscribeFromTopic("alladmin");
+        _firebaseMessaging.unsubscribeFromTopic("allar");
+      }
+      
       getPerformSales(stDate, edDate);
 
       getTtd(int.parse(id));
@@ -185,66 +191,9 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  countNewCustomer() async {
+  getCounterData(bool isAr) async {
     const timeout = 15;
-    var url = '$API_URL/customers';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status : ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          totalNewCustomer = data['count'];
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  countOldCustomer() async {
-    const timeout = 15;
-
-    var url = '$API_URL/customers/oldCustomer';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status : ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          totalOldCustomer = data['total_row'];
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  getWaitingData(bool isAr) async {
-    const timeout = 15;
-    var url = !isAr
-        ? '$API_URL/customers/approvalSM?ttd_sales_manager=0'
-        : '$API_URL/customers/approvalAM?ttd_ar_manager=0';
+    var url = '$API_URL/counter/counter/$id';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -253,74 +202,16 @@ class _AdminScreenState extends State<AdminScreen> {
       try {
         var data = json.decode(response.body);
         final bool sts = data['status'];
+        dynamic counter = data['data'];
 
         if (sts) {
-          totalWaiting = data['count'];
-          print('Waiting : $totalWaiting');
-
-          setState(() {});
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  getApprovedData(bool isAr) async {
-    const timeout = 15;
-    var url = !isAr
-        ? '$API_URL/customers/approvedSM'
-        : '$API_URL/customers/approvedAM';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          totalApproved = data['count'];
-          print('Approve : $totalApproved');
-
-          setState(() {});
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  getRejectedData(bool isAr) async {
-    const timeout = 15;
-    var url = !isAr
-        ? '$API_URL/customers/rejectedSM'
-        : '$API_URL/customers/rejectedAM';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          totalRejected = data['count'];
-          print('Rejected : $totalRejected');
+          print(counter);
+          
+          totalNewCustomer = counter['newCust'];
+          totalOldCustomer = counter['oldCust'];
+          totalWaiting = isAr ? counter['awaitAR'] : counter['awaitSM'];
+          totalApproved = counter['approved'];
+          totalRejected = counter['rejected'];
 
           setState(() {});
         }
@@ -582,13 +473,8 @@ class _AdminScreenState extends State<AdminScreen> {
     setState(() {
       if (listMonitoring.length > 0) listMonitoring.clear();
       if (listContract.length > 0) listContract.clear();
-      divisi == "AR" ? getWaitingData(true) : getWaitingData(false);
-      divisi == "AR" ? getApprovedData(true) : getApprovedData(false);
-      divisi == "AR" ? getRejectedData(true) : getRejectedData(false);
+      divisi == "AR" ? getCounterData(true) : getCounterData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
-
-      countNewCustomer();
-      countOldCustomer();
 
       getTtd(int.parse(id));
 

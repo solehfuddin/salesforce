@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,6 +16,8 @@ import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
 import 'package:sample/src/app/widgets/detail_waiting.dart';
+import 'package:sample/src/app/widgets/detail_waitingcontract.dart';
+import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
 import 'package:sample/src/domain/entities/contract.dart';
@@ -35,49 +36,19 @@ waitingLoad() async {
   await Future.delayed(Duration(seconds: 2));
 }
 
-dialogLogin(BuildContext context, BuildContext dialogContext,
-    {bool isHorizontal}) {
+dialogLogin(BuildContext context) {
   return showDialog(
-      context: context,
-      builder: (context) {
-        dialogContext = context;
-        return AlertDialog(
-          content: Container(
-            height: isHorizontal ? 250.h : 185.h,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                  child: CircularProgressIndicator(),
-                ),
-                SizedBox(
-                  height: 20.h,
-                ),
-                Center(
-                  child: Text(
-                    'Mohon menunggu',
-                    style: TextStyle(
-                      fontSize: isHorizontal ? 25.sp : 15.sp,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      });
+    context: context,
+    builder: (context) {
+      return DialogLogin();
+    },
+  );
 }
 
 login(String user, String pass, BuildContext context,
     {bool isHorizontal, var token}) async {
-  BuildContext dialogContext;
-
   dialogLogin(
     context,
-    dialogContext,
-    isHorizontal: isHorizontal,
   );
 
   int timeout = 15;
@@ -115,13 +86,15 @@ login(String user, String pass, BuildContext context,
 
           savePref(id, name, username, accstatus, role, divisi);
 
-          if (role == "ADMIN") {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => AdminScreen()));
-          } else {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => HomeScreen()));
-          }
+          Future.delayed(Duration(seconds: 3), () {
+            if (role == "ADMIN") {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => AdminScreen()));
+            } else {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => HomeScreen()));
+            }
+          });
         } else {
           Fluttertoast.showToast(
               msg: msg,
@@ -287,16 +260,23 @@ pushNotif(
 
   switch (type) {
     case 1:
+      //ALL ADMIN SALES
       to = "/topics/alladmin";
       notifType = '1';
       break;
     case 2:
+      //ALL SALES
       to = "/topics/allsales";
       notifType = '2';
       break;
     case 3:
       to = rcptToken;
       notifType = '3';
+      break;
+    case 4:
+      //ALL ADMIN AR
+      to = "/topics/allar";
+      notifType = '4';
       break;
     default:
       to = "/topics/all";
@@ -864,7 +844,13 @@ formWaiting(
   );
 }
 
-formWaitingContract(BuildContext context, List<Contract> item, int position) {
+formWaitingContract(
+  BuildContext context,
+  List<Contract> item,
+  int position,
+  String reasonSM,
+  String reasonAM,
+) {
   return showModalBottomSheet(
     elevation: 2,
     backgroundColor: Colors.white,
@@ -877,317 +863,11 @@ formWaitingContract(BuildContext context, List<Contract> item, int position) {
     ),
     context: context,
     builder: (context) {
-      return Container(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  item[position].customerShipName,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Segoe ui',
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 5,
-                    horizontal: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: item[position].status.contains('Pending') ||
-                            item[position].status.contains('PENDING')
-                        ? Colors.grey[600]
-                        : item[position].status.contains('ACTIVE') ||
-                                item[position].status.contains('active')
-                            ? Colors.blue[600]
-                            : Colors.red[600],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    item[position].status,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Segoe ui',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              item[position].status.contains('Pending') ||
-                      item[position].status.contains('PENDING')
-                  ? 'Pengajuan e-kontrak sedang diproses'
-                  : item[position].status.contains('ACTIVE') ||
-                          item[position].status.contains('active')
-                      ? 'Pengajuan e-kontrak diterima'
-                      : 'Pengajuan e-kontrak ditolak',
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Segoe ui',
-                fontWeight: FontWeight.w600,
-                color: item[position].status.contains('Pending') ||
-                        item[position].status.contains('PENDING')
-                    ? Colors.grey[600]
-                    : item[position].status.contains('Accepted') ||
-                            item[position].status.contains('ACCEPTED')
-                        ? Colors.green[600]
-                        : Colors.red[700],
-              ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              'Diajukan tgl : ${convertDateIndo(item[position].dateAdded)}',
-              style: TextStyle(
-                fontSize: 12,
-                fontFamily: 'Segoe ui',
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(
-              height: 3,
-            ),
-            Divider(
-              color: Colors.black54,
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              'Detail Status',
-              style: TextStyle(
-                fontSize: 18,
-                fontFamily: 'Segoe ui',
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: 20,
-                ),
-                SizedBox(
-                  width: 50,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'SM',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontFamily: 'Segoe ui',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        'Sales Manager',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontFamily: 'Segoe ui',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      item[position].approvalSm == "0" ||
-                              item[position].approvalSm == null
-                          ? 'Menunggu Persetujuan Sales Manager'
-                          : item[position].approvalSm == "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateIndo(item[position].dateApprovalSm)}'
-                              : 'Ditolak oleh Sales Manager ${convertDateIndo(item[position].dateApprovalSm)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: 20,
-                ),
-                SizedBox(
-                  width: 50,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      'AM',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AR Manager',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      item[position].approvalAm == "0" ||
-                              item[position].approvalSm == null
-                          ? 'Menunggu Persetujuan AR Manager'
-                          : item[position].approvalAm == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateIndo(item[position].dateApprovalAm)}'
-                              : 'Ditolak oleh AR Manager ${convertDateIndo(item[position].dateApprovalAm)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Segoe ui',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            item[position].status.contains("PENDING") ||
-                    item[position].status.contains("pending")
-                ? Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(),
-                        primary: Colors.red[800],
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      ),
-                      child: Text(
-                        'Tutup',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Segoe ui',
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ArgonButton(
-                        height: 40,
-                        width: 120,
-                        borderRadius: 30.0,
-                        color: Colors.blue[700],
-                        child: Text(
-                          "Unduh Kontrak",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        loader: Container(
-                          padding: EdgeInsets.all(8),
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        ),
-                        onTap: (startLoading, stopLoading, btnState) {
-                          if (btnState == ButtonState.Idle) {
-                            startLoading();
-                            waitingLoad();
-                            donwloadContract(
-                                item[position].idCustomer, stopLoading());
-                          }
-                        },
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: StadiumBorder(),
-                          primary: Colors.red[800],
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                        ),
-                        child: Text(
-                          'Tutup',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Segoe ui',
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-            SizedBox(
-              height: 10,
-            ),
-          ],
-        ),
+      return DetailWaitingContract(
+        item,
+        position,
+        reasonSM,
+        reasonAM,
       );
     },
   );

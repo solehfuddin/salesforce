@@ -7,11 +7,12 @@ class FormItemDisc extends StatefulWidget {
 
   final index;
   Proddiv proddiv;
-  final state = _FormItemDiscState();
+  var state = _FormItemDiscState();
 
   @override
   _FormItemDiscState createState() {
-    return state;
+    // return state;
+    return this.state = new _FormItemDiscState();
   }
 
   TextEditingController _discvalController = TextEditingController();
@@ -27,7 +28,7 @@ class _FormItemDiscState extends State<FormItemDisc> {
   void initState() {
     super.initState();
 
-    if (widget.proddiv.diskon != null){
+    if (widget.proddiv.diskon != null) {
       widget._discvalController.text = widget.proddiv.diskon;
       _isChecked = true;
       _isDisabled = true;
@@ -38,7 +39,8 @@ class _FormItemDiscState extends State<FormItemDisc> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if(constraints.maxWidth > 600 || MediaQuery.of(context).orientation == Orientation.landscape){
+      if (constraints.maxWidth > 600 ||
+          MediaQuery.of(context).orientation == Orientation.landscape) {
         return childFormDisc(isHorizontal: true);
       }
 
@@ -46,7 +48,7 @@ class _FormItemDiscState extends State<FormItemDisc> {
     });
   }
 
-  Widget childFormDisc({bool isHorizontal}){
+  Widget childFormDisc({bool isHorizontal}) {
     return Form(
       key: formKey,
       child: Row(
@@ -71,7 +73,7 @@ class _FormItemDiscState extends State<FormItemDisc> {
             ),
           ),
           Expanded(
-             flex: 1,
+            flex: 1,
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 0.r,
@@ -129,7 +131,9 @@ class _FormItemDiscState extends State<FormItemDisc> {
   }
 
   bool validate() {
+    // widget.state.s
     formKey.currentState.save();
+    // this.formKey
     return true;
   }
 }

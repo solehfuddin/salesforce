@@ -84,7 +84,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     const timeout = 15;
     List<Customer> list;
     var url = !isAr
-        ? '$API_URL/customers/approvalSM?ttd_sales_manager=0'
+        // ? '$API_URL/customers/approvalSM?ttd_sales_manager=0'
+        ? '$API_URL/customers/approvalSM/$id'
         : '$API_URL/customers/approvalAM?ttd_ar_manager=0';
 
     try {
@@ -117,8 +118,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
   getCustomerContract(dynamic idCust, bool isContract,
       {bool isHorizontal}) async {
     const timeout = 15;
-    var url =
-        '$API_URL/contract?id_customer=$idCust';
+    var url = '$API_URL/contract?id_customer=$idCust';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -313,74 +313,79 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  customer[position].namaUsaha,
-                                  style: TextStyle(
-                                    fontSize: isHorizontal ? 25.sp : 16.sp,
-                                    fontFamily: 'Segoe ui',
-                                    fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    customer[position].namaUsaha,
+                                    style: TextStyle(
+                                      fontSize: isHorizontal ? 25.sp : 16.sp,
+                                      fontFamily: 'Segoe ui',
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 15.h,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Tgl entry : ',
-                                      style: TextStyle(
-                                          fontSize:
-                                              isHorizontal ? 21.sp : 11.sp,
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    SizedBox(
-                                      width: isHorizontal ? 35.w : 40.w,
-                                    ),
-                                    Text(
-                                      'Pemilik : ',
-                                      style: TextStyle(
-                                          fontSize:
-                                              isHorizontal ? 21.sp : 11.sp,
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5.h,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      convertDateIndo(
-                                          customer[position].dateAdded),
-                                      style: TextStyle(
-                                          fontSize:
-                                              isHorizontal ? 23.sp : 13.sp,
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(
-                                      width: isHorizontal ? 28.w : 25.w,
-                                    ),
-                                    Text(
-                                      customer[position].nama,
-                                      style: TextStyle(
-                                          fontSize:
-                                              isHorizontal ? 23.sp : 13.sp,
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  SizedBox(
+                                    height: 15.h,
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Tgl entry : ',
+                                        style: TextStyle(
+                                            fontSize:
+                                                isHorizontal ? 21.sp : 11.sp,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      SizedBox(
+                                        width: isHorizontal ? 35.w : 40.w,
+                                      ),
+                                      Text(
+                                        'Pemilik : ',
+                                        style: TextStyle(
+                                            fontSize:
+                                                isHorizontal ? 21.sp : 11.sp,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        convertDateIndo(
+                                            customer[position].dateAdded),
+                                        style: TextStyle(
+                                            fontSize:
+                                                isHorizontal ? 23.sp : 13.sp,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(
+                                        width: isHorizontal ? 28.w : 25.w,
+                                      ),
+                                      Text(
+                                        customer[position].nama,
+                                        style: TextStyle(
+                                            fontSize:
+                                                isHorizontal ? 23.sp : 13.sp,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(

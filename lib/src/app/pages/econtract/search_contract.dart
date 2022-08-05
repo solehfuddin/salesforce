@@ -78,8 +78,7 @@ class _SearchContractState extends State<SearchContract> {
     List<Monitoring> list;
     const timeout = 15;
 
-    var url =
-        '$API_URL/contract/monitoring';
+    var url = '$API_URL/contract/monitoring';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -114,8 +113,7 @@ class _SearchContractState extends State<SearchContract> {
   Future<List<Monitoring>> getMonitoringBySearch(String input) async {
     List<Monitoring> list;
     const timeout = 15;
-    var url =
-        '$API_URL/contract/search?search=$input';
+    var url = '$API_URL/contract/search?search=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -309,14 +307,20 @@ class _SearchContractState extends State<SearchContract> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        item[position].namaUsaha != null
-                            ? item[position].namaUsaha
-                            : item[position].customerShipName,
-                        style: TextStyle(
-                          fontSize: isHorizontal ? 28.sp : 18.sp,
-                          fontFamily: 'Segoe Ui',
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          item[position].namaUsaha != null
+                              ? item[position].namaUsaha
+                              : item[position].customerShipName,
+                          style: TextStyle(
+                            fontSize: isHorizontal ? 28.sp : 18.sp,
+                            fontFamily: 'Segoe Ui',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       SizedBox(

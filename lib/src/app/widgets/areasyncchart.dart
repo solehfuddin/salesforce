@@ -234,6 +234,75 @@ SliverPadding areaDonutChartHor({
   );
 }
 
+SliverPadding areaDonutChartHorUser({
+  List<PieReport> dataPie,
+  String startDate,
+  String endDate,
+  List<SalesPerform> sales,
+  dynamic totalSales,
+  BuildContext context,
+}) {
+  _startDate = startDate;
+  _endDate = endDate;
+  return SliverPadding(
+    padding: EdgeInsets.symmetric(
+      horizontal: 15.r,
+      vertical: 5.r,
+    ),
+    sliver: SliverToBoxAdapter(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(15.r),
+                child: SfCircularChart(
+                  series: [
+                    DoughnutSeries<PieReport, String>(
+                      dataSource: dataPie,
+                      xValueMapper: (PieReport data, _) => data.salesName,
+                      yValueMapper: (PieReport data, _) => data.value,
+                      pointColorMapper: (PieReport data, _) => data.color,
+                      pointRadiusMapper: (PieReport data, _) => data.size,
+                      dataLabelMapper: (PieReport data, _) => data.perc,
+                      dataLabelSettings: DataLabelSettings(
+                        isVisible: true,
+                        textStyle: TextStyle(
+                          fontSize: 22.sp,
+                          fontFamily: 'Segoe Ui',
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      enableSmartLabels: false,
+                      animationDuration: 1000,
+                      innerRadius: '63%',
+                      radius: '75%',
+                      explode: true,
+                      strokeColor: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  ],
+                  onPointTapped: (pointTapArgs) {
+                    print('Tapped ${pointTapArgs.pointIndex}');
+                  },
+                ),
+              ),
+            ],
+          ),
+          infoSalesUser(
+              sales: sales,
+              totalSales: totalSales,
+              context: context,
+              stDate: _startDate,
+              edDate: _endDate),
+        ],
+      ),
+    ),
+  );
+}
+
 Widget infoSales({
   BuildContext context,
   List<SalesPerform> sales,
@@ -244,6 +313,33 @@ Widget infoSales({
   final itemList = <Widget>[];
   for (int i = 0; i < sales.length; i++) {
     itemList.add(itemInfo(
+      sales,
+      i,
+      totalSales,
+      context: context,
+      isHorizontal: true,
+      stDate: stDate,
+      edDate: edDate,
+    ));
+  }
+  return Expanded(
+    flex: 1,
+    child: Column(
+      children: itemList,
+    ),
+  );
+}
+
+Widget infoSalesUser({
+  BuildContext context,
+  List<SalesPerform> sales,
+  dynamic totalSales,
+  String stDate,
+  String edDate,
+}) {
+  final itemList = <Widget>[];
+  for (int i = 0; i < sales.length; i++) {
+    itemList.add(itemInfoUser(
       sales,
       i,
       totalSales,
@@ -344,6 +440,37 @@ SliverPadding areaInfoDonut(
   );
 }
 
+SliverPadding areaInfoDonutUser(
+    {List<SalesPerform> sales,
+    dynamic totalSales,
+    BuildContext context,
+    String stDate,
+    String edDate}) {
+  return SliverPadding(
+    padding: EdgeInsets.only(
+      left: 15.r,
+      right: 15.r,
+      bottom: 20.r,
+    ),
+    sliver: SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (BuildContext context, int index) {
+          return itemInfoUser(
+            sales,
+            index,
+            totalSales,
+            context: context,
+            isHorizontal: false,
+            stDate: stDate,
+            edDate: edDate,
+          );
+        },
+        childCount: sales.length,
+      ),
+    ),
+  );
+}
+
 Widget itemInfo(List<SalesPerform> sales, int position, dynamic totalSales,
     {BuildContext context, bool isHorizontal, String stDate, String edDate}) {
   double perc = double.tryParse(sales[position].penjualan) / totalSales * 100;
@@ -412,6 +539,69 @@ Widget itemInfo(List<SalesPerform> sales, int position, dynamic totalSales,
               edDate: edDate,
             );
           },
+        ),
+        clipper: ShapeBorderClipper(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(3.r),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget itemInfoUser(List<SalesPerform> sales, int position, dynamic totalSales,
+    {BuildContext context, bool isHorizontal, String stDate, String edDate}) {
+  double perc = sales[position].penjualan != null
+      ? double.tryParse(sales[position].penjualan) / totalSales * 100
+      : 0;
+  return Container(
+    child: Card(
+      color: colorList[position],
+      elevation: 2,
+      child: ClipPath(
+        child: InkWell(
+          child: Container(
+            height: isHorizontal ? 80.h : 55.h,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isHorizontal ? 20.r : 15.r,
+                vertical: isHorizontal ? 4.r : 3.r,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        sales[position].salesPerson,
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 20.sp : 14.sp,
+                          fontFamily: 'Segoe ui',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Text(
+                      "${perc.toStringAsFixed(2)} %",
+                      style: TextStyle(
+                        fontSize: isHorizontal ? 24.sp : 17.sp,
+                        fontFamily: 'Segoe ui',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          onTap: () {},
         ),
         clipper: ShapeBorderClipper(
           shape: RoundedRectangleBorder(

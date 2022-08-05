@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/size_extension.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesarea.dart';
@@ -84,8 +85,7 @@ class _DetailSalesState extends State<DetailSales> {
         isHorizontal: isHorizontal,
       );
     } else {
-      var url =
-          'https://timurrayalab.com/salesforce/server/api/performance/detailPerformance?from=$stDate&to=$edDate&salesrep_id=$salesRepId';
+      var url = '$API_URL/performance/detailPerformance?salesrep_id=$salesRepId';
 
       try {
         var response = await http.get(url).timeout(Duration(seconds: timeout));

@@ -67,12 +67,18 @@ class _DetailWaitingState extends State<DetailWaiting> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.customer[widget.position].namaUsaha,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 27.sp : 15.sp,
-                  fontFamily: 'Segoe ui',
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                flex: 1,
+                child: Text(
+                  widget.customer[widget.position].namaUsaha,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: isHorizontal ? 27.sp : 15.sp,
+                    fontFamily: 'Segoe ui',
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Container(

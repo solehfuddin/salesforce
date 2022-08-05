@@ -116,8 +116,7 @@ class _HistoryContractState extends State<HistoryContract> {
   Future<List<Contract>> getHistoryContract(String input) async {
     const timeout = 15;
     List<Contract> list;
-    var url =
-        '$API_URL/contract?id_customer=$input';
+    var url = '$API_URL/contract?id_customer=$input';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -602,7 +601,7 @@ class _HistoryContractState extends State<HistoryContract> {
           return InkWell(
             child: Container(
               margin: EdgeInsets.only(
-                bottom: 5.r,
+                bottom: isHorizontal ? 15.r : 5.r,
               ),
               padding: EdgeInsets.all(isHorizontal ? 25.r : 15.r),
               height: isHorizontal ? 120.h : 75.h,
@@ -673,7 +672,13 @@ class _HistoryContractState extends State<HistoryContract> {
                       item[position].status.contains('pending') ||
                       item[position].status.contains('REJECTED') ||
                       item[position].status.contains('rejected')
-                  ? formWaitingContract(context, item, position)
+                  ? formWaitingContract(
+                      context,
+                      item,
+                      position,
+                      item[position].reasonSm,
+                      item[position].reasonAm,
+                    )
                   : item[position].idCustomer != null
                       ? getCustomerContractNew(
                           context: context,

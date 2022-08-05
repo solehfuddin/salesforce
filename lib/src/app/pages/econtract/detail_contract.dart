@@ -122,7 +122,7 @@ class _DetailContractState extends State<DetailContract> {
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
-      handleTimeout(context);
+      // handleTimeout(context);
     } on SocketException catch (e) {
       print('Socket Error : $e');
       handleConnectionAdmin(context);
@@ -238,7 +238,6 @@ class _DetailContractState extends State<DetailContract> {
         final bool sts = data['status'];
 
         if (sts) {
-          // this._isContractActive = true;
           var rest = data['data'];
           print(rest);
           itemActiveContract = rest
@@ -329,6 +328,8 @@ class _DetailContractState extends State<DetailContract> {
         final bool sts = res['status'];
         final String msg = res['message'];
 
+        // updateRevisi(idCust);
+
         widget.isAdminRenewal
             ? handleCustomStatus(
                 context,
@@ -343,6 +344,7 @@ class _DetailContractState extends State<DetailContract> {
                 isHorizontal: isHorizontal,
               );
 
+        //Approve Kontrak
         //Send to sales spesifik
         pushNotif(
           7,
@@ -351,10 +353,11 @@ class _DetailContractState extends State<DetailContract> {
           rcptToken: tokenSales,
           admName: username,
           opticName: widget.item.customerShipName != null
-                                  ? widget.item.customerShipName
-                                  : custList[0].namaUsaha,
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
         );
 
+        //Approve Kontrak
         //Send to me
         pushNotif(
           6,
@@ -363,8 +366,8 @@ class _DetailContractState extends State<DetailContract> {
           rcptToken: tokenAdmin,
           salesName: widget.item.namaPertama,
           opticName: widget.item.customerShipName != null
-                                  ? widget.item.customerShipName
-                                  : custList[0].namaUsaha,
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
         );
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -454,6 +457,36 @@ class _DetailContractState extends State<DetailContract> {
     }
   }
 
+  // updateRevisi(String idCust) async {
+  //   const timeout = 15;
+  //   var url = '$API_URL/approval/isRevisi';
+
+  //   try {
+  //     var response = await http.put(
+  //       url,
+  //       body: {
+  //         'id': idCust,
+  //         'is_revisi': '0',
+  //       },
+  //     ).timeout(Duration(seconds: timeout));
+
+  //     print('Response status: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
+  //   } on TimeoutException catch (e) {
+  //     print('Timeout Error : $e');
+  //     if (mounted) {
+  //       handleTimeout(context);
+  //     }
+  //   } on SocketException catch (e) {
+  //     print('Socket Error : $e');
+  //     if (mounted) {
+  //       handleSocket(context);
+  //     }
+  //   } on Error catch (e) {
+  //     print('General Error : $e');
+  //   }
+  // }
+
   rejectContract(bool isAr, String idCust, String username, String reason,
       {bool isHorizontal}) async {
     const timeout = 15;
@@ -488,6 +521,8 @@ class _DetailContractState extends State<DetailContract> {
         final bool sts = res['status'];
         final String msg = res['message'];
 
+        // updateRevisi(idCust);
+
         widget.isAdminRenewal
             ? handleCustomStatus(
                 context,
@@ -502,6 +537,7 @@ class _DetailContractState extends State<DetailContract> {
                 isHorizontal: isHorizontal,
               );
 
+        //REJECT KONTRAK
         //Send to sales spesifik
         pushNotif(
           9,
@@ -510,10 +546,11 @@ class _DetailContractState extends State<DetailContract> {
           rcptToken: tokenSales,
           admName: username,
           opticName: widget.item.customerShipName != null
-                                  ? widget.item.customerShipName
-                                  : custList[0].namaUsaha,
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
         );
 
+        //REJECT KONTRAK
         //Send to me
         pushNotif(
           8,
@@ -522,8 +559,8 @@ class _DetailContractState extends State<DetailContract> {
           rcptToken: tokenAdmin,
           salesName: widget.item.namaPertama,
           opticName: widget.item.customerShipName != null
-                                  ? widget.item.customerShipName
-                                  : custList[0].namaUsaha,
+              ? widget.item.customerShipName
+              : custList[0].namaUsaha,
         );
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -1428,6 +1465,63 @@ class _DetailContractState extends State<DetailContract> {
                   SizedBox(
                     height: 10.h,
                   ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Expanded(
+                  //       child: Text(
+                  //         'Lensa Nikon Stock',
+                  //         style: TextStyle(
+                  //           fontSize: isHor ? 24.sp : 14.sp,
+                  //           fontFamily: 'Montserrat',
+                  //           fontWeight: FontWeight.w500,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     Expanded(
+                  //       child: Text(
+                  //         'Lensa Leinz Stock',
+                  //         style: TextStyle(
+                  //           fontSize: isHor ? 24.sp : 14.sp,
+                  //           fontFamily: 'Montserrat',
+                  //           fontWeight: FontWeight.w500,
+                  //         ),
+                  //         textAlign: TextAlign.end,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 3.h,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Expanded(
+                  //       child: Text(
+                  //         convertToIdr(int.parse(widget.item.tpNikonSt), 0),
+                  //         style: TextStyle(
+                  //             fontSize: isHor ? 24.sp : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w600),
+                  //       ),
+                  //     ),
+                  //     Expanded(
+                  //       child: Text(
+                  //         convertToIdr(int.parse(widget.item.tpLeinzSt), 0),
+                  //         style: TextStyle(
+                  //           fontSize: isHor ? 24.sp : 14.sp,
+                  //           fontFamily: 'Montserrat',
+                  //           fontWeight: FontWeight.w600,
+                  //         ),
+                  //         textAlign: TextAlign.end,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 10.h,
+                  // ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1482,6 +1576,41 @@ class _DetailContractState extends State<DetailContract> {
                       ),
                     ],
                   ),
+                  // SizedBox(
+                  //   height: 10.h,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Expanded(
+                  //       child: Text(
+                  //         'Lensa Oriental Stock',
+                  //         style: TextStyle(
+                  //           fontSize: isHor ? 24.sp : 14.sp,
+                  //           fontFamily: 'Montserrat',
+                  //           fontWeight: FontWeight.w500,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 3.h,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Expanded(
+                  //       child: Text(
+                  //         convertToIdr(int.parse(widget.item.tpOrientalSt), 0),
+                  //         style: TextStyle(
+                  //             fontSize: isHor ? 24.sp : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w600),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   SizedBox(
                     height: isHor ? 35.h : 25.h,
                   ),
@@ -1501,7 +1630,7 @@ class _DetailContractState extends State<DetailContract> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Lensa Nikon',
+                          'Lensa Nikon RX',
                           style: TextStyle(
                             fontSize: isHor ? 24.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1511,7 +1640,7 @@ class _DetailContractState extends State<DetailContract> {
                       ),
                       Expanded(
                         child: Text(
-                          'Lensa Leinz',
+                          'Lensa Leinz RX',
                           style: TextStyle(
                             fontSize: isHor ? 24.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1558,7 +1687,7 @@ class _DetailContractState extends State<DetailContract> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Lensa Oriental',
+                          'Lensa Nikon Stock',
                           style: TextStyle(
                             fontSize: isHor ? 24.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1568,7 +1697,68 @@ class _DetailContractState extends State<DetailContract> {
                       ),
                       Expanded(
                         child: Text(
-                          'Lensa Moe',
+                          'Lensa Leinz Stock',
+                          style: TextStyle(
+                            fontSize: isHor ? 24.sp : 14.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 3.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.item.pembNikonSt != null
+                              ? widget.item.pembNikonSt
+                              : widget.item.pembNikon,
+                          style: TextStyle(
+                              fontSize: isHor ? 24.sp : 14.sp,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          widget.item.pembLeinzSt != null
+                              ? widget.item.pembLeinzSt
+                              : widget.item.pembLeinz,
+                          style: TextStyle(
+                            fontSize: isHor ? 24.sp : 14.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Lensa Oriental RX',
+                          style: TextStyle(
+                            fontSize: isHor ? 24.sp : 14.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'Lensa Moe RX',
                           style: TextStyle(
                             fontSize: isHor ? 24.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1610,6 +1800,43 @@ class _DetailContractState extends State<DetailContract> {
                   SizedBox(
                     height: isHor ? 15.h : 8.h,
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Lensa Oriental Stock',
+                          style: TextStyle(
+                            fontSize: isHor ? 24.sp : 14.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 3.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.item.pembOrientalSt != null
+                              ? widget.item.pembOrientalSt
+                              : widget.item.pembOriental,
+                          style: TextStyle(
+                              fontSize: isHor ? 24.sp : 14.sp,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHor ? 15.h : 8.h,
+                  ),
                   Container(
                     height: isHor ? 3.h : 1.3.h,
                     decoration: BoxDecoration(
@@ -1620,46 +1847,106 @@ class _DetailContractState extends State<DetailContract> {
                   SizedBox(
                     height: 10.h,
                   ),
-                  widget.item.typeContract != null
-                      ? widget.item.typeContract.contains('FRAME')
-                          ? Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 5.h,
-                                  ),
-                                  Text(
-                                    'KETERANGAN',
-                                    style: TextStyle(
-                                      fontFamily: 'Segoe Ui',
-                                      fontSize: isHor ? 26.sp : 16.sp,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1.5.r,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: isHor ? 15.h : 10.h,
-                                  ),
-                                  Text(
-                                    'Diskon khusus pada kontrak frame disesuakan dengan surat pesanan (SP) .',
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontSize: isHor ? 23.sp : 12.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                    textAlign: TextAlign.justify,
-                                  ),
-                                ],
-                              ),
-                            )
-                          : areaDiskon(
-                              widget.item,
-                              isHorizontal: isHor,
-                            )
+                  widget.item.typeContract != "CASHBACK"
+                      ? areaDiskon(
+                          widget.item,
+                          isHorizontal: isHor,
+                        )
                       : SizedBox(
-                          height: 10.w,
+                          width: 5.w,
+                        ),
+                  widget.item.typeContract == "CASHBACK"
+                      ? Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 5.h,
+                              ),
+                              Text(
+                                'KETERANGAN',
+                                style: TextStyle(
+                                  fontFamily: 'Segoe Ui',
+                                  fontSize: isHor ? 26.sp : 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.5.r,
+                                ),
+                              ),
+                              SizedBox(
+                                height: isHor ? 15.h : 10.h,
+                              ),
+                              Text(
+                                'Diskon tidak tersedia pada kontrak Cashback.',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: isHor ? 23.sp : 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.justify,
+                              )
+                            ],
+                          ),
+                        )
+                      : SizedBox(
+                          width: 5.w,
+                        ),
+                  widget.item.isFrame == "1" || widget.item.isPartai == "1"
+                      ? Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 5.h,
+                              ),
+                              Text(
+                                'KETERANGAN',
+                                style: TextStyle(
+                                  fontFamily: 'Segoe Ui',
+                                  fontSize: isHor ? 26.sp : 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.5.r,
+                                ),
+                              ),
+                              SizedBox(
+                                height: isHor ? 15.h : 10.h,
+                              ),
+                              widget.item.isFrame.contains('1')
+                                  ? Text(
+                                      'Diskon khusus pada kontrak frame disesuakan dengan surat pesanan (SP) .',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: isHor ? 23.sp : 12.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                      textAlign: TextAlign.justify,
+                                    )
+                                  : SizedBox(
+                                      width: 10.h,
+                                    ),
+                              SizedBox(
+                                height: isHor ? 15.h : 10.h,
+                              ),
+                              widget.item.isPartai.contains('1')
+                                  ? Text(
+                                      'Diskon khusus pada kontrak partai disesuakan dengan surat pesanan (SP) .',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: isHor ? 23.sp : 12.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                      textAlign: TextAlign.justify,
+                                    )
+                                  : SizedBox(
+                                      width: 10.h,
+                                    ),
+                            ],
+                          ),
+                        )
+                      : SizedBox(
+                          width: 10.w,
                         ),
                   SizedBox(
                     height: 30.h,

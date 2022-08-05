@@ -349,7 +349,7 @@ class _RenewalContractState extends State<RenewalContract> {
                     vertical: isHorizontal ? 12.r : 7.r,
                   ),
                   padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
-                  height: isHorizontal ? 185.h : 150.h,
+                  height: isHorizontal ? 180.h : 125.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(isHorizontal ? 30.r : 15.r),
                     border: Border.all(
@@ -395,7 +395,7 @@ class _RenewalContractState extends State<RenewalContract> {
                         children: [
                           Container(
                             padding: EdgeInsets.symmetric(
-                              vertical: 5.r,
+                              vertical: 2.r,
                               horizontal: 10.r,
                             ),
                             decoration: BoxDecoration(
@@ -423,7 +423,7 @@ class _RenewalContractState extends State<RenewalContract> {
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              vertical: 5.r,
+                              vertical: 2.r,
                               horizontal: 10.r,
                             ),
                             decoration: BoxDecoration(

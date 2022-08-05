@@ -14,7 +14,7 @@ class _LoginState extends State<Login> {
   var token;
 
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  
+
   TextEditingController textUsername = TextEditingController();
   TextEditingController textPassword = TextEditingController();
   String username, password;
@@ -208,29 +208,24 @@ class _LoginState extends State<Login> {
                                 alignment: Alignment.topRight,
                                 child: Container(
                                   padding: EdgeInsets.only(right: 20.r),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      setState(() {
-                                        check(
-                                          isHorizontal: true,
-                                        );
-                                      });
-                                    },
-                                    icon: Icon(
-                                      Icons.login,
-                                      size: 50.r,
-                                      color: Colors.black,
-                                    ),
-                                    label: Text(''),
+                                  child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                        primary: Colors.white,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10.w, vertical: 8.h),
-                                        elevation: 0.0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30.r),
-                                        )),
+                                      primary: Colors.grey.shade100,
+                                    ),
+                                    onPressed: () {
+                                      check(
+                                        isHorizontal: true,
+                                      );
+                                    },
+                                    child: Text(
+                                      "Login",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'Segoe Ui',
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 28.sp,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -378,28 +373,24 @@ class _LoginState extends State<Login> {
                     alignment: Alignment.topRight,
                     child: Container(
                       padding: EdgeInsets.only(right: 20.r),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            check(
-                              isHorizontal: false,
-                            );
-                          });
-                        },
-                        icon: Icon(
-                          Icons.login,
-                          size: 33.r,
-                          color: Colors.black,
-                        ),
-                        label: Text(''),
+                      child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 15.w, vertical: 8.h),
-                            elevation: 0.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.r),
-                            )),
+                          primary: Colors.grey.shade100,
+                        ),
+                        onPressed: () {
+                          check(
+                            isHorizontal: true,
+                          );
+                        },
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'Segoe Ui',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18.sp,
+                          ),
+                        ),
                       ),
                     ),
                   ),

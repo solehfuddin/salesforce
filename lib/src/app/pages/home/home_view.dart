@@ -77,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _firebaseMessaging.subscribeToTopic("allsales");
     _firebaseMessaging.unsubscribeFromTopic("alladmin");
+    _firebaseMessaging.unsubscribeFromTopic("allar");
     getRole();
 
     DateTime now = new DateTime.now();
@@ -181,8 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _isPerform = true;
 
     const timeout = 15;
-    var url =
-        'https://timurrayalab.com/salesforce/server/api/performance?from=$stDate&to=$edDate';
+    var url = '$API_URL/performance';
 
     try {
       var response = await http.get(url).timeout(Duration(seconds: timeout));
@@ -534,13 +534,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? areaLoadingRenewal(
                                 isHorizontal: true,
                               )
-                            : areaDonutChartHor(
+                            : areaDonutChartHorUser(
                                 dataPie: _samplePie,
                                 startDate: stDate,
                                 endDate: edDate,
                                 sales: listPerform,
                                 totalSales: _totalSales,
-                                context: context),
+                                context: context,),
                         areaHeaderMonitoring(isHorizontal: true),
                         _isLoading
                             ? areaLoading(isHorizontal: true,)
@@ -701,7 +701,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             dataPie: _samplePie,
                             startDate: stDate,
                             endDate: edDate),
-                    areaInfoDonut(
+                    areaInfoDonutUser(
                       sales: listPerform,
                       totalSales: _totalSales,
                       context: context,
