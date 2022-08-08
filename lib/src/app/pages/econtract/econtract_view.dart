@@ -39,6 +39,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   List<FormItemDisc> defaultDisc = List.empty(growable: true);
   List<FormItemDisc> fixedDisc = List.empty(growable: true);
   List<FormItemProduct> formProduct = List.empty(growable: true);
+  List<FormItemProduct> fixedProduct = List.empty(growable: true);
   List<String> tmpDiv = List.empty(growable: true);
   List<String> tmpDivInput = List.empty(growable: true);
   List<String> tmpProduct = List.empty(growable: true);
@@ -879,6 +880,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
   checkUpdate(Function stop, {bool isHorizontal}) async {
     fixedDisc.clear();
     tmpDivInput.clear();
+    fixedProduct.clear();
+    tmpProduct.clear();
+
     print('Run update');
     var outNikon,
         outNikonSt,
@@ -1014,6 +1018,23 @@ class _EcontractScreenState extends State<EcontractScreen> {
             }
           }
         }
+
+        if (formProduct.length > 0) {
+          for (int i = 0; i < formProduct.length; i++){
+            if (formProduct[i].product.ischecked){
+              if (!tmpProduct.contains(formProduct[i].product.proddesc)) {
+                tmpProduct.add(formProduct[i].product.proddesc);
+                fixedProduct.add(formProduct[i]);
+              } else {
+                fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+                fixedProduct.add(formProduct[i]);
+              }
+            }
+            else {
+              fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+            }
+          }
+        }
       });
 
       print('Total Data Diskon =  ${fixedDisc.length}');
@@ -1021,6 +1042,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
         print(element.proddiv.alias);
         print(element.proddiv.diskon);
         print(element.proddiv.ischecked);
+      });
+
+      print('Total Data Product =  ${fixedProduct.length}');
+      fixedProduct.forEach((element) {
+        print(element.product.proddesc);
+        print(element.product.diskon);
+        print(element.product.ischecked);
       });
     }
 
@@ -1170,7 +1198,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   checkInput(Function stop, {bool isHorizontal}) async {
     fixedDisc.clear();
+    fixedProduct.clear();
     tmpDivInput.clear();
+    tmpProduct.clear();
 
     var outNikon,
         outNikonSt,
@@ -1312,6 +1342,23 @@ class _EcontractScreenState extends State<EcontractScreen> {
             }
           }
         }
+
+        if (formProduct.length > 0) {
+          for (int i = 0; i < formProduct.length; i++){
+            if (formProduct[i].product.ischecked){
+              if (!tmpProduct.contains(formProduct[i].product.proddesc)) {
+                tmpProduct.add(formProduct[i].product.proddesc);
+                fixedProduct.add(formProduct[i]);
+              } else {
+                fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+                fixedProduct.add(formProduct[i]);
+              }
+            }
+            else {
+              fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+            }
+          }
+        }
       });
 
       print('Total Data Diskon =  ${fixedDisc.length}');
@@ -1319,6 +1366,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
         print(element.proddiv.alias);
         print(element.proddiv.diskon);
         print(element.proddiv.ischecked);
+      });
+
+      print('Total Data Product =  ${fixedProduct.length}');
+      fixedProduct.forEach((element) {
+        print(element.product.proddesc);
+        print(element.product.diskon);
+        print(element.product.ischecked);
       });
     }
 
@@ -1420,6 +1474,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           );
         }
 
+
         setState(() {});
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -1483,12 +1538,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
       print("Form is Not Valid");
     }
 
-    formProduct
-        .forEach((element) => allValid = (allValid && element.isValidated()));
+    // formProduct
+    //     .forEach((element) => allValid = (allValid && element.isValidated()));
 
-    if (allValid) {
-      for (int i = 0; i < formProduct.length; i++) {
-        FormItemProduct item = formProduct[i];
+    // if (allValid) {
+    if (fixedProduct.length > 0) {
+      // for (int i = 0; i < formProduct.length; i++) {
+        // FormItemProduct item = formProduct[i];
+      for (int i = 0; i < fixedProduct.length; i++) {
+        FormItemProduct item = fixedProduct[i];
         if (item.product.ischecked) {
           debugPrint("Category Id: ${item.product.categoryid}");
           debugPrint("Proddiv: ${item.product.proddiv}");

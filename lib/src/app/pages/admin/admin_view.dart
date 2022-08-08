@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/customer/customer_admin.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/dbhelper.dart';
@@ -124,18 +125,16 @@ class _AdminScreenState extends State<AdminScreen> {
       divisi == "AR" ? getCounterData(true) : getCounterData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
 
-      if (divisi == 'AR')
-      {
+      if (divisi == 'AR') {
         _firebaseMessaging.subscribeToTopic("allar");
         _firebaseMessaging.unsubscribeFromTopic("alladmin");
         _firebaseMessaging.unsubscribeFromTopic("allsales");
-      }
-      else {
+      } else {
         _firebaseMessaging.subscribeToTopic("allsales");
         _firebaseMessaging.unsubscribeFromTopic("alladmin");
         _firebaseMessaging.unsubscribeFromTopic("allar");
       }
-      
+
       getPerformSales(stDate, edDate);
 
       getTtd(int.parse(id));
@@ -206,7 +205,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
         if (sts) {
           print(counter);
-          
+
           totalNewCustomer = counter['newCust'];
           totalOldCustomer = counter['oldCust'];
           totalWaiting = isAr ? counter['awaitAR'] : counter['awaitSM'];
@@ -623,6 +622,27 @@ class _AdminScreenState extends State<AdminScreen> {
                   isHorizontal: true,
                   isBadge: _isBadge,
                 ),
+                floatingActionButton: Visibility(
+                  visible: divisi == "AR" ? false : true,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.white,
+                    child: Image.asset(
+                      'assets/images/entry_customer_new.png',
+                      width: 52.w,
+                      height: 52.h,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    ),
+                    mini: false,
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CustomerAdmin(int.parse(id))));
+                    },
+                  ),
+                ),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.endDocked,
                 body: RefreshIndicator(
                   child: CustomScrollView(
                     physics: ClampingScrollPhysics(),
@@ -794,6 +814,27 @@ class _AdminScreenState extends State<AdminScreen> {
                 isHorizontal: false,
                 isBadge: _isBadge,
               ),
+              floatingActionButton: Visibility(
+                visible: divisi == "AR" ? false : true,
+                child: FloatingActionButton(
+                  backgroundColor: Colors.white,
+                  child: Image.asset(
+                    'assets/images/entry_customer_new.png',
+                    width: 28.w,
+                    height: 28.h,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  mini: true,
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => CustomerAdmin(int.parse(id))));
+                  },
+                ),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.miniEndDocked,
               body: RefreshIndicator(
                 child: CustomScrollView(
                   physics: ClampingScrollPhysics(),

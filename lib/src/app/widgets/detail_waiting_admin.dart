@@ -7,14 +7,14 @@ import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DetailWaiting extends StatefulWidget {
+class DetailWaitingAdmin extends StatefulWidget {
   List<Customer> customer;
   int position;
   String reasonSM;
   String reasonAM;
   Contract contract;
 
-  DetailWaiting({
+  DetailWaitingAdmin({
     this.customer,
     this.position,
     this.reasonSM,
@@ -23,10 +23,10 @@ class DetailWaiting extends StatefulWidget {
   });
 
   @override
-  State<DetailWaiting> createState() => _DetailWaitingState();
+  State<DetailWaitingAdmin> createState() => _DetailWaitingAdminState();
 }
 
-class _DetailWaitingState extends State<DetailWaiting> {
+class _DetailWaitingAdminState extends State<DetailWaitingAdmin> {
   String id, role, username, name, divisi;
 
   getRole() async {
@@ -400,8 +400,8 @@ class _DetailWaitingState extends State<DetailWaiting> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              widget.customer[widget.position].status == "REJECTED" &&
-                      role != "ADMIN"
+              widget.customer[widget.position].status == "REJECTED" 
+              // && role != "ADMIN"
                   ? ArgonButton(
                       height: isHorizontal ? 70.h : 40.h,
                       width: isHorizontal ? 90.w : 120.w,

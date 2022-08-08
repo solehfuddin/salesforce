@@ -16,6 +16,7 @@ import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
 import 'package:sample/src/app/widgets/detail_waiting.dart';
+import 'package:sample/src/app/widgets/detail_waiting_admin.dart';
 import 'package:sample/src/app/widgets/detail_waitingcontract.dart';
 import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
@@ -84,17 +85,7 @@ login(String user, String pass, BuildContext context,
           final String role = data['data']['role'];
           final String divisi = data['data']['divisi'];
 
-          savePref(id, name, username, accstatus, role, divisi);
-
-          Future.delayed(Duration(seconds: 3), () {
-            if (role == "ADMIN") {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen()));
-            } else {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomeScreen()));
-            }
-          });
+          savePref(context, id, name, username, accstatus, role, divisi);
         } else {
           Fluttertoast.showToast(
               msg: msg,
@@ -325,11 +316,10 @@ pushNotif(
   }
 }
 
-savePref(String id, String name, String username, String status, String role,
+savePref(BuildContext context, String id, String name, String username, String status, String role,
     String divisi) async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
-  // setState(() {
   pref.setString("id", id);
   pref.setString("name", name);
   pref.setString("username", username);
@@ -337,7 +327,22 @@ savePref(String id, String name, String username, String status, String role,
   pref.setString("role", role);
   pref.setString("divisi", divisi);
   pref.setBool("islogin", true);
-  // });
+
+  Future.delayed(Duration(seconds: 3), () {
+    if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            SystemNavigator.pop();
+          }
+
+            if (role == "ADMIN") {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => AdminScreen()));
+            } else {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => HomeScreen()));
+            }
+          });
 }
 
 handleComing(BuildContext context, {bool isHorizontal = false}) {
@@ -843,6 +848,38 @@ formWaiting(
     },
   );
 }
+
+formWaitingAdmin(
+  BuildContext context,
+  List<Customer> customer,
+  int position, {
+  String reasonSM,
+  String reasonAM,
+  Contract contract,
+}) {
+  return showModalBottomSheet(
+    elevation: 2,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(15.r),
+        topRight: Radius.circular(15.r),
+      ),
+    ),
+    context: context,
+    builder: (context) {
+      return DetailWaitingAdmin(
+        customer: customer,
+        position: position,
+        reasonSM: reasonSM,
+        reasonAM: reasonAM,
+        contract: contract,
+      );
+    },
+  );
+}
+
 
 formWaitingContract(
   BuildContext context,
