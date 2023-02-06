@@ -12,10 +12,10 @@ class SignedScreen extends StatefulWidget {
 }
 
 class _SignedScreenState extends State<SignedScreen> {
-  String id = '';
-  String role = '';
-  String username = '';
-  String tmpTtd;
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? tmpTtd = '';
 
   final SignatureController _signController = SignatureController(
     penStrokeWidth: 3,
@@ -29,18 +29,10 @@ class _SignedScreenState extends State<SignedScreen> {
       id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
+      tmpTtd = preferences.getString("ttduser");
 
       print("Dashboard : $role");
-      checkSigned(id);
-    });
-  }
-
-  checkSigned(String idUser) async {
-    await getTtdValid(idUser, context, role: role).then((data) {
-      setState(() {
-        tmpTtd = data;
-        print(tmpTtd);
-      });
+      print("Ttd user : $tmpTtd");
     });
   }
 
@@ -51,8 +43,11 @@ class _SignedScreenState extends State<SignedScreen> {
     getRole();
   }
 
-  Widget showImage({bool isHorizontal}) {
-    if (tmpTtd != null) {
+  Widget showImage({
+    bool isHorizontal = false,
+  }) {
+    String ttd = tmpTtd ?? '';
+    if (ttd != '') {
       return Column(
         children: [
           Text(
@@ -76,7 +71,7 @@ class _SignedScreenState extends State<SignedScreen> {
               borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 10.r),
             ),
             child: Image.memory(
-              base64Decode(tmpTtd),
+              base64Decode(ttd),
             ),
           ),
           SizedBox(
@@ -103,7 +98,7 @@ class _SignedScreenState extends State<SignedScreen> {
                 'Tanda Tangan Digital',
                 style: TextStyle(
                   color: Colors.black54,
-                  fontSize: 28.sp,
+                  fontSize: 20.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                 ),
@@ -115,7 +110,7 @@ class _SignedScreenState extends State<SignedScreen> {
                 icon: Icon(
                   Icons.arrow_back_ios_new,
                   color: Colors.black54,
-                  size: 28.r,
+                  size: 20.r,
                 ),
               ),
             ),
@@ -131,8 +126,8 @@ class _SignedScreenState extends State<SignedScreen> {
                   children: [
                     Image.asset(
                       'assets/images/signedable.png',
-                      width: 260.r,
-                      height: 233.r,
+                      width: 200.r,
+                      height: 173.r,
                     ),
                     SizedBox(
                       height: 30.h,
@@ -142,7 +137,7 @@ class _SignedScreenState extends State<SignedScreen> {
                         // 'ELECTRONIC SIGNATURE INSTANTLY',
                         'LENGKAPI TANDA TANGAN',
                         style: TextStyle(
-                          fontSize: 30.sp,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -155,7 +150,7 @@ class _SignedScreenState extends State<SignedScreen> {
                         // 'By signing this document with an electronic signature, I agree that such signature will be as valid as handwritten signatures to the extent allowed by local law',
                         'Dengan menandatangani dokumen ini secara digital, saya menyatakan bahwa tanda tangan tersebut asli dan legal sehingga diakui secara hukum yang berlaku',
                         style: TextStyle(
-                            fontSize: 22.sp,
+                            fontSize: 16.sp,
                             fontFamily: 'Montserrat',
                             fontWeight: FontWeight.w500,
                             color: Colors.black87),
@@ -167,7 +162,7 @@ class _SignedScreenState extends State<SignedScreen> {
                     ),
                     Signature(
                       controller: _signController,
-                      height: 250.h,
+                      height: 160.h,
                       backgroundColor: Colors.blueGrey.shade50,
                     ),
                     SizedBox(
@@ -182,13 +177,13 @@ class _SignedScreenState extends State<SignedScreen> {
                             shape: StadiumBorder(),
                             primary: Colors.orange[800],
                             padding: EdgeInsets.symmetric(
-                                horizontal: 50.r, vertical: 15.r),
+                                horizontal: 30.r, vertical: 10.r),
                           ),
                           child: Text(
                             'Hapus',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 24.sp,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Segoe ui',
                             ),
@@ -202,13 +197,13 @@ class _SignedScreenState extends State<SignedScreen> {
                             shape: StadiumBorder(),
                             primary: Colors.blue[700],
                             padding: EdgeInsets.symmetric(
-                                horizontal: 40.r, vertical: 20.r),
+                                horizontal: 30.r, vertical: 10.r),
                           ),
                           child: Text(
                             'Simpan',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 24.sp,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Segoe ui',
                             ),
@@ -217,7 +212,7 @@ class _SignedScreenState extends State<SignedScreen> {
                             handleDigitalSigned(
                               _signController,
                               context,
-                              id,
+                              id!,
                               isHorizontal: true,
                             );
                           },
@@ -270,8 +265,8 @@ class _SignedScreenState extends State<SignedScreen> {
                 children: [
                   Image.asset(
                     'assets/images/signedable.png',
-                    width: 220.r,
-                    height: 193.r,
+                    width: 200.r,
+                    height: 173.r,
                   ),
                   SizedBox(
                     height: 30.h,
@@ -281,7 +276,7 @@ class _SignedScreenState extends State<SignedScreen> {
                       // 'ELECTRONIC SIGNATURE INSTANTLY',
                       'LENGKAPI TANDA TANGAN',
                       style: TextStyle(
-                        fontSize: 20.sp,
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -306,7 +301,7 @@ class _SignedScreenState extends State<SignedScreen> {
                   ),
                   Signature(
                     controller: _signController,
-                    height: 150.h,
+                    height: 130.h,
                     backgroundColor: Colors.blueGrey.shade50,
                   ),
                   SizedBox(
@@ -356,7 +351,7 @@ class _SignedScreenState extends State<SignedScreen> {
                           handleDigitalSigned(
                             _signController,
                             context,
-                            id,
+                            id!,
                             isHorizontal: false,
                           );
                         },

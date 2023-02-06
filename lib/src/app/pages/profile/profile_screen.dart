@@ -18,12 +18,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String id = '';
-  String role = '';
-  String username = '';
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? name = '';
   String search = '';
-  String divisi = '';
-  String status = '';
+  String? divisi = '';
+  String? status = '';
   bool _isLoading = true;
   TextEditingController textPassword = new TextEditingController();
   TextEditingController textRePassword = new TextEditingController();
@@ -31,8 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isNamaLengkap = false;
   bool _isPassword = false;
   bool _isRePassword = false;
-  File tmpFile;
-  String tmpName, base64Imgprofile;
+  late File tmpFile;
+  String tmpName = '';
+  String base64Imgprofile = '';
   bool _isHidePass = true;
   bool _isReHidePass = true;
 
@@ -55,8 +57,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       role = preferences.getString("role");
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
+      name = preferences.getString("name") ?? '';
+      status = preferences.getString("status") ?? '';
+      textNamaLengkap.text = name!;
 
-      getData(int.parse(id));
+      print('Nama Lengkap : ${textNamaLengkap.text}');
+      print('Status : $status');
+
+      if (id != null) {
+        getData(int.parse(id!));
+      }
     });
   }
 
@@ -64,10 +74,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _isLoading = true;
     int timeout = 5;
 
-    var url = 'https://timurrayalab.com/salesforce/server/api/users?id=$input';
+    var url = '$API_URL/users?id=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -75,12 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final bool sts = data['status'];
 
         if (sts) {
-          textNamaLengkap.text = data['data'][0]['name'];
-          status = data['data'][0]['status'];
-          base64Imgprofile = data['data'][0]['imgprofile'];
-
-          print('Nama Lengkap : ${textNamaLengkap.text}');
-          print('Status : $status');
+          base64Imgprofile = data['data']['imgprofile'] ?? '';
         }
 
         Future.delayed(Duration(seconds: 1), () {
@@ -96,8 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       handleTimeout(context);
     } on SocketException catch (e) {
       print('Socket Error : $e');
-      // handleSocket(context);
-      role.contains('admin')
+      role == 'admin'
           ? handleConnectionAdmin(context)
           : handleConnection(context);
     } on Error catch (e) {
@@ -111,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     getRole();
   }
 
-  checkEntry(Function stop, {bool isHorizontal}) async {
+  checkEntry(Function stop, {bool isHorizontal = false}) async {
     textNamaLengkap.text.isEmpty
         ? _isNamaLengkap = true
         : _isNamaLengkap = false;
@@ -136,6 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'Password tidak sesuai',
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
           stop();
         }
@@ -154,13 +160,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'Harap lengkapi data terlebih dahulu',
         false,
         isHorizontal: isHorizontal,
+        isLogout: false,
       );
       stop();
     }
   }
 
-  Future chooseImage({bool isHorizontal}) async {
-    var imgFile = await ImagePicker().getImage(
+  Future chooseImage({bool isHorizontal = false}) async {
+    var imgFile = await ImagePicker().pickImage(
       source: ImageSource.camera,
       imageQuality: 25,
       preferredCameraDevice: CameraDevice.front,
@@ -187,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse(url),
         body: {
           'id': id,
           'image': base64Imgprofile,
@@ -211,10 +218,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  updateNamePref(String newName) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    final sts = await pref.remove('name');
+    if (sts) {
+      await pref.setString("name", newName);
+    } else {
+      print('Gagal update session name user');
+    }
+  }
+
   perbaruiData(
     Function stop, {
-    bool isChangePassword,
-    bool isHorizontal,
+    bool isChangePassword = false,
+    bool isHorizontal = false,
   }) async {
     const timeout = 15;
     var url = '$API_URL/users';
@@ -222,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       var response = isChangePassword
           ? await http.put(
-              url,
+              Uri.parse(url),
               body: {
                 'id': id,
                 'name': textNamaLengkap.text,
@@ -230,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             )
           : await http.put(
-              url,
+              Uri.parse(url),
               body: {
                 'id': id,
                 'name': textNamaLengkap.text,
@@ -244,13 +262,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         var res = json.decode(response.body);
         final bool sts = res['status'];
         final String msg = res['message'];
-        if (mounted) {
-          handleStatus(
-            context,
-            capitalize(msg),
-            sts,
-            isHorizontal: isHorizontal,
-          );
+
+        if (sts) {
+          updateNamePref(textNamaLengkap.text);
+          if (mounted) {
+            handleStatus(
+              context,
+              capitalize(msg),
+              sts,
+              isHorizontal: isHorizontal,
+              isLogout: false,
+            );
+          }
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -285,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'Profil Pengguna',
               style: TextStyle(
                 color: Colors.black54,
-                fontSize: 28.sp,
+                fontSize: 20.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
@@ -298,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
               icon: Icon(
                 Icons.arrow_back_ios_new,
-                size: 28.r,
+                size: 20.r,
                 color: Colors.black54,
               ),
             ),
@@ -314,20 +337,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: chooseImage,
                       child: Stack(
                         children: <Widget>[
-                          base64Imgprofile == null
+                          base64Imgprofile == ''
                               ? CircleAvatar(
-                                  radius: 100.r,
+                                  radius: 60.r,
                                   child: ClipOval(
                                     child: Image.asset(
                                       'assets/images/profile.png',
-                                      height: 200.h,
-                                      width: 200.w,
+                                      height: 120.h,
+                                      width: 120.w,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
                                 )
                               : CircleAvatar(
-                                  radius: 100.r,
+                                  radius: 60.r,
                                   backgroundImage: MemoryImage(
                                     Base64Decoder().convert(base64Imgprofile),
                                   ),
@@ -336,17 +359,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               bottom: 1,
                               right: 5,
                               child: Container(
-                                height: 56.h,
-                                width: 18.w,
+                                height: 40.h,
+                                width: 25.w,
                                 child: Icon(
                                   Icons.add_a_photo,
                                   color: Colors.white,
-                                  size: 28.r,
+                                  size: 22.r,
                                 ),
                                 decoration: BoxDecoration(
                                     color: Colors.green.shade500,
                                     borderRadius: BorderRadius.all(
-                                        Radius.circular(28.r))),
+                                        Radius.circular(22.r))),
                               ))
                         ],
                       ),
@@ -357,10 +380,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Center(
                     child: Text(
-                      capitalize(username),
+                      capitalize(username!),
                       style: TextStyle(
                         color: Colors.black87,
-                        fontSize: 28.sp,
+                        fontSize: 22.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                       ),
@@ -371,14 +394,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Center(
                     child: Text(
-                      role.contains('SALES')
-                          ? capitalize(role)
-                          : capitalize(role) + ' ' + capitalize(
+                      role == 'SALES'
+                          ? capitalize(role!)
+                          : capitalize(role!) + ' ' + capitalize(
                               // divisi.toLowerCase(),
-                              divisi),
+                              divisi!),
                       style: TextStyle(
                         color: Colors.grey.shade700,
-                        fontSize: 24.sp,
+                        fontSize: 22.sp,
                         fontFamily: 'Segoe ui',
                         fontWeight: FontWeight.w500,
                       ),
@@ -404,7 +427,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Text(
                               status == 'ACTIVE' ? 'AKTIF' : 'TIDAK AKTIF',
                               style: TextStyle(
-                                fontSize: 22.sp,
+                                fontSize: 18.sp,
                                 fontFamily: 'Segoe ui',
                                 fontWeight: FontWeight.bold,
                                 color: status == 'ACTIVE'
@@ -423,7 +446,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         'Nama Lengkap',
                         style: TextStyle(
-                          fontSize: 24.sp,
+                          fontSize: 18.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -454,7 +477,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         'Ubah Kata Sandi',
                         style: TextStyle(
-                          fontSize: 24.sp,
+                          fontSize: 18.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -494,7 +517,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         'Ulangi Kata Sandi',
                         style: TextStyle(
-                          fontSize: 24.sp,
+                          fontSize: 18.sp,
                           fontFamily: 'Segoe ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -534,15 +557,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ArgonButton(
-                        height: 70.h,
-                        width: 100.w,
+                        height: 50.h,
+                        width: 70.w,
                         borderRadius: 35.r,
                         color: Colors.blue[600],
                         child: Text(
                           "Perbarui",
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 25.sp,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w700),
                         ),
                         loader: Container(
@@ -609,7 +632,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: chooseImage,
                     child: Stack(
                       children: <Widget>[
-                        base64Imgprofile == null
+                        base64Imgprofile == ''
                             ? CircleAvatar(
                                 radius: 50.r,
                                 child: ClipOval(
@@ -652,7 +675,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Center(
                   child: Text(
-                    capitalize(username),
+                    capitalize(username!),
                     style: TextStyle(
                       color: Colors.black87,
                       fontSize: 18.sp,
@@ -666,11 +689,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Center(
                   child: Text(
-                    role.contains('SALES')
-                        ? capitalize(role)
-                        : capitalize(role) +
+                    role == 'SALES'
+                        ? capitalize(role!)
+                        : capitalize(role!) +
                             ' ' +
-                            capitalize(divisi.toLowerCase()),
+                            capitalize(divisi!.toLowerCase()),
                     style: TextStyle(
                       color: Colors.grey.shade700,
                       fontSize: 14.sp,

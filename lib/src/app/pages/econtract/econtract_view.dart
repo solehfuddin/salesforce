@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
@@ -22,15 +23,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class EcontractScreen extends StatefulWidget {
   final List<Customer> customerList;
   final int position;
-  bool isRevisi = false;
+  bool? isRevisi = false;
+  bool? isAdmin = false;
 
   @override
   _EcontractScreenState createState() => _EcontractScreenState();
 
-  EcontractScreen(this.customerList, this.position, {this.isRevisi});
+  EcontractScreen(this.customerList, this.position,
+      {this.isRevisi, this.isAdmin});
 }
 
 class _EcontractScreenState extends State<EcontractScreen> {
@@ -54,52 +58,49 @@ class _EcontractScreenState extends State<EcontractScreen> {
   var _formatter = new DateFormat('yyyy-MM-dd');
   bool _isLoading = true;
   String search = '';
-  String id = '';
-  String role = '';
-  String username = '';
-  String name = '';
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? name = '';
   String tokenSm = '';
   String idSm = '';
   String mytoken = '';
-  String idCustomer,
-      namaKedua,
-      jabatanKedua,
-      alamatKedua,
-      telpKedua,
-      faxKedua,
-      ttdPertama,
-      ttdKedua;
-  String _chosenNikon,
-      _durasiNikon,
-      _chosenNikonSt,
-      _durasiNikonSt,
-      _chosenLeinz,
-      _durasiLeinz,
-      _chosenLeinzSt,
-      _durasiLeinzSt,
-      _chosenOriental,
-      _durasiOriental,
-      _chosenOrientalSt,
-      _durasiOrientalSt,
-      _chosenMoe,
-      _durasiMoe;
+  String idCustomer = '';
+  String namaKedua = '';
+  String jabatanKedua = '';
+  String alamatKedua = '';
+  String telpKedua = '';
+  String faxKedua = '';
+  String ttdPertama = '';
+  String ttdKedua = '';
+  String _chosenNikon = '-';
+  String _durasiNikon = '7 HARI';
+  String _chosenNikonSt = '-';
+  String _durasiNikonSt = '7 HARI';
+  String _chosenLeinz = '-';
+  String _durasiLeinz = '7 HARI';
+  String _chosenLeinzSt = '-';
+  String _durasiLeinzSt = '7 HARI';
+  String _chosenOriental = '-';
+  String _durasiOriental = '7 HARI';
+  String _chosenOrientalSt = '-';
+  String _durasiOrientalSt = '7 HARI';
+  String _chosenMoe = '-';
+  String _durasiMoe = '';
+  bool _isEmpty = false;
   final format = DateFormat("dd MMM yyyy");
   TextEditingController textValNikon = new TextEditingController();
-  // TextEditingController textValNikonStock = new TextEditingController();
   TextEditingController textValLeinz = new TextEditingController();
-  // TextEditingController textValLeinzStock = new TextEditingController();
   TextEditingController textValOriental = new TextEditingController();
-  // TextEditingController textValOrientalStock = new TextEditingController();
   TextEditingController textValMoe = new TextEditingController();
   TextEditingController textCatatan = new TextEditingController();
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
   bool _isChildContract = false;
   bool _isCashbackContrack = false;
-  // bool _isNetworkConnected = true;
   bool _isContractActive = false;
   var thisYear, nextYear;
-  int formLen;
+  int formLen = 0;
 
   callback(newVal) {
     setState(() {
@@ -141,23 +142,21 @@ class _EcontractScreenState extends State<EcontractScreen> {
       print('Next Year : $nextYear');
 
       print("Dashboard : $role");
-      getTtdSales(int.parse(id));
+      getTtdSales(int.parse(id!));
       getItemProdDiv();
       setRegularDisc();
 
       ttdKedua = widget.customerList[widget.position].ttdCustomer;
       idCustomer = widget.customerList[widget.position].id;
 
-      if (!widget.isRevisi) {
+      if (!widget.isRevisi!) {
         var strsplit;
         bool isKredit = false;
         String tmpJenis = widget.customerList[widget.position].sistemPembayaran;
 
-        if (tmpJenis != null) {
-          if (tmpJenis.contains("-")) {
-            strsplit = tmpJenis.split("-");
-            isKredit = true;
-          }
+        if (tmpJenis.contains("-")) {
+          strsplit = tmpJenis.split("-");
+          isKredit = true;
         }
 
         _chosenNikon = isKredit ? strsplit[0] : tmpJenis;
@@ -184,7 +183,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     var url = '$API_URL/contract?id_customer=$idUser';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -227,25 +227,19 @@ class _EcontractScreenState extends State<EcontractScreen> {
   handleTargetEdit(List<Contract> _contract) {
     NumberFormat myFormat = NumberFormat.decimalPattern('id');
     dynamic leinzVal = getSatuan(_contract[0].tpLeinz);
-    // dynamic leinzStVal = getSatuan(_contract[0].tpLeinzSt);
     dynamic nikonVal = getSatuan(_contract[0].tpNikon);
-    // dynamic nikonStVal = getSatuan(_contract[0].tpNikonSt);
     dynamic moeVal = getSatuan(_contract[0].tpMoe);
     dynamic orientalVal = getSatuan(_contract[0].tpOriental);
-    // dynamic orientalStVal = getSatuan(_contract[0].tpOrientalSt);
 
     print('Target Leinz Revisi : $leinzVal');
     textValLeinz.text = myFormat.format(leinzVal);
-    // textValLeinzStock.text = myFormat.format(leinzStVal);
     textValNikon.text = myFormat.format(nikonVal);
-    // textValNikonStock.text = myFormat.format(nikonStVal);
     textValMoe.text = myFormat.format(moeVal);
     textValOriental.text = myFormat.format(orientalVal);
-    // textValOrientalStock.text = myFormat.format(orientalStVal);
   }
 
   dynamic getSatuan(String input) {
-    if (input != null) {
+    if (input != '') {
       int a = int.parse(input);
       return (a / 1000000);
     } else {
@@ -254,7 +248,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   bool handleIsKreditEdit(String input) {
-    if (input != null) {
+    if (input != '') {
       if (input.contains("-")) {
         return true;
       }
@@ -263,11 +257,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   String handleChosenEdit(String input, bool isKredit) {
-    return isKredit
-        ? input.split("-")[0]
-        : input != null
-            ? input
-            : 'COD';
+    return isKredit ? input.split("-")[0] : input;
   }
 
   String handleDurasiEdit(String input, bool isKredit) {
@@ -327,7 +317,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     var url = '$API_URL/discount/getByIdCustomer?id_customer=$idUser';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -343,7 +334,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
           setState(() {
             //handle ceklist divisi
-             for (int j = 0; j < itemProdDiv.length; j++) {
+            for (int j = 0; j < itemProdDiv.length; j++) {
               print('Proddiv : ${itemProdDiv[j].alias}');
               for (int i = 0; i < dtCustomDisc.length; i++) {
                 if (itemProdDiv[j].alias == dtCustomDisc[i].prodDesc) {
@@ -384,6 +375,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       dtCustomDisc[i].discount,
                       dtCustomDisc[i].status,
                     ),
+                    itemLength: 2,
                   ));
 
                   tmpProduct.add(dtCustomDisc[i].prodDesc);
@@ -409,7 +401,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     var url = '$API_URL/product/getProDiv';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -441,7 +434,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     var url = '$API_URL/contract/parentCheck?id_customer=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status : ${response.statusCode}');
 
       try {
@@ -476,26 +470,32 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   void handleContractActive({
-    bool isHorizontal,
-    BuildContext context,
+    bool isHorizontal = false,
+    BuildContext? context,
   }) {
     _isContractActive
-        ? Navigator.pop(context)
+        ? Navigator.pop(context!)
         : handleStatus(
-            context,
+            context!,
             'Optik tidak memiliki kontrak active',
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
   }
 
   Future<List<StbCustomer>> getSearchParent(String input) async {
-    List<StbCustomer> list;
+    List<StbCustomer> list = List.empty(growable: true);
     const timeout = 15;
     var url = '$API_URL/customers/oldCustIsActive?bill_name=$input';
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status : ${response.statusCode}');
+
+      if (response.statusCode == 400) {
+        _isEmpty = true;
+      }
 
       try {
         var data = json.decode(response.body);
@@ -512,9 +512,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
               .toList();
           print("List Size: ${list.length}");
           print("Product Size: ${itemStbCust.length}");
-        }
 
-        return list;
+          _isEmpty = false;
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -527,17 +527,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    return list;
   }
 
   Future<List<Product>> getSearchProduct(String input) async {
-    List<Product> list;
+    List<Product> list = List.empty(growable: true);
     const timeout = 15;
     var url = input == ''
         ? '$API_URL/product'
         : '$API_URL/product/search?search=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -563,18 +566,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
           }
 
           //CEK LIST REVISI
-          if (widget.isRevisi) {
+          if (widget.isRevisi!) {
             for (int j = 0; j < itemProduct.length; j++) {
-              for (int i = 0; i < tmpProduct.length; i++){
-                if (itemProduct[j].proddesc == tmpProduct[i]){
-                  itemProduct[j].ischecked= true;
+              for (int i = 0; i < tmpProduct.length; i++) {
+                if (itemProduct[j].proddesc == tmpProduct[i]) {
+                  itemProduct[j].ischecked = true;
                 }
               }
             }
           }
         }
-
-        return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -587,10 +588,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    return list;
   }
 
   getSelectedItem() {
-    if (itemProduct != null) {
+    if (itemProduct.isNotEmpty) {
       for (int i = 0; i < itemProduct.length; i++) {
         if (itemProduct[i].ischecked) {
           if (!tmpProduct.contains(itemProduct[i].proddesc)) {
@@ -603,6 +606,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
               formProduct.add(FormItemProduct(
                 index: formProduct.length,
                 product: itemProduct[i],
+                itemLength: 2,
               ));
             });
           }
@@ -614,9 +618,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
             });
 
             setState(() {
-              if (formProduct != null) {
-                formProduct.removeWhere(
-                    (item) => item.product.proddesc == itemProduct[i].proddesc);
+              if (formProduct.length > 0) {
+                formProduct.removeWhere((item) =>
+                    item.product!.proddesc == itemProduct[i].proddesc);
               }
             });
           }
@@ -624,7 +628,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
       }
     }
 
-    if (widget.isRevisi) {
+    if (widget.isRevisi!) {
       for (int i = 0; i < itemProduct.length; i++) {
         if (itemProduct[i].ischecked) {
           if (!tmpProduct.contains(itemProduct[i].proddesc)) {
@@ -637,6 +641,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
               formProduct.add(FormItemProduct(
                 index: formProduct.length,
                 product: itemProduct[i],
+                itemLength: 2,
               ));
             });
           }
@@ -648,9 +653,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
             });
 
             setState(() {
-              if (formProduct != null) {
-                formProduct.removeWhere(
-                    (item) => item.product.proddesc == itemProduct[i].proddesc);
+              if (formProduct.length > 0) {
+                formProduct.removeWhere((item) =>
+                    item.product!.proddesc == itemProduct[i].proddesc);
                 dtCustomDisc.removeWhere(
                     (item) => item.prodDesc == itemProduct[i].proddesc);
               }
@@ -665,7 +670,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   void initState() {
     super.initState();
     getRole();
-    if (widget.isRevisi) {
+    if (widget.isRevisi!) {
       getDataContract(widget.customerList[widget.position].id);
     }
   }
@@ -675,7 +680,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     var url = '$API_URL/users?id=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -712,7 +718,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     var url = '$API_URL/users?id=$smID';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -740,7 +747,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   getSelectedProddiv() {
-    if (itemProdDiv != null) {
+    if (itemProdDiv.isNotEmpty) {
       for (int i = 0; i < itemProdDiv.length; i++) {
         if (itemProdDiv[i].ischecked) {
           Proddiv prodiv = Proddiv(itemProdDiv[i].alias, itemProdDiv[i].proddiv,
@@ -767,9 +774,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
             });
 
             setState(() {
-              if (formDisc != null) {
-                formDisc.removeWhere(
-                    (element) => element.proddiv.alias == itemProdDiv[i].alias);
+              if (formDisc.length > 0) {
+                formDisc.removeWhere((element) =>
+                    element.proddiv!.alias == itemProdDiv[i].alias);
               }
             });
           }
@@ -777,7 +784,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
       }
     }
 
-    if (widget.isRevisi) {
+    if (widget.isRevisi!) {
       for (int i = 0; i < itemProdDiv.length; i++) {
         if (itemProdDiv[i].ischecked) {
           Proddiv prodiv = Proddiv(itemProdDiv[i].alias, itemProdDiv[i].proddiv,
@@ -804,9 +811,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
             });
 
             setState(() {
-              if (formDisc != null) {
-                formDisc.removeWhere(
-                    (element) => element.proddiv.alias == itemProdDiv[i].alias);
+              if (formDisc.length > 0) {
+                formDisc.removeWhere((element) =>
+                    element.proddiv!.alias == itemProdDiv[i].alias);
               }
             });
           }
@@ -816,7 +823,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   updateDiskon({
-    bool isHorizontal,
+    bool isHorizontal = false,
     dynamic idContract,
   }) async {
     const timeout = 15;
@@ -825,7 +832,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     try {
       var response = await http
           .delete(
-            url,
+            Uri.parse(url),
           )
           .timeout(Duration(seconds: timeout));
 
@@ -836,6 +843,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
         if (_isContractActive) {
           print('Ini child');
+          print('Status = $sts');
         } else if (_isCashbackContrack) {
           print('Ini Cashback');
         } else {
@@ -851,6 +859,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       }
@@ -872,12 +881,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
   }
 
-  checkUpdate(Function stop, {bool isHorizontal}) async {
+  checkUpdate(Function stop, {bool isHorizontal = false}) async {
     fixedDisc.clear();
     tmpDivInput.clear();
     fixedProduct.clear();
@@ -896,57 +906,43 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
     startContract = _formatter.format(_now);
 
-    if (_chosenNikon == null) {
-      outNikon = '-';
-    } else if (_chosenNikon == "KREDIT") {
+    if (_chosenNikon == "KREDIT") {
       outNikon = _chosenNikon + '-' + _durasiNikon;
     } else {
       outNikon = _chosenNikon;
     }
 
-    if (_chosenNikonSt == null) {
-      outNikonSt = '-';
-    } else if (_chosenNikonSt == "KREDIT") {
+    if (_chosenNikonSt == "KREDIT") {
       outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
     } else {
       outNikonSt = _chosenNikonSt;
     }
 
-    if (_chosenLeinz == null) {
-      outLeinz = '-';
-    } else if (_chosenLeinz == "KREDIT") {
+    if (_chosenLeinz == "KREDIT") {
       outLeinz = _chosenLeinz + '-' + _durasiLeinz;
     } else {
       outLeinz = _chosenLeinz;
     }
 
-    if (_chosenLeinzSt == null) {
-      outLeinzSt = '-';
-    } else if (_chosenLeinzSt == "KREDIT") {
+    if (_chosenLeinzSt == "KREDIT") {
       outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
     } else {
       outLeinzSt = _chosenLeinzSt;
     }
 
-    if (_chosenOriental == null) {
-      outOriental = '-';
-    } else if (_chosenOriental == "KREDIT") {
+    if (_chosenOriental == "KREDIT") {
       outOriental = _chosenOriental + '-' + _durasiOriental;
     } else {
       outOriental = _chosenOriental;
     }
 
-    if (_chosenOrientalSt == null) {
-      outOrientalSt = '-';
-    } else if (_chosenOrientalSt == "KREDIT") {
+    if (_chosenOrientalSt == "KREDIT") {
       outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
     } else {
       outOrientalSt = _chosenOrientalSt;
     }
 
-    if (_chosenMoe == null) {
-      outMoe = '-';
-    } else if (_chosenMoe == "KREDIT") {
+    if (_chosenMoe == "KREDIT") {
       outMoe = _chosenMoe + '-' + _durasiMoe;
     } else {
       outMoe = _chosenMoe;
@@ -993,45 +989,48 @@ class _EcontractScreenState extends State<EcontractScreen> {
       setState(() {
         if (defaultDisc.length > 0) {
           defaultDisc.forEach((element) {
-            element.proddiv.ischecked = true;
+            element.proddiv!.ischecked = true;
           });
           fixedDisc.addAll(defaultDisc);
           for (int i = 0; i < defaultDisc.length; i++) {
-            tmpDivInput.add(defaultDisc[i].proddiv.alias);
+            tmpDivInput.add(defaultDisc[i].proddiv!.alias);
           }
         }
 
         if (formDisc.length > 0) {
           for (int i = 0; i < formDisc.length; i++) {
-            if (formDisc[i].proddiv.ischecked) {
-              if (!tmpDivInput.contains(formDisc[i].proddiv.alias)) {
-                tmpDivInput.add(formDisc[i].proddiv.alias);
+            if (formDisc[i].proddiv!.ischecked) {
+              if (!tmpDivInput.contains(formDisc[i].proddiv!.alias)) {
+                tmpDivInput.add(formDisc[i].proddiv!.alias);
                 fixedDisc.add(formDisc[i]);
               } else {
                 fixedDisc.removeWhere((element) =>
-                    element.proddiv.alias == formDisc[i].proddiv.alias);
+                    element.proddiv!.alias == formDisc[i].proddiv!.alias);
                 fixedDisc.add(formDisc[i]);
               }
             } else {
               fixedDisc.removeWhere((element) =>
-                  element.proddiv.alias == formDisc[i].proddiv.alias);
+                  element.proddiv!.alias == formDisc[i].proddiv!.alias);
             }
           }
         }
 
         if (formProduct.length > 0) {
-          for (int i = 0; i < formProduct.length; i++){
-            if (formProduct[i].product.ischecked){
-              if (!tmpProduct.contains(formProduct[i].product.proddesc)) {
-                tmpProduct.add(formProduct[i].product.proddesc);
+          for (int i = 0; i < formProduct.length; i++) {
+            if (formProduct[i].product!.ischecked) {
+              if (!tmpProduct.contains(formProduct[i].product!.proddesc)) {
+                tmpProduct.add(formProduct[i].product!.proddesc);
                 fixedProduct.add(formProduct[i]);
               } else {
-                fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+                fixedProduct.removeWhere((element) =>
+                    element.product!.proddesc ==
+                    formProduct[i].product!.proddesc);
                 fixedProduct.add(formProduct[i]);
               }
-            }
-            else {
-              fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+            } else {
+              fixedProduct.removeWhere((element) =>
+                  element.product!.proddesc ==
+                  formProduct[i].product!.proddesc);
             }
           }
         }
@@ -1039,16 +1038,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
       print('Total Data Diskon =  ${fixedDisc.length}');
       fixedDisc.forEach((element) {
-        print(element.proddiv.alias);
-        print(element.proddiv.diskon);
-        print(element.proddiv.ischecked);
+        print(element.proddiv!.alias);
+        print(element.proddiv!.diskon);
+        print(element.proddiv!.ischecked);
       });
 
       print('Total Data Product =  ${fixedProduct.length}');
       fixedProduct.forEach((element) {
-        print(element.product.proddesc);
-        print(element.product.diskon);
-        print(element.product.ischecked);
+        print(element.product!.proddesc);
+        print(element.product!.diskon);
+        print(element.product!.ischecked);
       });
     }
 
@@ -1060,7 +1059,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
     try {
       var response = await http.put(
-        url,
+        Uri.parse(url),
         body: {
           'nama_kedua': namaKedua,
           'tp_nikon': valNikon.replaceAll('.', ''),
@@ -1158,6 +1157,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             capitalize(msg),
             sts,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
 
@@ -1170,6 +1170,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       }
@@ -1191,12 +1192,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
   }
 
-  checkInput(Function stop, {bool isHorizontal}) async {
+  checkInput(Function stop, {bool isHorizontal = false}) async {
     fixedDisc.clear();
     fixedProduct.clear();
     tmpDivInput.clear();
@@ -1212,57 +1214,43 @@ class _EcontractScreenState extends State<EcontractScreen> {
         startContract;
     var valNikon, valLeinz, valOriental, valMoe;
 
-    if (_chosenNikon == null) {
-      outNikon = '-';
-    } else if (_chosenNikon == "KREDIT") {
+    if (_chosenNikon == "KREDIT") {
       outNikon = _chosenNikon + '-' + _durasiNikon;
     } else {
       outNikon = _chosenNikon;
     }
 
-    if (_chosenNikonSt == null) {
-      outNikonSt = '-';
-    } else if (_chosenNikonSt == "KREDIT") {
+    if (_chosenNikonSt == "KREDIT") {
       outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
     } else {
       outNikonSt = _chosenNikonSt;
     }
 
-    if (_chosenLeinz == null) {
-      outLeinz = '-';
-    } else if (_chosenLeinz == "KREDIT") {
+    if (_chosenLeinz == "KREDIT") {
       outLeinz = _chosenLeinz + '-' + _durasiLeinz;
     } else {
       outLeinz = _chosenLeinz;
     }
 
-    if (_chosenLeinzSt == null) {
-      outLeinzSt = '-';
-    } else if (_chosenLeinzSt == "KREDIT") {
+    if (_chosenLeinzSt == "KREDIT") {
       outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
     } else {
       outLeinzSt = _chosenLeinzSt;
     }
 
-    if (_chosenOriental == null) {
-      outOriental = '-';
-    } else if (_chosenOriental == "KREDIT") {
+    if (_chosenOriental == "KREDIT") {
       outOriental = _chosenOriental + '-' + _durasiOriental;
     } else {
       outOriental = _chosenOriental;
     }
 
-    if (_chosenOrientalSt == null) {
-      outOrientalSt = '-';
-    } else if (_chosenOrientalSt == "KREDIT") {
+    if (_chosenOrientalSt == "KREDIT") {
       outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
     } else {
       outOrientalSt = _chosenOrientalSt;
     }
 
-    if (_chosenMoe == null) {
-      outMoe = '-';
-    } else if (_chosenMoe == "KREDIT") {
+    if (_chosenMoe == "KREDIT") {
       outMoe = _chosenMoe + '-' + _durasiMoe;
     } else {
       outMoe = _chosenMoe;
@@ -1317,45 +1305,48 @@ class _EcontractScreenState extends State<EcontractScreen> {
       setState(() {
         if (defaultDisc.length > 0) {
           defaultDisc.forEach((element) {
-            element.proddiv.ischecked = true;
+            element.proddiv!.ischecked = true;
           });
           fixedDisc.addAll(defaultDisc);
           for (int i = 0; i < defaultDisc.length; i++) {
-            tmpDivInput.add(defaultDisc[i].proddiv.alias);
+            tmpDivInput.add(defaultDisc[i].proddiv!.alias);
           }
         }
 
         if (formDisc.length > 0) {
           for (int i = 0; i < formDisc.length; i++) {
-            if (formDisc[i].proddiv.ischecked) {
-              if (!tmpDivInput.contains(formDisc[i].proddiv.alias)) {
-                tmpDivInput.add(formDisc[i].proddiv.alias);
+            if (formDisc[i].proddiv!.ischecked) {
+              if (!tmpDivInput.contains(formDisc[i].proddiv!.alias)) {
+                tmpDivInput.add(formDisc[i].proddiv!.alias);
                 fixedDisc.add(formDisc[i]);
               } else {
                 fixedDisc.removeWhere((element) =>
-                    element.proddiv.alias == formDisc[i].proddiv.alias);
+                    element.proddiv!.alias == formDisc[i].proddiv!.alias);
                 fixedDisc.add(formDisc[i]);
               }
             } else {
               fixedDisc.removeWhere((element) =>
-                  element.proddiv.alias == formDisc[i].proddiv.alias);
+                  element.proddiv!.alias == formDisc[i].proddiv!.alias);
             }
           }
         }
 
         if (formProduct.length > 0) {
-          for (int i = 0; i < formProduct.length; i++){
-            if (formProduct[i].product.ischecked){
-              if (!tmpProduct.contains(formProduct[i].product.proddesc)) {
-                tmpProduct.add(formProduct[i].product.proddesc);
+          for (int i = 0; i < formProduct.length; i++) {
+            if (formProduct[i].product!.ischecked) {
+              if (!tmpProduct.contains(formProduct[i].product!.proddesc)) {
+                tmpProduct.add(formProduct[i].product!.proddesc);
                 fixedProduct.add(formProduct[i]);
               } else {
-                fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+                fixedProduct.removeWhere((element) =>
+                    element.product!.proddesc ==
+                    formProduct[i].product!.proddesc);
                 fixedProduct.add(formProduct[i]);
               }
-            }
-            else {
-              fixedProduct.removeWhere((element) => element.product.proddesc == formProduct[i].product.proddesc);
+            } else {
+              fixedProduct.removeWhere((element) =>
+                  element.product!.proddesc ==
+                  formProduct[i].product!.proddesc);
             }
           }
         }
@@ -1363,16 +1354,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
       print('Total Data Diskon =  ${fixedDisc.length}');
       fixedDisc.forEach((element) {
-        print(element.proddiv.alias);
-        print(element.proddiv.diskon);
-        print(element.proddiv.ischecked);
+        print(element.proddiv!.alias);
+        print(element.proddiv!.diskon);
+        print(element.proddiv!.ischecked);
       });
 
       print('Total Data Product =  ${fixedProduct.length}');
       fixedProduct.forEach((element) {
-        print(element.product.proddesc);
-        print(element.product.diskon);
-        print(element.product.ischecked);
+        print(element.product!.proddesc);
+        print(element.product!.diskon);
+        print(element.product!.ischecked);
       });
     }
 
@@ -1382,7 +1373,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse(url),
         body: {
           'id_customer': idCustomer,
           'nama_pertama': name,
@@ -1471,9 +1462,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
             capitalize(msg),
             sts,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
-
 
         setState(() {});
       } on FormatException catch (e) {
@@ -1484,6 +1475,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       }
@@ -1505,31 +1497,30 @@ class _EcontractScreenState extends State<EcontractScreen> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
   }
 
-  multipleInputDiskon({bool isHorizontal}) async {
-    bool allValid = true;
-
+  multipleInputDiskon({bool isHorizontal = false}) async {
     if (fixedDisc.length > 0) {
       for (int i = 0; i < fixedDisc.length; i++) {
         FormItemDisc item = fixedDisc[i];
-        if (item.proddiv.ischecked) {
-          debugPrint("Proddiv: ${item.proddiv.proddiv}");
-          debugPrint("Alias: ${item.proddiv.alias}");
-          debugPrint("Diskon: ${item.proddiv.diskon}");
-          debugPrint("Is Checked : ${item.proddiv.ischecked}");
+        if (item.proddiv!.ischecked) {
+          debugPrint("Proddiv: ${item.proddiv!.proddiv}");
+          debugPrint("Alias: ${item.proddiv!.alias}");
+          debugPrint("Diskon: ${item.proddiv!.diskon}");
+          debugPrint("Is Checked : ${item.proddiv!.ischecked}");
 
           print(
-              'Id Cust : $idCustomer \n Ischecked : ${item.proddiv.ischecked} Proddiv : ${item.proddiv.proddiv} \n Diskon : ${item.proddiv.diskon} \n Alias : ${item.proddiv.alias}');
+              'Id Cust : $idCustomer \n Ischecked : ${item.proddiv!.ischecked} Proddiv : ${item.proddiv!.proddiv} \n Diskon : ${item.proddiv!.diskon} \n Alias : ${item.proddiv!.alias}');
 
           postMultiDiv(
             idCustomer,
-            item.proddiv.proddiv,
-            item.proddiv.diskon,
-            item.proddiv.alias,
+            item.proddiv!.proddiv,
+            item.proddiv!.diskon,
+            item.proddiv!.alias,
             isHorizontal: isHorizontal,
           );
         }
@@ -1538,29 +1529,23 @@ class _EcontractScreenState extends State<EcontractScreen> {
       print("Form is Not Valid");
     }
 
-    // formProduct
-    //     .forEach((element) => allValid = (allValid && element.isValidated()));
-
-    // if (allValid) {
     if (fixedProduct.length > 0) {
-      // for (int i = 0; i < formProduct.length; i++) {
-        // FormItemProduct item = formProduct[i];
       for (int i = 0; i < fixedProduct.length; i++) {
         FormItemProduct item = fixedProduct[i];
-        if (item.product.ischecked) {
-          debugPrint("Category Id: ${item.product.categoryid}");
-          debugPrint("Proddiv: ${item.product.proddiv}");
-          debugPrint("Prodcat: ${item.product.prodcat}");
-          debugPrint("Proddesc: ${item.product.proddesc}");
-          debugPrint("Diskon: ${item.product.diskon}");
+        if (item.product!.ischecked) {
+          debugPrint("Category Id: ${item.product!.categoryid}");
+          debugPrint("Proddiv: ${item.product!.proddiv}");
+          debugPrint("Prodcat: ${item.product!.prodcat}");
+          debugPrint("Proddesc: ${item.product!.proddesc}");
+          debugPrint("Diskon: ${item.product!.diskon}");
 
           postMultiItem(
             idCustomer,
-            item.product.categoryid,
-            item.product.proddiv,
-            item.product.prodcat,
-            item.product.proddesc,
-            item.product.diskon,
+            item.product!.categoryid,
+            item.product!.proddiv,
+            item.product!.prodcat,
+            item.product!.proddesc,
+            item.product!.diskon,
             isHorizontal: isHorizontal,
           );
         }
@@ -1571,13 +1556,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   postMultiDiv(String idCust, String proddiv, String diskon, String alias,
-      {bool isHorizontal}) async {
+      {bool isHorizontal = false}) async {
     const timeout = 15;
     var url = '$API_URL/discount/divCustomDiscount';
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse(url),
         body: {
           'id_customer': idCust,
           'prod_div[]': proddiv,
@@ -1602,6 +1587,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       }
@@ -1623,20 +1609,27 @@ class _EcontractScreenState extends State<EcontractScreen> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
   }
 
-  postMultiItem(String idCust, String categoryId, String prodDiv,
-      String prodCat, String prodDesc, String disc,
-      {bool isHorizontal}) async {
+  postMultiItem(
+    String idCust,
+    String categoryId,
+    String prodDiv,
+    String prodCat,
+    String prodDesc,
+    String disc, {
+    bool isHorizontal = false,
+  }) async {
     const timeout = 15;
     var url = '$API_URL/discount/customDiscount';
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse(url),
         body: {
           'id_customer': idCust,
           'category_id[]': categoryId,
@@ -1663,6 +1656,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       }
@@ -1684,47 +1678,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
   }
-
-  // simpanDiskon(String idCust, {bool isHorizontal}) async {
-  //   const timeout = 15;
-  //   var url = '$API_URL/discount/defaultDiscount';
-
-  //   try {
-  //     var response = await http.post(
-  //       url,
-  //       body: {
-  //         'id_customer': idCust,
-  //       },
-  //     ).timeout(Duration(seconds: timeout));
-
-  //     print('Response status: ${response.statusCode}');
-  //     print('Response body: ${response.body}');
-  //   } on TimeoutException catch (e) {
-  //     print('Timeout Error : $e');
-  //     if (mounted) {
-  //       handleTimeout(context);
-  //     }
-  //   } on SocketException catch (e) {
-  //     print('Socket Error : $e');
-  //     if (mounted) {
-  //       handleSocket(context);
-  //     }
-  //   } on Error catch (e) {
-  //     print('General Error : $e');
-  //     if (mounted) {
-  //       handleStatus(
-  //         context,
-  //         e.toString(),
-  //         false,
-  //         isHorizontal: isHorizontal,
-  //       );
-  //     }
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1738,29 +1696,43 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
-  Widget childEcontract({bool isHorizontal}) {
+  Widget childEcontract({bool isHorizontal = false}) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'Perjanjian Kerjasama Pembelian',
+          'Perjanjian Kontrak Kerjasama',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: isHorizontal ? 28.sp : 18.sp,
+            fontSize: isHorizontal ? 20.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
         ),
         elevation: 0.0,
-        centerTitle: true,
+        centerTitle: isHorizontal ? true : false,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                  builder: (context) => CustomerScreen(int.parse(id)))),
+          onPressed: () {
+            if (widget.isAdmin!) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => AdminScreen(),
+                ),
+              );
+            } else {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => CustomerScreen(
+                    int.parse(id!),
+                  ),
+                ),
+              );
+            }
+          },
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: isHorizontal ? 28.sp : 18.r,
+            size: isHorizontal ? 20.sp : 18.r,
           ),
         ),
       ),
@@ -1770,8 +1742,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
           SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 40.r : 25.r,
-                vertical: widget.isRevisi
+                horizontal: isHorizontal ? 25.r : 20.r,
+                vertical: widget.isRevisi!
                     ? isHorizontal
                         ? 85.r
                         : 65.r
@@ -1787,7 +1759,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(
                       'Pihak Pertama',
                       style: TextStyle(
-                        fontSize: isHorizontal ? 26.sp : 16.sp,
+                        fontSize: isHorizontal ? 19.sp : 15.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
                       ),
@@ -1805,21 +1777,21 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Nama : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
                       ),
                       Expanded(
                         child: Text(
-                          name,
+                          name!,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -1837,21 +1809,21 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Jabatan : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
                       ),
                       Expanded(
                         child: Text(
-                          role,
+                          role!,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -1869,12 +1841,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Telp : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -1883,7 +1855,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         child: Text(
                           '021-4610154',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -1901,12 +1873,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Fax : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -1915,7 +1887,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         child: Text(
                           '021-4610151-52',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -1933,12 +1905,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Alamat : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -1948,7 +1920,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           'Jl. Rawa Kepiting No. 4 Kawasan Industri Pulogadung, Jakarta Timur',
                           overflow: TextOverflow.fade,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -1962,7 +1934,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(
                       'Pihak Kedua',
                       style: TextStyle(
-                        fontSize: isHorizontal ? 26.sp : 16.sp,
+                        fontSize: isHorizontal ? 19.sp : 15.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
                       ),
@@ -1980,12 +1952,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Nama : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -1994,7 +1966,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         child: Text(
                           namaKedua = widget.customerList[widget.position].nama,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -2012,12 +1984,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Jabatan : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -2026,7 +1998,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         child: Text(
                           jabatanKedua = 'Owner',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -2044,12 +2016,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Telp : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -2059,7 +2031,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           telpKedua =
                               widget.customerList[widget.position].noTlp,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -2077,12 +2049,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Fax : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -2094,7 +2066,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                   ? '-'
                                   : widget.customerList[widget.position].fax,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -2112,12 +2084,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           left: isHorizontal ? 10.r : 5.r,
                         ),
                         width: isHorizontal
-                            ? MediaQuery.of(context).size.width / 8.2
+                            ? MediaQuery.of(context).size.width / 5.5
                             : MediaQuery.of(context).size.width / 5.2,
                         child: Text(
                           'Alamat : ',
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500),
                         ),
@@ -2128,7 +2100,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               widget.customerList[widget.position].alamat,
                           overflow: TextOverflow.fade,
                           style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
                         ),
@@ -2142,7 +2114,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(
                       'Target pembelian / bulan (satuan juta) : ',
                       style: TextStyle(
-                        fontSize: isHorizontal ? 26.sp : 16.sp,
+                        fontSize: isHorizontal ? 19.sp : 15.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
                       ),
@@ -2172,7 +2144,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       controller: textValNikon,
                       maxLength: 5,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                     ),
@@ -2180,35 +2152,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  // Container(
-                  //   padding: EdgeInsets.symmetric(
-                  //     horizontal: isHorizontal ? 10.r : 5.r,
-                  //   ),
-                  //   child: TextFormField(
-                  //     keyboardType: TextInputType.number,
-                  //     decoration: InputDecoration(
-                  //       hintText: 'Lensa Nikon Stock',
-                  //       labelText: 'Lensa Nikon Stock',
-                  //       contentPadding: EdgeInsets.symmetric(
-                  //         vertical: 3.r,
-                  //         horizontal: 15.r,
-                  //       ),
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(5.r),
-                  //       ),
-                  //     ),
-                  //     inputFormatters: [ThousandsSeparatorInputFormatter()],
-                  //     controller: textValNikonStock,
-                  //     maxLength: 5,
-                  //     style: TextStyle(
-                  //       fontSize: isHorizontal ? 24.sp : 14.sp,
-                  //       fontFamily: 'Segoe Ui',
-                  //     ),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: isHorizontal ? 18.h : 8.h,
-                  // ),
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 10.r : 5.r,
@@ -2230,7 +2173,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       controller: textValLeinz,
                       maxLength: 5,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                     ),
@@ -2238,35 +2181,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  // Container(
-                  //   padding: EdgeInsets.symmetric(
-                  //     horizontal: isHorizontal ? 10.r : 5.r,
-                  //   ),
-                  //   child: TextFormField(
-                  //     keyboardType: TextInputType.number,
-                  //     decoration: InputDecoration(
-                  //       hintText: 'Lensa Leinz Stock',
-                  //       labelText: 'Lensa Leinz Stock',
-                  //       contentPadding: EdgeInsets.symmetric(
-                  //         vertical: 3.r,
-                  //         horizontal: 15.r,
-                  //       ),
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(5.r),
-                  //       ),
-                  //     ),
-                  //     inputFormatters: [ThousandsSeparatorInputFormatter()],
-                  //     controller: textValLeinzStock,
-                  //     maxLength: 5,
-                  //     style: TextStyle(
-                  //       fontSize: isHorizontal ? 24.sp : 14.sp,
-                  //       fontFamily: 'Segoe Ui',
-                  //     ),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: isHorizontal ? 18.h : 8.h,
-                  // ),
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 10.r : 5.r,
@@ -2288,7 +2202,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       controller: textValOriental,
                       maxLength: 5,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                     ),
@@ -2296,35 +2210,6 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  // Container(
-                  //   padding: EdgeInsets.symmetric(
-                  //     horizontal: isHorizontal ? 10.r : 5.r,
-                  //   ),
-                  //   child: TextFormField(
-                  //     keyboardType: TextInputType.number,
-                  //     decoration: InputDecoration(
-                  //       hintText: 'Lensa Oriental Stock',
-                  //       labelText: 'Lensa Oriental Stock',
-                  //       contentPadding: EdgeInsets.symmetric(
-                  //         vertical: 3.r,
-                  //         horizontal: 15.r,
-                  //       ),
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(5.r),
-                  //       ),
-                  //     ),
-                  //     inputFormatters: [ThousandsSeparatorInputFormatter()],
-                  //     controller: textValOrientalStock,
-                  //     maxLength: 5,
-                  //     style: TextStyle(
-                  //       fontSize: isHorizontal ? 24.sp : 14.sp,
-                  //       fontFamily: 'Segoe Ui',
-                  //     ),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: isHorizontal ? 18.h : 8.h,
-                  // ),
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 10.r : 5.r,
@@ -2346,7 +2231,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       controller: textValMoe,
                       maxLength: 5,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                     ),
@@ -2358,7 +2243,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(
                       'Jangka waktu pembayaran / bulan : ',
                       style: TextStyle(
-                        fontSize: isHorizontal ? 26.sp : 16.sp,
+                        fontSize: isHorizontal ? 19.sp : 15.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
                       ),
@@ -2376,12 +2261,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Nikon RX : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2400,7 +2285,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenNikon,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2418,9 +2303,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenNikon = value;
+                                  _chosenNikon = value!;
                                 });
                               },
                             ),
@@ -2451,12 +2336,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Nikon Stock : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2475,7 +2360,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenNikonSt,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2493,9 +2378,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenNikonSt = value;
+                                  _chosenNikonSt = value!;
                                 });
                               },
                             ),
@@ -2526,12 +2411,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Leinz RX : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2549,7 +2434,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenLeinz,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2567,9 +2452,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenLeinz = value;
+                                  _chosenLeinz = value!;
                                 });
                               },
                             ),
@@ -2600,12 +2485,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Leinz Stock : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2623,7 +2508,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenLeinzSt,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2641,9 +2526,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenLeinzSt = value;
+                                  _chosenLeinzSt = value!;
                                 });
                               },
                             ),
@@ -2674,12 +2559,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Oriental RX : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2697,7 +2582,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenOriental,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2715,9 +2600,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenOriental = value;
+                                  _chosenOriental = value!;
                                 });
                               },
                             ),
@@ -2748,12 +2633,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Oriental Stock : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2771,7 +2656,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenOrientalSt,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2789,9 +2674,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenOrientalSt = value;
+                                  _chosenOrientalSt = value!;
                                 });
                               },
                             ),
@@ -2822,12 +2707,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       children: [
                         Container(
                           width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 5.5
+                              ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
                             'Lensa Moe : ',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.h : 14.sp,
+                              fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2845,7 +2730,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               isExpanded: true,
                               value: _chosenMoe,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600,
@@ -2863,9 +2748,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                       style: TextStyle(color: Colors.black54)),
                                 );
                               }).toList(),
-                              onChanged: (String value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _chosenMoe = value;
+                                  _chosenMoe = value!;
                                 });
                               },
                             ),
@@ -2890,7 +2775,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   Text(
                     'Catatan',
                     style: TextStyle(
-                      fontSize: isHorizontal ? 22.sp : 12.sp,
+                      fontSize: isHorizontal ? 19.sp : 12.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -2913,7 +2798,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     maxLength: 100,
                     controller: textCatatan,
                     style: TextStyle(
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                      fontSize: isHorizontal ? 18.sp : 14.sp,
                       fontFamily: 'Segoe Ui',
                     ),
                   ),
@@ -2949,17 +2834,21 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     ),
                     alignment: Alignment.centerRight,
                     child: ArgonButton(
-                      height: isHorizontal ? 60.h : 40.h,
-                      width: isHorizontal ? 80.w : 100.w,
+                      height: isHorizontal ? 45.h : 35.h,
+                      width: isHorizontal
+                          ? widget.isRevisi!
+                              ? 80.w
+                              : 70.w
+                          : 90.w,
                       borderRadius: isHorizontal ? 60.r : 30.r,
-                      color: widget.isRevisi
+                      color: widget.isRevisi!
                           ? Colors.orange[700]
                           : Colors.blue[700],
                       child: Text(
-                        widget.isRevisi ? "Perbarui" : "Simpan",
+                        widget.isRevisi! ? "Perbarui" : "Simpan",
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: isHorizontal ? 24.sp : 14.sp,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
                             fontWeight: FontWeight.w700),
                       ),
                       loader: Container(
@@ -2973,16 +2862,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           setState(() {
                             startLoading();
                             waitingLoad();
-                            // _isNetworkConnected
-                            // ?
-                            widget.isRevisi
+                            widget.isRevisi!
                                 ? checkUpdate(stopLoading,
                                     isHorizontal: isHorizontal)
                                 : checkInput(
                                     stopLoading,
                                     isHorizontal: isHorizontal,
                                   );
-                            // : handleConnection(context);
                           });
                         }
                       },
@@ -2992,7 +2878,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ),
             ),
           ),
-          widget.isRevisi
+          widget.isRevisi!
               ? _isLoading
                   ? Align(
                       alignment: Alignment.topCenter,
@@ -3020,7 +2906,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                         ),
                         child: Column(
                           children: [
-                            dtContract[0].reasonSm != null
+                            dtContract[0].reasonSm != ''
                                 ? dtContract[0].reasonSm.isNotEmpty
                                     ? Text(
                                         'INFO SM : ${dtContract[0].reasonSm}',
@@ -3039,7 +2925,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                 : SizedBox(
                                     width: 5,
                                   ),
-                            dtContract[0].reasonAm != null
+                            dtContract[0].reasonAm != ''
                                 ? dtContract[0].reasonAm.isNotEmpty
                                     ? Text(
                                         'INFO AR : ${dtContract[0].reasonAm}',
@@ -3089,7 +2975,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'Segoe ui',
-                            fontSize: isHorizontal ? 24.sp : 14.sp,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
                           textAlign: TextAlign.center,
@@ -3126,9 +3012,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
               return CheckboxListTile(
                 value: item[index].ischecked,
                 title: Text(_key),
-                onChanged: (bool val) {
+                onChanged: (bool? val) {
                   setState(() {
-                    item[index].ischecked = val;
+                    item[index].ischecked = val!;
                   });
                 },
               );
@@ -3139,7 +3025,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
-  Widget durasiNikon({bool isHorizontal}) {
+  Widget durasiNikon({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3149,12 +3035,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3173,7 +3059,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiNikon,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3189,9 +3075,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiNikon = value;
+                    _durasiNikon = value!;
                   });
                 },
               ),
@@ -3202,7 +3088,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiNikonSt({bool isHorizontal}) {
+  Widget durasiNikonSt({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3212,12 +3098,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3236,7 +3122,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiNikonSt,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3252,9 +3138,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiNikonSt = value;
+                    _durasiNikonSt = value!;
                   });
                 },
               ),
@@ -3265,7 +3151,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiMoe({bool isHorizontal}) {
+  Widget durasiMoe({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3275,12 +3161,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3299,7 +3185,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiMoe,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3315,9 +3201,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiMoe = value;
+                    _durasiMoe = value!;
                   });
                 },
               ),
@@ -3328,7 +3214,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiLeinz({bool isHorizontal}) {
+  Widget durasiLeinz({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3338,12 +3224,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3362,7 +3248,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiLeinz,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3378,9 +3264,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiLeinz = value;
+                    _durasiLeinz = value!;
                   });
                 },
               ),
@@ -3391,7 +3277,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiLeinzSt({bool isHorizontal}) {
+  Widget durasiLeinzSt({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3401,12 +3287,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3425,7 +3311,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiLeinzSt,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3441,9 +3327,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiLeinzSt = value;
+                    _durasiLeinzSt = value!;
                   });
                 },
               ),
@@ -3454,7 +3340,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiOriental({bool isHorizontal}) {
+  Widget durasiOriental({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3464,12 +3350,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3488,7 +3374,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiOriental,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3504,9 +3390,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiOriental = value;
+                    _durasiOriental = value!;
                   });
                 },
               ),
@@ -3517,7 +3403,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiOrientalSt({bool isHorizontal}) {
+  Widget durasiOrientalSt({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3527,12 +3413,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         children: [
           Container(
             width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
+                ? MediaQuery.of(context).size.width / 3.5
                 : MediaQuery.of(context).size.width / 3.2,
             child: Text(
               'Durasi : ',
               style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
+                fontSize: isHorizontal ? 18.h : 14.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w500,
               ),
@@ -3551,7 +3437,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 isExpanded: true,
                 value: _durasiOrientalSt,
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
@@ -3567,9 +3453,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
-                    _durasiOrientalSt = value;
+                    _durasiOrientalSt = value!;
                   });
                 },
               ),
@@ -3580,7 +3466,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget selectParent({bool isHorizontal}) {
+  Widget selectParent({bool isHorizontal = false}) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
         scrollable: true,
@@ -3631,12 +3517,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       future: search.isNotEmpty
                           ? getSearchParent(search)
                           : getSearchParent(''),
-                      builder: (context, snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<StbCustomer>> snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
                             return Center(child: CircularProgressIndicator());
                           default:
-                            return snapshot.data != null
+                            return snapshot.hasData
                                 ? listParentWidget(itemStbCust)
                                 : Center(
                                     child: Text('Data tidak ditemukan'),
@@ -3685,7 +3572,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
-  Widget customProduct({bool isHor}) {
+  Widget customProduct({bool isHor = false}) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
         title: Text('Pilih Item'),
@@ -3777,9 +3664,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
               return CheckboxListTile(
                 value: item[index].ischecked,
                 title: Text(_key),
-                onChanged: (bool val) {
+                onChanged: (bool? val) {
                   setState(() {
-                    item[index].ischecked = val;
+                    item[index].ischecked = val!;
                   });
                 },
               );
@@ -3790,32 +3677,36 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   Widget listParentWidget(List<StbCustomer> item) {
     return StatefulBuilder(builder: (context, setState) {
-      return Container(
-          width: double.minPositive.w,
-          height: 350.h,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: item.length,
-            itemBuilder: (BuildContext context, int index) {
-              String _key = item[index].customerBillName;
-              return CheckboxListTile(
-                value: item[index].ischecked,
-                title: Text(_key),
-                onChanged: (bool val) {
-                  setState(() {
-                    item[index].ischecked = val;
-                    item[index].ischecked
-                        ? getActiveContract(item[index].customerBillNumber)
-                        : print('Disable');
-                  });
+      return _isEmpty
+          ? Center(
+              child: Text("Masukkan pencarian lain"),
+            )
+          : Container(
+              width: double.minPositive.w,
+              height: 350.h,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: item.length,
+                itemBuilder: (BuildContext context, int index) {
+                  String _key = item[index].customerBillName;
+                  return CheckboxListTile(
+                    value: item[index].ischecked,
+                    title: Text(_key),
+                    onChanged: (bool? val) {
+                      setState(() {
+                        item[index].ischecked = val!;
+                        item[index].ischecked
+                            ? getActiveContract(item[index].customerBillNumber)
+                            : print('Disable');
+                      });
+                    },
+                  );
                 },
-              );
-            },
-          ));
+              ));
     });
   }
 
-  Widget areaFrameContract({bool isHorizontal}) {
+  Widget areaFrameContract({bool isHorizontal = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3824,13 +3715,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         ),
         Container(
           padding: EdgeInsets.symmetric(
-            horizontal: isHorizontal ? 10.r : 5.r,
             vertical: isHorizontal ? 18.r : 8.r,
           ),
           child: Text(
             'Tipe Kontrak : ',
             style: TextStyle(
-                fontSize: isHorizontal ? 26.sp : 16.sp,
+                fontSize: isHorizontal ? 19.sp : 15.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w600),
           ),
@@ -3845,13 +3735,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           Expanded(
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: isHorizontal ? 13.r : 8.r,
+                                horizontal: isHorizontal ? 10.r : 8.r,
                                 vertical: isHorizontal ? 5.r : 2.r,
                               ),
                               child: Text(
                                 'Kontrak Frame (Sesuai SP)',
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -3860,15 +3750,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: isHorizontal ? 13.r : 8.r,
+                              horizontal: isHorizontal ? 10.r : 8.r,
                               vertical: isHorizontal ? 5.r : 2.r,
                             ),
                             child: Checkbox(
                               value: this._isFrameContract,
-                              onChanged: (bool value) {
+                              onChanged: (bool? value) {
                                 setState(
                                   () {
-                                    this._isFrameContract = value;
+                                    this._isFrameContract = value!;
                                   },
                                 );
                               },
@@ -3882,13 +3772,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           Expanded(
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: isHorizontal ? 13.r : 8.r,
+                                horizontal: isHorizontal ? 10.r : 8.r,
                                 vertical: isHorizontal ? 5.r : 2.r,
                               ),
                               child: Text(
                                 'Kontrak Partai (Sesuai SP)',
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -3897,15 +3787,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: isHorizontal ? 13.r : 8.r,
+                              horizontal: isHorizontal ? 10.r : 8.r,
                               vertical: isHorizontal ? 5.r : 2.r,
                             ),
                             child: Checkbox(
                               value: this._isPartaiContract,
-                              onChanged: (bool value) {
+                              onChanged: (bool? value) {
                                 setState(
                                   () {
-                                    this._isPartaiContract = value;
+                                    this._isPartaiContract = value!;
                                   },
                                 );
                               },
@@ -3928,13 +3818,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: isHorizontal ? 13.r : 8.r,
+                        horizontal: isHorizontal ? 10.r : 8.r,
                         vertical: isHorizontal ? 5.r : 2.r,
                       ),
                       child: Text(
                         'Kontrak Cashback (Tanpa Diskon)',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 24.sp : 14.sp,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w500,
                         ),
@@ -3943,14 +3833,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 13.r : 8.r,
+                      horizontal: isHorizontal ? 10.r : 8.r,
                       vertical: isHorizontal ? 5.r : 2.r,
                     ),
                     child: Checkbox(
                       value: this._isCashbackContrack,
-                      onChanged: (bool value) {
+                      onChanged: (bool? value) {
                         setState(() {
-                          this._isCashbackContrack = value;
+                          this._isCashbackContrack = value!;
                           formDisc.clear();
                           formProduct.clear();
                           tmpDiv.clear();
@@ -3972,13 +3862,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: isHorizontal ? 13.r : 8.r,
+                        horizontal: isHorizontal ? 10.r : 8.r,
                         vertical: isHorizontal ? 5.r : 2.r,
                       ),
                       child: Text(
                         'Kontrak Sebagai Child',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 24.sp : 14.sp,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w500,
                         ),
@@ -3987,19 +3877,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 13.r : 8.r,
+                      horizontal: isHorizontal ? 10.r : 8.r,
                       vertical: isHorizontal ? 5.r : 2.r,
                     ),
                     child: Checkbox(
                       value: this._isChildContract,
-                      onChanged: (bool value) {
+                      onChanged: (bool? value) {
                         setState(() {
-                          this._isChildContract = value;
+                          this._isChildContract = value!;
                           formDisc.clear();
                           formProduct.clear();
                           tmpDiv.clear();
                           tmpProduct.clear();
                           itemActiveContract.clear();
+                          this._isContractActive = false;
                           _isChildContract
                               ? showDialog(
                                   barrierDismissible: false,
@@ -4084,7 +3975,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget areaMultiFormDiv({bool isHorizontal}) {
+  Widget areaMultiFormDiv({bool isHorizontal = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -4096,20 +3987,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 10.r : 5.r,
+                // horizontal: isHorizontal ? 10.r : 5.r,
                 vertical: isHorizontal ? 18.r : 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Divisi : ',
                 style: TextStyle(
-                    fontSize: isHorizontal ? 26.sp : 16.sp,
+                    fontSize: isHorizontal ? 19.sp : 15.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 35.r : 20.r,
+                horizontal: isHorizontal ? 15.r : 20.r,
               ),
               child: Ink(
                 decoration: const ShapeDecoration(
@@ -4122,11 +4013,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   children: [
                     IconButton(
                       constraints: BoxConstraints(
-                        maxHeight: isHorizontal ? 50.r : 30.r,
-                        maxWidth: isHorizontal ? 50.r : 30.r,
+                        maxHeight: isHorizontal ? 40.r : 30.r,
+                        maxWidth: isHorizontal ? 40.r : 30.r,
                       ),
                       icon: const Icon(Icons.add),
-                      iconSize: isHorizontal ? 25.r : 15.r,
+                      iconSize: isHorizontal ? 20.r : 15.r,
                       color: Colors.white,
                       onPressed: () {
                         itemProdDiv.length < 1
@@ -4154,14 +4045,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
               flex: isHorizontal ? 4 : 3,
               child: Padding(
                 padding: EdgeInsets.only(
-                  left: isHorizontal ? 10.r : 5.r,
+                  left: isHorizontal ? 5.r : 5.r,
                   top: 2.r,
                   bottom: 2.r,
                 ),
                 child: Text(
                   'Produk',
                   style: TextStyle(
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -4174,7 +4065,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   child: Text(
                 'Tandai',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w500,
                 ),
@@ -4186,7 +4077,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -4199,7 +4090,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           height: 5.h,
         ),
         Container(
-          height: isHorizontal ? 300.h : 150.h,
+          height: isHorizontal ? 160.h : 150.h,
           child: formDisc.isNotEmpty
               ? ListView.builder(
                   itemCount: formDisc.length,
@@ -4225,7 +4116,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget areaMultiFormProduct({bool isHorizontal}) {
+  Widget areaMultiFormProduct({bool isHorizontal = false}) {
     return Column(
       children: [
         Row(
@@ -4233,20 +4124,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 10.r : 5.r,
+                // horizontal: isHorizontal ? 10.r : 5.r,
                 vertical: isHorizontal ? 18.r : 8.r,
               ),
               child: Text(
                 'Kontrak Diskon Khusus : ',
                 style: TextStyle(
-                    fontSize: isHorizontal ? 26.sp : 16.sp,
+                    fontSize: isHorizontal ? 18.sp : 15.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600),
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 35.r : 20.r,
+                horizontal: isHorizontal ? 15.r : 20.r,
               ),
               child: Ink(
                 decoration: const ShapeDecoration(
@@ -4259,11 +4150,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   children: [
                     IconButton(
                       constraints: BoxConstraints(
-                        maxHeight: isHorizontal ? 50.r : 30.r,
-                        maxWidth: isHorizontal ? 50.r : 30.r,
+                        maxHeight: isHorizontal ? 40.r : 30.r,
+                        maxWidth: isHorizontal ? 40.r : 30.r,
                       ),
                       icon: const Icon(Icons.add),
-                      iconSize: isHorizontal ? 25.r : 15.r,
+                      iconSize: isHorizontal ? 20.r : 15.r,
                       color: Colors.white,
                       onPressed: () {
                         // _isNetworkConnected
@@ -4292,14 +4183,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
               flex: isHorizontal ? 4 : 3,
               child: Padding(
                 padding: EdgeInsets.only(
-                  left: isHorizontal ? 10.r : 5.r,
+                  left: isHorizontal ? 5.r : 5.r,
                   top: 2.r,
                   bottom: 2.r,
                 ),
                 child: Text(
                   'Produk',
                   style: TextStyle(
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -4312,7 +4203,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   child: Text(
                 'Tandai',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w500,
                 ),
@@ -4324,7 +4215,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                 child: Text(
                   'Diskon',
                   style: TextStyle(
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w500,
                   ),
@@ -4337,7 +4228,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           height: 5.h,
         ),
         Container(
-          height: isHorizontal ? 300.h : 150.h,
+          height: isHorizontal ? 160.h : 150.h,
           child: formProduct.isNotEmpty
               ? ListView.builder(
                   itemCount: formProduct.length,

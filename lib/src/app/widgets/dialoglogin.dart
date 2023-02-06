@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DialogLogin extends StatefulWidget {
   @override
@@ -24,7 +24,7 @@ class _DialogLoginState extends State<DialogLogin> {
     );
   }
 
-  Widget childLoginDialog({bool isHorizontal}) {
+  Widget childLoginDialog({bool isHorizontal = false}) {
     return AlertDialog(
       content: Container(
         height: isHorizontal ? 250.h : 185.h,

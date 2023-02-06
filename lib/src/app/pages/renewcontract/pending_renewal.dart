@@ -1,33 +1,40 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PendingRenewal extends StatefulWidget {
+  const PendingRenewal({Key? key}) : super(key: key);
+
   @override
   State<PendingRenewal> createState() => _PendingRenewalState();
 }
 
 class _PendingRenewalState extends State<PendingRenewal> {
   String search = '';
-  String id = '';
-  String role = '';
-  String username = '';
-  String divisi = '';
-  String ttdPertama;
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? divisi = '';
+  String? ttdPertama = '';
 
-  Future<void> _refreshData() async {
-    setState(() {
-      divisi == "AR" ? getPendingData(true) : getPendingData(false);
-    });
-  }
+  List<Contract> tmpList = List.empty(growable: true);
+  List<Contract> currList = List.empty(growable: true);
+  Future<List<Contract>>? _listFuture;
+  int page = 1;
+  int pageCount = 5;
+  int startAt = 0;
+  int endAt = 0;
+  int totalPages = 0;
+  bool isDataFound = true;
 
   @override
   initState() {
@@ -42,61 +49,110 @@ class _PendingRenewalState extends State<PendingRenewal> {
       role = preferences.getString("role");
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
+      ttdPertama = preferences.getString("ttduser") ?? '';
 
-      getTtd(int.parse(id));
+      _listFuture = search.isNotEmpty
+          ? getPendingBySearch(
+              search,
+              divisi == "AR" ? true : false,
+              isHorizontal:
+                  MediaQuery.of(context).orientation == Orientation.landscape
+                      ? true
+                      : false,
+            )
+          : divisi == "AR"
+              ? getPendingData(true)
+              : getPendingData(false);
       print("Search Contract : $role");
     });
   }
 
-  getTtd(int input) async {
-    const timeout = 15;
-    var url = '$API_URL/users?id=$input';
+  initalizePage(int totalData) {
+    endAt = totalData > 5 ? startAt + pageCount : totalData;
+    totalPages = (totalData / pageCount).floor();
+    if (totalData / pageCount > totalPages) {
+      totalPages += 1;
+    }
+  }
 
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
+  void loadPreviousPage() {
+    if (page > 1) {
+      setState(() {
+        startAt = startAt - pageCount;
+        endAt =
+            page == totalPages ? endAt - currList.length : endAt - pageCount;
+        _listFuture = search.isNotEmpty
+            ? getPendingBySearch(
+                search,
+                divisi == "AR" ? true : false,
+                isHorizontal:
+                    MediaQuery.of(context).orientation == Orientation.landscape
+                        ? true
+                        : false,
+              )
+            : divisi == "AR"
+                ? getPendingData(true)
+                : getPendingData(false);
+        page = page - 1;
+      });
+    }
+  }
 
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          ttdPertama = data['data']['ttd'];
-          print(ttdPertama);
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-      handleTimeout(context);
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-      handleSocket(context);
-    } on Error catch (e) {
-      print('General Error : $e');
+  void loadNextPage() {
+    if (page < totalPages) {
+      setState(() {
+        startAt = startAt + pageCount;
+        endAt = currList.length > endAt + pageCount
+            ? endAt + pageCount
+            : currList.length;
+        _listFuture = search.isNotEmpty
+            ? getPendingBySearch(
+                search,
+                divisi == "AR" ? true : false,
+                isHorizontal:
+                    MediaQuery.of(context).orientation == Orientation.landscape
+                        ? true
+                        : false,
+              )
+            : divisi == "AR"
+                ? getPendingData(true)
+                : getPendingData(false);
+        page = page + 1;
+      });
     }
   }
 
   Future<List<Contract>> getPendingBySearch(String input, bool isAr,
-      {bool isHorizontal}) async {
-    List<Contract> list;
+      {bool isHorizontal = false}) async {
+    List<Contract> list = List.empty(growable: true);
     const timeout = 15;
-    var url =
-        '$API_URL/contract/findOldCustContract';
+    var url = '$API_URL/contract/findOldCustContract';
+    tmpList.clear();
+
+    print('ID SALES : $id');
+
+    setState(() {
+      isDataFound = true;
+    });
 
     try {
       var response = await http
           .post(
-            url,
+            Uri.parse(url),
             body: !isAr
                 ? {
                     'search': input,
                     'approval_sm': '0',
+                    'id_salesmanager': '$id',
+                    'limit': '$pageCount',
+                    'offset': '$startAt',
                   }
                 : {
                     'search': input,
+                    'approval_sm': '1',
                     'approval_am': '0',
+                    'limit': '$pageCount',
+                    'offset': '$startAt',
                   },
           )
           .timeout(Duration(seconds: timeout));
@@ -112,9 +168,12 @@ class _PendingRenewalState extends State<PendingRenewal> {
           print(rest);
           list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
           print("List Size: ${list.length}");
-        }
 
-        return list;
+          setState(() {
+            initalizePage(data['total']);
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
         handleStatus(
@@ -122,6 +181,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     } on TimeoutException catch (e) {
@@ -131,17 +191,29 @@ class _PendingRenewalState extends State<PendingRenewal> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    setState(() {
+      isDataFound = false;
+    });
+
+    return list;
   }
 
   Future<List<Contract>> getPendingData(bool isAr) async {
-    List<Contract> list;
+    List<Contract> list = List.empty(growable: true);
     const timeout = 15;
     var url = !isAr
-        ? '$API_URL/contract/pendingContractOldCustSM'
-        : '$API_URL/contract/pendingContractOldCustAM';
+        ? '$API_URL/contract/pendingContractOldCustSM?id_manager=$id&limit=$pageCount&offset=$startAt'
+        : '$API_URL/contract/pendingContractOldCustAM?id_customer=&limit=$pageCount&offset=$startAt';
+    tmpList.clear();
+
+    setState(() {
+      isDataFound = true;
+    });
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -153,9 +225,12 @@ class _PendingRenewalState extends State<PendingRenewal> {
           print(rest);
           list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
           print("List Size: ${list.length}");
-        }
 
-        return list;
+          setState(() {
+            initalizePage(data['total']);
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -166,6 +241,29 @@ class _PendingRenewalState extends State<PendingRenewal> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    setState(() {
+      isDataFound = false;
+    });
+
+    return list;
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _listFuture = search.isNotEmpty
+          ? getPendingBySearch(
+              search,
+              divisi == "AR" ? true : false,
+              isHorizontal:
+                  MediaQuery.of(context).orientation == Orientation.landscape
+                      ? true
+                      : false,
+            )
+          : divisi == "AR"
+              ? getPendingData(true)
+              : getPendingData(false);
+    });
   }
 
   @override
@@ -179,7 +277,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
     });
   }
 
-  Widget childPendingRenewal({bool isHorizontal}) {
+  Widget childPendingRenewal({bool isHorizontal = false}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -187,11 +285,11 @@ class _PendingRenewalState extends State<PendingRenewal> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 30.r : 20.r,
-              vertical: isHorizontal ? 20.r : 10.r,
+              horizontal: isHorizontal ? 26.r : 20.r,
+              vertical: 10.r,
             ),
             color: Colors.white,
-            height: isHorizontal ? 110.h : 80.h,
+            height: isHorizontal ? 75.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -214,71 +312,156 @@ class _PendingRenewalState extends State<PendingRenewal> {
               onSubmitted: (value) {
                 setState(() {
                   search = value;
+                  _listFuture = search.isNotEmpty
+                      ? getPendingBySearch(
+                          search,
+                          divisi == "AR" ? true : false,
+                          isHorizontal: true,
+                        )
+                      : divisi == "AR"
+                          ? getPendingData(true)
+                          : getPendingData(false);
                 });
               },
             ),
           ),
-          Expanded(
-            child: SizedBox(
-              height: 100.h,
-              child: FutureBuilder(
-                  future: search.isNotEmpty
-                      ? getPendingBySearch(
-                          search,
-                          divisi == "AR" ? true : false,
-                          isHorizontal: isHorizontal,
-                        )
-                      : divisi == "AR"
-                          ? getPendingData(true)
-                          : getPendingData(false),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return snapshot.data != null
-                            ? listViewWidget(
-                                snapshot.data,
-                                snapshot.data.length,
-                                isHorizontal: isHorizontal,
-                              )
-                            : Column(
-                                children: [
-                                  Center(
-                                    child: Image.asset(
-                                      'assets/images/not_found.png',
-                                      width: isHorizontal ? 275.r : 300.r,
-                                      height: isHorizontal ? 275.r : 300.r,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Data tidak ditemukan',
-                                    style: TextStyle(
-                                      fontSize: isHorizontal ? 28.sp : 18.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[600],
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                  )
-                                ],
-                              );
-                    }
-                  }),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              FloatingActionButton(
+                heroTag: Text("prev"),
+                backgroundColor:
+                    page > 1 ? Colors.green : Colors.green.shade200,
+                mini: true,
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: isHorizontal ? 30.r : 20.r,
+                ),
+                elevation: 0,
+                onPressed: page > 1 ? loadPreviousPage : null,
+              ),
+              Text(
+                "Hal $page / $totalPages",
+                style: TextStyle(
+                  fontFamily: 'Segoe Ui',
+                  fontSize: isHorizontal ? 20.sp : 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54,
+                ),
+              ),
+              FloatingActionButton(
+                heroTag: Text("next"),
+                backgroundColor:
+                    page < totalPages ? Colors.green : Colors.green.shade200,
+                mini: true,
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  size: isHorizontal ? 30.r : 20.r,
+                ),
+                elevation: 0,
+                onPressed: page < totalPages ? loadNextPage : null,
+              ),
+            ],
           ),
+          isDataFound
+              ? Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 10.r,
+                  ),
+                  child: CircularProgressIndicator(),
+                )
+              : tmpList.length > 0
+                  ? Expanded(
+                      child: SizedBox(
+                        height: 100.h,
+                        child: FutureBuilder(
+                            future: _listFuture,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<Contract>> snapshot) {
+                              switch (snapshot.connectionState) {
+                                case ConnectionState.waiting:
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                default:
+                                  return snapshot.data != null
+                                      ? listViewWidget(
+                                          snapshot.data!,
+                                          snapshot.data!.length,
+                                          isHorizontal: isHorizontal,
+                                        )
+                                      : Expanded(
+                                        child: SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                Center(
+                                                  child: Image.asset(
+                                                    'assets/images/not_found.png',
+                                                    width: isHorizontal
+                                                        ? 150.w
+                                                        : 230.w,
+                                                    height: isHorizontal
+                                                        ? 150.h
+                                                        : 230.h,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Data tidak ditemukan',
+                                                  style: TextStyle(
+                                                    fontSize: isHorizontal
+                                                        ? 16.sp
+                                                        : 18.sp,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.red[600],
+                                                    fontFamily: 'Montserrat',
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                      );
+                              }
+                            }),
+                      ),
+                    )
+                  : Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Center(
+                              child: Image.asset(
+                                'assets/images/not_found.png',
+                                width: isHorizontal ? 150.w : 230.w,
+                                height: isHorizontal ? 150.h : 230.h,
+                              ),
+                            ),
+                            Text(
+                              'Data tidak ditemukan',
+                              style: TextStyle(
+                                fontSize: isHorizontal ? 16.sp : 18.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red[600],
+                                fontFamily: 'Montserrat',
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
         ],
       ),
     );
   }
 
-  Widget listViewWidget(List<Contract> item, int len, {bool isHorizontal}) {
+  Widget listViewWidget(List<Contract> item, int len,
+      {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 30.r : 5.r,
-              vertical: isHorizontal ? 20.r : 15.r,
+              horizontal: isHorizontal ? 25.r : 20.r,
+              vertical: isHorizontal ? 15.r : 10.r,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
@@ -287,8 +470,8 @@ class _PendingRenewalState extends State<PendingRenewal> {
                   margin: EdgeInsets.only(
                     bottom: 10.r,
                   ),
-                  padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
-                  height: isHorizontal ? 110.h : 80.h,
+                  padding: EdgeInsets.all(isHorizontal ? 15.r : 10.r),
+                  height: isHorizontal ? 90.h : 75.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
                       Radius.circular(isHorizontal ? 20.r : 15.r),
@@ -304,20 +487,20 @@ class _PendingRenewalState extends State<PendingRenewal> {
                       Image.asset(
                         'assets/images/e_contract_new.png',
                         filterQuality: FilterQuality.medium,
-                        width: isHorizontal ? 60.r : 35.r,
-                        height: isHorizontal ? 60.r : 35.r,
+                        width: isHorizontal ? 45.r : 35.r,
+                        height: isHorizontal ? 45.r : 35.r,
                       ),
                       SizedBox(
-                        width: isHorizontal ? 5.w : 10.w,
+                        width: isHorizontal ? 8.w : 10.w,
                       ),
                       Expanded(
                         flex: 1,
                         child: Text(
-                          item[position].customerShipName != null
+                          item[position].customerShipName != ''
                               ? item[position].customerShipName
                               : '-',
                           style: TextStyle(
-                            fontSize: isHorizontal ? 22.sp : 14.sp,
+                            fontSize: isHorizontal ? 20.sp : 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Segoe ui',
                             color: Colors.black87,
@@ -332,7 +515,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
                           Text(
                             convertDateWithMonth(item[position].dateAdded),
                             style: TextStyle(
-                              fontSize: isHorizontal ? 22.sp : 14.sp,
+                              fontSize: isHorizontal ? 20.sp : 14.sp,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Segoe ui',
                               color: Colors.black,
@@ -341,7 +524,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
                           Text(
                             'PENDING',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 22.sp : 14.sp,
+                              fontSize: isHorizontal ? 20.sp : 14.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Segoe ui',
                               color: Colors.grey.shade600,
@@ -353,17 +536,18 @@ class _PendingRenewalState extends State<PendingRenewal> {
                   ),
                 ),
                 onTap: () {
-                  item[position].idCustomer != null
+                  item[position].idCustomer != ''
                       ? Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => DetailContract(
                               item[position],
-                              divisi,
-                              ttdPertama,
-                              username,
+                              divisi!,
+                              ttdPertama!,
+                              username!,
                               false,
                               isContract: true,
                               isAdminRenewal: false,
+                              isNewCust: false,
                             ),
                           ),
                         )
@@ -372,6 +556,7 @@ class _PendingRenewalState extends State<PendingRenewal> {
                           'Id customer tidak ditemukan',
                           false,
                           isHorizontal: isHorizontal,
+                          isLogout: false,
                         );
                 },
               );

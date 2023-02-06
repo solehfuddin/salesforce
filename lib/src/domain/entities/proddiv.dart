@@ -1,6 +1,7 @@
 class Proddiv {
-  String proddiv, alias;
-  String diskon;
+  String proddiv = '';
+  String alias = '';
+  String diskon = '';
   bool ischecked = false;
 
   Proddiv(this.alias, this.proddiv, this.diskon);

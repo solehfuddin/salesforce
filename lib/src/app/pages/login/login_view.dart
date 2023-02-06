@@ -1,7 +1,11 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/widgets/dialoglogin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -11,13 +15,12 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   String messageTitle = "Empty";
   String notificationAlert = "alert";
-  var token;
-
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  String? token = '123445';
 
   TextEditingController textUsername = TextEditingController();
   TextEditingController textPassword = TextEditingController();
-  String username, password;
+  String username = '';
+  String password = '';
   bool _isUsername = false;
   bool _isPassword = false;
   bool _isHidePass = true;
@@ -29,11 +32,11 @@ class _LoginState extends State<Login> {
   }
 
   generateTokenFCM() async {
-    token = await _firebaseMessaging.getToken();
+    token = await FirebaseMessaging.instance.getToken();
     print('Akses token : $token');
   }
 
-  check({bool isHorizontal}) {
+  check({bool isHorizontal = false}) {
     textUsername.text.isEmpty ? _isUsername = true : _isUsername = false;
     textPassword.text.isEmpty ? _isPassword = true : _isPassword = false;
 
@@ -52,33 +55,46 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future loginStatus() async {
+    late BuildContext dialogContext;
+    await Future.delayed(Duration.zero);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        dialogContext = context;
+        return DialogLogin();
+      },
+    );
+    
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? role = pref.getString("role");
+    print('Akses role : $role');
+
+    if (role == 'ADMIN') {
+      Navigator.pop(context);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminScreen()));
+    } else if (role == 'SALES') {
+      Navigator.pop(context);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()));
+    } else {
+      await Future.delayed(Duration(seconds: 1));
+      print('Belum Login');
+      Navigator.pop(dialogContext);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    loginStatus();
     generateTokenFCM();
-
-    _firebaseMessaging.configure(
-      onMessage: (message) async {
-        setState(() {
-          messageTitle = message["notification"]["title"];
-          notificationAlert = "New Notification Alert";
-        });
-      },
-      onResume: (message) async {
-        setState(() {
-          messageTitle = message["data"]["title"];
-          notificationAlert = "Application opened from Notification";
-        });
-      },
-    );
-
-    _firebaseMessaging.subscribeToTopic("all");
   }
 
   @override
   Widget build(BuildContext context) {
     bool _isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: LayoutBuilder(builder: (context, constraints) {
@@ -110,7 +126,7 @@ class _LoginState extends State<Login> {
                           child: Image.asset(
                             'assets/images/leinzlogo.png',
                             fit: BoxFit.cover,
-                            width: MediaQuery.of(context).size.width * 0.42,
+                            width: MediaQuery.of(context).size.width * 0.45,
                           ),
                         ),
                         SizedBox(
@@ -138,8 +154,11 @@ class _LoginState extends State<Login> {
                                       vertical: 15,
                                       horizontal: 10,
                                     ),
+                                    hintStyle: TextStyle(
+                                      fontSize: 20.sp,
+                                    ),
                                     errorStyle: TextStyle(
-                                      fontSize: 22.sp,
+                                      fontSize: 20.sp,
                                       fontFamily: 'Segoe Ui',
                                       color: Colors.white,
                                     ),
@@ -148,7 +167,7 @@ class _LoginState extends State<Login> {
                                         : null,
                                   ),
                                   style: TextStyle(
-                                    fontSize: 26.sp,
+                                    fontSize: 20.sp,
                                     fontFamily: 'Segoe Ui',
                                   ),
                                   controller: textUsername,
@@ -170,6 +189,9 @@ class _LoginState extends State<Login> {
                                       horizontal: 10,
                                     ),
                                     hintText: 'Password',
+                                    hintStyle: TextStyle(
+                                      fontSize: 20.sp,
+                                    ),
                                     fillColor: Colors.white,
                                     filled: true,
                                     suffixIcon: GestureDetector(
@@ -186,7 +208,7 @@ class _LoginState extends State<Login> {
                                       ),
                                     ),
                                     errorStyle: TextStyle(
-                                      fontSize: 22.sp,
+                                      fontSize: 20.sp,
                                       fontFamily: 'Segoe Ui',
                                       color: Colors.white,
                                     ),
@@ -195,7 +217,7 @@ class _LoginState extends State<Login> {
                                         : null,
                                   ),
                                   style: TextStyle(
-                                    fontSize: 26.sp,
+                                    fontSize: 20.sp,
                                     fontFamily: 'Segoe Ui',
                                   ),
                                   controller: textPassword,
@@ -223,7 +245,7 @@ class _LoginState extends State<Login> {
                                         color: Colors.black,
                                         fontFamily: 'Segoe Ui',
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 28.sp,
+                                        fontSize: 18.sp,
                                       ),
                                     ),
                                   ),
@@ -245,9 +267,9 @@ class _LoginState extends State<Login> {
                           vertical: 15.r,
                         ),
                         child: Text(
-                          'versi 1.2.0',
+                          'versi 1.3.0',
                           style: TextStyle(
-                            fontSize: 26.sp,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Segoe ui',
                             color: Colors.white,
@@ -303,6 +325,9 @@ class _LoginState extends State<Login> {
                           borderRadius: BorderRadius.circular(15.r),
                         ),
                         hintText: 'Username',
+                        hintStyle: TextStyle(
+                          fontSize: 15.sp,
+                        ),
                         fillColor: Colors.white,
                         filled: true,
                         contentPadding: EdgeInsets.symmetric(
@@ -317,7 +342,7 @@ class _LoginState extends State<Login> {
                         errorText: _isUsername ? 'Username harus diisi' : null,
                       ),
                       style: TextStyle(
-                        fontSize: 18.sp,
+                        fontSize: 15.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                       controller: textUsername,
@@ -339,6 +364,9 @@ class _LoginState extends State<Login> {
                           horizontal: 10,
                         ),
                         hintText: 'Password',
+                        hintStyle: TextStyle(
+                          fontSize: 15.sp,
+                        ),
                         fillColor: Colors.white,
                         filled: true,
                         suffixIcon: GestureDetector(
@@ -360,7 +388,7 @@ class _LoginState extends State<Login> {
                         errorText: _isPassword ? 'Password harus diisi' : null,
                       ),
                       style: TextStyle(
-                        fontSize: 18.sp,
+                        fontSize: 15.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                       controller: textPassword,
@@ -388,7 +416,7 @@ class _LoginState extends State<Login> {
                             color: Colors.black,
                             fontFamily: 'Segoe Ui',
                             fontWeight: FontWeight.w500,
-                            fontSize: 18.sp,
+                            fontSize: 16.sp,
                           ),
                         ),
                       ),
@@ -403,9 +431,9 @@ class _LoginState extends State<Login> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.r),
                       child: Text(
-                        'versi 1.2.0',
+                        'versi 1.3.0',
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Segoe ui',
                           color: Colors.white,

@@ -1,27 +1,168 @@
+import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
+
+import 'package:android_path_provider/android_path_provider.dart';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
+import 'package:sample/src/domain/entities/customer.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class DetailWaitingContract extends StatefulWidget {
   List<Contract> item;
   int position;
   String reasonSM;
   String reasonAM;
+  bool? isNewCust = false;
+  Customer? customer;
 
   DetailWaitingContract(
     this.item,
     this.position,
     this.reasonSM,
-    this.reasonAM,
-  );
+    this.reasonAM, {
+    this.isNewCust,
+    this.customer,
+  });
 
   @override
   State<DetailWaitingContract> createState() => _DetailWaitingContractState();
 }
 
 class _DetailWaitingContractState extends State<DetailWaitingContract> {
+  String? id, role, username, name, divisi;
+  late bool _permissionReady;
+  late String _localPath;
+  final ReceivePort _port = ReceivePort();
+
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      username = preferences.getString("username");
+      name = preferences.getString("name");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
+    _permissionReady = false;
+    _retryRequestPermission();
+
+    IsolateNameServer.registerPortWithName(
+      _port.sendPort,
+      'downloader_contract_waiting',
+    );
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {
+        print("Id : $id");
+        print("Status : $status");
+        print("Progress : $progress");
+      });
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port')!;
+    send.send([id, status, progress]);
+  }
+
+  Future<void> _retryRequestPermission() async {
+    final hasGranted = await _checkPermission();
+
+    if (hasGranted) {
+      await _prepareSaveDir();
+    }
+
+    setState(() {
+      _permissionReady = hasGranted;
+    });
+  }
+
+  Future<bool> _checkPermission() async {
+    if (Platform.isIOS) {
+      return true;
+    }
+
+    bool isPermit = false;
+
+    if (Platform.isAndroid) {
+      if (await Permission.storage.request().isGranted) {
+        setState(() {
+          isPermit = true;
+        });
+      } else if (await Permission.storage.request().isPermanentlyDenied) {
+        await openAppSettings();
+      } else if (await Permission.storage.request().isDenied) {
+        setState(() {
+          isPermit = false;
+        });
+      }
+    }
+    return isPermit;
+  }
+
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath())!;
+    final savedDir = Directory(_localPath);
+    final hasExisted = savedDir.existsSync();
+    if (!hasExisted) {
+      await savedDir.create();
+    }
+  }
+
+  Future<String?> _findLocalPath() async {
+    String? externalStorageDirPath;
+    if (Platform.isAndroid) {
+      try {
+        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+      } catch (e) {
+        final directory = await getExternalStorageDirectory();
+        externalStorageDirPath = directory?.path;
+      }
+    } else if (Platform.isIOS) {
+      externalStorageDirPath =
+          (await getApplicationDocumentsDirectory()).absolute.path;
+    }
+    return externalStorageDirPath;
+  }
+
+  donwloadContract(
+    String idCust,
+    String custName,
+    String locatedFile,
+  ) async {
+    var url = '$PDFURL/contract_pdf/$idCust';
+
+    await FlutterDownloader.enqueue(
+      url: url,
+      fileName: "Contract $custName.pdf",
+      requiresStorageNotLow: true,
+      savedDir: locatedFile,
+      showNotification: true,
+      openFileFromNotification: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -34,7 +175,7 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
     });
   }
 
-  Widget childWidget({bool isHorizontal}) {
+  Widget childWidget({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.all(isHorizontal ? 25.r : 15.r),
       child: Column(
@@ -47,7 +188,9 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
               Expanded(
                 flex: 1,
                 child: Text(
-                  widget.item[widget.position].customerShipName,
+                  widget.item[widget.position].customerShipName != ''
+                      ? widget.item[widget.position].customerShipName
+                      : widget.customer!.namaUsaha,
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.ellipsis,
@@ -195,14 +338,14 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                     ),
                     Text(
                       widget.item[widget.position].approvalSm == "0" ||
-                              widget.item[widget.position].approvalSm == null
+                              widget.item[widget.position].approvalSm == ''
                           ? 'Menunggu Persetujuan Sales Manager'
                           : widget.item[widget.position].approvalSm == "1"
-                              ? 'Disetujui oleh Sales Manager ${convertDateWithMonthHour(
+                              ? 'Disetujui oleh ${capitalize(widget.item[widget.position].salesManager)} ${convertDateWithMonthHour(
                                   widget.item[widget.position].dateApprovalSm,
                                   isPukul: true,
                                 )}'
-                              : 'Ditolak oleh Sales Manager ${convertDateWithMonthHour(
+                              : 'Ditolak oleh ${capitalize(widget.item[widget.position].salesManager)} ${convertDateWithMonthHour(
                                   widget.item[widget.position].dateApprovalSm,
                                   isPukul: true,
                                 )}',
@@ -304,14 +447,14 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                     ),
                     Text(
                       widget.item[widget.position].approvalAm == "0" ||
-                              widget.item[widget.position].approvalSm == null
+                              widget.item[widget.position].approvalSm == ''
                           ? 'Menunggu Persetujuan AR Manager'
                           : widget.item[widget.position].approvalAm == "1"
-                              ? 'Disetujui oleh AR Manager ${convertDateWithMonthHour(
+                              ? 'Disetujui oleh ${capitalize(widget.item[widget.position].arManager)} ${convertDateWithMonthHour(
                                   widget.item[widget.position].dateApprovalAm,
                                   isPukul: true,
                                 )}'
-                              : 'Ditolak oleh AR Manager ${convertDateWithMonthHour(
+                              : 'Ditolak oleh ${capitalize(widget.item[widget.position].arManager)} ${convertDateWithMonthHour(
                                   widget.item[widget.position].dateApprovalAm,
                                   isPukul: true,
                                 )}',
@@ -366,8 +509,7 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
           SizedBox(
             height: 20.h,
           ),
-          widget.item[widget.position].status.contains("PENDING") ||
-                  widget.item[widget.position].status.contains("pending")
+          !widget.item[widget.position].status.contains('ACTIVE')
               ? Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -414,11 +556,27 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                       ),
                       onTap: (startLoading, stopLoading, btnState) {
                         if (btnState == ButtonState.Idle) {
-                          startLoading();
-                          waitingLoad();
-                          donwloadContract(
-                              widget.item[widget.position].idCustomer,
-                              stopLoading());
+                          if (_permissionReady) {
+                            donwloadContract(
+                                widget.item[widget.position].idCustomer,
+                                widget.customer!.namaUsaha,
+                                _localPath);
+                            showStyledToast(
+                              child: Text('Sedang mengunduh file'),
+                              context: context,
+                              backgroundColor: Colors.blue,
+                              borderRadius: BorderRadius.circular(15.r),
+                              duration: Duration(seconds: 2),
+                            );
+                          } else {
+                            showStyledToast(
+                              child: Text('Tidak mendapat izin penyimpanan'),
+                              context: context,
+                              backgroundColor: Colors.red,
+                              borderRadius: BorderRadius.circular(15.r),
+                              duration: Duration(seconds: 2),
+                            );
+                          }
                         }
                       },
                     ),

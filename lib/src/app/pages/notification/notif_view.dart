@@ -1,27 +1,27 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/dbhelper.dart';
 import 'package:sample/src/domain/entities/notifikasi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotifScreen extends StatefulWidget {
+  const NotifScreen({Key? key}) : super(key: key);
   @override
   State<NotifScreen> createState() => _NotifScreenState();
 }
 
 class _NotifScreenState extends State<NotifScreen> {
-  DbHelper dbHelper = DbHelper();
-  List<Notifikasi> listNotif = List.empty(growable: true);
-  String id = '';
-  String role = '';
-  String username = '';
-  String divisi = '';
-  String userUpper = '';
+  DbHelper dbHelper = DbHelper.instance;
+  Future<List<Notifikasi>>? listNotif;
+  List<Notifikasi> tempList = List.empty(growable: true);
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? divisi = '';
+  String? userUpper = '';
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -29,11 +29,11 @@ class _NotifScreenState extends State<NotifScreen> {
       id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
-      userUpper = username.toUpperCase();
+      userUpper = username!.toUpperCase();
       divisi = preferences.getString("divisi");
 
       print('ID USER : $id');
-      getLocalData();
+      listNotif = getLocalData();
     });
   }
 
@@ -46,8 +46,16 @@ class _NotifScreenState extends State<NotifScreen> {
   }
 
   Future<List<Notifikasi>> getLocalData() async {
-    listNotif = await dbHelper.getNotifikasi();
-    return listNotif;
+    List<Notifikasi> lokalList = await dbHelper.getAllNotifikasi();
+    if (lokalList.isNotEmpty) {
+      tempList.addAll(lokalList);
+    }
+
+    lokalList.forEach((element) {
+      print("Lokal data : ${element.judul}");
+    });
+   
+    return lokalList;
   }
 
   @override
@@ -58,7 +66,7 @@ class _NotifScreenState extends State<NotifScreen> {
 
   Future<void> _refreshData() async {
     setState(() {
-      getLocalData();
+      listNotif = getLocalData();
     });
   }
 
@@ -74,7 +82,7 @@ class _NotifScreenState extends State<NotifScreen> {
     });
   }
 
-  Widget childNotif({bool isHorizontal}) {
+  Widget childNotif({bool isHorizontal = false}) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -82,7 +90,7 @@ class _NotifScreenState extends State<NotifScreen> {
           'Pusat Notifikasi',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: isHorizontal ? 28.sp : 18.sp,
+            fontSize: isHorizontal ? 22.sp : 16.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -102,7 +110,7 @@ class _NotifScreenState extends State<NotifScreen> {
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: isHorizontal ? 28.r : 18.r,
+              size: isHorizontal ? 22.r : 16.r,
             )),
       ),
       body: Column(
@@ -117,21 +125,21 @@ class _NotifScreenState extends State<NotifScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                listNotif.length > 0
+                tempList.length > 0
                     ? InkWell(
                         child: Text(
                           'Tandai sudah dibaca semua',
                           style: TextStyle(
                             fontFamily: 'Segoe ui',
-                            fontSize: isHorizontal ? 22.sp : 12.sp,
+                            fontSize: isHorizontal ? 18.sp : 12.sp,
                             fontWeight: FontWeight.w400,
                           ),
                           textAlign: TextAlign.end,
                         ),
                         onTap: () {
                           setState(() {
-                            for (int i = 0; i < listNotif.length; i++) {
-                              checkedRead(listNotif[i]);
+                            for (int i = 0; i < tempList.length; i++) {
+                              checkedRead(tempList[i]);
                             }
                           });
                         },
@@ -142,75 +150,85 @@ class _NotifScreenState extends State<NotifScreen> {
               ],
             ),
           ),
-          listNotif.length > 0
-              ? Expanded(
-                  child: SizedBox(
-                    height: 100.h,
-                    child: FutureBuilder(
-                        future: getLocalData(),
-                        builder: (context, snapshot) {
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.waiting:
-                              return Center(child: CircularProgressIndicator());
-                            default:
-                              return snapshot.data != null
-                                  ? listViewWidget(
-                                      snapshot.data,
-                                      snapshot.data.length,
-                                      isHorizontal: isHorizontal,
-                                    )
-                                  : Column(
-                                      children: [
-                                        Center(
-                                          child: Image.asset(
-                                            'assets/images/not_found.png',
-                                            width: isHorizontal ? 350.r : 300.r,
-                                            height:
-                                                isHorizontal ? 350.r : 300.r,
-                                          ),
+          tempList.length > 0
+                  ? Expanded(
+                      child: SizedBox(
+                        height: 100.h,
+                        child: FutureBuilder(
+                            future: listNotif,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<Notifikasi>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                if (snapshot.hasError) {
+                                  return Column(
+                                    children: [
+                                      Center(
+                                        child: Image.asset(
+                                          'assets/images/not_found.png',
+                                          width: isHorizontal ? 150.w : 230.w,
+                                          height: isHorizontal ? 150.h : 230.h,
                                         ),
-                                        Text(
-                                          'Data tidak ditemukan',
-                                          style: TextStyle(
-                                            fontSize:
-                                                isHorizontal ? 28.sp : 18.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.red[600],
-                                            fontFamily: 'Montserrat',
-                                          ),
-                                        )
-                                      ],
-                                    );
-                          }
-                        }),
-                  ),
-                )
-              : Column(
-                  children: [
-                    Center(
-                      child: Image.asset(
-                        'assets/images/not_found.png',
-                        width: isHorizontal ? 350.r : 300.r,
-                        height: isHorizontal ? 350.r : 300.r,
-                      ),
-                    ),
-                    Text(
-                      'Data tidak ditemukan',
-                      style: TextStyle(
-                        fontSize: isHorizontal ? 28.sp : 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.red[600],
-                        fontFamily: 'Montserrat',
+                                      ),
+                                      Text(
+                                        'Data tidak ditemukan',
+                                        style: TextStyle(
+                                          fontSize:
+                                              isHorizontal ? 16.sp : 18.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red[600],
+                                          fontFamily: 'Montserrat',
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                } else {
+                                  return listViewWidget(
+                                    snapshot.data!,
+                                    snapshot.data!.length,
+                                    isHorizontal: isHorizontal,
+                                  );
+                                }
+                              } else if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            }),
                       ),
                     )
-                  ],
-                ),
+                  : Column(
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            'assets/images/not_found.png',
+                            width: isHorizontal ? 350.r : 300.r,
+                            height: isHorizontal ? 350.r : 300.r,
+                          ),
+                        ),
+                        Text(
+                          'Data tidak ditemukan',
+                          style: TextStyle(
+                            fontSize: isHorizontal ? 28.sp : 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red[600],
+                            fontFamily: 'Montserrat',
+                          ),
+                        )
+                      ],
+                    ),
         ],
       ),
     );
   }
 
-  Widget listViewWidget(List<Notifikasi> item, int len, {bool isHorizontal}) {
+  Widget listViewWidget(List<Notifikasi> item, int len,
+      {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: ListView.builder(
           itemCount: len,
@@ -247,23 +265,20 @@ class _NotifScreenState extends State<NotifScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(
-                              isHorizontal ? 25.r : 17.5.r,
+                              isHorizontal ? 28.r : 15.r,
                             ),
                             child: Image.asset(
-                              // "assets/images/myleinz.png",
                               getNotifImg(
-                                template: item[position].typeTemplate == null
-                                    ? 10
-                                    : int.parse(
-                                        item[position].typeTemplate,
-                                      ),
+                                template: int.parse(
+                                  item[position].typeTemplate,
+                                ),
                               ),
-                              width: isHorizontal ? 50.r : 35.r,
-                              height: isHorizontal ? 50.r : 35.r,
+                              width: isHorizontal ? 46.r : 30.r,
+                              height: isHorizontal ? 46.r : 30.r,
                             ),
                           ),
                           SizedBox(
-                            width: isHorizontal ? 15.r : 10.r,
+                            width: isHorizontal ? 15.r : 8.r,
                           ),
                           Expanded(
                             child: Column(
@@ -277,18 +292,18 @@ class _NotifScreenState extends State<NotifScreen> {
                                     Text(
                                       item[position].judul,
                                       style: TextStyle(
-                                        fontSize: isHorizontal ? 25.sp : 16.sp,
+                                        fontSize: isHorizontal ? 21.sp : 14.sp,
                                         fontFamily: 'Montserrrat',
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Text(
-                                      convertDateWithMonthHour(
+                                      convertDateWithMonthHourNoSecond(
                                         item[position].tanggal,
                                         isPukul: false,
                                       ),
                                       style: TextStyle(
-                                        fontSize: isHorizontal ? 20.sp : 12.sp,
+                                        fontSize: isHorizontal ? 17.sp : 11.sp,
                                         fontFamily: 'Montserrrat',
                                         fontWeight: FontWeight.w400,
                                       ),
@@ -301,7 +316,7 @@ class _NotifScreenState extends State<NotifScreen> {
                                 Text(
                                   item[position].isi,
                                   style: TextStyle(
-                                    fontSize: isHorizontal ? 20.sp : 12.sp,
+                                    fontSize: isHorizontal ? 18.sp : 12.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.w500,
                                   ),

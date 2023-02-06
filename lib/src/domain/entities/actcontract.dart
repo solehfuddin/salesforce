@@ -78,10 +78,10 @@ class ActContract {
         dateApprovalAm = json['date_approval_am'],
         status = json['status'],
         createdBy = json['created_by'],
-        updatedBy = json['updated_by'],
+        updatedBy = json['updated_by'] ?? '',
         dateAdded = json['date_added'],
-        dateUpdated = json['date_updated'],
-        dateDeleted = json['date_deleted'],
+        dateUpdated = json['date_updated'] ?? '',
+        dateDeleted = json['date_deleted'] ?? '',
         customerBillName = json['customer_bill_name'];
 
   Map toJson() {

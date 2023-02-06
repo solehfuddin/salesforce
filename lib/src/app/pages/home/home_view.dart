@@ -4,19 +4,19 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/dbhelper.dart';
+import 'package:sample/src/app/widgets/areaheader.dart';
 import 'package:sample/src/app/widgets/areabanner.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areamenu.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/areapoint.dart';
-import 'package:sample/src/app/widgets/arearenewal.dart';
 import 'package:sample/src/app/widgets/areasyncchart.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
-import 'package:sample/src/app/widgets/areaheader.dart';
+import 'package:sample/src/app/widgets/dialogpassword.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:sample/src/domain/entities/notifikasi.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
@@ -32,18 +32,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  DbHelper dbHelper = DbHelper();
+  DbHelper dbHelper = DbHelper.instance;
   List<Notifikasi> listNotifLocal = List.empty(growable: true);
-  String id = '';
-  String role = '';
-  String username = '';
-  String divisi = '';
-  String userUpper = '';
-  String ttdSales;
+  String? id = '';
+  String? role = '';
+  String? name = '';
+  String? username = '';
+  String? divisi = '';
+  String? userUpper = '';
+  String? ttdSales = '';
+  String? changePass = '';
   bool _isLoading = true;
-  bool _isConnected = false;
-  bool _isPerform = true;
+  bool _hidePerform = false;
   bool _isBadge = false;
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<SalesPerform> listPerform = List.empty(growable: true);
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String stDate = "01/04/2022";
   String edDate = "30/04/2022";
   String dateSelected = "01 Apr 2022 - 30 Apr 2022";
-  double _totalSales;
+  double _totalSales = 0;
   dynamic totalSales;
 
   getRole() async {
@@ -59,25 +59,32 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       id = preferences.getString("id");
       role = preferences.getString("role");
+      name = preferences.getString("name");
       username = preferences.getString("username");
-      userUpper = username.toUpperCase();
+      userUpper = username?.toUpperCase();
       divisi = preferences.getString("divisi");
-
-      getPerformSales(stDate, edDate);
+      ttdSales = preferences.getString("ttduser") ?? '';
 
       print("Dashboard : $role");
-      getTtd(int.parse(id));
+      print("TTD Sales : $ttdSales");
 
+      getMonitoringSales(int.parse(id!));
+      getPerformSales(stDate, edDate);
+      checkPassword(int.parse(id!));
       getLocalNotif();
+
+      if (ttdSales == '') {
+        handleSigned(context);
+      }
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _firebaseMessaging.subscribeToTopic("allsales");
-    _firebaseMessaging.unsubscribeFromTopic("alladmin");
-    _firebaseMessaging.unsubscribeFromTopic("allar");
+    FirebaseMessaging.instance.subscribeToTopic("allsales");
+    FirebaseMessaging.instance.unsubscribeFromTopic("alladmin");
+    FirebaseMessaging.instance.unsubscribeFromTopic("allar");
     getRole();
 
     DateTime now = new DateTime.now();
@@ -93,12 +100,13 @@ class _HomeScreenState extends State<HomeScreen> {
         "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
   }
 
-  getTtd(int input) async {
-    const timeout = 15;
+  checkPassword(int input) async {
+    const timeout = 5;
     var url = '$API_URL/users?id=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -106,27 +114,42 @@ class _HomeScreenState extends State<HomeScreen> {
         final bool sts = data['status'];
 
         if (sts) {
-          ttdSales = data['data']['ttd'];
+          changePass = data['data']['change_password'];
+
+          if (changePass != '0') {
+            dialogChangePassword(context);
+          }
+
           print(ttdSales);
         }
-
-        getMonitoringSales(input);
-        _isConnected = true;
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       handleTimeout(context);
-      _isConnected = false;
     } on SocketException catch (e) {
       print('Socker Error : $e');
       handleSocket(context);
-      _isConnected = false;
     } on Error catch (e) {
       print('Error : $e');
-      _isConnected = false;
     }
+  }
+
+  dialogChangePassword(BuildContext context) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: DialogPassword(
+            id,
+            name,
+          ),
+        );
+      },
+    );
   }
 
   getMonitoringSales(int idSales) async {
@@ -135,10 +158,9 @@ class _HomeScreenState extends State<HomeScreen> {
     await Future.delayed(Duration(seconds: 1));
     if (listMonitoring.length > 0) listMonitoring.clear();
 
-    var url =
-        '$API_URL/contract/salesMonitoring?id=$idSales';
+    var url = '$API_URL/contract/salesMonitoring?id=$idSales';
 
-    var response = await http.get(url);
+    var response = await http.get(Uri.parse(url));
     print('Response status: ${response.statusCode}');
 
     try {
@@ -151,6 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
         listMonitoring =
             rest.map<Monitoring>((json) => Monitoring.fromJson(json)).toList();
         print("List Size: ${listMonitoring.length}");
+
+        if (listMonitoring.length > 3) {
+          listMonitoring.removeRange(3, listMonitoring.length);
+        }
       }
 
       Future.delayed(Duration(seconds: 1), () {
@@ -165,8 +191,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshData() async {
     setState(() {
-      getTtd(int.parse(id));
+      getMonitoringSales(int.parse(id!));
+      getPerformSales(stDate, edDate);
 
+      checkPassword(int.parse(id!));
+      if (ttdSales == '') {
+        handleSigned(context);
+      }
       getLocalNotif();
     });
   }
@@ -179,13 +210,13 @@ class _HomeScreenState extends State<HomeScreen> {
   getPerformSales(String stDate, String edDate) async {
     _samplePie.clear();
     listPerform.clear();
-    _isPerform = true;
 
     const timeout = 15;
     var url = '$API_URL/performance';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -203,17 +234,14 @@ class _HomeScreenState extends State<HomeScreen> {
           print('Total Sales : ${data['total_penjualan']}');
 
           _totalSales = double.tryParse(
-              data['total_penjualan'].replaceAll(RegExp(','), ''));
+              data['total_penjualan'].replaceAll(RegExp(','), ''))!;
           print('Total Sales Convert : $_totalSales');
 
           _samplePie = generateReport(_totalSales);
+          _hidePerform = false;
+        } else {
+          _hidePerform = true;
         }
-
-        Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isPerform = false;
-          });
-        });
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -227,9 +255,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void addLocalNotif(Notifikasi item) async {
-    if (item.idUser == null) {
-      item.idUser = "0";
-    }
     int res = await dbHelper.insert(item);
     if (res > 0) {
       getLocalNotif();
@@ -250,10 +275,10 @@ class _HomeScreenState extends State<HomeScreen> {
     result.clear();
   }
 
-  void getLocalNotif() {
-    final Future<Database> dbFuture = dbHelper.initDb();
+  void getLocalNotif() async {
+    final Future<Database> dbFuture = dbHelper.createDb();
     dbFuture.then((value) {
-      Future<List<Notifikasi>> listNotif = dbHelper.getNotifikasi();
+      Future<List<Notifikasi>> listNotif = dbHelper.getAllNotifikasi();
       listNotif.then((value) {
         setState(() {
           listNotifLocal = value;
@@ -285,14 +310,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getNotifikasiRemote(bool isAdmin, {dynamic idUser}) async {
     const timeout = 15;
-    List<Notifikasi> list;
+    List<Notifikasi> list = List.empty(growable: true);
 
     var url = isAdmin
         ? '$API_URL/notification/getNotifAdmin/?id=$idUser'
         : '$API_URL/notification/getNotifSales/?id=$idUser';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -317,7 +343,9 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           Future.delayed(Duration(seconds: 3), () {
-            isReadLocal();
+            setState(() {
+              isReadLocal();
+            });
           });
           print("List Size: ${list.length}");
         }
@@ -338,13 +366,13 @@ class _HomeScreenState extends State<HomeScreen> {
     List<PieReport> dummy = List.empty(growable: true);
 
     List<Color> colorList = [
-      Colors.green[500],
-      Colors.deepOrange[400],
-      Colors.grey[500],
-      Colors.blue[500],
-      Colors.red[500],
-      Colors.purple[400],
-      Colors.teal[500],
+      Colors.green[500]!,
+      Colors.deepOrange[400]!,
+      Colors.grey[500]!,
+      Colors.blue[500]!,
+      Colors.red[500]!,
+      Colors.purple[400]!,
+      Colors.teal[500]!,
     ];
 
     List<SalesPerform> newListPerform = List.empty(growable: true);
@@ -352,8 +380,8 @@ class _HomeScreenState extends State<HomeScreen> {
     newListPerform.addAll(listPerform);
 
     newListPerform.sort((a, b) {
-      double aVal = double.tryParse(a.penjualan);
-      double bVal = double.tryParse(b.penjualan);
+      double aVal = double.tryParse(a.penjualan)!;
+      double bVal = double.tryParse(b.penjualan)!;
       return bVal.compareTo(aVal);
     });
 
@@ -371,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     for (int i = 0; i < listPerform.length; i++) {
-      double value = double.tryParse(listPerform[i].penjualan);
+      double value = double.tryParse(listPerform[i].penjualan)!;
       double perc = (value / totalSales * 100);
       dynamic size;
 
@@ -413,7 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return Scaffold(
                 appBar: CustomAppBar(
                   isHorizontal: true,
-                  isBadge : _isBadge,
+                  isBadge: _isBadge,
                 ),
                 body: RefreshIndicator(
                     child: CustomScrollView(
@@ -435,122 +463,67 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           id,
                           role,
-                          isConnected: _isConnected,
+                          isConnected: true,
                           isHorizontal: true,
                         ),
-                        SliverPadding(
+                        _hidePerform
+                            ? SliverPadding(
+                                padding: EdgeInsets.only(
+                                  left: 35.r,
+                                  right: 35.r,
+                                  top: 0.r,
+                                ),
+                              )
+                            : SliverPadding(
                           padding: EdgeInsets.only(
-                            left: 35.r,
-                            right: 35.r,
-                            top: 15.r,
+                            left: 18.r,
+                            right: 18.r,
+                            top: 5.r,
+                            bottom: 15.r,
                           ),
                           sliver: SliverToBoxAdapter(
                             child: StatefulBuilder(
                               builder:
                                   (BuildContext context, StateSetter state) {
-                                return Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Penjualan',
-                                          style: TextStyle(
-                                            fontSize: 35.sp,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        InkWell(
-                                          splashColor: Colors.blue,
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 3,
-                                              horizontal: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              border: Border.all(
-                                                color: Colors.black54,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Text(dateSelected),
-                                                Icon(
-                                                  Icons.arrow_drop_down,
-                                                  color: Colors.black54,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            showDate(context).then((value) {
-                                              state(() {
-                                                if (value != null) {
-                                                  String dateSt =
-                                                      value.start.toString();
-                                                  String dateEd =
-                                                      value.end.toString();
-
-                                                  dateSelected =
-                                                      "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
-                                                  print(
-                                                      "Date Selected Start : ${convertDateOra(dateSt)}");
-                                                  print(
-                                                      "Date Selected End : ${convertDateOra(dateEd)}");
-                                                  print(
-                                                      "Date Selected UI : $dateSelected");
-
-                                                  stDate =
-                                                      convertDateOra(dateSt);
-                                                  edDate =
-                                                      convertDateOra(dateEd);
-
-                                                  getPerformSales(
-                                                      stDate, edDate);
-
-                                                  setState(() {});
-                                                } else {
-                                                  print('Cancel');
-                                                }
-                                              });
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                return Text(
+                                  'Penjualan',
+                                  style: TextStyle(
+                                    fontSize: 21.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 );
                               },
                             ),
                           ),
                         ),
-                        _isPerform
-                            ? areaLoadingRenewal(
-                                isHorizontal: true,
+                        _hidePerform
+                            ? SliverPadding(
+                                padding: EdgeInsets.only(
+                                  left: 18.r,
+                                  right: 18.r,
+                                  top: 0.r,
+                                ),
                               )
-                            : areaDonutChartHorUser(
-                                dataPie: _samplePie,
-                                startDate: stDate,
-                                endDate: edDate,
+                            : areaInfoDonutUser(
                                 sales: listPerform,
                                 totalSales: _totalSales,
-                                context: context,),
+                                context: context,
+                                stDate: stDate,
+                                edDate: edDate,
+                                isHorizontal: true,
+                              ),
                         areaHeaderMonitoring(isHorizontal: true),
                         _isLoading
-                            ? areaLoading(isHorizontal: true,)
+                            ? areaLoading(
+                                isHorizontal: true,
+                              )
                             : listMonitoring.length > 0
                                 ? areaMonitoring(
                                     listMonitoring,
                                     context,
-                                    ttdSales,
-                                    username,
-                                    divisi,
+                                    ttdSales!,
+                                    username!,
+                                    divisi!,
                                     isHorizontal: true,
                                   )
                                 : areaMonitoringNotFound(
@@ -581,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return Scaffold(
               appBar: CustomAppBar(
                 isHorizontal: false,
-                isBadge : _isBadge,
+                isBadge: _isBadge,
               ),
               body: RefreshIndicator(
                 child: CustomScrollView(
@@ -603,123 +576,68 @@ class _HomeScreenState extends State<HomeScreen> {
                       context,
                       id,
                       role,
-                      isConnected: _isConnected,
+                      isConnected: true,
                       isHorizontal: false,
                     ),
-                    SliverPadding(
+                    _hidePerform
+                        ? SliverPadding(
+                            padding: EdgeInsets.only(
+                              left: 35.r,
+                              right: 35.r,
+                              top: 0.r,
+                            ),
+                          )
+                        : SliverPadding(
                       padding: EdgeInsets.only(
-                        left: 15.r,
-                        right: 15.r,
-                        top: 15.r,
+                        left: 20.r,
+                        right: 20.r,
+                        top: 5.r,
+                        bottom: 10.r,
                       ),
                       sliver: SliverToBoxAdapter(
                         child: StatefulBuilder(
                           builder: (BuildContext context, StateSetter state) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Penjualan',
-                                      style: TextStyle(
-                                        fontSize: 21.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      splashColor: Colors.blue,
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 3,
-                                          horizontal: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border.all(
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Text(dateSelected),
-                                            Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Colors.black54,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        showDate(context).then((value) {
-                                          state(() {
-                                            if (value != null) {
-                                              String dateSt =
-                                                  value.start.toString();
-                                              String dateEd =
-                                                  value.end.toString();
-
-                                              dateSelected =
-                                                  "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
-                                              print(
-                                                  "Date Selected Start : ${convertDateOra(dateSt)}");
-                                              print(
-                                                  "Date Selected End : ${convertDateOra(dateEd)}");
-                                              print(
-                                                  "Date Selected UI : $dateSelected");
-
-                                              stDate = convertDateOra(dateSt);
-                                              edDate = convertDateOra(dateEd);
-
-                                              getPerformSales(stDate, edDate);
-
-                                              setState(() {});
-                                            } else {
-                                              print('Cancel');
-                                            }
-                                          });
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            return Text(
+                              'Penjualan',
+                              style: TextStyle(
+                                fontSize: 21.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
                             );
                           },
                         ),
                       ),
                     ),
-                    _isPerform
-                        ? areaLoadingRenewal(
-                            isHorizontal: false,
+                    _hidePerform
+                        ? SliverPadding(
+                            padding: EdgeInsets.only(
+                              left: 35.r,
+                              right: 35.r,
+                              top: 0.r,
+                            ),
                           )
-                        : areaDonutChart(
-                            dataPie: _samplePie,
-                            startDate: stDate,
-                            endDate: edDate),
-                    areaInfoDonutUser(
-                      sales: listPerform,
-                      totalSales: _totalSales,
-                      context: context,
-                      stDate: stDate,
-                      edDate: edDate,
-                    ),
+                        : areaInfoDonutUser(
+                            sales: listPerform,
+                            totalSales: _totalSales,
+                            context: context,
+                            stDate: stDate,
+                            edDate: edDate,
+                            isHorizontal: false,
+                          ),
                     areaHeaderMonitoring(
                       isHorizontal: false,
                     ),
                     _isLoading
-                        ? areaLoading(isHorizontal: false,)
+                        ? areaLoading(
+                            isHorizontal: false,
+                          )
                         : listMonitoring.length > 0
                             ? areaMonitoring(
                                 listMonitoring,
                                 context,
-                                ttdSales,
-                                username,
-                                divisi,
+                                ttdSales!,
+                                username!,
+                                divisi!,
                                 isHorizontal: false,
                               )
                             : areaMonitoringNotFound(

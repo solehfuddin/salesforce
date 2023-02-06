@@ -1,6 +1,10 @@
 class Product {
-  String categoryid, proddiv, prodcat, proddesc, status;
-  String diskon;
+  String categoryid= '';
+  String proddiv = ''; 
+  String prodcat = ''; 
+  String proddesc = ''; 
+  String status = '';
+  String diskon = '';
   bool ischecked = false;
   
   Product(this.categoryid, this.proddiv, this.prodcat, this.proddesc, this.diskon, this.status);

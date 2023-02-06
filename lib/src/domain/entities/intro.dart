@@ -3,5 +3,5 @@ class ModelIntro {
   String title;
   String description;
 
-  ModelIntro({this.image, this.title, this.description});
+  ModelIntro({required this.image, required this.title, required this.description});
 }

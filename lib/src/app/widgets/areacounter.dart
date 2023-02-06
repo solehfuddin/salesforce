@@ -13,12 +13,13 @@ SliverPadding areaCounter(
     String totalRejected,
     String totalNewCustomer,
     String totalOldCustomer,
+    dynamic idAdmin,
     BuildContext context,
-    {bool isHorizontal}) {
+    {bool isHorizontal = false}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: isHorizontal ? 35.r : 15.r,
-      vertical: isHorizontal ? 30.r : 20.r,
+      horizontal: isHorizontal ? 18.r : 18.r,
+      vertical: isHorizontal ? 20.r : 13.r,
     ),
     sliver: SliverToBoxAdapter(
       child: Column(
@@ -27,12 +28,12 @@ SliverPadding areaCounter(
           Text(
             'Statistik',
             style: TextStyle(
-              fontSize: isHorizontal ? 35.sp : 21.sp,
+              fontSize: isHorizontal ? 21.sp : 18.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(
-            height: isHorizontal ? 18.h : 13.h,
+            height: isHorizontal ? 15.h : 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -41,9 +42,9 @@ SliverPadding areaCounter(
                 flex: 1,
                 child: GestureDetector(
                   child: Container(
-                    padding: EdgeInsets.all(isHorizontal ? 20.r : 10.r),
+                    padding: EdgeInsets.all(isHorizontal ? 10.r : 10.r),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 10.r),
+                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -55,39 +56,42 @@ SliverPadding areaCounter(
                           child: Text(
                             'Kustomer Baru',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 31.sp : 17.sp,
+                              fontSize: isHorizontal ? 18.sp : 16.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Segoe ui',
                             ),
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 30.h : 15.h,
+                          height: isHorizontal ? 8.r : 8.r,
                         ),
                         Center(
                           child: Text(
                             convertThousand(int.parse(totalNewCustomer), 0),
                             style: TextStyle(
-                              fontSize: isHorizontal ? 37.sp : 22.sp,
+                              fontSize: isHorizontal ? 25.sp : 20.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 25.h : 10.h,
+                          height: isHorizontal ? 8.r : 8.r,
                         ),
                         Container(
-                          height: isHorizontal ? 9.h : 5.h,
+                          height: isHorizontal ? 6.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.green[700],
                             borderRadius: BorderRadius.circular(isHorizontal ? 5.r :2.r),
                           ),
                         ),
+                        SizedBox(
+                          height: isHorizontal ? 3.h : 3.h,
+                        ),
                       ],
                     ),
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => CustomerScreen(0))),
+                      builder: (context) => CustomerScreen(int.parse(idAdmin)))),
                 ),
               ),
               SizedBox(
@@ -97,9 +101,9 @@ SliverPadding areaCounter(
                 flex: 1,
                 child: GestureDetector(
                   child: Container(
-                    padding: EdgeInsets.all(isHorizontal ? 20.r : 10.r),
+                    padding: EdgeInsets.all(isHorizontal ? 10.r : 10.r),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 10.r),
+                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -111,33 +115,36 @@ SliverPadding areaCounter(
                           child: Text(
                             'Kustomer Lama',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 31.sp : 17.sp,
+                              fontSize: isHorizontal ? 18.sp : 16.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Segoe ui',
                             ),
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 30.h : 15.h,
+                          height: isHorizontal ? 8.h : 8.r,
                         ),
                         Center(
                           child: Text(
                             convertThousand(int.parse(totalOldCustomer), 0),
                             style: TextStyle(
-                              fontSize: isHorizontal ? 37.sp : 22.sp,
+                              fontSize: isHorizontal ? 25.sp : 20.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 25.h : 10.h,
+                          height: isHorizontal ? 8.h : 8.r,
                         ),
                         Container(
-                          height: isHorizontal ? 9.h : 5.h,
+                          height: isHorizontal ? 6.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.deepOrange[300],
                             borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
                           ),
+                        ),
+                        SizedBox(
+                          height: isHorizontal ? 3.h : 3.h,
                         ),
                       ],
                     ),
@@ -155,7 +162,7 @@ SliverPadding areaCounter(
             ],
           ),
           SizedBox(
-            height: isHorizontal ? 25.h : 15.h,
+            height: isHorizontal ? 12.h : 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -164,10 +171,10 @@ SliverPadding areaCounter(
                 flex: 1,
                 child: GestureDetector(
                   child: Container(
-                    padding: EdgeInsets.all(isHorizontal ? 20.r : 10.r),
+                    padding: EdgeInsets.all(isHorizontal ? 13.r : 10.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 10.r),
+                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -181,33 +188,33 @@ SliverPadding areaCounter(
                             Text(
                               totalWaiting,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 31.sp : 18.sp,
+                                fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
                             Icon(
                               Icons.arrow_forward_ios_outlined,
-                              size: isHorizontal ? 22.r : 13.r,
+                              size: isHorizontal ? 18.r : 13.r,
                             ),
                           ],
                         ),
                         SizedBox(
-                          height: isHorizontal ? 15.h : 4.h,
+                          height: isHorizontal ? 10.h : 4.h,
                         ),
                         Text(
                           'Menunggu',
                           style: TextStyle(
-                            fontSize: isHorizontal ? 29.sp : 15.sp,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 15.sp : 10.h,
+                          height: isHorizontal ? 13.sp : 10.h,
                         ),
                         Container(
-                          height: isHorizontal ? 9.h : 5.h,
+                          height: isHorizontal ? 7.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.grey[600],
                             borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
@@ -224,16 +231,16 @@ SliverPadding areaCounter(
                 ),
               ),
               SizedBox(
-                width: isHorizontal ? 10.w : 20.w,
+                width: isHorizontal ? 10.w : 15.w,
               ),
               Expanded(
                 flex: 1,
                 child: GestureDetector(
                   child: Container(
-                    padding: EdgeInsets.all(isHorizontal ? 20.r : 10.r),
+                    padding: EdgeInsets.all(isHorizontal ? 13.r : 10.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 10.r),
+                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -247,33 +254,33 @@ SliverPadding areaCounter(
                             Text(
                               totalApproved,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 31.sp : 18.sp,
+                                fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
                             Icon(
                               Icons.arrow_forward_ios_outlined,
-                              size: isHorizontal ? 22.r : 13.r,
+                              size: isHorizontal ? 18.r : 13.r,
                             ),
                           ],
                         ),
                         SizedBox(
-                          height: isHorizontal ? 15.h : 4.h,
+                          height: isHorizontal ? 10.h : 4.h,
                         ),
                         Text(
                           'Disetujui',
                           style: TextStyle(
-                            fontSize: isHorizontal ? 29.sp : 15.sp,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 15.sp : 10.h,
+                          height: isHorizontal ? 13.sp : 10.h,
                         ),
                         Container(
-                          height: isHorizontal ? 9.h : 5.h,
+                          height: isHorizontal ? 7.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.blue[600],
                             borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
@@ -290,16 +297,16 @@ SliverPadding areaCounter(
                 ),
               ),
               SizedBox(
-                width: isHorizontal ? 10.w : 20.w,
+                width: isHorizontal ? 10.w : 15.w,
               ),
               Expanded(
                 flex: 1,
                 child: GestureDetector(
                   child: Container(
-                    padding: EdgeInsets.all(isHorizontal ? 20.r : 10.r),
+                    padding: EdgeInsets.all(isHorizontal ? 13.r : 10.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 10.r),
+                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -313,33 +320,33 @@ SliverPadding areaCounter(
                             Text(
                               totalRejected,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 31.sp : 18.sp,
+                                fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Segoe ui',
                               ),
                             ),
                             Icon(
                               Icons.arrow_forward_ios_outlined,
-                              size: isHorizontal ? 22.r : 13.r,
+                              size: isHorizontal ? 18.r : 13.r,
                             ),
                           ],
                         ),
                         SizedBox(
-                          height: isHorizontal ? 15.h : 4.h,
+                          height: isHorizontal ? 10.h : 4.h,
                         ),
                         Text(
                           'Ditolak',
                           style: TextStyle(
-                            fontSize: isHorizontal ? 29.sp : 15.sp,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(
-                          height: isHorizontal ? 15.sp : 10.h,
+                          height: isHorizontal ? 13.sp : 10.h,
                         ),
                         Container(
-                          height: isHorizontal ? 9.h : 5.h,
+                          height: isHorizontal ? 7.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.red[700],
                             borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),

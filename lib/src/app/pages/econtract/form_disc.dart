@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 
+// ignore: must_be_immutable
 class FormItemDisc extends StatefulWidget {
-  FormItemDisc({Key key, this.proddiv, this.index}) : super(key: key);
+  FormItemDisc({
+    Key? key,
+    this.proddiv,
+    this.index,
+  }) : super(key: key);
 
   final index;
-  Proddiv proddiv;
+  Proddiv? proddiv;
   var state = _FormItemDiscState();
 
   @override
@@ -28,11 +33,11 @@ class _FormItemDiscState extends State<FormItemDisc> {
   void initState() {
     super.initState();
 
-    if (widget.proddiv.diskon != null) {
-      widget._discvalController.text = widget.proddiv.diskon;
+    if (widget.proddiv!.diskon != '') {
+      widget._discvalController.text = widget.proddiv!.diskon;
       _isChecked = true;
       _isDisabled = true;
-      widget.proddiv.ischecked = _isChecked;
+      widget.proddiv!.ischecked = _isChecked;
     }
   }
 
@@ -48,7 +53,7 @@ class _FormItemDiscState extends State<FormItemDisc> {
     });
   }
 
-  Widget childFormDisc({bool isHorizontal}) {
+  Widget childFormDisc({bool isHorizontal = false}) {
     return Form(
       key: formKey,
       child: Row(
@@ -62,10 +67,10 @@ class _FormItemDiscState extends State<FormItemDisc> {
                 vertical: 2.r,
               ),
               child: Text(
-                widget.proddiv.alias,
+                widget.proddiv!.alias,
                 // 'ALL LENSA REGULER',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w500,
                 ),
@@ -81,11 +86,11 @@ class _FormItemDiscState extends State<FormItemDisc> {
               ),
               child: Checkbox(
                 value: this._isChecked,
-                onChanged: (bool value) {
+                onChanged: (bool? value) {
                   setState(() {
-                    this._isChecked = value;
+                    this._isChecked = value!;
                     this._isDisabled = value;
-                    widget.proddiv.ischecked = value;
+                    widget.proddiv!.ischecked = value;
                   });
                 },
               ),
@@ -95,10 +100,10 @@ class _FormItemDiscState extends State<FormItemDisc> {
             flex: 1,
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 30.r : 10.r,
+                horizontal: isHorizontal ? 20.r : 10.r,
                 vertical: 5.r,
               ),
-              height: isHorizontal ? 80.r : 50.r,
+              height: isHorizontal ? 55.r : 50.r,
               child: TextFormField(
                 enabled: _isDisabled,
                 keyboardType: TextInputType.number,
@@ -107,21 +112,21 @@ class _FormItemDiscState extends State<FormItemDisc> {
                   hintText: '0',
                   counterText: "",
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: isHorizontal ? 20.r : 10.r,
+                    horizontal: isHorizontal ? 10.r : 10.r,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   hintStyle: TextStyle(
                     fontFamily: 'Segoe Ui',
-                    fontSize: isHorizontal ? 28.sp : 18.sp,
+                    fontSize: isHorizontal ? 18.sp : 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 textAlign: TextAlign.center,
                 controller: widget._discvalController,
-                onChanged: (value) => widget.proddiv.diskon = value,
-                onSaved: (value) => widget.proddiv.diskon = value,
+                onChanged: (value) => widget.proddiv!.diskon = value,
+                onSaved: (value) => widget.proddiv!.diskon = value!,
               ),
             ),
           ),
@@ -132,7 +137,7 @@ class _FormItemDiscState extends State<FormItemDisc> {
 
   bool validate() {
     // widget.state.s
-    formKey.currentState.save();
+    formKey.currentState!.save();
     // this.formKey
     return true;
   }

@@ -1,37 +1,44 @@
 class Notifikasi {
-  String idNotif, idUser, typeTemplate, typeNotif, judul, isi, tanggal, isRead;
+  String idNotif = '';
+  String idUser = '';
+  String typeTemplate = '';
+  String typeNotif = '';
+  String judul = '';
+  String isi = '';
+  String tanggal = '';
+  String isRead = '';
 
   Notifikasi();
 
-  //Dari API REMOTE
-  Notifikasi.fromJson(Map json): 
-    idNotif = json['id_notifikasi'],
-    idUser = json['id_user'],
-    typeTemplate = json['type_template'],
-    typeNotif = json['type_notifikasi'],
-    judul = json['judul'],
-    isi = json['isi'],
-    tanggal = json['tanggal'],
-    isRead = json['is_read'];
+  //API REMOTE
+  Notifikasi.fromJson(Map json)
+      : idNotif = json['id_notifikasi'],
+        idUser = json['id_user'] ?? '0',
+        typeTemplate = json['type_template'] ?? '10',
+        typeNotif = json['type_notifikasi'],
+        judul = json['judul'],
+        isi = json['isi'],
+        tanggal = json['tanggal'],
+        isRead = json['is_read'];
 
-  Map toJson(){
+  Map toJson() {
     return {
-      'id_notifikasi' : idNotif,
-      'id_user' : idUser,
-      'type_template' : typeTemplate,
-      'type_notifikasi' : typeNotif,
-      'judul' : judul,
-      'isi' : isi,
-      'tanggal' : tanggal,
-      'is_read' : isRead,
+      'id_notifikasi': idNotif,
+      'id_user': idUser,
+      'type_template': typeTemplate,
+      'type_notifikasi': typeNotif,
+      'judul': judul,
+      'isi': isi,
+      'tanggal': tanggal,
+      'is_read': isRead,
     };
   }
 
-  //SQLITE DB LOKAL
+  //Lokal DB
   Notifikasi.fromMap(Map<String, dynamic> map) {
     idNotif = map['id_notifikasi'];
-    idUser = map['id_user'];
-    typeTemplate = map['type_template'];
+    idUser = map['id_user'] ?? '0';
+    typeTemplate = map['type_template'] ?? '10';
     typeNotif = map['type_notifikasi'];
     judul = map['judul'];
     isi = map['isi'];

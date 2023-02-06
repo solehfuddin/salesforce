@@ -11,9 +11,10 @@ import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class RenewalContract extends StatefulWidget {
   dynamic keyword;
-  bool isAdmin = false;
+  bool? isAdmin = false;
 
   RenewalContract({this.keyword, this.isAdmin});
 
@@ -22,14 +23,17 @@ class RenewalContract extends StatefulWidget {
 }
 
 class _RenewalContractState extends State<RenewalContract> {
-  String id = '';
-  String role = '';
-  String username = '';
-  String search = '';
-  String divisi = '';
-  String ttdPertama;
-  int _count = 10;
-  List<OldCustomer> oldCustomerList = List.empty(growable: true);
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? search = '';
+  String? divisi = '';
+  String? ttdPertama = '';
+  bool isDataFound = true;
+
+  // int _count = 10;
+  Future<List<OldCustomer>>? oldCustomerList;
+  List<OldCustomer> tmpList = List.empty(growable: true);
   TextEditingController txtSearch = TextEditingController();
 
   getRole() async {
@@ -39,8 +43,17 @@ class _RenewalContractState extends State<RenewalContract> {
       role = preferences.getString("role");
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
+      ttdPertama = preferences.getString("ttduser");
 
       print("Search Contract : $role");
+
+      txtSearch.text = widget.keyword;
+      search = widget.keyword;
+      print("Keyword : ${widget.keyword}");
+
+      oldCustomerList = search!.isNotEmpty
+          ? getOldCustomerBySearch(search!)
+          : getAllOldCustomer();
     });
   }
 
@@ -48,63 +61,41 @@ class _RenewalContractState extends State<RenewalContract> {
   void initState() {
     super.initState();
     getRole();
-    getAllOldCustomer();
-
-    txtSearch.text = widget.keyword;
-    search = widget.keyword;
-    print("Keyword : ${widget.keyword}");
   }
 
-  getTtd(int input) async {
+  Future<List<OldCustomer>> getAllOldCustomer() async {
     const timeout = 15;
-    var url = '$API_URL/users?id=$input';
+    var url = '$API_URL/customers/oldCustomer?limit=20&offset=0';
+    List<OldCustomer> list = List.empty(growable: true);
+    tmpList.clear();
+    setState(() {
+      isDataFound = true;
+    });
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
         var data = json.decode(response.body);
         final bool sts = data['status'];
-
-        if (sts) {
-          ttdPertama = data['data']['ttd'];
-          print(ttdPertama);
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  getAllOldCustomer() async {
-    const timeout = 15;
-    var url =
-        '$API_URL/customers/oldCustomer?limit=100&offset=0';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        getTtd(int.parse(id));
 
         if (sts) {
           var rest = data['data'];
           print(rest);
-          oldCustomerList = rest
+          // oldCustomerList = rest
+          //     .map<OldCustomer>((json) => OldCustomer.fromJson(json))
+          //     .toList();
+
+          list = rest
               .map<OldCustomer>((json) => OldCustomer.fromJson(json))
               .toList();
-          print("List Size: ${oldCustomerList.length}");
+          print("List Size: ${list.length}");
+
+          setState(() {
+            tmpList = list;
+          });
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -114,40 +105,34 @@ class _RenewalContractState extends State<RenewalContract> {
       handleTimeout(context);
     } on SocketException catch (e) {
       print('Socket Error : $e');
-      widget.isAdmin
+      widget.isAdmin!
           ? handleConnectionAdmin(context)
           : handleConnection(context);
     } on Error catch (e) {
       print('General Error : $e');
     }
-  }
 
-  Future<List<OldCustomer>> getOldCustomerByIdLimit(int count) async {
-    return Future.delayed(Duration(seconds: 3), () => getData(oldCustomerList));
-  }
+    setState(() {
+      isDataFound = false;
+    });
 
-  List<OldCustomer> getData(List<OldCustomer> item) {
-    List<OldCustomer> local = List.empty(growable: true);
-
-    for (int i = 0; i < item.length; i++) {
-      if (i < _count) {
-        local.add(item[i]);
-      }
-    }
-
-    print('Lokal size : ${local.length}');
-    return local.toList();
+    return list;
   }
 
   Future<List<OldCustomer>> getOldCustomerBySearch(String input) async {
-    // setState(() {});
     const timeout = 15;
-    List<OldCustomer> list;
+    tmpList.clear();
+    setState(() {
+      isDataFound = true;
+    });
+
+    List<OldCustomer> list = List.empty(growable: true);
     var url =
         '$API_URL/customers/searchOldCust?limit=100&offset=0&search=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -161,9 +146,11 @@ class _RenewalContractState extends State<RenewalContract> {
               .map<OldCustomer>((json) => OldCustomer.fromJson(json))
               .toList();
           print("List Size: ${list.length}");
-        }
 
-        return list;
+          setState(() {
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -172,20 +159,26 @@ class _RenewalContractState extends State<RenewalContract> {
       handleTimeout(context);
     } on SocketException catch (e) {
       print('Socket Error : $e');
-      widget.isAdmin
+      widget.isAdmin!
           ? handleConnectionAdmin(context)
           : handleConnection(context);
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    setState(() {
+      isDataFound = false;
+    });
+    return list;
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _count = 10;
-      search.isNotEmpty
-          ? getOldCustomerBySearch(search)
-          : getOldCustomerByIdLimit(_count);
+      // _count = 10;
+      oldCustomerList = search!.isNotEmpty
+          ? getOldCustomerBySearch(search!)
+          // : getOldCustomerByIdLimit(_count);
+          : getAllOldCustomer();
     });
   }
 
@@ -201,7 +194,7 @@ class _RenewalContractState extends State<RenewalContract> {
     });
   }
 
-  Widget childRenewalContract({bool isHorizontal}) {
+  Widget childRenewalContract({bool isHorizontal = false}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -210,7 +203,7 @@ class _RenewalContractState extends State<RenewalContract> {
           'List Customer Lama',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: isHorizontal ? 28.sp : 18.sp,
+            fontSize: isHorizontal ? 20.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -221,7 +214,7 @@ class _RenewalContractState extends State<RenewalContract> {
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(
               Icons.arrow_back_ios_new,
-              size: isHorizontal ? 28.sp : 18.r,
+              size: isHorizontal ? 20.sp : 18.r,
               color: Colors.black54,
             )),
       ),
@@ -230,11 +223,11 @@ class _RenewalContractState extends State<RenewalContract> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 30.r : 20.r,
+              horizontal: isHorizontal ? 25.r : 20.r,
               vertical: isHorizontal ? 15.r : 10.r,
             ),
             color: Colors.white,
-            height: isHorizontal ? 110.h : 80.h,
+            height: isHorizontal ? 75.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -263,83 +256,101 @@ class _RenewalContractState extends State<RenewalContract> {
                 setState(() {
                   txtSearch.text = value;
                   search = txtSearch.text;
+                  // isDataFound = true;
+                  oldCustomerList = search!.isNotEmpty
+                      ? getOldCustomerBySearch(search!)
+                      : getAllOldCustomer();
                 });
               },
             ),
           ),
-          Expanded(
-            child: SizedBox(
-              height: 100.h,
-              child: FutureBuilder(
-                future: txtSearch.text.isNotEmpty
-                    ? getOldCustomerBySearch(search)
-                    : getOldCustomerByIdLimit(_count),
-                builder: (context, snapshot) {
-                  final controller = ScrollController();
-                  controller.addListener(() {
-                    final pos =
-                        controller.offset / controller.position.maxScrollExtent;
-                    if (pos >= 0.8) {
-                      if (snapshot.data.length == _count &&
-                          _count < oldCustomerList.length) {
-                        setState(() {
-                          _count += 10;
-                        });
-                      }
-                    }
-                  });
-
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return Center(child: CircularProgressIndicator());
-                    default:
-                      return snapshot.data != null
-                          ? listViewWidget(
-                              snapshot.data,
-                              snapshot.data.length,
-                              controller,
-                              isHorizontal: isHorizontal,
-                            )
-                          : Column(
-                              children: [
-                                Center(
-                                  child: Image.asset(
-                                    'assets/images/not_found.png',
-                                    width: isHorizontal ? 275.w : 300.w,
-                                    height: isHorizontal ? 275.h : 300.h,
-                                  ),
-                                ),
-                                Text(
-                                  'Data tidak ditemukan',
-                                  style: TextStyle(
-                                    fontSize: isHorizontal ? 28.sp : 18.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.red[600],
-                                    fontFamily: 'Montserrat',
-                                  ),
-                                )
-                              ],
-                            );
-                  }
-                },
-              ),
-            ),
-          ),
+          isDataFound
+              ? Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 10.r,
+                  ),
+                  child: CircularProgressIndicator(),
+                )
+              : tmpList.length > 0
+                  ? Expanded(
+                      child: SizedBox(
+                        height: 100.h,
+                        child: FutureBuilder(
+                          future: oldCustomerList,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<List<OldCustomer>> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              if (snapshot.hasError) {
+                                return Column(
+                                  children: [
+                                    Center(
+                                      child: Image.asset(
+                                        'assets/images/not_found.png',
+                                        width: isHorizontal ? 150.w : 230.w,
+                                        height: isHorizontal ? 150.h : 230.h,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Data tidak ditemukan',
+                                      style: TextStyle(
+                                        fontSize: isHorizontal ? 16.sp : 18.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red[600],
+                                        fontFamily: 'Montserrat',
+                                      ),
+                                    )
+                                  ],
+                                );
+                              } else {
+                                return listViewWidget(
+                                  snapshot.data!,
+                                  snapshot.data!.length,
+                                  isHorizontal: isHorizontal,
+                                );
+                              }
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            'assets/images/not_found.png',
+                            width: isHorizontal ? 150.w : 230.w,
+                            height: isHorizontal ? 150.h : 230.h,
+                          ),
+                        ),
+                        Text(
+                          'Data tidak ditemukan',
+                          style: TextStyle(
+                            fontSize: isHorizontal ? 16.sp : 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red[600],
+                            fontFamily: 'Montserrat',
+                          ),
+                        )
+                      ],
+                    ),
         ],
       ),
     );
   }
 
-  Widget listViewWidget(
-      List<OldCustomer> item, int len, ScrollController controller,
-      {bool isHorizontal}) {
+  Widget listViewWidget(List<OldCustomer> item, int len,
+      {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
-            controller: controller,
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 28.h : 10.h,
+              horizontal: isHorizontal ? 25.h : 10.h,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
@@ -349,9 +360,10 @@ class _RenewalContractState extends State<RenewalContract> {
                     vertical: isHorizontal ? 12.r : 7.r,
                   ),
                   padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
-                  height: isHorizontal ? 180.h : 125.h,
+                  height: isHorizontal ? 140.h : 125.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(isHorizontal ? 30.r : 15.r),
+                    borderRadius:
+                        BorderRadius.circular(isHorizontal ? 30.r : 15.r),
                     border: Border.all(
                       color: Colors.black26,
                     ),
@@ -371,7 +383,7 @@ class _RenewalContractState extends State<RenewalContract> {
                               softWrap: false,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 16.sp,
+                                fontSize: isHorizontal ? 16.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
                                 fontWeight: FontWeight.w600,
                               ),
@@ -380,7 +392,7 @@ class _RenewalContractState extends State<RenewalContract> {
                           Text(
                             item[position].customerShipNumber,
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 16.sp,
+                              fontSize: isHorizontal ? 16.sp : 14.sp,
                               fontFamily: 'Segoe Ui',
                               fontWeight: FontWeight.w600,
                               color: Colors.orange,
@@ -389,14 +401,14 @@ class _RenewalContractState extends State<RenewalContract> {
                         ],
                       ),
                       SizedBox(
-                        height: isHorizontal ? 8.h : 2.h,
+                        height: isHorizontal ? 3.h : 0.h,
                       ),
                       Row(
                         children: [
                           Container(
                             padding: EdgeInsets.symmetric(
                               vertical: 2.r,
-                              horizontal: 10.r,
+                              horizontal: 5.r,
                             ),
                             decoration: BoxDecoration(
                               color: item[position].status == "A"
@@ -409,7 +421,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                   ? 'AKTIF'
                                   : 'TIDAK AKTIF',
                               style: TextStyle(
-                                fontSize: isHorizontal ? 20.sp : 12.sp,
+                                fontSize: isHorizontal ? 14.sp : 12.sp,
                                 fontFamily: 'Segoe ui',
                                 fontWeight: FontWeight.bold,
                                 color: item[position].status == "A"
@@ -437,7 +449,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                     child: Icon(
                                       Icons.pin_drop_sharp,
                                       color: Colors.blue[800],
-                                      size: isHorizontal ? 24.sp : 14.r,
+                                      size: isHorizontal ? 16.sp : 14.r,
                                     ),
                                   ),
                                   WidgetSpan(
@@ -450,7 +462,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                   TextSpan(
                                     text: item[position].city,
                                     style: TextStyle(
-                                      fontSize: isHorizontal ? 20.sp : 12.sp,
+                                      fontSize: isHorizontal ? 14.sp : 12.sp,
                                       fontFamily: 'Segoe ui',
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue[800],
@@ -472,13 +484,13 @@ class _RenewalContractState extends State<RenewalContract> {
                                   child: Icon(
                                     Icons.attach_file,
                                     color: Colors.grey[600],
-                                    size: isHorizontal ? 31.sp : 19.r,
+                                    size: isHorizontal ? 24.sp : 19.r,
                                   ),
                                 ),
                                 TextSpan(
                                   text: item[position].totalContract,
                                   style: TextStyle(
-                                    fontSize: isHorizontal ? 27.sp : 15.sp,
+                                    fontSize: isHorizontal ? 20.sp : 15.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey[600],
@@ -493,7 +505,7 @@ class _RenewalContractState extends State<RenewalContract> {
                                 Text(
                                   item[position].contactPerson,
                                   style: TextStyle(
-                                    fontSize: isHorizontal ? 23.sp : 13.sp,
+                                    fontSize: isHorizontal ? 14.sp : 13.sp,
                                     fontFamily: 'Segoe ui',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
@@ -516,14 +528,16 @@ class _RenewalContractState extends State<RenewalContract> {
                 ),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HistoryContract(
-                                item[position],
-                                keyword: txtSearch.text,
-                                isAdmin: widget.isAdmin,
-                                // isAdmin: false,
-                              ))).then((_) {
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistoryContract(
+                        item: item[position],
+                        keyword: txtSearch.text,
+                        isAdmin: widget.isAdmin,
+                        isNewCust: false,
+                      ),
+                    ),
+                  ).then((_) {
                     setState(() {
                       _refreshData();
                     });

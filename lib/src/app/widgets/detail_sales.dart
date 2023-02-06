@@ -2,19 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesarea.dart';
 import 'package:sample/src/domain/entities/salesdetail.dart';
-import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class DetailSales extends StatefulWidget {
-  SalesPerform sales;
-  int position;
-  String startDate, endDate;
+  SalesPerform? sales;
+  int? position = 0;
+  String? startDate, endDate;
 
   DetailSales({this.sales, this.position, this.startDate, this.endDate});
 
@@ -62,10 +63,10 @@ class _DetailSalesState extends State<DetailSales> {
   ];
 
   Future<List<SalesDetail>> getSalesDetail(BuildContext context,
-      {String stDate,
-      String edDate,
+      {String stDate = '',
+      String edDate = '',
       dynamic salesRepId,
-      bool isHorizontal}) async {
+      bool isHorizontal = false}) async {
     const timeout = 15;
     List<SalesDetail> list = List.empty(growable: true);
     List<SalesDetail> dummyList = List.empty(growable: true);
@@ -77,18 +78,19 @@ class _DetailSalesState extends State<DetailSales> {
     print('End Date : $edDate');
     print('Sales Rep id : $salesRepId');
 
-    if (stDate == null && edDate == null) {
+    if (stDate == '' && edDate == '') {
       handleStatus(
         context,
         'Terjadi kesalahan, coba lagi',
         false,
         isHorizontal: isHorizontal,
+        isLogout: false,
       );
     } else {
       var url = '$API_URL/performance/detailPerformance?salesrep_id=$salesRepId';
 
       try {
-        var response = await http.get(url).timeout(Duration(seconds: timeout));
+        var response = await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
         print('Response status: ${response.statusCode}');
 
         try {
@@ -120,8 +122,6 @@ class _DetailSalesState extends State<DetailSales> {
                 penjualan: list[i].penjualan,
               ));
             }
-
-            return dummyList;
           }
         } on FormatException catch (e) {
           print('Format Error : $e');
@@ -130,6 +130,7 @@ class _DetailSalesState extends State<DetailSales> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       } on TimeoutException catch (e) {
@@ -140,11 +141,13 @@ class _DetailSalesState extends State<DetailSales> {
         print('General Error : $e');
       }
     }
-  }
 
+    return dummyList;
+  }
+  
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > 600 ||
           MediaQuery.of(context).orientation == Orientation.landscape) {
         return salesChild(isHorizontal: true);
@@ -154,7 +157,7 @@ class _DetailSalesState extends State<DetailSales> {
     });
   }
 
-  Widget salesChild({bool isHorizontal}) {
+  Widget salesChild({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.all(15.r),
       child: Column(
@@ -182,7 +185,7 @@ class _DetailSalesState extends State<DetailSales> {
           ),
           Center(
             child: Text(
-              widget.sales.salesPerson.toString().toUpperCase(),
+              widget.sales!.salesPerson.toString().toUpperCase(),
               style: TextStyle(
                 fontSize: isHorizontal ? 24.sp : 18.sp,
                 fontWeight: FontWeight.w600,
@@ -213,12 +216,12 @@ class _DetailSalesState extends State<DetailSales> {
             child: FutureBuilder(
                 future: getSalesDetail(
                   context,
-                  stDate: widget.startDate,
-                  edDate: widget.endDate,
-                  salesRepId: widget.sales.salesRepId,
+                  stDate: widget.startDate!,
+                  edDate: widget.endDate!,
+                  salesRepId: widget.sales!.salesRepId,
                   isHorizontal: isHorizontal,
                 ),
-                builder: (context, snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<SalesDetail>> snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                       return Column(
@@ -253,8 +256,8 @@ class _DetailSalesState extends State<DetailSales> {
                     default:
                       return snapshot.data != null
                           ? listViewWidget(
-                              snapshot.data,
-                              snapshot.data.length,
+                              snapshot.data!,
+                              snapshot.data!.length,
                               isHorizontal: isHorizontal,
                             )
                           : Column(

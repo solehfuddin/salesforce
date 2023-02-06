@@ -2,31 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/customer/customer_admin.dart';
+import 'package:sample/src/app/pages/activity/daily_activity.dart';
+import 'package:sample/src/app/pages/admin/admin_content.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/dbhelper.dart';
-import 'package:sample/src/app/widgets/areachart.dart';
-import 'package:sample/src/app/widgets/areacounter.dart';
-import 'package:sample/src/app/widgets/areafeature.dart';
-import 'package:sample/src/app/widgets/areamonitoring.dart';
-import 'package:sample/src/app/widgets/arearenewal.dart';
-import 'package:sample/src/app/widgets/areasyncchart.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
-import 'package:sample/src/app/widgets/areaheader.dart';
-import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/monitoring.dart';
+import 'package:sample/src/app/widgets/dialogpassword.dart';
 import 'package:sample/src/domain/entities/notifikasi.dart';
-import 'package:sample/src/domain/entities/piereport.dart';
-import 'package:sample/src/domain/entities/report.dart';
-import 'package:sample/src/domain/entities/salesPerform.dart';
-import 'package:sample/src/domain/entities/salesSize.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -35,110 +21,57 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  DbHelper dbHelper = DbHelper();
+  DbHelper dbHelper = DbHelper.instance;
   List<Notifikasi> listNotifLocal = List.empty(growable: true);
-  String id = '';
-  String role = '';
-  String username = '';
-  String divisi = '';
-  String ttdPertama;
-  String userUpper = '';
-  bool _isLoading = true;
-  bool _isLoadRenewal = true;
-  bool _isConnected = false;
-  bool _isPerform = true;
+  String? id = '';
+  String? role = '';
+  String? name = '';
+  String? username = '';
+  String? divisi = '';
+  String? ttdPertama = '';
+  String? userUpper = '';
   bool _isBadge = false;
-  int totalWaiting = 0;
-  int totalApproved = 0;
-  int totalRejected = 0;
-  int totalNewCustomer = 0;
-  int totalOldCustomer = 0;
-  List<Monitoring> listMonitoring = List.empty(growable: true);
-  List<Contract> listContract = List.empty(growable: true);
-  List<SalesPerform> listPerform = List.empty(growable: true);
-  List<BarChartGroupData> rawBarGroups;
-  List<BarChartGroupData> showingBarGroups;
-  List<Report> _sampleData;
-  List<PieReport> _samplePie = List.empty(growable: true);
-  double width = 7;
-  double _totalSales;
-  Color leftBarColor = const Color(0xff845bef);
-  List<Color> colorBar = List.empty(growable: true);
-  String stDate = "01/04/2022";
-  String edDate = "30/04/2022";
-  String dateSelected = "01 Apr 2022 - 30 Apr 2022";
-  dynamic totalSales;
+  int _selectedIndex = 0;
+  dynamic changePass;
 
   @override
   void initState() {
     super.initState();
-    if (listContract.length > 0) listContract.clear();
-
-    DateTime now = new DateTime.now();
-
-    stDate = "01/${now.month}/${now.year}";
-    edDate = "${now.day}/${now.month}/${now.year}";
-
-    String dateSt = "${now.year}-${now.month.toString().padLeft(2, '0')}-01";
-    String dateEd =
-        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-
-    dateSelected =
-        "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
-
-    colorBar.add(leftBarColor);
-
-    final barGroup1 = makeGroupData(0, 10);
-    final barGroup2 = makeGroupData(1, 12);
-    final barGroup3 = makeGroupData(2, 14);
-    final barGroup4 = makeGroupData(3, 19);
-    final barGroup5 = makeGroupData(4, 15);
-    final barGroup6 = makeGroupData(5, 13);
-    final barGroup7 = makeGroupData(6, 18);
-
-    final items = [
-      barGroup1,
-      barGroup2,
-      barGroup3,
-      barGroup4,
-      barGroup5,
-      barGroup6,
-      barGroup7,
-    ];
-
-    rawBarGroups = items;
-    showingBarGroups = rawBarGroups;
-    _sampleData = getReportData();
-    //_samplePie = getReportPie();
     getRole();
   }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  List<Widget> _widgetOptionsHor = <Widget>[
+    AdminContent(),
+    DailyActivity(
+      isAdmin: true,
+    ),
+  ];
+
+  List<Widget> _widgetOptionsVer = <Widget>[
+    AdminContent(),
+    DailyActivity(
+      isAdmin: true,
+    ),
+  ];
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       id = preferences.getString("id");
       role = preferences.getString("role");
+      name = preferences.getString("name");
       username = preferences.getString("username");
-      userUpper = username.toUpperCase();
+      userUpper = username?.toUpperCase();
       divisi = preferences.getString("divisi");
-      divisi == "AR" ? getCounterData(true) : getCounterData(false);
-      divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
+      ttdPertama = preferences.getString("ttduser");
 
-      if (divisi == 'AR') {
-        _firebaseMessaging.subscribeToTopic("allar");
-        _firebaseMessaging.unsubscribeFromTopic("alladmin");
-        _firebaseMessaging.unsubscribeFromTopic("allsales");
-      } else {
-        _firebaseMessaging.subscribeToTopic("allsales");
-        _firebaseMessaging.unsubscribeFromTopic("alladmin");
-        _firebaseMessaging.unsubscribeFromTopic("allar");
-      }
-
-      getPerformSales(stDate, edDate);
-
-      getTtd(int.parse(id));
-
+      getTtd(int.parse(id!));
       getLocalNotif();
     });
   }
@@ -148,222 +81,52 @@ class _AdminScreenState extends State<AdminScreen> {
     var url = '$API_URL/users?id=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
         var data = json.decode(response.body);
         final bool sts = data['status'];
 
-        checkSigned();
-        getMonitoringData();
-
         if (sts) {
-          ttdPertama = data['data']['ttd'];
-          print(ttdPertama);
+          changePass = data['data']['change_password'];
+
+          if (changePass != '0') {
+            dialogChangePassword(context);
+          }
         }
-        _isConnected = true;
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       handleTimeout(context);
-      _isConnected = false;
     } on SocketException catch (e) {
       print('Socket Error : $e');
       handleSocket(context);
-      _isConnected = false;
-    } on Error catch (e) {
-      print('General Error : $e');
-      _isConnected = false;
-    }
-  }
-
-  checkSigned() async {
-    if (_isConnected) {
-      String ttd = await getTtdValid(id, context, role: role);
-      print(ttd);
-      if (ttd == null) {
-        handleSigned(context);
-      }
-    }
-  }
-
-  getCounterData(bool isAr) async {
-    const timeout = 15;
-    var url = '$API_URL/counter/counter/$id';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-        dynamic counter = data['data'];
-
-        if (sts) {
-          print(counter);
-
-          totalNewCustomer = counter['newCust'];
-          totalOldCustomer = counter['oldCust'];
-          totalWaiting = isAr ? counter['awaitAR'] : counter['awaitSM'];
-          totalApproved = counter['approved'];
-          totalRejected = counter['rejected'];
-
-          setState(() {});
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
     } on Error catch (e) {
       print('General Error : $e');
     }
   }
 
-  getMonitoringData() async {
-    _isLoading = true;
-
-    await Future.delayed(Duration(seconds: 1));
-    if (listMonitoring.length > 0) listMonitoring.clear();
-    const timeout = 15;
-    var url = '$API_URL/contract/monitoring';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          var rest = data['data'];
-          print(rest);
-          listMonitoring = rest
-              .map<Monitoring>((json) => Monitoring.fromJson(json))
-              .toList();
-          print("List Size: ${listMonitoring.length}");
-        }
-
-        Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isLoading = false;
-          });
-        });
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  getRenewalData(bool isAr) async {
-    _isLoadRenewal = true;
-
-    const timeout = 15;
-    var url = !isAr
-        ? '$API_URL/contract/pendingContractOldCustSM'
-        : '$API_URL/contract/pendingContractOldCustAM';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          var rest = data['data'];
-          print(rest);
-          listContract =
-              rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-          print("List Size: ${listContract.length}");
-        }
-
-        Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isLoadRenewal = false;
-          });
-        });
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-  }
-
-  getPerformSales(String stDate, String edDate) async {
-    _samplePie.clear();
-    listPerform.clear();
-    _isPerform = true;
-
-    const timeout = 15;
-    var url =
-        'https://timurrayalab.com/salesforce/server/api/performance?from=$stDate&to=$edDate';
-
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          var rest = data['data'];
-          print(rest);
-          listPerform = rest
-              .map<SalesPerform>((json) => SalesPerform.fromJson(json))
-              .toList();
-          print("List Size: ${listPerform.length}");
-
-          print('Total Sales : ${data['total_penjualan']}');
-
-          _totalSales = double.tryParse(
-              data['total_penjualan'].replaceAll(RegExp(','), ''));
-          print('Total Sales Convert : $_totalSales');
-
-          _samplePie = generateReport(_totalSales);
-        }
-
-        Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isPerform = false;
-          });
-        });
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
+  dialogChangePassword(BuildContext context) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: DialogPassword(
+            id,
+            name,
+          ),
+        );
+      },
+    );
   }
 
   void addLocalNotif(Notifikasi item) async {
-    if (item.idUser == null) {
-      item.idUser = "0";
-    }
     int res = await dbHelper.insert(item);
     if (res > 0) {
       getLocalNotif();
@@ -384,10 +147,10 @@ class _AdminScreenState extends State<AdminScreen> {
     result.clear();
   }
 
-  void getLocalNotif() {
-    final Future<Database> dbFuture = dbHelper.initDb();
+  void getLocalNotif() async {
+    final Future<Database> dbFuture = dbHelper.createDb();
     dbFuture.then((value) {
-      Future<List<Notifikasi>> listNotif = dbHelper.getNotifikasi();
+      Future<List<Notifikasi>> listNotif = dbHelper.getAllNotifikasi();
       listNotif.then((value) {
         setState(() {
           listNotifLocal = value;
@@ -419,14 +182,14 @@ class _AdminScreenState extends State<AdminScreen> {
 
   getNotifikasiRemote(bool isAdmin, {dynamic idUser}) async {
     const timeout = 15;
-    List<Notifikasi> list;
+    List<Notifikasi> list = List.empty(growable: true);
 
     var url = isAdmin
         ? '$API_URL/notification/getNotifAdmin/?id=$idUser'
         : '$API_URL/notification/getNotifSales/?id=$idUser';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response = await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -451,7 +214,9 @@ class _AdminScreenState extends State<AdminScreen> {
           }
 
           Future.delayed(Duration(seconds: 3), () {
-            isReadLocal();
+            setState(() {
+              isReadLocal();
+            });
           });
           print("List Size: ${list.length}");
         }
@@ -468,145 +233,15 @@ class _AdminScreenState extends State<AdminScreen> {
     return list;
   }
 
-  Future<void> _refreshData() async {
-    setState(() {
-      if (listMonitoring.length > 0) listMonitoring.clear();
-      if (listContract.length > 0) listContract.clear();
-      divisi == "AR" ? getCounterData(true) : getCounterData(false);
-      divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
-
-      getTtd(int.parse(id));
-
-      getLocalNotif();
-    });
-  }
-
-  BarChartGroupData makeGroupData(int x, double y1) {
-    return BarChartGroupData(barsSpace: 4, x: x, barRods: [
-      BarChartRodData(
-        y: y1,
-        colors: colorBar,
-        width: width,
-      ),
-    ]);
-  }
-
-  List<Report> getReportData() {
-    final List<Report> sample = [
-      Report(
-          category: "Januari", sales1: 50, sales2: 30, sales3: 40, sales4: 20),
-      Report(
-          category: "Februari", sales1: 35, sales2: 25, sales3: 35, sales4: 30),
-      Report(category: "Maret", sales1: 20, sales2: 40, sales3: 45, sales4: 35),
-      Report(category: "April", sales1: 50, sales2: 35, sales3: 25, sales4: 40)
-    ];
-    return sample;
-  }
-
-  List<PieReport> generateReport(double totalSales) {
-    List<PieReport> dummy = List.empty(growable: true);
-
-    List<Color> colorList = [
-      Colors.green[500],
-      Colors.deepOrange[400],
-      Colors.grey[500],
-      Colors.blue[500],
-      Colors.red[500],
-      Colors.purple[400],
-      Colors.teal[500],
-    ];
-
-    List<SalesPerform> newListPerform = List.empty(growable: true);
-    List<SalesSize> salesSize = List.empty(growable: true);
-    newListPerform.addAll(listPerform);
-
-    newListPerform.sort((a, b) {
-      double aVal = double.tryParse(a.penjualan);
-      double bVal = double.tryParse(b.penjualan);
-      return bVal.compareTo(aVal);
-    });
-
-    dynamic initialSize = 93;
-    for (int j = 0; j < newListPerform.length; j++) {
-      initialSize -= 3;
-      salesSize.add(SalesSize(
-        salesRepId: newListPerform[j].salesRepId,
-        size: '$initialSize%',
-        salesPerson: newListPerform[j].salesPerson,
-        penjualan: newListPerform[j].penjualan,
-      ));
-      print('Percentnya : ${newListPerform[j].penjualan}');
-      print('Sizenya : $initialSize');
-    }
-
-    for (int i = 0; i < listPerform.length; i++) {
-      double value = double.tryParse(listPerform[i].penjualan);
-      double perc = (value / totalSales * 100);
-      dynamic size;
-
-      for (int j = 0; j < salesSize.length; j++) {
-        if (salesSize[j].salesRepId == listPerform[i].salesRepId) {
-          size = salesSize[j].size;
-          print('Size new : $size');
-        }
-      }
-
-      dummy.add(PieReport(
-        salesName: listPerform[i].salesPerson,
-        value: value,
-        perc: "${perc.toStringAsFixed(2)} %",
-        color: colorList[i],
-        size: size,
-      ));
-
-      print("Hitung persen ${[i]}: $perc");
-    }
-
-    return dummy;
-  }
-
-  List<PieReport> getReportPie() {
-    final List<PieReport> dummy = [
-      PieReport(
-        salesName: "Sales A",
-        perc: "30.5%",
-        value: 20000,
-        color: Color(0xff0293ee),
-        size: "94%",
-      ),
-      PieReport(
-        salesName: "Sales B",
-        perc: "20.5%",
-        value: 11000,
-        color: Color(0xfff8b250),
-        size: "91%",
-      ),
-      PieReport(
-        salesName: "Sales C",
-        perc: "14%",
-        value: 4200,
-        color: Color(0xff845bef),
-        size: "88%",
-      ),
-      PieReport(
-        salesName: "Sales D",
-        perc: "35%",
-        value: 28000,
-        color: Color(0xff13d38e),
-        size: "97%",
-      ),
-    ];
-    return dummy;
-  }
-
   Future<bool> _onBackPressed() async {
-    handleLogout(context);
+    if (changePass == '0') {
+      handleLogout(context);
+    }
     return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.green,
@@ -622,189 +257,23 @@ class _AdminScreenState extends State<AdminScreen> {
                   isHorizontal: true,
                   isBadge: _isBadge,
                 ),
-                floatingActionButton: Visibility(
-                  visible: divisi == "AR" ? false : true,
-                  child: FloatingActionButton(
-                    backgroundColor: Colors.white,
-                    child: Image.asset(
-                      'assets/images/entry_customer_new.png',
-                      width: 52.w,
-                      height: 52.h,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                    mini: false,
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CustomerAdmin(int.parse(id))));
-                    },
-                  ),
-                ),
-                floatingActionButtonLocation:
-                    FloatingActionButtonLocation.endDocked,
-                body: RefreshIndicator(
-                  child: CustomScrollView(
-                    physics: ClampingScrollPhysics(),
-                    slivers: [
-                      areaHeader(screenHeight, userUpper, context,
-                          isHorizontal: true),
-                      areaCounter(
-                        totalWaiting.toString(),
-                        totalApproved.toString(),
-                        totalRejected.toString(),
-                        totalNewCustomer.toString(),
-                        totalOldCustomer.toString(),
-                        context,
-                        isHorizontal: true,
+                body: _widgetOptionsHor.elementAt(_selectedIndex),
+                bottomNavigationBar: Visibility(
+                  visible: divisi != "AR" ? true : false,
+                  child: BottomNavigationBar(
+                    items: [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.dashboard),
+                        label: 'Dasbor',
                       ),
-                      SliverPadding(
-                        padding: EdgeInsets.only(
-                          left: 35.r,
-                          right: 35.r,
-                          top: 15.r,
-                        ),
-                        sliver: SliverToBoxAdapter(
-                          child: StatefulBuilder(
-                            builder: (BuildContext context, StateSetter state) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Penjualan',
-                                        style: TextStyle(
-                                          fontSize: 35.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        splashColor: Colors.blue,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 3,
-                                            horizontal: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            border: Border.all(
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Text(dateSelected),
-                                              Icon(
-                                                Icons.arrow_drop_down,
-                                                color: Colors.black54,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          showDate(context).then((value) {
-                                            state(() {
-                                              if (value != null) {
-                                                String dateSt =
-                                                    value.start.toString();
-                                                String dateEd =
-                                                    value.end.toString();
-
-                                                dateSelected =
-                                                    "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
-                                                print(
-                                                    "Date Selected Start : ${convertDateOra(dateSt)}");
-                                                print(
-                                                    "Date Selected End : ${convertDateOra(dateEd)}");
-                                                print(
-                                                    "Date Selected UI : $dateSelected");
-
-                                                stDate = convertDateOra(dateSt);
-                                                edDate = convertDateOra(dateEd);
-
-                                                getPerformSales(stDate, edDate);
-
-                                                setState(() {});
-                                              } else {
-                                                print('Cancel');
-                                              }
-                                            });
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      _isPerform
-                          ? areaLoadingRenewal(
-                              isHorizontal: true,
-                            )
-                          : areaDonutChartHor(
-                              dataPie: _samplePie,
-                              startDate: stDate,
-                              endDate: edDate,
-                              sales: listPerform,
-                              totalSales: _totalSales,
-                              context: context),
-                      areaHeaderRenewal(isHorizontal: true),
-                      _isLoadRenewal
-                          ? areaLoadingRenewal(
-                              isHorizontal: true,
-                            )
-                          : listContract.length > 0
-                              ? areaRenewal(listContract, context, ttdPertama,
-                                  username, divisi,
-                                  isHorizontal: true)
-                              : areaRenewalNotFound(
-                                  context,
-                                  isHorizontal: true,
-                                ),
-                      areaButtonRenewal(
-                        context,
-                        listContract.length > 0 ? true : false,
-                        isHorizontal: true,
-                      ),
-                      areaHeaderMonitoring(isHorizontal: true),
-                      _isLoading
-                          ? areaLoading(
-                              isHorizontal: true,
-                            )
-                          : listMonitoring.length > 0
-                              ? areaMonitoring(
-                                  listMonitoring,
-                                  context,
-                                  ttdPertama,
-                                  username,
-                                  divisi,
-                                  isHorizontal: true,
-                                )
-                              : areaMonitoringNotFound(
-                                  context,
-                                  isHorizontal: true,
-                                ),
-                      areaButtonMonitoring(
-                        context,
-                        listMonitoring.length > 0 ? true : false,
-                        isHorizontal: true,
-                      ),
-                      areaFeature(
-                        screenHeight,
-                        context,
-                        isHorizontal: true,
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.assignment_outlined),
+                        label: 'Aktivitas',
                       ),
                     ],
+                    currentIndex: _selectedIndex,
+                    onTap: _onItemTapped,
                   ),
-                  onRefresh: _refreshData,
                 ),
               );
             }
@@ -814,197 +283,23 @@ class _AdminScreenState extends State<AdminScreen> {
                 isHorizontal: false,
                 isBadge: _isBadge,
               ),
-              floatingActionButton: Visibility(
-                visible: divisi == "AR" ? false : true,
-                child: FloatingActionButton(
-                  backgroundColor: Colors.white,
-                  child: Image.asset(
-                    'assets/images/entry_customer_new.png',
-                    width: 28.w,
-                    height: 28.h,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  ),
-                  mini: true,
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => CustomerAdmin(int.parse(id))));
-                  },
-                ),
-              ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.miniEndDocked,
-              body: RefreshIndicator(
-                child: CustomScrollView(
-                  physics: ClampingScrollPhysics(),
-                  slivers: [
-                    areaHeader(screenHeight, userUpper, context,
-                        isHorizontal: false),
-                    areaCounter(
-                      totalWaiting.toString(),
-                      totalApproved.toString(),
-                      totalRejected.toString(),
-                      totalNewCustomer.toString(),
-                      totalOldCustomer.toString(),
-                      context,
-                      isHorizontal: false,
+              body: _widgetOptionsVer.elementAt(_selectedIndex),
+              bottomNavigationBar: Visibility(
+                visible: divisi != "AR" ? true : false,
+                child: BottomNavigationBar(
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.dashboard),
+                      label: 'Dasbor',
                     ),
-                    // areaChartDonuts(),
-                    // areaChart(
-                    //     rawBarGroups: rawBarGroups,
-                    //     showingBarGroups: showingBarGroups),
-                    // areaLineChartSync(reportData: _sampleData),
-                    // areaPieChartSync(dataPie: _samplePie),
-                    SliverPadding(
-                      padding: EdgeInsets.only(
-                        left: 15.r,
-                        right: 15.r,
-                        top: 15.r,
-                      ),
-                      sliver: SliverToBoxAdapter(
-                        child: StatefulBuilder(
-                          builder: (BuildContext context, StateSetter state) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Penjualan',
-                                      style: TextStyle(
-                                        fontSize: 21.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      splashColor: Colors.blue,
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 3,
-                                          horizontal: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border.all(
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Text(dateSelected),
-                                            Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Colors.black54,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        showDate(context).then((value) {
-                                          state(() {
-                                            if (value != null) {
-                                              String dateSt =
-                                                  value.start.toString();
-                                              String dateEd =
-                                                  value.end.toString();
-
-                                              dateSelected =
-                                                  "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
-                                              print(
-                                                  "Date Selected Start : ${convertDateOra(dateSt)}");
-                                              print(
-                                                  "Date Selected End : ${convertDateOra(dateEd)}");
-                                              print(
-                                                  "Date Selected UI : $dateSelected");
-
-                                              stDate = convertDateOra(dateSt);
-                                              edDate = convertDateOra(dateEd);
-
-                                              getPerformSales(stDate, edDate);
-
-                                              setState(() {});
-                                            } else {
-                                              print('Cancel');
-                                            }
-                                          });
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    _isPerform
-                        ? areaLoadingRenewal(
-                            isHorizontal: false,
-                          )
-                        : areaDonutChart(
-                            dataPie: _samplePie,
-                            startDate: stDate,
-                            endDate: edDate),
-                    areaInfoDonut(
-                      sales: listPerform,
-                      totalSales: _totalSales,
-                      context: context,
-                      stDate: stDate,
-                      edDate: edDate,
-                    ),
-                    areaHeaderRenewal(isHorizontal: false),
-                    _isLoadRenewal
-                        ? areaLoadingRenewal(
-                            isHorizontal: false,
-                          )
-                        : listContract.length > 0
-                            ? areaRenewal(listContract, context, ttdPertama,
-                                username, divisi,
-                                isHorizontal: false)
-                            : areaRenewalNotFound(
-                                context,
-                                isHorizontal: false,
-                              ),
-                    areaButtonRenewal(
-                        context, listContract.length > 0 ? true : false,
-                        isHorizontal: false),
-                    areaHeaderMonitoring(isHorizontal: false),
-                    _isLoading
-                        ? areaLoading(
-                            isHorizontal: false,
-                          )
-                        : listMonitoring.length > 0
-                            ? areaMonitoring(
-                                listMonitoring,
-                                context,
-                                ttdPertama,
-                                username,
-                                divisi,
-                                isHorizontal: false,
-                              )
-                            : areaMonitoringNotFound(
-                                context,
-                                isHorizontal: false,
-                              ),
-                    areaButtonMonitoring(
-                      context,
-                      listMonitoring.length > 0 ? true : false,
-                      isHorizontal: false,
-                    ),
-                    areaFeature(
-                      screenHeight,
-                      context,
-                      isHorizontal: false,
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.assignment_outlined),
+                      label: 'Aktivitas',
                     ),
                   ],
+                  currentIndex: _selectedIndex,
+                  onTap: _onItemTapped,
                 ),
-                onRefresh: _refreshData,
               ),
             );
           },

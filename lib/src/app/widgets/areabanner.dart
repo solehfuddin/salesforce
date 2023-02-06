@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
-SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context,
-    {bool isHorizontal}) {
+SliverToBoxAdapter areaBanner(
+  double screenHeight,
+  BuildContext context, {
+  bool isHorizontal = false,
+}) {
   return SliverToBoxAdapter(
     child: GestureDetector(
       child: Container(
         margin: EdgeInsets.symmetric(
-            horizontal: isHorizontal ? 35.r : 15.r,
-            vertical: isHorizontal ? 20.r : 10.r),
+          horizontal: isHorizontal ? 18.r : 18.r,
+          vertical: isHorizontal ? 10.r : 15.r,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -17,7 +21,7 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context,
               // 'Get rewarded with Challenges',
               'Dapatkan hadiah menarik',
               style: TextStyle(
-                fontSize: isHorizontal ? 35.sp : 21.sp,
+                fontSize: isHorizontal ? 20.sp : 18.sp,
                 fontFamily: 'Segoe ui',
                 color: Colors.black,
                 fontWeight: FontWeight.w700,
@@ -28,7 +32,7 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context,
             ),
             Container(
               padding: EdgeInsets.all(8.r),
-              height: isHorizontal ? screenHeight * 0.24 : screenHeight * 0.18,
+              height: isHorizontal ? screenHeight * 0.31 : screenHeight * 0.18,
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.black12,
@@ -42,8 +46,8 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context,
                     flex: 1,
                     child: Image.asset(
                       'assets/images/espresso.png',
-                      width: isHorizontal ? 75.r : 50.r,
-                      height: isHorizontal ? 95.r : 70.r,
+                      width: isHorizontal ? 45.r : 35.r,
+                      height: isHorizontal ? 65.r : 55.r,
                     ),
                   ),
                   SizedBox(
@@ -59,28 +63,28 @@ SliverToBoxAdapter areaBanner(double screenHeight, BuildContext context,
                               Text(
                                 'Gratis kopi, misi 5 kustomer baru harus terselesaikan dengan baik',
                                 style: TextStyle(
-                                  fontSize: 24.sp,
+                                  fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Segoe ui',
                                 ),
                               ),
                               SizedBox(
-                                height: 15.h,
+                                height: 5.h,
                               ),
                               Text(
                                 'Berakhir pada 28 Feb 2022',
                                 style: TextStyle(
-                                  fontSize: 22.sp,
+                                  fontSize: 14.sp,
                                 ),
                               ),
                               SizedBox(
-                                height: 15.h,
+                                height: 5.h,
                               ),
                               Text(
                                 'Ikuti misi',
                                 style: TextStyle(
                                   color: Colors.blue[800],
-                                  fontSize: 24.sp,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

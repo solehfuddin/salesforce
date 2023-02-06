@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/domain/entities/product.dart';
 
+// ignore: must_be_immutable
 class FormItemProduct extends StatefulWidget {
-  FormItemProduct({Key key, this.product, this.index}) : super(key: key);
+  FormItemProduct({
+    Key? key,
+    this.product,
+    this.index,
+    this.itemLength,
+  }) : super(key: key);
 
   final index;
-  Product product;
+  Product? product;
+  int? itemLength = 2;
+
   final state = _FormItemProductState();
 
   @override
@@ -27,11 +35,11 @@ class _FormItemProductState extends State<FormItemProduct> {
   void initState() {
     super.initState();
 
-    if (widget.product.diskon != null) {
-      widget._discvalController.text = widget.product.diskon;
+    if (widget.product!.diskon != '') {
+      widget._discvalController.text = widget.product!.diskon;
       _isChecked = true;
       _isDisabled = true;
-      widget.product.ischecked = _isChecked;
+      widget.product!.ischecked = _isChecked;
     }
   }
 
@@ -47,7 +55,7 @@ class _FormItemProductState extends State<FormItemProduct> {
     });
   }
 
-  Widget childFormProduct({bool isHorizontal}) {
+  Widget childFormProduct({bool isHorizontal = false}) {
     return Form(
       key: formKey,
       child: Row(
@@ -61,10 +69,9 @@ class _FormItemProductState extends State<FormItemProduct> {
                 vertical: 2.r,
               ),
               child: Text(
-                widget.product.proddesc,
-                // 'Hybrid',
+                widget.product!.proddesc.toUpperCase(),
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w500,
                 ),
@@ -80,11 +87,11 @@ class _FormItemProductState extends State<FormItemProduct> {
               ),
               child: Checkbox(
                 value: this._isChecked,
-                onChanged: (bool value) {
+                onChanged: (bool? value) {
                   setState(() {
-                    this._isChecked = value;
+                    this._isChecked = value!;
                     this._isDisabled = value;
-                    widget.product.ischecked = value;
+                    widget.product!.ischecked = value;
                   });
                 },
               ),
@@ -94,33 +101,33 @@ class _FormItemProductState extends State<FormItemProduct> {
             flex: 1,
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 30.r : 10.r,
+                horizontal: isHorizontal ? 15.r : 5.r,
                 vertical: 5.r,
               ),
-              height: isHorizontal ? 80.r : 50.r,
+              height: isHorizontal ? 55.r : 50.r,
               child: TextFormField(
                 enabled: _isDisabled,
                 keyboardType: TextInputType.number,
-                maxLength: 2,
+                maxLength: widget.itemLength,
                 decoration: InputDecoration(
                   hintText: '0',
                   counterText: "",
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: isHorizontal ? 20.r : 10.r,
+                    horizontal: isHorizontal ? 10.r : 10.r,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   hintStyle: TextStyle(
                     fontFamily: 'Segoe Ui',
-                    fontSize: isHorizontal ? 28.sp : 18.sp,
+                    fontSize: isHorizontal ? 18.sp : 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 textAlign: TextAlign.center,
                 controller: widget._discvalController,
-                onChanged: (value) => widget.product.diskon = value,
-                onSaved: (value) => widget.product.diskon = value,
+                onChanged: (value) => widget.product!.diskon = value,
+                onSaved: (value) => widget.product!.diskon = value!,
               ),
             ),
           ),
@@ -130,7 +137,7 @@ class _FormItemProductState extends State<FormItemProduct> {
   }
 
   bool validate() {
-    formKey.currentState.save();
+    formKey.currentState!.save();
     return true;
   }
 }

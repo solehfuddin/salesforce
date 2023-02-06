@@ -6,9 +6,9 @@ class SalesPerform {
   SalesPerform({this.size});
 
   SalesPerform.fromJson(Map json)
-      : salesRepId = json['SALESREP_ID'],
-        salesPerson = json['SALESPERSON'],
-        penjualan = json['PENJUALAN'];
+      : salesRepId = json['SALESREP_ID'] ?? '',
+        salesPerson = json['SALESPERSON'] ?? '',
+        penjualan = json['PENJUALAN'] ?? 0;
 
   Map toJson() {
     return {

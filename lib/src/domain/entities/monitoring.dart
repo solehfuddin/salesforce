@@ -10,8 +10,8 @@ class Monitoring {
    telpKedua = json['telp_kedua'],
    startDateContract = json['start_contract'],
    endDateContract = json['end_contract'],
-   namaUsaha = json['nama_usaha'],
-   customerShipName = json['customer_ship_name'],
+   namaUsaha = json['nama_usaha'].toString(),
+   customerShipName = json['customer_ship_name'].toString(),
    status = json['status'];
 
    Map toJson(){

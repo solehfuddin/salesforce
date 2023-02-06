@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/renewcontract/approve_renewal.dart';
-import 'package:sample/src/app/pages/renewcontract/reject_renewal.dart';
 import 'package:sample/src/app/pages/renewcontract/pending_renewal.dart';
+import 'package:sample/src/app/pages/renewcontract/reject_renewal.dart';
 
 class CompleteRenewal extends StatefulWidget {
+  const CompleteRenewal({ Key? key }) : super(key: key);
+
   @override
   State<CompleteRenewal> createState() => _CompleteRenewalState();
 }
 
-class _CompleteRenewalState extends State<CompleteRenewal>
-    with TickerProviderStateMixin {
-  TabController tabController;
+class _CompleteRenewalState extends State<CompleteRenewal> with TickerProviderStateMixin {
+  late TabController tabController;
   final tabColors = [
     Colors.grey.shade600,
     Colors.green.shade600,
     Colors.red.shade700
   ];
-  Color indicatorColor;
+  late Color indicatorColor;
 
   @override
   void initState() {
@@ -52,7 +53,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
     });
   }
 
-  Widget childCompleteRenewal({bool isHorizontal}){
+  Widget childCompleteRenewal({bool isHorizontal = false}){
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -63,7 +64,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
             'List Perubahan Kontrak',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: isHorizontal ? 28.sp : 18.sp,
+              fontSize: isHorizontal ? 20.sp : 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
             ),
@@ -76,7 +77,7 @@ class _CompleteRenewalState extends State<CompleteRenewal>
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black54,
-              size: isHorizontal ? 28.sp : 18.r,
+              size: isHorizontal ? 20.sp : 18.r,
             ),
           ),
           bottom: TabBar(

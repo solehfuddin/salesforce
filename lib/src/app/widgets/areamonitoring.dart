@@ -5,7 +5,7 @@ import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
 
-SliverToBoxAdapter areaLoading({bool isHorizontal}) {
+SliverToBoxAdapter areaLoading({bool isHorizontal = false}) {
   return SliverToBoxAdapter(
     child: Column(
       children: [
@@ -36,10 +36,10 @@ SliverToBoxAdapter areaLoading({bool isHorizontal}) {
   );
 }
 
-SliverPadding areaHeaderMonitoring({bool isHorizontal}) {
+SliverPadding areaHeaderMonitoring({bool isHorizontal = false}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: isHorizontal ? 35.r : 15.r,
+      horizontal: isHorizontal ? 18.r : 18.r,
       vertical: 5.r,
     ),
     sliver: SliverToBoxAdapter(
@@ -50,13 +50,13 @@ SliverPadding areaHeaderMonitoring({bool isHorizontal}) {
             Text(
               'Kontrak segera berakhir',
               style: TextStyle(
-                fontSize: isHorizontal ? 35.sp : 21.sp,
+                fontSize: isHorizontal ? 21.sp : 18.sp,
                 fontFamily: 'Segoe ui',
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(
-              height: isHorizontal ? 20.sp : 10.h,
+              height: isHorizontal ? 5.sp : 0.h,
             ),
           ]),
     ),
@@ -65,10 +65,10 @@ SliverPadding areaHeaderMonitoring({bool isHorizontal}) {
 
 SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
     String ttdPertama, String username, String divisi,
-    {bool isHorizontal}) {
+    {bool isHorizontal = false}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 35.r : 15.r, vertical: 0.r),
+        horizontal: isHorizontal ? 20.r : 15.r, vertical: 0.r),
     sliver: SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
@@ -89,7 +89,7 @@ SliverPadding areaMonitoring(List<Monitoring> item, BuildContext context,
 }
 
 SliverPadding areaMonitoringNotFound(BuildContext context,
-    {bool isHorizontal}) {
+    {bool isHorizontal = false}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15.r,
@@ -101,14 +101,14 @@ SliverPadding areaMonitoringNotFound(BuildContext context,
           Center(
             child: Image.asset(
               'assets/images/not_found.png',
-              width: isHorizontal ? 370.w : 230.w,
-              height: isHorizontal ? 370.h : 230.h,
+              width: isHorizontal ? 160.w : 180.w,
+              height: isHorizontal ? 160.h : 180.h,
             ),
           ),
           Text(
             'Data tidak ditemukan',
             style: TextStyle(
-              fontSize: isHorizontal ? 28.sp : 18.sp,
+              fontSize: isHorizontal ? 16.sp : 14.sp,
               fontWeight: FontWeight.w600,
               color: Colors.red[600],
               fontFamily: 'Montserrat',
@@ -119,15 +119,15 @@ SliverPadding areaMonitoringNotFound(BuildContext context,
           ),
           Center(
             child: ArgonButton(
-              height: isHorizontal ? 60.h : 40.h,
-              width: isHorizontal ? 90.w : 130.w,
+              height: isHorizontal ? 40.h : 35.h,
+              width: isHorizontal ? 80.w : 120.w,
               borderRadius: 30.0.r,
               color: Colors.blue[600],
               child: Text(
                 "Search Contract",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 14.sp : 12.sp,
                     fontWeight: FontWeight.w700),
               ),
               loader: Container(
@@ -157,25 +157,25 @@ SliverPadding areaMonitoringNotFound(BuildContext context,
 }
 
 SliverPadding areaButtonMonitoring(BuildContext context, bool isShow,
-    {bool isHorizontal}) {
+    {bool isHorizontal = false}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
-      horizontal: isHorizontal ? 25.r : 15.r,
-      vertical: isHorizontal ? 20.r : 10.r,
+      horizontal: isHorizontal ? 20.r : 15.r,
+      vertical: isHorizontal ? 10.r : 5.r,
     ),
     sliver: SliverToBoxAdapter(
       child: isShow
           ? Center(
               child: ArgonButton(
-                height: isHorizontal ? 60.h : 40.h,
-                width: isHorizontal ? 90.w : 130.w,
+                height: isHorizontal ? 50.h : 40.h,
+                width: isHorizontal ? 100.w : 130.w,
                 borderRadius: 30.0.r,
                 color: Colors.blue[600],
                 child: Text(
                   "Selengkapnya",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                      fontSize: isHorizontal ? 18.sp : 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
                 loader: Container(
@@ -207,16 +207,16 @@ SliverPadding areaButtonMonitoring(BuildContext context, bool isShow,
 
 Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
     String ttdPertama, String username, String divisi,
-    {bool isHorizontal}) {
+    {bool isHorizontal = false}) {
   return InkWell(
     child: Container(
       margin: EdgeInsets.symmetric(
         vertical: 7.r,
       ),
       padding: EdgeInsets.all(
-        isHorizontal ? 20.r : 15.r,
+        isHorizontal ? 15.r : 15.r,
       ),
-      height: isHorizontal ? 176.h : 115.h,
+      height: isHorizontal ? 110.h : 100.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(isHorizontal ? 20.r : 15.r),
         border: Border.all(
@@ -229,11 +229,11 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
           Expanded(
             flex: 1,
             child: Text(
-              item[index].namaUsaha != null
+              item[index].namaUsaha != ''
                   ? item[index].namaUsaha
                   : item[index].customerShipName,
               style: TextStyle(
-                fontSize: isHorizontal ? 28.sp : 18.sp,
+                fontSize: isHorizontal ? 18.sp : 16.sp,
                 fontFamily: 'Segoe Ui',
                 fontWeight: FontWeight.w600,
               ),
@@ -243,7 +243,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
             ),
           ),
           SizedBox(
-            height: isHorizontal ? 25.h : 15.h,
+            height: isHorizontal ? 10.h : 10.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -254,7 +254,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: isHorizontal ? 23.sp : 13.sp,
+                      fontSize: isHorizontal ? 15.sp : 13.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
@@ -266,7 +266,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     capitalize(item[index].status.toLowerCase()),
                     style: TextStyle(
-                      fontSize: isHorizontal ? 26.sp : 16.sp,
+                      fontSize: isHorizontal ? 18.sp : 16.sp,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.orange[800],
@@ -280,7 +280,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     'Sisa Kontrak',
                     style: TextStyle(
-                      fontSize: isHorizontal ? 23.sp : 13.sp,
+                      fontSize: isHorizontal ? 15.sp : 13.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
@@ -292,7 +292,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
                   Text(
                     getEndDays(input: item[index].endDateContract),
                     style: TextStyle(
-                      fontSize: isHorizontal ? 26.sp : 16.sp,
+                      fontSize: isHorizontal ? 18.sp : 16.sp,
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
                       color: Colors.red[700],
@@ -306,7 +306,8 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
       ),
     ),
     onTap: () {
-      getCustomerContractNew(
+      print('ID CUSTOMER : ${item[index].idCustomer}');
+      getMonitoringContractNew(
         context: context,
         divisi: divisi,
         username: username,
@@ -315,6 +316,7 @@ Widget itemMonitoring(List<Monitoring> item, int index, BuildContext context,
         isSales: true,
         isContract: false,
         isHorizontal: isHorizontal,
+        isNewCust: item[index].idCustomer.contains("O") ? false : true,
       );
     },
   );

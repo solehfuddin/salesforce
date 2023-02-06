@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_screenutil/size_extension.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:sample/src/app/pages/econtract/econtract_view.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/utils/config.dart';
@@ -24,12 +24,27 @@ class CustomerAdmin extends StatefulWidget {
 }
 
 class _CustomerAdminState extends State<CustomerAdmin> {
-  String id = '';
-  String role = '';
-  String username = '';
+  String? id = '';
+  String? role = '';
+  String? username = '';
   String search = '';
+  bool isDataFound = true;
   var thisYear, nextYear;
   List<Customer> customerList = List.empty(growable: true);
+  List<Customer> currList = List.empty(growable: true);
+  List<Customer> tmpList = List.empty(growable: true);
+  Future<List<Customer>>? _listFuture;
+  int page = 1;
+  int pageCount = 5;
+  int startAt = 0;
+  int endAt = 0;
+  int totalPages = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
+  }
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -42,6 +57,10 @@ class _CustomerAdminState extends State<CustomerAdmin> {
       thisYear = formatter.format(DateTime.now());
       nextYear = int.parse(thisYear) + 1;
 
+      _listFuture = search.isNotEmpty
+          ? getCustomerBySeach(search)
+          : getCustomerByIdOld(widget.idOuter);
+
       print('This Year : $thisYear');
       print('Next Year : $nextYear');
 
@@ -49,22 +68,59 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getRole();
+  initalizePage(int totalData) {
+    endAt = totalData > 5 ? startAt + pageCount : totalData;
+    totalPages = (totalData / pageCount).floor();
+    if (totalData / pageCount > totalPages) {
+      totalPages += 1;
+    }
+  }
+
+  void loadPreviousPage() {
+    if (page > 1) {
+      setState(() {
+        startAt = startAt - pageCount;
+        endAt =
+            page == totalPages ? endAt - currList.length : endAt - pageCount;
+        _listFuture = search.isNotEmpty
+            ? getCustomerBySeach(search)
+            : getCustomerByIdOld(widget.idOuter);
+        page = page - 1;
+      });
+    }
+  }
+
+  void loadNextPage() {
+    if (page < totalPages) {
+      setState(() {
+        startAt = startAt + pageCount;
+        endAt = currList.length > endAt + pageCount
+            ? endAt + pageCount
+            : currList.length;
+        _listFuture = search.isNotEmpty
+            ? getCustomerBySeach(search)
+            : getCustomerByIdOld(widget.idOuter);
+        page = page + 1;
+      });
+    }
   }
 
   Future<List<Customer>> getCustomerByIdOld(int input) async {
-    List<Customer> list;
+    List<Customer> list = List.empty(growable: true);
     const timeout = 50;
+    tmpList.clear();
+
+    setState(() {
+      isDataFound = true;
+    });
 
     try {
       var url = input < 1
-          ? '$API_URL/customers'
-          : '$API_URL/customers/getBySales?created_by=$input';
+          ? '$API_URL/customers&limit=$pageCount&offset=$startAt&id_salesmanager=$id'
+          : '$API_URL/customers/getBySales?created_by=$input&limit=$pageCount&offset=$startAt';
 
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -76,9 +132,12 @@ class _CustomerAdminState extends State<CustomerAdmin> {
           print(rest);
           list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
           print("List Size: ${customerList.length}");
-        }
 
-        return list;
+          setState(() {
+            initalizePage(data['total']);
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -93,15 +152,28 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    setState(() {
+      isDataFound = false;
+    });
+
+    return list;
   }
 
   Future<List<Customer>> getCustomerBySeach(String input) async {
-    List<Customer> list;
+    List<Customer> list = List.empty(growable: true);
     const timeout = 15;
-    var url = '$API_URL/customers/search?search=$input';
+    var url =
+        '$API_URL/customers/search?search=$input&limit=$pageCount&offset=$startAt&id_salesmanager=&created_by=$id';
+    tmpList.clear();
+
+    setState(() {
+      isDataFound = true;
+    });
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -113,9 +185,12 @@ class _CustomerAdminState extends State<CustomerAdmin> {
           print(rest);
           list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
           print("List Size: ${list.length}");
-        }
 
-        return list;
+          setState(() {
+            initalizePage(data['total']);
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -128,14 +203,12 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     } on Error catch (e) {
       print('General Error : $e');
     }
-  }
 
-  Future<void> _refreshData() async {
     setState(() {
-      search.isNotEmpty
-          ? getCustomerBySeach(search)
-          : getCustomerByIdOld(widget.idOuter);
+      isDataFound = false;
     });
+
+    return list;
   }
 
   getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
@@ -143,7 +216,8 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     var url = '$API_URL/contract?id_customer=$idCust';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -178,6 +252,14 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     }
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      _listFuture = search.isNotEmpty
+          ? getCustomerBySeach(search)
+          : getCustomerByIdOld(widget.idOuter);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -190,16 +272,16 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     });
   }
 
-  Widget masterChild({bool isHorizontal}) {
+  Widget masterChild({bool isHorizontal = false}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'List Customer Baru',
+          'List Kustomer Baru',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: isHorizontal ? 30.sp : 18.sp,
+            fontSize: isHorizontal ? 20.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -211,19 +293,19 @@ class _CustomerAdminState extends State<CustomerAdmin> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: isHorizontal ? 28.r : 18.r,
+            size: isHorizontal ? 20.r : 18.r,
           ),
         ),
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => NewcustScreen()));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => NewcustScreen()));
             },
             icon: Icon(
               Icons.person_add_alt_rounded,
               color: Colors.black54,
-              size: isHorizontal ? 32.r : 22.r,
+              size: isHorizontal ? 20.r : 18.r,
             ),
           ),
         ],
@@ -233,11 +315,11 @@ class _CustomerAdminState extends State<CustomerAdmin> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 30.r : 20.r,
+              horizontal: isHorizontal ? 26.r : 20.r,
               vertical: 10.r,
             ),
             color: Colors.white,
-            height: isHorizontal ? 100.h : 80.h,
+            height: isHorizontal ? 75.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -260,65 +342,151 @@ class _CustomerAdminState extends State<CustomerAdmin> {
               onSubmitted: (value) {
                 setState(() {
                   search = value;
+
+                  _listFuture = search.isNotEmpty
+                      ? getCustomerBySeach(search)
+                      : getCustomerByIdOld(widget.idOuter);
                 });
               },
             ),
           ),
-          Expanded(
-            child: SizedBox(
-              height: 100.h,
-              child: FutureBuilder(
-                  future: search.isNotEmpty
-                      ? getCustomerBySeach(search)
-                      : getCustomerByIdOld(widget.idOuter),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return snapshot.data != null
-                            ? listViewWidget(
-                                snapshot.data,
-                                snapshot.data.length,
-                                isHorizontal: isHorizontal,
-                              )
-                            : Column(
-                                children: [
-                                  Center(
-                                    child: Image.asset(
-                                      'assets/images/not_found.png',
-                                      width: isHorizontal ? 340.r : 300.r,
-                                      height: isHorizontal ? 340.r : 300.r,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Data tidak ditemukan',
-                                    style: TextStyle(
-                                      fontSize: isHorizontal ? 28.sp : 18.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[600],
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                  )
-                                ],
-                              );
-                    }
-                  }),
-            ),
-          ),
+          tmpList.length > 0
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    FloatingActionButton(
+                      heroTag: Text("prev"),
+                      backgroundColor:
+                          page > 1 ? Colors.green : Colors.green.shade200,
+                      mini: true,
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: isHorizontal ? 30.r : 20.r,
+                      ),
+                      elevation: 0,
+                      onPressed: page > 1 ? loadPreviousPage : null,
+                    ),
+                    Text(
+                      "Hal $page / $totalPages",
+                      style: TextStyle(
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 20.sp : 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    FloatingActionButton(
+                      heroTag: Text("next"),
+                      backgroundColor: page < totalPages
+                          ? Colors.green
+                          : Colors.green.shade200,
+                      mini: true,
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        size: isHorizontal ? 30.r : 20.r,
+                      ),
+                      elevation: 0,
+                      onPressed: page < totalPages ? loadNextPage : null,
+                    ),
+                  ],
+                )
+              : SizedBox(
+                  width: 5.w,
+                ),
+          isDataFound
+              ? Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 10.r,
+                  ),
+                  child: CircularProgressIndicator(),
+                )
+              : tmpList.length > 0
+                  ? Expanded(
+                      child: SizedBox(
+                        height: 100.h,
+                        child: FutureBuilder(
+                            future: _listFuture,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<Customer>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                if (snapshot.hasError) {
+                                  return Column(
+                                    children: [
+                                      Center(
+                                        child: Image.asset(
+                                          'assets/images/not_found.png',
+                                          width: isHorizontal ? 150.w : 230.w,
+                                          height: isHorizontal ? 150.h : 230.h,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Data tidak ditemukan',
+                                        style: TextStyle(
+                                          fontSize:
+                                              isHorizontal ? 16.sp : 18.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red[600],
+                                          fontFamily: 'Montserrat',
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                } else {
+                                  return listViewWidget(
+                                    snapshot.data!,
+                                    snapshot.data!.length,
+                                    isHorizontal: isHorizontal,
+                                  );
+                                }
+                              } else if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            }),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            'assets/images/not_found.png',
+                            width: isHorizontal ? 150.w : 230.w,
+                            height: isHorizontal ? 150.h : 230.h,
+                          ),
+                        ),
+                        Text(
+                          'Data tidak ditemukan',
+                          style: TextStyle(
+                            fontSize: isHorizontal ? 16.sp : 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red[600],
+                            fontFamily: 'Montserrat',
+                          ),
+                        )
+                      ],
+                    ),
         ],
       ),
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len, {bool isHorizontal}) {
+  Widget listViewWidget(List<Customer> customer, int len,
+      {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 20.r : 5.r,
-              vertical: isHorizontal ? 30.r : 8.r,
+              horizontal: isHorizontal ? 23.r : 15.r,
+              vertical: isHorizontal ? 12.r : 10.r,
             ),
             itemBuilder: (context, position) {
               return Card(
@@ -326,7 +494,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: isHorizontal ? 160.h : 100.h,
+                      height: isHorizontal ? 120.h : 90.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -337,16 +505,16 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                           customer[position]
                                               .status
                                               .contains('PENDING')
-                                      ? Colors.grey[600]
+                                      ? Colors.grey.shade600
                                       : customer[position]
                                                   .status
                                                   .contains('Accepted') ||
                                               customer[position]
                                                   .status
                                                   .contains('ACCEPTED')
-                                          ? Colors.blue[600]
-                                          : Colors.red[600]
-                                  : Colors.orange[800],
+                                          ? Colors.blue.shade600
+                                          : Colors.red.shade600
+                                  : Colors.orange.shade800,
                               width: isHorizontal ? 4.w : 5.w),
                         ),
                       ),
@@ -367,7 +535,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                   Text(
                                     customer[position].namaUsaha,
                                     style: TextStyle(
-                                      fontSize: isHorizontal ? 25.sp : 15.sp,
+                                      fontSize: isHorizontal ? 20.sp : 15.sp,
                                       fontFamily: 'Segoe ui',
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -390,7 +558,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                             'Tgl entry : ',
                                             style: TextStyle(
                                                 fontSize: isHorizontal
-                                                    ? 21.sp
+                                                    ? 16.sp
                                                     : 11.sp,
                                                 fontFamily: 'Montserrat',
                                                 fontWeight: FontWeight.w500),
@@ -402,7 +570,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                             'Pemilik : ',
                                             style: TextStyle(
                                                 fontSize: isHorizontal
-                                                    ? 21.sp
+                                                    ? 16.sp
                                                     : 11.sp,
                                                 fontFamily: 'Montserrat',
                                                 fontWeight: FontWeight.w500),
@@ -427,7 +595,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                                 customer[position].dateAdded),
                                             style: TextStyle(
                                                 fontSize: isHorizontal
-                                                    ? 22.sp
+                                                    ? 17.sp
                                                     : 12.sp,
                                                 fontFamily: 'Montserrat',
                                                 fontWeight: FontWeight.w600),
@@ -439,7 +607,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                             customer[position].nama,
                                             style: TextStyle(
                                               fontSize:
-                                                  isHorizontal ? 22.sp : 12.sp,
+                                                  isHorizontal ? 17.sp : 12.sp,
                                               fontFamily: 'Montserrat',
                                               fontWeight: FontWeight.w600,
                                               overflow: TextOverflow.ellipsis,
@@ -479,7 +647,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                     child: Text(
                                       customer[position].status,
                                       style: TextStyle(
-                                        fontSize: isHorizontal ? 21.sp : 11.sp,
+                                        fontSize: isHorizontal ? 16.sp : 11.sp,
                                         fontFamily: 'Segoe ui',
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -489,7 +657,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                 : Text(
                                     'Buat Kontrak',
                                     style: TextStyle(
-                                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                                      fontSize: isHorizontal ? 20.sp : 14.sp,
                                       fontFamily: 'Segoe Ui',
                                       fontWeight: FontWeight.w600,
                                       color: Colors.orange[800],
@@ -507,6 +675,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                   customer,
                                   position,
                                   isRevisi: false,
+                                  isAdmin: true,
                                 ),
                               ),
                             )

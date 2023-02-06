@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:io' as Io;
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:date_field/date_field.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,6 +25,7 @@ class NewcustScreen extends StatefulWidget {
 
 class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textNamaOptik = new TextEditingController();
+  TextEditingController textAliasOptik = new TextEditingController();
   TextEditingController textAlamatOptik = new TextEditingController();
   TextEditingController textKotaOptik = new TextEditingController();
   TextEditingController textJenisUsaha = new TextEditingController();
@@ -46,30 +47,44 @@ class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textPathSiup = new TextEditingController();
   TextEditingController textPathKartuNama = new TextEditingController();
   TextEditingController textPathPendukung = new TextEditingController();
-  String _chosenValue, _choosenUsaha;
-  String _chosenBilling, _chosenKredit;
+  String _chosenValue = 'ISLAM';
+  String _choosenUsaha = 'OPTIK';
+  String _chosenBilling = 'COD';
+  String _chosenKredit = '7 HARI';
   final format = DateFormat("dd MMM yyyy");
-  String base64ImageKtp, signedImage;
-  File tmpFile, tmpSiupFile, tmpKartuFile, tmpPendukungFile;
-  String tmpName,
-      tmpNameSiup,
-      jenisUsaha,
-      tmpKartuNama,
-      tmpPendukung,
-      namaUser,
-      tempatLahir,
-      tanggalLahir,
-      alamat,
-      tlpHp,
-      faxUsaha,
-      noIdentitas,
-      noNpwp;
-  String namaOptik, kota, alamatUsaha, tlpUsaha, emailUsaha, namaPic, fax;
-  String sistemPembayaran, kreditLimit, note;
+  String base64ImageKtp = '';
+  String signedImage = '';
+  late File tmpFile;
+  late File tmpSiupFile;
+  late File tmpKartuFile;
+  late File tmpPendukungFile;
+  String tmpName = '';
+  String tmpNameSiup = '';
+  String jenisUsaha = '';
+  String tmpKartuNama = '';
+  String tmpPendukung = '';
+  String namaUser = '';
+  String tempatLahir = '';
+  String tanggalLahir = '';
+  String alamat = '';
+  String tlpHp = '';
+  String faxUsaha = '';
+  String noIdentitas = '';
+  String noNpwp = '';
+  String namaOptik = '';
+  String kota = '';
+  String alamatUsaha = '';
+  String tlpUsaha = '';
+  String emailUsaha = '';
+  String namaPic = '';
+  String fax = '';
+  String sistemPembayaran = '';
+  String kreditLimit = '';
+  String note = '';
   String errMessage = 'Error Uploading Image';
-  String id = '';
-  String role = '';
-  String username = '';
+  String? id = '';
+  String? role = '';
+  String? username = '';
   String base64ImageSiup = '';
   String base64ImageKartuNama = '';
   String base64ImagePendukung = '';
@@ -96,7 +111,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isFotoKtp = false;
   bool _isFotoPendukung = false;
   bool _isChecked = false;
-  Map<String, TextEditingController> myMap;
+  late Map<String, TextEditingController> myMap;
 
   final SignatureController _signController = SignatureController(
     penStrokeWidth: 3,
@@ -125,7 +140,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Future chooseImage() async {
-    var imgFile = await ImagePicker().getImage(
+    var imgFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 25,
     );
@@ -142,7 +157,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Future chooseSiup() async {
-    var imgFile = await ImagePicker().getImage(
+    var imgFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 25,
     );
@@ -159,7 +174,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Future chooseKartuNama() async {
-    var imgFile = await ImagePicker().getImage(
+    var imgFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 25,
     );
@@ -177,7 +192,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Future choosePendukung() async {
-    var imgFile = await ImagePicker().getImage(
+    var imgFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 25,
     );
@@ -194,8 +209,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
     });
   }
 
-  Widget showKtp({bool isHorizontal}) {
-    tmpName == null
+  Widget showKtp({bool isHorizontal = false}) {
+    tmpName == ''
         ? textPathKtp.text = 'Gambar ktp belum dipilih'
         : textPathKtp.text = tmpName;
 
@@ -212,15 +227,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
         ),
         controller: textPathKtp,
         style: TextStyle(
-          fontSize: isHorizontal ? 24.sp : 14.sp,
+          fontSize: isHorizontal ? 18.sp : 14.sp,
           fontFamily: 'Segoe Ui',
         ),
       ),
     );
   }
 
-  Widget showSiup({bool isHorizontal}) {
-    tmpNameSiup == null
+  Widget showSiup({bool isHorizontal = false}) {
+    tmpNameSiup == ''
         ? textPathSiup.text = 'Gambar siup / npwp belum dipilih'
         : textPathSiup.text = tmpNameSiup;
 
@@ -237,15 +252,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
         ),
         controller: textPathSiup,
         style: TextStyle(
-          fontSize: isHorizontal ? 24.sp : 14.sp,
+          fontSize: isHorizontal ? 18.sp : 14.sp,
           fontFamily: 'Segoe Ui',
         ),
       ),
     );
   }
 
-  Widget showKartuNama({bool isHorizontal}) {
-    tmpKartuNama == null
+  Widget showKartuNama({bool isHorizontal = false}) {
+    tmpKartuNama == ''
         ? textPathKartuNama.text = 'Gambar kartu nama belum dipilih'
         : textPathKartuNama.text = tmpKartuNama;
 
@@ -262,15 +277,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
         ),
         controller: textPathKartuNama,
         style: TextStyle(
-          fontSize: isHorizontal ? 24.sp : 14.sp,
+          fontSize: isHorizontal ? 18.sp : 14.sp,
           fontFamily: 'Segoe Ui',
         ),
       ),
     );
   }
 
-  Widget showPendukung({bool isHorizontal}) {
-    tmpPendukung == null
+  Widget showPendukung({bool isHorizontal = false}) {
+    tmpPendukung == ''
         ? textPathPendukung.text = 'Gambar tampak depan optik belum dipilih'
         : textPathPendukung.text = tmpPendukung;
 
@@ -287,14 +302,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
         ),
         controller: textPathPendukung,
         style: TextStyle(
-          fontSize: isHorizontal ? 24.sp : 14.sp,
+          fontSize: isHorizontal ? 18.sp : 14.sp,
           fontFamily: 'Segoe Ui',
         ),
       ),
     );
   }
 
-  checkEntry(Function stop, {bool isHorizontal}) async {
+  checkEntry(Function stop, {bool isHorizontal = false}) async {
     textNamaUser.text.isEmpty ? _isNamaUser = true : _isNamaUser = false;
     textKreditLimit.text.isEmpty
         ? _isPlafonValid = true
@@ -329,7 +344,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         : _isTlpUsahaValid = false;
     textFaxOptik.text.isEmpty
         ? _isFaxUsahaValid = false
-        : textFaxOptik.text.length < 10
+        : textFaxOptik.text.length < 13
             ? _isFaxUsahaValid = true
             : _isFaxUsahaValid = false;
     textFaxUser.text.isEmpty
@@ -339,15 +354,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
             : _isFaxUserValid = false;
     textPicOptik.text.isEmpty ? _isNamaPic = true : _isNamaPic = false;
 
-    tmpName == null ? _isFotoKtp = true : _isFotoKtp = false;
-    tmpPendukung == null ? _isFotoPendukung = true : _isFotoPendukung = false;
-    if (base64ImageSiup == null) {
+    tmpName == '' ? _isFotoKtp = true : _isFotoKtp = false;
+    tmpPendukung == '' ? _isFotoPendukung = true : _isFotoPendukung = false;
+    if (base64ImageSiup == '') {
       base64ImageSiup = kosong;
     }
 
     namaUser = textNamaUser.text;
     tempatLahir = textTempatLahir.text;
-    tanggalLahir = _isTanggalLahir ? '' : convertDateSql(textTanggalLahir.text);
     alamat = textAlamatUser.text;
     tlpHp = textTelpUser.text;
     faxUsaha = textFaxOptik.text;
@@ -371,19 +385,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
       _isEmailValid = true;
     }
 
-    if (_chosenValue == null) {
+    if (_chosenValue == '') {
       _chosenValue = 'ISLAM';
     }
 
-    if (_choosenUsaha == null) {
+    if (_choosenUsaha == '') {
       _choosenUsaha = 'OPTIK';
     }
 
-    if (_chosenBilling == null) {
+    if (_chosenBilling == '') {
       _chosenBilling = 'COD';
     }
 
-    if (_chosenKredit == null) {
+    if (_chosenKredit == '') {
       _chosenKredit = '7 HARI';
     }
 
@@ -397,7 +411,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
     if (_signController.isNotEmpty) {
       var data = await _signController.toPngBytes();
-      signedImage = base64Encode(data);
+      signedImage = base64Encode(data!);
       print(signedImage);
     }
 
@@ -431,6 +445,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'Silahkan foto ktp terlebih dahulu',
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
         stop();
       } else if (_isFotoPendukung) {
@@ -439,6 +454,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'Silahkan foto tampak depan terlebih dahulu',
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
         stop();
       } else if (_signController.isEmpty) {
@@ -447,15 +463,16 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'Silahkan tanda tangan dahulu',
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
         stop();
       } else {
         var data = await _signController.toPngBytes();
-        signedImage = base64Encode(data);
+        signedImage = base64Encode(data!);
         print(signedImage);
 
-        if (base64ImageSiup == null) {
-          base64ImageSiup = 'kosong';
+        if (base64ImageSiup == '') {
+          base64ImageSiup = kosong;
         }
 
         if (_isChecked) {
@@ -466,6 +483,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             'Harap ceklist syarat dan ketentuan',
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
 
           stop();
@@ -477,18 +495,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
         'Harap lengkapi data terlebih dahulu',
         false,
         isHorizontal: isHorizontal,
+        isLogout: false,
       );
       stop();
     }
   }
 
-  simpanData(Function stop, {bool isHorizontal}) async {
+  simpanData(Function stop, {bool isHorizontal = false}) async {
     const timeout = 15;
     var url = '$API_URL/customers';
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse(url),
         body: {
           'nama': namaUser.toUpperCase(),
           'agama': _chosenValue.toUpperCase(),
@@ -500,7 +519,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'no_identitas': noIdentitas,
           'no_npwp': noNpwp,
           'upload_identitas': base64ImageKtp,
-          'nama_usaha': '$jenisUsaha ${namaOptik.toUpperCase()} - $kota',
+          'nama_usaha' : '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}',
           'alamat_usaha': alamatUsaha.toUpperCase(),
           'telp_usaha': tlpUsaha,
           'fax_usaha': faxUsaha,
@@ -512,7 +531,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'gambar_pendukung': base64ImagePendukung,
           'upload_dokumen': base64ImageSiup,
           'ttd_customer': signedImage,
-          'nama_salesman': username.toUpperCase(),
+          'nama_salesman': username?.toUpperCase(),
           'note': note.toUpperCase(),
           'created_by': id,
         },
@@ -532,6 +551,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             capitalize(msg),
             sts,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       } on FormatException catch (e) {
@@ -542,6 +562,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             e.toString(),
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
       }
@@ -563,6 +584,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
@@ -582,15 +604,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
     });
   }
 
-  Widget childNewcust({bool isHorizontal}) {
+  Widget childNewcust({bool isHorizontal = false}) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'Data Entry Customer Baru',
+          'Entri Kustomer Baru',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: isHorizontal ? 28.sp : 18.sp,
+            fontSize: isHorizontal ? 20.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -602,7 +624,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: isHorizontal ? 28.sp : 18.r,
+            size: isHorizontal ? 20.sp : 18.r,
           ),
         ),
       ),
@@ -621,7 +643,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaBadanUsaha({bool isHorizontal}) {
+  Widget _areaBadanUsaha({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
@@ -635,17 +657,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Montserrat',
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 20.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: isHorizontal ? 25.h : 15.h,
+            height: isHorizontal ? 20.h : 15.h,
           ),
           Text(
             'Kategori Usaha',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -667,7 +689,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               style: TextStyle(
                 color: Colors.black54,
                 fontFamily: 'Segoe Ui',
-                fontSize: isHorizontal ? 24.sp : 14.sp,
+                fontSize: isHorizontal ? 18.sp : 14.sp,
                 fontWeight: FontWeight.w600,
               ),
               items: [
@@ -687,13 +709,22 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 "Pilih Kategori Usaha",
                 style: TextStyle(
                     color: Colors.black54,
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Segoe Ui'),
               ),
-              onChanged: (String value) {
+              onChanged: (String? value) {
                 setState(() {
-                  _choosenUsaha = value;
+                  _choosenUsaha = value!;
+
+                  if (_choosenUsaha == "DLL") {
+                    jenisUsaha = textJenisUsaha.text.toUpperCase();
+                  } else {
+                    jenisUsaha = _choosenUsaha.toUpperCase();
+                  }
+                  String namaUsaha = textNamaOptik.text;
+
+                  textAliasOptik.text = "$namaUsaha $jenisUsaha -";
                 });
               },
             ),
@@ -714,7 +745,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nama Usaha',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -723,7 +754,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -743,10 +774,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ),
               errorText: _isNamaOptik ? 'Data wajib diisi' : null,
             ),
-            maxLength: 100,
+            maxLength: 50,
             controller: textNamaOptik,
+            onChanged: (value) {
+              if (_choosenUsaha == "DLL") {
+                jenisUsaha = textJenisUsaha.text.toUpperCase();
+              } else {
+                jenisUsaha = _choosenUsaha.toUpperCase();
+              }
+
+              textAliasOptik.text = "$value $jenisUsaha -";
+            },
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -757,7 +797,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Alamat',
+                'Alias Usaha',
                 style: TextStyle(
                   fontSize: isHorizontal ? 22.sp : 12.sp,
                   fontFamily: 'Montserrat',
@@ -766,9 +806,89 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 ),
               ),
               Text(
-                '(wajib diisi)',
+                '(Nama optik tertera pada sistem)',
                 style: TextStyle(
                   fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 18.h : 8.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 7,
+                child: TextFormField(
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.r),
+                    ),
+                    errorText: _isNamaOptik ? 'Data wajib diisi' : null,
+                    filled: true,
+                    fillColor: Colors.grey.shade200,
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  maxLength: 50,
+                  readOnly: true,
+                  controller: textAliasOptik,
+                  style: TextStyle(
+                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontFamily: 'Segoe Ui',
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 10.r,
+              ),
+              Expanded(
+                flex: 4,
+                child: TextFormField(
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.r),
+                    ),
+                    errorText: _isNamaOptik ? 'Data wajib diisi' : null,
+                  ),
+                  maxLength: 50,
+                  controller: textKotaOptik,
+                  style: TextStyle(
+                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontFamily: 'Segoe Ui',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 22.sp : 12.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Alamat',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -794,7 +914,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 250,
             controller: textAlamatOptik,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -805,54 +925,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Kota',
-                style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                '(wajib diisi)',
-                style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.red[600],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: isHorizontal ? 18.h : 8.h,
-          ),
-          TextFormField(
-            textCapitalization: TextCapitalization.characters,
-            decoration: InputDecoration(
-              hintText: 'JAKARTA',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              errorText: _isKota ? 'Data wajib diisi' : null,
-            ),
-            maxLength: 100,
-            controller: textKotaOptik,
-            style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
-              fontFamily: 'Segoe Ui',
-            ),
-          ),
-          SizedBox(
-            height: isHorizontal ? 22.sp : 12.h,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
                 'Nomor Telp / Hp',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -861,7 +936,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -889,7 +964,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 13,
             controller: textTelpOptik,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -897,9 +972,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
             height: isHorizontal ? 15.h : 5.h,
           ),
           Text(
-            'Nomor Fax',
+            'Nomor WA / Fax',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -911,16 +986,16 @@ class _NewcustScreenState extends State<NewcustScreen> {
           TextFormField(
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: '02112XXX',
+              hintText: '08**********',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
               errorText: _isFaxUsahaValid ? 'Nomor fax salah' : null,
             ),
-            maxLength: 10,
+            maxLength: 13,
             controller: textFaxOptik,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -930,7 +1005,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           Text(
             'Alamat Email',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -951,7 +1026,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 40,
             controller: textEmailOptik,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -964,7 +1039,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nama Penanggung Jawab di tempat',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -973,7 +1048,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -996,7 +1071,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 50,
             controller: textPicOptik,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1008,11 +1083,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaDataPribadi({bool isHorizontal}) {
+  Widget _areaDataPribadi({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
-        vertical: isHorizontal ? 20.r : 10.r,
+        vertical: isHorizontal ? 10.r : 10.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1022,12 +1097,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Montserrat',
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 20.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: isHorizontal ? 30.h : 15.h,
+            height: isHorizontal ? 20.h : 15.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1035,7 +1110,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nomor KTP',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1044,7 +1119,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Segoe ui',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1072,7 +1147,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 16,
             controller: textIdentitas,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1085,7 +1160,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nomor NPWP / SIUP',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1108,7 +1183,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 15,
             controller: textNpwp,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1121,7 +1196,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nama Pelanggan/Pemilik',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1130,7 +1205,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1153,7 +1228,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 50,
             controller: textNamaUser,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1163,7 +1238,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           Text(
             'Agama',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -1185,7 +1260,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               style: TextStyle(
                 color: Colors.black54,
                 fontFamily: 'Segoe Ui',
-                fontSize: isHorizontal ? 24.sp : 14.sp,
+                fontSize: isHorizontal ? 18.sp : 14.sp,
                 fontWeight: FontWeight.w600,
               ),
               items: [
@@ -1205,13 +1280,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 "Pilih Agama",
                 style: TextStyle(
                     color: Colors.black54,
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Segoe Ui'),
               ),
-              onChanged: (String value) {
+              onChanged: (String? value) {
                 setState(() {
-                  _chosenValue = value;
+                  _chosenValue = value!;
                 });
               },
             ),
@@ -1225,7 +1300,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Tempat Lahir',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1234,7 +1309,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1258,7 +1333,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 25,
             controller: textTempatLahir,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1271,7 +1346,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Tanggal Lahir',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1280,7 +1355,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1291,10 +1366,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: isHorizontal ? 18.h : 8.h,
           ),
-          DateTimeField(
+          DateTimeFormField(
             decoration: InputDecoration(
               hintText: 'dd mon yyyy',
-              // labelText: 'Tanggal Lahir',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
@@ -1304,17 +1378,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 fontFamily: 'Segoe Ui',
               ),
             ),
-            maxLength: 11,
-            format: format,
-            onShowPicker: (context, currentValue) {
-              return showDatePicker(
-                context: context,
-                firstDate: DateTime(1900),
-                initialDate: currentValue ?? DateTime.now(),
-                lastDate: DateTime(2100),
-              );
+            dateFormat: format,
+            mode: DateTimeFieldPickerMode.date,
+            firstDate: DateTime(1900),
+            lastDate: DateTime.now(),
+            initialDate: DateTime.now(),
+            autovalidateMode: AutovalidateMode.always,
+            validator: (DateTime? e) =>
+                (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+            onDateSelected: (DateTime value) {
+              print('before date : $value');
+              tanggalLahir = DateFormat('yyyy-MM-dd').format(value);
+              textTanggalLahir.text = tanggalLahir;
+              print('after date : $tanggalLahir');
             },
-            controller: textTanggalLahir,
           ),
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
@@ -1325,7 +1402,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Alamat Tempat Tinggal',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1334,7 +1411,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1361,7 +1438,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 250,
             controller: textAlamatUser,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1374,7 +1451,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Nomor Hp',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1383,7 +1460,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(wajib diisi)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1411,7 +1488,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 13,
             controller: textTelpUser,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1421,7 +1498,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           Text(
             'Fax',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -1443,7 +1520,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 10,
             controller: textFaxUser,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1455,11 +1532,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaDataTambahan({bool isHorizontal}) {
+  Widget _areaDataTambahan({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
-        vertical: isHorizontal ? 20.r : 10.r,
+        vertical: isHorizontal ? 10.r : 10.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1469,7 +1546,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Montserrat',
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 20.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1479,7 +1556,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           Text(
             'Jenis Pembayaran',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -1501,7 +1578,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               style: TextStyle(
                 color: Colors.black54,
                 fontFamily: 'Segoe Ui',
-                fontSize: isHorizontal ? 24.sp : 14.sp,
+                fontSize: isHorizontal ? 18.sp : 14.sp,
                 fontWeight: FontWeight.w600,
               ),
               items: [
@@ -1522,14 +1599,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 "Pilih Sistem Pembayaran",
                 style: TextStyle(
                   color: Colors.black54,
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Segoe Ui',
                 ),
               ),
-              onChanged: (String value) {
+              onChanged: (String? value) {
                 setState(() {
-                  _chosenBilling = value;
+                  _chosenBilling = value!;
                 });
               },
             ),
@@ -1550,7 +1627,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 'Kredit Limit',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -1559,7 +1636,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               Text(
                 '(Dalam Satuan Juta)',
                 style: TextStyle(
-                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w600,
                   color: Colors.red[600],
@@ -1583,7 +1660,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 5,
             controller: textKreditLimit,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1593,7 +1670,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           Text(
             'Catatan',
             style: TextStyle(
-              fontSize: isHorizontal ? 22.sp : 12.sp,
+              fontSize: isHorizontal ? 18.sp : 12.sp,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -1616,7 +1693,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             maxLength: 250,
             controller: textCatatan,
             style: TextStyle(
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
           ),
@@ -1628,7 +1705,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaDll({bool isHorizontal}) {
+  Widget _areaDll({bool isHorizontal = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1638,7 +1715,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             Text(
               'Isi Jenis Usaha',
               style: TextStyle(
-                fontSize: isHorizontal ? 22.sp : 12.sp,
+                fontSize: isHorizontal ? 18.sp : 12.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w600,
                 color: Colors.black,
@@ -1656,10 +1733,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
               borderRadius: BorderRadius.circular(5.r),
             ),
           ),
-          maxLength: 100,
+          maxLength: 25,
           controller: textJenisUsaha,
+          onChanged: (value) {
+            if (_choosenUsaha == "DLL") {
+              jenisUsaha = textJenisUsaha.text.toUpperCase();
+            } else {
+              jenisUsaha = _choosenUsaha.toUpperCase();
+            }
+            String namaUsaha = textNamaOptik.text;
+
+            textAliasOptik.text = "$namaUsaha $jenisUsaha -";
+          },
           style: TextStyle(
-            fontSize: isHorizontal ? 24.sp : 14.sp,
+            fontSize: isHorizontal ? 18.sp : 14.sp,
             fontFamily: 'Segoe Ui',
           ),
         ),
@@ -1670,14 +1757,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaKredit({bool isHorizontal}) {
+  Widget _areaKredit({bool isHorizontal = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Durasi Kredit',
           style: TextStyle(
-            fontSize: isHorizontal ? 22.sp : 12.sp,
+            fontSize: isHorizontal ? 18.sp : 12.sp,
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.w600,
             color: Colors.black,
@@ -1699,7 +1786,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black54,
               fontFamily: 'Segoe Ui',
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 18.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
             items: [
@@ -1720,14 +1807,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
               "Pilih Durasi Kredit",
               style: TextStyle(
                 color: Colors.black54,
-                fontSize: isHorizontal ? 24.sp : 14.sp,
+                fontSize: isHorizontal ? 18.sp : 14.sp,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Segoe Ui',
               ),
             ),
-            onChanged: (String value) {
+            onChanged: (String? value) {
               setState(() {
-                _chosenKredit = value;
+                _chosenKredit = value!;
               });
             },
           ),
@@ -1739,11 +1826,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaDokumenPelengkap({bool isHorizontal}) {
+  Widget _areaDokumenPelengkap({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
-        vertical: isHorizontal ? 20.r : 10.r,
+        vertical: isHorizontal ? 10.r : 10.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1753,19 +1840,19 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Montserrat',
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 20.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: isHorizontal ? 30.h : 20.h,
+            height: isHorizontal ? 20.h : 20.h,
           ),
           Container(
             width: double.infinity,
             child: Text(
               '(wajib diisi)',
               style: TextStyle(
-                fontSize: isHorizontal ? 22.sp : 12.sp,
+                fontSize: isHorizontal ? 18.sp : 12.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w600,
                 color: Colors.red[600],
@@ -1793,7 +1880,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     Icons.camera_alt_outlined,
                     color: Colors.white,
                   ),
-                  iconSize: isHorizontal ? 45.r : 27.r,
+                  iconSize: isHorizontal ? 40.r : 27.r,
                   onPressed: () {
                     chooseImage();
                   },
@@ -1821,7 +1908,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     Icons.camera_alt_outlined,
                     color: Colors.white,
                   ),
-                  iconSize: isHorizontal ? 45.r : 27.r,
+                  iconSize: isHorizontal ? 40.r : 27.r,
                   onPressed: () {
                     chooseSiup();
                   },
@@ -1849,7 +1936,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     Icons.camera_alt_outlined,
                     color: Colors.white,
                   ),
-                  iconSize: isHorizontal ? 45.r : 27.r,
+                  iconSize: isHorizontal ? 40.r : 27.r,
                   onPressed: () {
                     chooseKartuNama();
                   },
@@ -1865,7 +1952,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             child: Text(
               '(wajib diisi)',
               style: TextStyle(
-                fontSize: isHorizontal ? 22.sp : 12.sp,
+                fontSize: isHorizontal ? 18.sp : 12.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w600,
                 color: Colors.red[600],
@@ -1893,7 +1980,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     Icons.camera_alt_outlined,
                     color: Colors.white,
                   ),
-                  iconSize: isHorizontal ? 45.r : 27.r,
+                  iconSize: isHorizontal ? 40.r : 27.r,
                   onPressed: () {
                     choosePendukung();
                   },
@@ -1909,11 +1996,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  Widget _areaSignSubmit({bool isHorizontal}) {
+  Widget _areaSignSubmit({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
-        vertical: isHorizontal ? 20.r : 10.r,
+        vertical: isHorizontal ? 10.r : 10.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1923,30 +2010,21 @@ class _NewcustScreenState extends State<NewcustScreen> {
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'Montserrat',
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 20.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(
-            height: isHorizontal ? 30.h : 15.h,
+            height: isHorizontal ? 20.h : 15.h,
           ),
           Signature(
             controller: _signController,
-            height: isHorizontal ? 250.h : 150.h,
+            height: isHorizontal ? 180.h : 150.h,
             backgroundColor: Colors.blueGrey.shade50,
           ),
           SizedBox(
             height: isHorizontal ? 30.h : 15.h,
           ),
-          // Text(
-          //   'Dengan menandatangani dokumen ini secara elektronik, saya setuju bahwa tanda tangan tersebut akan sama validnya dengan tanda tangan tulisan sesuai hukum setempat',
-          //   style: TextStyle(
-          //       fontSize: isHorizontal ? 22.sp : 13.sp,
-          //       fontFamily: 'Montserrat',
-          //       fontWeight: FontWeight.w500,
-          //       color: Colors.black87),
-          //   textAlign: TextAlign.justify,
-          // ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -1955,9 +2033,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 checkColor: Colors.white,
                 activeColor: Colors.blue.shade700,
                 autofocus: this._isChecked ? false : true,
-                onChanged: (bool value) {
+                onChanged: (bool? value) {
                   setState(() {
-                    this._isChecked = value;
+                    this._isChecked = value!;
                   });
                 },
               ),
@@ -1970,7 +2048,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                       text: TextSpan(
                         text: 'Saya telah membaca dan setuju dengan ',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 24.sp : 14.sp,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
                           fontFamily: 'Segoe Ui',
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -1979,7 +2057,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                           TextSpan(
                             text: ' syarat dan ketentuan',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Segoe Ui',
                               fontWeight: FontWeight.w700,
                               color: Colors.black54,
@@ -1995,7 +2073,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                           TextSpan(
                             text: ' yang berlaku.',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
                               fontFamily: 'Segoe Ui',
                               fontWeight: FontWeight.w600,
                               color: Colors.black54,
@@ -2020,15 +2098,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   shape: StadiumBorder(),
                   primary: Colors.orange[800],
                   padding: EdgeInsets.symmetric(
-                    horizontal: isHorizontal ? 40.r : 20.r,
-                    vertical: isHorizontal ? 20.r : 10.r,
+                    horizontal: isHorizontal ? 30.r : 20.r,
+                    vertical: isHorizontal ? 15.r : 10.r,
                   ),
                 ),
                 child: Text(
                   'Hapus Ttd',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Segoe ui',
                   ),
@@ -2038,7 +2116,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                 },
               ),
               ArgonButton(
-                height: isHorizontal ? 60.h : 40.h,
+                height: isHorizontal ? 50.h : 40.h,
                 width: isHorizontal ? 90.w : 100.w,
                 borderRadius: isHorizontal ? 60.r : 30.r,
                 color: _isChecked ? Colors.blue[700] : Colors.blue[200],
@@ -2046,7 +2124,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   "Simpan",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -2081,7 +2159,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  showKetentuan({bool isHorizontal}) {
+  showKetentuan({bool isHorizontal = false}) {
     return showModalBottomSheet(
       elevation: 2,
       shape: RoundedRectangleBorder(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/signed/signed_view.dart';
 
 class DialogSigned extends StatefulWidget {
@@ -20,14 +20,14 @@ class _DialogSignedState extends State<DialogSigned> {
     });
   }
 
-  Widget childDialogSigned({bool isHorizontal}) {
+  Widget childDialogSigned({bool isHorizontal = false}) {
     return AlertDialog(
       title: Center(
         child: Text(
           // "Digital Signed",
           "Tanda Tangan Digital",
           style: TextStyle(
-            fontSize: isHorizontal ? 35.sp : 20.sp,
+            fontSize: isHorizontal ? 22.sp : 20.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -35,33 +35,35 @@ class _DialogSignedState extends State<DialogSigned> {
       ),
       content: Container(
         padding: EdgeInsets.only(
-          top: 20,
+          top: isHorizontal ? 0.r : 20.r,
         ),
-        height: isHorizontal ? 350.h : 220.h,
+        height: isHorizontal ? 340.h : 220.h,
         child: Column(
           children: [
             Center(
               child: Image.asset(
                 'assets/images/digital_sign.png',
-                width: isHorizontal ? 120.r : 60.r,
-                height: isHorizontal ? 120.r : 60.r,
+                width: isHorizontal ? 70.r : 60.r,
+                height: isHorizontal ? 70.r : 60.r,
               ),
             ),
             SizedBox(
-              height: 20,
+              height: isHorizontal ? 10.h : 20.h,
             ),
             Center(
               child: Text(
                 "Lengkapi tanda tanganmu dan mulai ajukan kontrak disini",
                 style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                  fontSize: isHorizontal ? 16.sp : 14.sp,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w400,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: isHorizontal ? 30.h : 20.h,),
+            SizedBox(
+              height: isHorizontal ? 10.h : 20.h,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -69,13 +71,14 @@ class _DialogSignedState extends State<DialogSigned> {
                   style: ElevatedButton.styleFrom(
                     shape: StadiumBorder(),
                     primary: Colors.orange[800],
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 15.r, vertical: 10.r),
                   ),
                   child: Text(
                     'Next time',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                      fontSize: isHorizontal ? 18.sp : 14.sp,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Segoe ui',
                     ),
@@ -88,21 +91,25 @@ class _DialogSignedState extends State<DialogSigned> {
                   style: ElevatedButton.styleFrom(
                     shape: StadiumBorder(),
                     primary: Colors.indigo[600],
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 15.r, vertical: 10.r),
                   ),
                   child: Text(
                     'Setup now',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                      fontSize: isHorizontal ? 18.sp : 14.sp,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Segoe ui',
                     ),
                   ),
                   onPressed: () {
                     Navigator.of(context, rootNavigator: true).pop('dialog');
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => SignedScreen()));
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SignedScreen(),
+                      ),
+                    );
                   },
                 ),
               ],

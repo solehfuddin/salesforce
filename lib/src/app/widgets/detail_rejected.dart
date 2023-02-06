@@ -1,16 +1,17 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract_rejected.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 
+// ignore: must_be_immutable
 class DetailRejected extends StatefulWidget {
-  List<Customer> customer;
-  int position;
-  String div, ttd, idCust, username, reasonSM, reasonAM;
-  Contract contract;
+  List<Customer>? customer;
+  int? position = 0;
+  String? div, ttd, idCust, username, reasonSM, reasonAM;
+  Contract? contract;
 
   DetailRejected({
     this.customer,
@@ -41,7 +42,7 @@ class _DetailRejectedState extends State<DetailRejected> {
     });
   }
 
-  Widget childDetailRejected({bool isHorizontal}) {
+  Widget childDetailRejected({bool isHorizontal = false}) {
     return Container(
       padding: EdgeInsets.all(isHorizontal ? 25.r : 15.r),
       child: Column(
@@ -53,7 +54,7 @@ class _DetailRejectedState extends State<DetailRejected> {
             children: [
               Expanded(
                 child: Text(
-                  widget.customer[widget.position].namaUsaha,
+                  widget.customer![widget.position!].namaUsaha,
                   style: TextStyle(
                     fontSize: isHorizontal ? 27.sp : 15.sp,
                     fontFamily: 'Segoe ui',
@@ -70,16 +71,16 @@ class _DetailRejectedState extends State<DetailRejected> {
                   horizontal: isHorizontal ? 15.r : 10.r,
                 ),
                 decoration: BoxDecoration(
-                  color: widget.customer[widget.position].status == "Pending"
+                  color: widget.customer![widget.position!].status == "Pending"
                       ? Colors.grey[600]
-                      : widget.customer[widget.position].status == "Accepted"
+                      : widget.customer![widget.position!].status == "Accepted"
                           ? Colors.blue[600]
                           : Colors.red[600],
                   borderRadius:
                       BorderRadius.circular(isHorizontal ? 15.r : 10.r),
                 ),
                 child: Text(
-                  widget.customer[widget.position].status,
+                  widget.customer![widget.position!].status,
                   style: TextStyle(
                     fontSize: isHorizontal ? 22.sp : 12.sp,
                     fontFamily: 'Segoe ui',
@@ -94,18 +95,18 @@ class _DetailRejectedState extends State<DetailRejected> {
             height: 8.h,
           ),
           Text(
-            widget.customer[widget.position].status == "Pending"
+            widget.customer![widget.position!].status == "Pending"
                 ? 'Pengajuan e-kontrak sedang diproses'
-                : widget.customer[widget.position].status == "Accepted"
+                : widget.customer![widget.position!].status == "Accepted"
                     ? 'Pengajuan e-kontrak diterima'
                     : 'Pengajuan e-kontrak ditolak',
             style: TextStyle(
               fontSize: isHorizontal ? 20.sp : 14.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
-              color: widget.customer[widget.position].status == "Pending"
+              color: widget.customer![widget.position!].status == "Pending"
                   ? Colors.grey[600]
-                  : widget.customer[widget.position].status == "Accepted"
+                  : widget.customer![widget.position!].status == "Accepted"
                       ? Colors.green[600]
                       : Colors.red[700],
             ),
@@ -114,7 +115,7 @@ class _DetailRejectedState extends State<DetailRejected> {
             height: 5.h,
           ),
           Text(
-            'Diajukan tgl : ${convertDateWithMonth(widget.customer[widget.position].dateAdded)}',
+            'Diajukan tgl : ${convertDateWithMonth(widget.customer![widget.position!].dateAdded)}',
             style: TextStyle(
               fontSize: isHorizontal ? 20.sp : 12.sp,
               fontFamily: 'Segoe ui',
@@ -189,18 +190,15 @@ class _DetailRejectedState extends State<DetailRejected> {
                       ),
                     ),
                     Text(
-                      // widget.customer[widget.position].ttdSalesManager == "0"
-                      widget.contract.approvalSm == "0"
+                      widget.contract!.approvalSm == "0"
                           ? 'Menunggu Persetujuan Sales Manager'
-                          : widget.contract.approvalSm == "1"
-                              // : widget.customer[widget.position].ttdSalesManager ==
-                              //         "1"
+                          : widget.contract!.approvalSm == "1"
                               ? 'Disetujui oleh Sales Manager ${convertDateWithMonthHour(
-                                  widget.contract.dateApprovalSm,
+                                  widget.contract!.dateApprovalSm,
                                   isPukul: true,
                                 )}'
                               : 'Ditolak oleh Sales Manager ${convertDateWithMonthHour(
-                                  widget.contract.dateApprovalSm,
+                                  widget.contract!.dateApprovalSm,
                                   isPukul: true,
                                 )}',
                       style: TextStyle(
@@ -213,14 +211,14 @@ class _DetailRejectedState extends State<DetailRejected> {
                       softWrap: true,
                       overflow: TextOverflow.visible,
                     ),
-                    widget.contract.approvalSm.contains('2')
+                    widget.contract!.approvalSm.contains('2')
                         ? SizedBox(
                             height: isHorizontal ? 8.h : 5.h,
                           )
                         : SizedBox(
                             width: 3.w,
                           ),
-                    widget.contract.approvalSm.contains('2')
+                    widget.contract!.approvalSm.contains('2')
                         ? Text(
                             'Keterangan : ',
                             style: TextStyle(
@@ -232,9 +230,9 @@ class _DetailRejectedState extends State<DetailRejected> {
                         : SizedBox(
                             width: 3.w,
                           ),
-                    widget.contract.approvalSm.contains('2')
+                    widget.contract!.approvalSm.contains('2')
                         ? Text(
-                            widget.reasonSM,
+                            widget.reasonSM!,
                             softWrap: true,
                             overflow: TextOverflow.visible,
                             style: TextStyle(
@@ -300,17 +298,15 @@ class _DetailRejectedState extends State<DetailRejected> {
                       ),
                     ),
                     Text(
-                      // widget.customer[widget.position].ttdArManager == "0"
-                      widget.contract.approvalAm == "0"
+                      widget.contract!.approvalAm == "0"
                           ? 'Menunggu Persetujuan AR Manager'
-                          // : widget.customer[widget.position].ttdArManager == "1"
-                          : widget.contract.approvalAm == "1"
+                          : widget.contract!.approvalAm == "1"
                               ? 'Disetujui oleh AR Manager ${convertDateWithMonthHour(
-                                  widget.contract.dateApprovalAm,
+                                  widget.contract!.dateApprovalAm,
                                   isPukul: true,
                                 )}'
                               : 'Ditolak oleh AR Manager ${convertDateWithMonthHour(
-                                  widget.contract.dateApprovalAm,
+                                  widget.contract!.dateApprovalAm,
                                   isPukul: true,
                                 )}',
                       style: TextStyle(
@@ -323,14 +319,14 @@ class _DetailRejectedState extends State<DetailRejected> {
                       softWrap: true,
                       overflow: TextOverflow.visible,
                     ),
-                    widget.contract.approvalAm.contains('2')
+                    widget.contract!.approvalAm.contains('2')
                         ? SizedBox(
                             height: isHorizontal ? 8.h : 5.h,
                           )
                         : SizedBox(
                             width: 3.w,
                           ),
-                    widget.contract.approvalAm.contains('2')
+                    widget.contract!.approvalAm.contains('2')
                         ? Text(
                             'Keterangan : ',
                             style: TextStyle(
@@ -342,9 +338,9 @@ class _DetailRejectedState extends State<DetailRejected> {
                         : SizedBox(
                             width: 3.w,
                           ),
-                    widget.contract.approvalAm.contains('2')
+                    widget.contract!.approvalAm.contains('2')
                         ? Text(
-                            widget.reasonAM,
+                            widget.reasonAM!,
                             softWrap: true,
                             overflow: TextOverflow.visible,
                             style: TextStyle(
@@ -369,7 +365,7 @@ class _DetailRejectedState extends State<DetailRejected> {
               height: isHorizontal ? 70.h : 40.h,
               width: isHorizontal ? 80.w : 110.w,
               borderRadius: isHorizontal ? 60.r : 30.0.r,
-              color: widget.customer[widget.position].isRevisi != "1"
+              color: widget.customer![widget.position!].isRevisi != "1"
                   ? Colors.blue[300]
                   : Colors.blue[700],
               child: Text(
@@ -387,7 +383,7 @@ class _DetailRejectedState extends State<DetailRejected> {
               ),
               onTap: (startLoading, stopLoading, btnState) {
                 if (btnState == ButtonState.Idle) {
-                  if (widget.customer[widget.position].isRevisi != "0") {
+                  if (widget.customer![widget.position!].isRevisi != "0") {
                     startLoading();
                     waitingLoad();
                     widget.idCust != null
@@ -407,6 +403,7 @@ class _DetailRejectedState extends State<DetailRejected> {
                             'Id customer tidak ditemukan',
                             false,
                             isHorizontal: isHorizontal,
+                            isLogout: false,
                           );
                     stopLoading();
                   }

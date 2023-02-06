@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:sample/src/app/utils/colors.dart';
-import 'package:sample/src/domain/entities/intro.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:introduction_screen/introduction_screen.dart';
+import 'package:sample/src/app/pages/login/login_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class IntroPage extends StatefulWidget {
   @override
@@ -9,99 +10,190 @@ class IntroPage extends StatefulWidget {
 }
 
 class _IntroPageState extends State<IntroPage> {
-  final List<ModelIntro> introList = [
-    ModelIntro(
-      image: "assets/images/icon_search.png",
-      title: "Search",
-      description: "Dapat melakukan pencarian data dengan cepat",
-    ),
-    ModelIntro(
-      image: "assets/images/icon_hamburger.png",
-      title: "Favorite Menu",
-      description: "Dapatkan makanan cepat saji terbaik",
-    ),
-    ModelIntro(
-      image: "assets/images/icon_otw.png",
-      title: "Free Delivery",
-      description: "Dengan biaya pengiriman gratis",
-    ),
-  ];
+  Future changeIntro() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setBool('check', true);
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => Login(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Swiper.children(
-        index: 0,
-        autoplay: false,
-        loop: false,
-        pagination: SwiperPagination(
-          margin: EdgeInsets.only(bottom: 10),
-          builder: DotSwiperPaginationBuilder(
-              color: MyColors.dotColor,
-              activeColor: MyColors.dotActiveColor,
-              size: 10,
-              activeSize: 10),
+      body: IntroductionScreen(
+        globalBackgroundColor: Colors.white,
+        pages: [
+          PageViewModel(
+            title: "",
+            decoration: PageDecoration(
+              titlePadding: EdgeInsets.zero,
+              contentMargin: EdgeInsets.zero,
+            ),
+            useScrollView: true,
+            bodyWidget: Column(
+              children: [
+                Image.asset(
+                  "assets/images/agenda.png",
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height / 1.7,
+                ),
+                SizedBox(
+                  height: 25.h,
+                ),
+                Center(
+                  child: Text(
+                    'Agenda',
+                    style: TextStyle(
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15.h,
+                ),
+                Center(
+                  child: Text(
+                    'Membuat rencana kerja Anda menjadi lebih terstruktur',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          PageViewModel(
+            title: "",
+            decoration: PageDecoration(
+              titlePadding: EdgeInsets.zero,
+              contentMargin: EdgeInsets.zero,
+            ),
+            useScrollView: true,
+            bodyWidget: Column(
+              children: [
+                Image.asset(
+                  "assets/images/reporting.png",
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height / 1.7,
+                ),
+                SizedBox(
+                  height: 25.h,
+                ),
+                Center(
+                  child: Text(
+                    'Reporting',
+                    style: TextStyle(
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15.h,
+                ),
+                Center(
+                  child: Text(
+                    'Kelola laporan seluruh kegiatan untuk evaluasi kinerja',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          PageViewModel(
+            title: "",
+            decoration: PageDecoration(
+              titlePadding: EdgeInsets.zero,
+              contentMargin: EdgeInsets.zero,
+            ),
+            useScrollView: true,
+            bodyWidget: Column(
+              children: [
+                Image.asset(
+                  "assets/images/dashboard.png",
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height / 1.7,
+                ),
+                SizedBox(
+                  height: 25.h,
+                ),
+                Center(
+                  child: Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15.h,
+                ),
+                Center(
+                  child: Text(
+                    'Pantau kegiatan Anda dan kelola dengan lebih mudah',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        showSkipButton: true,
+        skip: Text(
+          "SKIP",
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+            fontSize: 15.sp,
+          ),
         ),
-        control: SwiperControl(iconNext: null, iconPrevious: null),
-        children: _buildPage(context),
+        next: const Icon(
+          Icons.arrow_forward,
+          color: Colors.black87,
+        ),
+        done: const Icon(
+          Icons.check,
+          color: Colors.black87,
+        ),
+        onDone: () => changeIntro(),
+        onSkip: () => changeIntro(),
+        dotsDecorator: DotsDecorator(
+          size: const Size.square(10.0),
+          activeSize: const Size(20.0, 10.0),
+          activeColor: Colors.green,
+          color: Colors.black26,
+          spacing: EdgeInsets.symmetric(horizontal: 3.r),
+          activeShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+        ),
       ),
     );
-  }
-
-  List<Widget> _buildPage(BuildContext context) {
-    List<Widget> widgets = [];
-    for (int i = 0; i < introList.length; i++) {
-      ModelIntro mIntro = introList[i];
-      widgets.add(
-        Container(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height / 6,
-          ),
-          child: ListView(
-            children: <Widget>[
-              Image.asset(
-                mIntro.image,
-                height: MediaQuery.of(context).size.height / 3.5,
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height / 12,
-                ),
-              ),
-              Center(
-                child: Text(
-                  mIntro.title,
-                  style: TextStyle(
-                    color: MyColors.titleColor,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height / 20,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.height / 20,
-                ),
-                child: Text(
-                  mIntro.description,
-                  style: TextStyle(
-                    color: MyColors.desciptionColor,
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return widgets;
   }
 }

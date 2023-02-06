@@ -17,13 +17,23 @@ class SearchContract extends StatefulWidget {
 }
 
 class _SearchContractState extends State<SearchContract> {
-  String id = '';
-  String role = '';
-  String username = '';
+  String? id = '';
+  String? role = '';
+  String? username = '';
   String search = '';
-  String divisi = '';
-  String ttdPertama;
-  Contract itemContract;
+  String? divisi = '';
+  String? ttdPertama = '';
+  late Contract itemContract;
+  bool isDataFound = true;
+
+  List<Monitoring> currList = List.empty(growable: true);
+  List<Monitoring> tmpList = List.empty(growable: true);
+  Future<List<Monitoring>>? _listFuture;
+  int page = 1;
+  int pageCount = 5;
+  int startAt = 0;
+  int endAt = 0;
+  int totalPages = 0;
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -32,8 +42,12 @@ class _SearchContractState extends State<SearchContract> {
       role = preferences.getString("role");
       username = preferences.getString("username");
       divisi = preferences.getString("divisi");
+      ttdPertama = preferences.getString("ttduser");
 
-      getTtd(int.parse(id));
+      _listFuture = search.isNotEmpty
+          ? getMonitoringBySearch(search)
+          : getMonitoringData();
+
       print("Search Contract : $role");
     });
   }
@@ -44,44 +58,60 @@ class _SearchContractState extends State<SearchContract> {
     getRole();
   }
 
-  getTtd(int input) async {
-    const timeout = 15;
-    var url = '$API_URL/users?id=$input';
+  initalizePage(int totalData) {
+    endAt = totalData > 5 ? startAt + pageCount : totalData;
+    totalPages = (totalData / pageCount).floor();
+    if (totalData / pageCount > totalPages) {
+      totalPages += 1;
+    }
+  }
 
-    try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
-      print('Response status: ${response.statusCode}');
+  void loadPreviousPage() {
+    if (page > 1) {
+      setState(() {
+        startAt = startAt - pageCount;
+        endAt =
+            page == totalPages ? endAt - currList.length : endAt - pageCount;
+        _listFuture = search.isNotEmpty
+            ? getMonitoringBySearch(search)
+            : getMonitoringData();
+        page = page - 1;
+      });
+    }
+  }
 
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          ttdPertama = data['data']['ttd'];
-          print(ttdPertama);
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-      handleTimeout(context);
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-      handleSocket(context);
-    } on Error catch (e) {
-      print('General Error : $e');
+  void loadNextPage() {
+    if (page < totalPages) {
+      setState(() {
+        startAt = startAt + pageCount;
+        endAt = currList.length > endAt + pageCount
+            ? endAt + pageCount
+            : currList.length;
+        _listFuture = search.isNotEmpty
+            ? getMonitoringBySearch(search)
+            : getMonitoringData();
+        page = page + 1;
+      });
     }
   }
 
   Future<List<Monitoring>> getMonitoringData() async {
-    List<Monitoring> list;
-    const timeout = 15;
+    setState(() {
+      isDataFound = true;
+    });
 
-    var url = '$API_URL/contract/monitoring';
+    tmpList.clear();
+    List<Monitoring> list = [];
+    const timeout = 15;
+    var idSm;
+    divisi == "AR" ? idSm = '' : idSm = id;
+    var url = role == "ADMIN"
+        ? '$API_URL/contract/monitoring?limit=$pageCount&offset=$startAt&id_salesmanager=$idSm&created_by='
+        : '$API_URL/contract/salesMonitoring?id=$id&limit=$pageCount&offset=$startAt';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -95,9 +125,11 @@ class _SearchContractState extends State<SearchContract> {
               .map<Monitoring>((json) => Monitoring.fromJson(json))
               .toList();
           print("List Size: ${list.length}");
-        }
 
-        return list;
+          setState(() {
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -108,31 +140,49 @@ class _SearchContractState extends State<SearchContract> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    setState(() {
+      isDataFound = false;
+    });
+
+    return list;
   }
 
   Future<List<Monitoring>> getMonitoringBySearch(String input) async {
-    List<Monitoring> list;
+    setState(() {
+      isDataFound = true;
+    });
+
+    tmpList.clear();
+    List<Monitoring> list = [];
     const timeout = 15;
-    var url = '$API_URL/contract/search?search=$input';
+    var url = role == "ADMIN"
+        ? divisi == "AR"
+            ? '$API_URL/contract/search?search=$input&created_by=&id_salesmanager='
+            : '$API_URL/contract/search?search=$input&created_by=&id_salesmanager=$id'
+        : '$API_URL/contract/search?search=$input&created_by=$id&id_salesmanager=';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
         var data = json.decode(response.body);
         final bool sts = data['status'];
+        var rest = data['data'];
 
         if (sts) {
-          var rest = data['data'];
           print(rest);
           list = rest
               .map<Monitoring>((json) => Monitoring.fromJson(json))
               .toList();
           print("List Size: ${list.length}");
-        }
 
-        return list;
+          setState(() {
+            tmpList = list;
+          });
+        }
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -145,11 +195,18 @@ class _SearchContractState extends State<SearchContract> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    setState(() {
+      isDataFound = false;
+    });
+    return list;
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      search.isNotEmpty ? getMonitoringBySearch(search) : getMonitoringData();
+      _listFuture = search.isNotEmpty
+          ? getMonitoringBySearch(search)
+          : getMonitoringData();
     });
   }
 
@@ -169,7 +226,7 @@ class _SearchContractState extends State<SearchContract> {
     });
   }
 
-  Widget contractChild({bool isHorizontal}) {
+  Widget contractChild({bool isHorizontal = false}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -178,7 +235,7 @@ class _SearchContractState extends State<SearchContract> {
           'List Monitoring Contract',
           style: TextStyle(
             color: Colors.black54,
-            fontSize: isHorizontal ? 30.sp : 18.sp,
+            fontSize: isHorizontal ? 20.sp : 18.sp,
             fontFamily: 'Segoe ui',
             fontWeight: FontWeight.w600,
           ),
@@ -190,7 +247,7 @@ class _SearchContractState extends State<SearchContract> {
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black54,
-            size: isHorizontal ? 28.r : 18.r,
+            size: isHorizontal ? 20.r : 18.r,
           ),
         ),
       ),
@@ -203,7 +260,7 @@ class _SearchContractState extends State<SearchContract> {
               vertical: 10.r,
             ),
             color: Colors.white,
-            height: isHorizontal ? 100.h : 80.h,
+            height: isHorizontal ? 75.h : 80.h,
             child: TextField(
               textInputAction: TextInputAction.search,
               autocorrect: true,
@@ -226,65 +283,145 @@ class _SearchContractState extends State<SearchContract> {
               onSubmitted: (value) {
                 setState(() {
                   search = value;
+                  _listFuture = search.isNotEmpty
+                      ? getMonitoringBySearch(search)
+                      : getMonitoringData();
                 });
               },
             ),
           ),
-          Expanded(
-            child: SizedBox(
-              height: 100.h,
-              child: FutureBuilder(
-                  future: search.isNotEmpty
-                      ? getMonitoringBySearch(search)
-                      : getMonitoringData(),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return snapshot.data != null
-                            ? listViewWidget(
-                                snapshot.data,
-                                snapshot.data.length,
-                                isHorizontal: isHorizontal,
-                              )
-                            : Column(
-                                children: [
-                                  Center(
-                                    child: Image.asset(
-                                      'assets/images/not_found.png',
-                                      width: isHorizontal ? 340.r : 300.r,
-                                      height: isHorizontal ? 340.r : 300.r,
+          tmpList.length > 0
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    FloatingActionButton(
+                      heroTag: Text("prev"),
+                      backgroundColor:
+                          page > 1 ? Colors.green : Colors.green.shade200,
+                      mini: true,
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: isHorizontal ? 30.r : 20.r,
+                      ),
+                      elevation: 0,
+                      onPressed: page > 1 ? loadPreviousPage : null,
+                    ),
+                    Text(
+                      "Hal $page / $totalPages",
+                      style: TextStyle(
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 20.sp : 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    FloatingActionButton(
+                      heroTag: Text("next"),
+                      backgroundColor: page < totalPages
+                          ? Colors.green
+                          : Colors.green.shade200,
+                      mini: true,
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        size: isHorizontal ? 30.r : 20.r,
+                      ),
+                      elevation: 0,
+                      onPressed: page < totalPages ? loadNextPage : null,
+                    ),
+                  ],
+                )
+              : SizedBox(
+                  width: 5.w,
+                ),
+          isDataFound
+              ? Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 10.r,
+                  ),
+                  child: CircularProgressIndicator(),
+                )
+              : tmpList.length > 0
+                  ? Expanded(
+                      child: SizedBox(
+                        height: 100.h,
+                        child: FutureBuilder(
+                          future: _listFuture,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<List<Monitoring>> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              if (snapshot.hasError) {
+                                return Column(
+                                  children: [
+                                    Center(
+                                      child: Image.asset(
+                                        'assets/images/not_found.png',
+                                        width: isHorizontal ? 150.w : 230.w,
+                                        height: isHorizontal ? 150.h : 230.h,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Data tidak ditemukan',
-                                    style: TextStyle(
-                                      fontSize: isHorizontal ? 28.sp : 18.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[600],
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                  )
-                                ],
+                                    Text(
+                                      'Data tidak ditemukan',
+                                      style: TextStyle(
+                                        fontSize: isHorizontal ? 16.sp : 18.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red[600],
+                                        fontFamily: 'Montserrat',
+                                      ),
+                                    )
+                                  ],
+                                );
+                              } else {
+                                return listViewWidget(
+                                  snapshot.data!,
+                                  snapshot.data!.length,
+                                  isHorizontal: isHorizontal,
+                                );
+                              }
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(),
                               );
-                    }
-                  }),
-            ),
-          ),
+                            }
+                          },
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            'assets/images/not_found.png',
+                            width: isHorizontal ? 150.w : 230.w,
+                            height: isHorizontal ? 150.h : 230.h,
+                          ),
+                        ),
+                        Text(
+                          'Data tidak ditemukan',
+                          style: TextStyle(
+                            fontSize: isHorizontal ? 16.sp : 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red[600],
+                            fontFamily: 'Montserrat',
+                          ),
+                        )
+                      ],
+                    ),
         ],
       ),
     );
   }
 
-  Widget listViewWidget(List<Monitoring> item, int len, {bool isHorizontal}) {
+  Widget listViewWidget(List<Monitoring> item, int len,
+      {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(
         child: ListView.builder(
             itemCount: len,
             padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 25.r : 10.r,
-              vertical: isHorizontal ? 30.r : 15.r,
+              horizontal: isHorizontal ? 28.r : 10.r,
+              vertical: isHorizontal ? 10.r : 7.r,
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
@@ -294,9 +431,9 @@ class _SearchContractState extends State<SearchContract> {
                     vertical: 7.r,
                   ),
                   padding: EdgeInsets.all(
-                    isHorizontal ? 25.r : 15.r,
+                    isHorizontal ? 15.r : 15.r,
                   ),
-                  height: isHorizontal ? 170.h : 110.h,
+                  height: isHorizontal ? 120.h : 100.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15.r),
                     border: Border.all(
@@ -310,11 +447,11 @@ class _SearchContractState extends State<SearchContract> {
                       Expanded(
                         flex: 1,
                         child: Text(
-                          item[position].namaUsaha != null
+                          item[position].namaUsaha != "null"
                               ? item[position].namaUsaha
                               : item[position].customerShipName,
                           style: TextStyle(
-                            fontSize: isHorizontal ? 28.sp : 18.sp,
+                            fontSize: isHorizontal ? 20.sp : 16.sp,
                             fontFamily: 'Segoe Ui',
                             fontWeight: FontWeight.w600,
                           ),
@@ -335,7 +472,7 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 'Status',
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                                  fontSize: isHorizontal ? 18.sp : 12.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[800],
@@ -347,7 +484,7 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 capitalize(item[position].status.toLowerCase()),
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 26.sp : 16.sp,
+                                  fontSize: isHorizontal ? 20.sp : 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
                                   color: item[position].status == "ACTIVE"
@@ -363,7 +500,7 @@ class _SearchContractState extends State<SearchContract> {
                               Text(
                                 'Sisa Kontrak',
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 22.sp : 12.sp,
+                                  fontSize: isHorizontal ? 18.sp : 12.sp,
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[800],
@@ -376,7 +513,7 @@ class _SearchContractState extends State<SearchContract> {
                                 getEndDays(
                                     input: item[position].endDateContract),
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 26.sp : 16.sp,
+                                  fontSize: isHorizontal ? 20.sp : 16.sp,
                                   fontFamily: 'Segoe Ui',
                                   fontWeight: FontWeight.w600,
                                   color: Colors.red[700],
@@ -390,23 +527,32 @@ class _SearchContractState extends State<SearchContract> {
                   ),
                 ),
                 onTap: () {
-                  item[position].idCustomer != null
-                      ? getCustomerContractNew(
-                          context: context,
-                          idCust: item[position].idCustomer,
-                          username: username,
-                          divisi: divisi,
-                          ttdPertama: ttdPertama,
-                          isSales: true,
-                          isContract: false,
-                          isHorizontal: isHorizontal,
-                        )
-                      : handleStatus(
-                          context,
-                          'Id customer tidak ditemukan',
-                          false,
-                          isHorizontal: isHorizontal,
-                        );
+                  print('ID CUSTOMER : ${item[position].idCustomer}');
+                  print('USERAME : $username');
+                  print('DIVISI : $divisi');
+                  print('TTD : $ttdPertama');
+
+                  bool checkCust = false;
+
+                  if (double.tryParse(item[position].idCustomer) == null) {
+                    print('The input is not a numeric string');
+                    checkCust = false;
+                  } else {
+                    print('Yes, it is a numeric string');
+                    checkCust = true;
+                  }
+
+                  getMonitoringContractNew(
+                    context: context,
+                    idCust: item[position].idCustomer,
+                    username: username,
+                    divisi: divisi,
+                    ttdPertama: ttdPertama,
+                    isSales: true,
+                    isContract: false,
+                    isHorizontal: isHorizontal,
+                    isNewCust: checkCust,
+                  );
                 },
               );
             }),

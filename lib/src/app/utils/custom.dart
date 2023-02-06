@@ -2,36 +2,45 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:in_app_update/in_app_update.dart';
+// import 'package:in_app_update/in_app_update.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
+import 'package:sample/src/app/pages/login/login_view.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
+// import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
+// import 'package:sample/src/app/widgets/detail_rejected.dart';
 import 'package:sample/src/app/widgets/detail_waiting.dart';
 import 'package:sample/src/app/widgets/detail_waiting_admin.dart';
-import 'package:sample/src/app/widgets/detail_waitingcontract.dart';
+import 'package:sample/src/app/widgets/detail_waiting_contract.dart';
+import 'package:sample/src/app/widgets/dialogback.dart';
+// import 'package:sample/src/app/widgets/detail_waiting_admin.dart';
+// import 'package:sample/src/app/widgets/detail_waitingcontract.dart';
 import 'package:sample/src/app/widgets/dialoglogin.dart';
+import 'package:sample/src/app/widgets/dialoglogout.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
+// import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
-Contract itemContract;
+late Contract itemContract;
 String capitalize(String s) =>
-    s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+    s.isNotEmpty ? s[0].toUpperCase() + s.substring(1).toLowerCase() : s;
 
 waitingLoad() async {
   await Future.delayed(Duration(seconds: 2));
@@ -47,7 +56,7 @@ dialogLogin(BuildContext context) {
 }
 
 login(String user, String pass, BuildContext context,
-    {bool isHorizontal, var token}) async {
+    {bool isHorizontal = false, var token}) async {
   dialogLogin(
     context,
   );
@@ -62,7 +71,7 @@ login(String user, String pass, BuildContext context,
   }
 
   try {
-    var response = await http.post(url, body: {
+    var response = await http.post(Uri.parse(url), body: {
       'username': user,
       'password': pass,
       'gentoken': token
@@ -73,8 +82,8 @@ login(String user, String pass, BuildContext context,
     try {
       var data = json.decode(response.body);
       final bool sts = data['status'];
-      final String msg = data['message'];
       final int code = response.statusCode;
+      String msg = data['message'];
 
       if (code == 200) {
         if (sts) {
@@ -84,28 +93,38 @@ login(String user, String pass, BuildContext context,
           final String accstatus = data['data']['status'];
           final String role = data['data']['role'];
           final String divisi = data['data']['divisi'];
+          final String ttd = data['data']['ttd'] ?? '';
+          final String token = data['data']['gentoken'] ?? '';
 
-          savePref(context, id, name, username, accstatus, role, divisi);
+          savePref(
+            context,
+            id,
+            name,
+            username,
+            accstatus,
+            role,
+            divisi,
+            ttd,
+            token,
+          );
         } else {
-          Fluttertoast.showToast(
-              msg: msg,
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16);
+          showStyledToast(
+            child: Text(msg),
+            context: context,
+            backgroundColor: Colors.red,
+            borderRadius: BorderRadius.circular(15.r),
+            duration: Duration(seconds: 2),
+          );
           Navigator.of(context).pop();
         }
       } else {
-        Fluttertoast.showToast(
-            msg: msg,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16);
+        showStyledToast(
+          child: Text(msg),
+          context: context,
+          backgroundColor: Colors.red,
+          borderRadius: BorderRadius.circular(15.r),
+          duration: Duration(seconds: 2),
+        );
         Navigator.of(context).pop();
       }
     } on FormatException catch (e) {
@@ -115,6 +134,7 @@ login(String user, String pass, BuildContext context,
         e.toString(),
         false,
         isHorizontal: isHorizontal,
+        isLogout: false,
       );
       Navigator.of(context).pop();
     }
@@ -133,45 +153,41 @@ login(String user, String pass, BuildContext context,
       e.toString(),
       false,
       isHorizontal: isHorizontal,
+      isLogout: false,
     );
     Navigator.of(context).pop();
   }
 }
 
-String getNotifImg({int template}) {
+String getNotifImg({int template = 10}) {
   switch (template) {
     case 0:
     case 1:
       return 'assets/images/e_contract_new.png';
-      break;
     case 2:
     case 3:
     case 4:
     case 5:
       return 'assets/images/renew_contract.png';
-      break;
     case 6:
     case 7:
       return 'assets/images/success.png';
-      break;
     case 8:
     case 9:
       return 'assets/images/failure.png';
-      break;
     default:
       return 'assets/images/myleinz.png';
-      break;
   }
 }
 
 pushNotif(
   int template,
   int type, {
-  String idUser,
+  String? idUser,
   dynamic rcptToken,
-  String opticName,
-  String salesName,
-  String admName,
+  String? opticName,
+  String? salesName,
+  String? admName,
 }) async {
   const timeout = 15;
   var url = '';
@@ -247,6 +263,18 @@ pushNotif(
           'Hai, pengajuan kontrak $opticName telah ditolak oleh $admName. Segera revisi pengajuan kontrak tersebut agar segera diproses admin';
       tmplate = '9';
       break;
+    case 10:
+      title = 'Ada Aktivitas Baru';
+      body =
+          '$salesName mengajukan aktivitas $opticName. Mohon segera periksa aktivitas';
+      tmplate = '10';
+      break;
+    case 11:
+      title = 'Konfirmasi Aktivitas';
+      body =
+          'Hai, pengajuan aktivitas $opticName telah dikonfirmasi oleh $admName.';
+      tmplate = '11';
+      break;
   }
 
   switch (type) {
@@ -276,7 +304,7 @@ pushNotif(
   }
 
   try {
-    var response = await http.post(url, body: {
+    var response = await http.post(Uri.parse(url), body: {
       'to': to,
       'body': body,
       'title': title,
@@ -316,33 +344,67 @@ pushNotif(
   }
 }
 
-savePref(BuildContext context, String id, String name, String username, String status, String role,
-    String divisi) async {
+savePref(
+  BuildContext context,
+  String id,
+  String name,
+  String username,
+  String status,
+  String role,
+  String divisi,
+  String ttdUser,
+  String tokenUser,
+) async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
-  pref.setString("id", id);
-  pref.setString("name", name);
-  pref.setString("username", username);
-  pref.setString("status", status);
-  pref.setString("role", role);
-  pref.setString("divisi", divisi);
-  pref.setBool("islogin", true);
+  await pref.setString("id", id);
+  await pref.setString("name", name);
+  await pref.setString("username", username);
+  await pref.setString("status", status);
+  await pref.setString("role", role.toUpperCase());
+  await pref.setString("divisi", divisi);
+  await pref.setString("ttduser", ttdUser);
+  await pref.setString("tokenuser", tokenUser);
+  await pref.setBool("islogin", true);
 
   Future.delayed(Duration(seconds: 3), () {
     if (Navigator.canPop(context)) {
-            Navigator.pop(context);
-          } else {
-            SystemNavigator.pop();
-          }
+      Navigator.pop(context);
+    } else {
+      SystemNavigator.pop();
+    }
 
-            if (role == "ADMIN") {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen()));
-            } else {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomeScreen()));
-            }
-          });
+    if (role == "ADMIN") {
+      print('Login Ke Admin');
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminScreen()));
+
+      print(pref.getString("name"));
+      print(pref.getString("role"));
+      print(pref.getString("ttduser"));
+      print(pref.getString("tokenuser"));
+    } else {
+      print('Login Ke Sales');
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()));
+
+      print(pref.getString("name"));
+      print(pref.getString("role"));
+      print(pref.getString("ttduser"));
+      print(pref.getString("tokenuser"));
+    }
+  });
+}
+
+updateTTdPref(String newTtd) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  final sts = await pref.remove('ttduser');
+  if (sts) {
+    await pref.setString("ttduser", newTtd);
+  } else {
+    print('Gagal update session ttduser');
+  }
 }
 
 handleComing(BuildContext context, {bool isHorizontal = false}) {
@@ -384,7 +446,6 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
             ),
           ),
           onPressed: () {
-            // Navigator.of(context).pop();
             Navigator.of(context, rootNavigator: true).pop(context);
           },
         ),
@@ -396,141 +457,115 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
 }
 
 handleSigned(BuildContext context) {
-  showDialog(context: context, builder: (context) => DialogSigned());
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) => WillPopScope(
+      onWillPop: () async => false,
+      child: DialogSigned(),
+    ),
+  );
 }
 
-handleStatus(BuildContext context, String msg, bool status,
-    {bool isHorizontal = false}) {
-  // AlertDialog dialog = new AlertDialog(
-  //   content: Container(
-  //     padding: EdgeInsets.only(
-  //       top: 20.r,
-  //     ),
-  //     height: isHorizontal ? 325.h : 205.h,
-  //     child: Column(
-  //       children: [
-  //         Center(
-  //           child: Image.asset(
-  //             status
-  //                 ? 'assets/images/success.png'
-  //                 : 'assets/images/failure.png',
-  //             width: isHorizontal ? 110.r : 70.r,
-  //             height: isHorizontal ? 110.r : 70.r,
-  //           ),
-  //         ),
-  //         SizedBox(
-  //           height: isHorizontal ? 20.h : 20.h,
-  //         ),
-  //         Center(
-  //           child: Text(
-  //             msg,
-  //             style: TextStyle(
-  //               fontSize: isHorizontal ? 22.sp : 14.sp,
-  //               fontFamily: 'Montserrat',
-  //               fontWeight: FontWeight.w500,
-  //             ),
-  //           ),
-  //         ),
-  //         SizedBox(
-  //           height: isHorizontal ? 20.h : 20.h,
-  //         ),
-  //         Center(
-  //           child: ElevatedButton(
-  //             style: ElevatedButton.styleFrom(
-  //               shape: StadiumBorder(),
-  //               primary: Colors.indigo[600],
-  //               padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.r),
-  //             ),
-  //             child: Text(
-  //               'Ok',
-  //               style: TextStyle(
-  //                 color: Colors.white,
-  //                 fontSize: isHorizontal ? 22.sp : 14.sp,
-  //                 fontWeight: FontWeight.bold,
-  //                 fontFamily: 'Segoe ui',
-  //               ),
-  //             ),
-  //             onPressed: () {
-  //               Navigator.of(context, rootNavigator: true).pop(context);
-  //               if (status) {
-  //                 Navigator.pop(context);
-  //               }
-  //             },
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   ),
-  // );
-
-  // showDialog(context: context, builder: (context) => dialog);
-
+handleStatus(
+  BuildContext context,
+  String msg,
+  bool status, {
+  bool isHorizontal = false,
+  bool isLogout = false,
+}) {
   showDialog(
     context: context,
     builder: (context) => DialogStatus(
       msg: msg,
       status: status,
+      isLogout: isLogout,
     ),
   );
 }
 
-DateTimeRange _selectedDateRange;
-Future<DateTimeRange> showDate(BuildContext context) async {
-  final DateTimeRange result = await showDateRangePicker(
+handleBack(
+  BuildContext context,
+  String msg,
+  String accessFrom,
+  bool status, {
+  bool isHorizontal = false,
+  bool isLogout = false,
+  bool isAdmin = false,
+}) {
+  showDialog(
     context: context,
-    firstDate: DateTime(2022, 1, 1),
-    lastDate: DateTime(2030, 12, 31),
-    currentDate: DateTime.now(),
-    saveText: 'Done',
+    barrierDismissible: false,
+    builder: (context) => WillPopScope(
+      onWillPop: () async => false,
+      child: DialogBack(
+        msg: msg,
+        status: status,
+        isLogout: isLogout,
+        isAdmin: isAdmin,
+        accessFrom: accessFrom,
+      ),
+    ),
   );
-
-  if (result != null) {
-    print("Start Date : ${result.start.toString()}");
-    print("End Date : ${result.end.toString()}");
-
-    print("Convert St Date : ${convertDateOra(result.start.toString())}");
-    // setState(() {
-    _selectedDateRange = result;
-    // });
-
-    return _selectedDateRange;
-  }
 }
 
-void showDateRange(BuildContext context) async {
-  final DateTimeRange result = await showDateRangePicker(
-    context: context,
-    firstDate: DateTime(2022, 1, 1),
-    lastDate: DateTime(2030, 12, 31),
-    currentDate: DateTime.now(),
-    saveText: 'Done',
-    // builder: (BuildContext context, Widget child) {
-    //   return Theme(
-    //     data: ThemeData.light().copyWith(
-    //       colorScheme: ColorScheme.dark(
-    //         // primary: Color(0xff64c856),
-    //         // onPrimary: Colors.black,
-    //         // surface: Color(0xff64c856),
-    //         // onSurface: Colors.green,
-    //       ),
-    //       dialogBackgroundColor: Colors.green,
-    //     ),
-    //     child: child,
-    //   );
-    // }
-  );
+// DateTimeRange _selectedDateRange;
+// Future<DateTimeRange> showDate(BuildContext context) async {
+//   final DateTimeRange result = await showDateRangePicker(
+//     context: context,
+//     firstDate: DateTime(2022, 1, 1),
+//     lastDate: DateTime(2030, 12, 31),
+//     currentDate: DateTime.now(),
+//     saveText: 'Done',
+//   );
 
-  if (result != null) {
-    // Rebuild the UI
-    print(result.start.toString());
-    // setState(() {
-    _selectedDateRange = result;
-    // });
-  }
-}
+//   if (result != null) {
+//     print("Start Date : ${result.start.toString()}");
+//     print("End Date : ${result.end.toString()}");
+
+//     print("Convert St Date : ${convertDateOra(result.start.toString())}");
+//     // setState(() {
+//     _selectedDateRange = result;
+//     // });
+
+//     return _selectedDateRange;
+//   }
+// }
+
+// void showDateRange(BuildContext context) async {
+//   final DateTimeRange result = await showDateRangePicker(
+//     context: context,
+//     firstDate: DateTime(2022, 1, 1),
+//     lastDate: DateTime(2030, 12, 31),
+//     currentDate: DateTime.now(),
+//     saveText: 'Done',
+//     // builder: (BuildContext context, Widget child) {
+//     //   return Theme(
+//     //     data: ThemeData.light().copyWith(
+//     //       colorScheme: ColorScheme.dark(
+//     //         // primary: Color(0xff64c856),
+//     //         // onPrimary: Colors.black,
+//     //         // surface: Color(0xff64c856),
+//     //         // onSurface: Colors.green,
+//     //       ),
+//     //       dialogBackgroundColor: Colors.green,
+//     //     ),
+//     //     child: child,
+//     //   );
+//     // }
+//   );
+
+//   if (result != null) {
+//     // Rebuild the UI
+//     print(result.start.toString());
+//     // setState(() {
+//     _selectedDateRange = result;
+//     // });
+//   }
+// }
 
 handleCustomStatus(BuildContext context, String msg, bool status,
-    {bool isHorizontal}) {
+    {bool isHorizontal = false}) {
   AlertDialog alert = AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
@@ -544,12 +579,12 @@ handleCustomStatus(BuildContext context, String msg, bool status,
               status
                   ? 'assets/images/success.png'
                   : 'assets/images/failure.png',
-              width: isHorizontal ? 110.r : 70.r,
-              height: isHorizontal ? 110.r : 70.r,
+              width: isHorizontal ? 105.r : 60.r,
+              height: isHorizontal ? 105.r : 60.r,
             ),
           ),
           SizedBox(
-            height: 20.h,
+            height: 15.h,
           ),
           Container(
             child: Center(
@@ -603,8 +638,15 @@ handleCustomStatus(BuildContext context, String msg, bool status,
 }
 
 handleStatusChangeContract(
-    OldCustomer item, BuildContext context, String msg, bool status,
-    {dynamic keyword, bool isHorizontal}) {
+  BuildContext context,
+  String msg,
+  bool status, {
+  OldCustomer? item,
+  dynamic keyword,
+  bool isHorizontal = false,
+  bool isNewCust = false,
+  Customer? customer,
+}) {
   AlertDialog alert = AlertDialog(
     content: Container(
       padding: EdgeInsets.only(
@@ -659,9 +701,11 @@ handleStatusChangeContract(
                 if (status) {
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
                       builder: (context) => HistoryContract(
-                            item,
+                            item: item,
+                            cust: customer,
                             keyword: keyword,
                             isAdmin: false,
+                            isNewCust: isNewCust,
                           )));
                 }
               },
@@ -670,9 +714,6 @@ handleStatusChangeContract(
         ],
       ),
     ),
-    // actions: [
-
-    // ],
   );
 
   showDialog(context: context, builder: (context) => alert);
@@ -716,44 +757,45 @@ handleConnectionAdmin(BuildContext context) {
   showDialog(context: context, builder: (context) => alert);
 }
 
-Future<String> getTtdValid(String idUser, BuildContext context,
-    {String role}) async {
-  const timeout = 15;
-  var url = '$API_URL/users?id=$idUser';
+// Ini hapus aja
+// Future<String> getTtdValid(String idUser, BuildContext context,
+//     {String role}) async {
+//   const timeout = 15;
+//   var url = '$API_URL/users?id=$idUser';
 
-  try {
-    var response = await http.get(url).timeout(Duration(seconds: timeout));
+//   try {
+//     var response = await http.get(url).timeout(Duration(seconds: timeout));
 
-    try {
-      var data = json.decode(response.body);
-      print(data);
-      String ttd = data['data']['ttd'];
+//     try {
+//       var data = json.decode(response.body);
+//       print(data);
+//       String ttd = data['data']['ttd'];
 
-      return ttd;
-    } on FormatException catch (e) {
-      print('Format Error : $e');
-    }
-  } on TimeoutException catch (e) {
-    print('Timeout Error : $e');
-    handleTimeout(context);
-  } on SocketException catch (e) {
-    print('Socket Error : $e');
-    // handleSocket(context);
-    role.contains('admin')
-        ? handleConnectionAdmin(context)
-        : handleConnection(context);
-  } on Error catch (e) {
-    print('General Error : $e');
-  }
-}
+//       return ttd;
+//     } on FormatException catch (e) {
+//       print('Format Error : $e');
+//     }
+//   } on TimeoutException catch (e) {
+//     print('Timeout Error : $e');
+//     handleTimeout(context);
+//   } on SocketException catch (e) {
+//     print('Socket Error : $e');
+//     // handleSocket(context);
+//     role.contains('admin')
+//         ? handleConnectionAdmin(context)
+//         : handleConnection(context);
+//   } on Error catch (e) {
+//     print('General Error : $e');
+//   }
+// }
 
 handleDigitalSigned(
     SignatureController signController, BuildContext context, String id,
-    {bool isHorizontal}) async {
+    {bool isHorizontal = false}) async {
   const timeout = 15;
   if (signController.isNotEmpty) {
     var data = await signController.toPngBytes();
-    String signedImg = base64Encode(data);
+    String signedImg = base64Encode(data!);
     print(signedImg);
     print(id);
 
@@ -761,7 +803,7 @@ handleDigitalSigned(
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse(url),
         body: {
           'id': id,
           'ttd': signedImg,
@@ -780,7 +822,10 @@ handleDigitalSigned(
           capitalize(msg),
           sts,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
+
+        updateTTdPref(signedImg);
       } on FormatException catch (e) {
         print('Format Error : $e');
         handleStatus(
@@ -788,6 +833,7 @@ handleDigitalSigned(
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     } on TimeoutException catch (e) {
@@ -803,18 +849,17 @@ handleDigitalSigned(
         e.toString(),
         false,
         isHorizontal: isHorizontal,
+        isLogout: false,
       );
     }
   } else {
-    Fluttertoast.showToast(
-        // msg: 'Please signed the form',
-        msg: 'Mohon tanda tangani form',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.sp);
+    showStyledToast(
+      child: Text('Mohon tanda tangani form'),
+      context: context,
+      backgroundColor: Colors.red,
+      borderRadius: BorderRadius.circular(15.r),
+      duration: Duration(seconds: 2),
+    );
   }
 }
 
@@ -822,12 +867,13 @@ formWaiting(
   BuildContext context,
   List<Customer> customer,
   int position, {
-  String reasonSM,
-  String reasonAM,
-  Contract contract,
+  String reasonSM = '',
+  String reasonAM = '',
+  Contract? contract,
 }) {
   return showModalBottomSheet(
     elevation: 2,
+    enableDrag: true,
     backgroundColor: Colors.white,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
@@ -838,12 +884,17 @@ formWaiting(
     ),
     context: context,
     builder: (context) {
-      return DetailWaiting(
-        customer: customer,
-        position: position,
-        reasonSM: reasonSM,
-        reasonAM: reasonAM,
-        contract: contract,
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        child: SingleChildScrollView(
+          child: DetailWaiting(
+            customer: customer,
+            position: position,
+            reasonSM: reasonSM,
+            reasonAM: reasonAM,
+            contract: contract!,
+          ),
+        ),
       );
     },
   );
@@ -853,12 +904,13 @@ formWaitingAdmin(
   BuildContext context,
   List<Customer> customer,
   int position, {
-  String reasonSM,
-  String reasonAM,
-  Contract contract,
+  String reasonSM = '',
+  String reasonAM = '',
+  Contract? contract,
 }) {
   return showModalBottomSheet(
     elevation: 2,
+    enableDrag: true,
     backgroundColor: Colors.white,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
@@ -869,25 +921,31 @@ formWaitingAdmin(
     ),
     context: context,
     builder: (context) {
-      return DetailWaitingAdmin(
-        customer: customer,
-        position: position,
-        reasonSM: reasonSM,
-        reasonAM: reasonAM,
-        contract: contract,
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        child: SingleChildScrollView(
+          child: DetailWaitingAdmin(
+            customer: customer,
+            position: position,
+            reasonSM: reasonSM,
+            reasonAM: reasonAM,
+            contract: contract,
+          ),
+        ),
       );
     },
   );
 }
-
 
 formWaitingContract(
   BuildContext context,
   List<Contract> item,
   int position,
   String reasonSM,
-  String reasonAM,
-) {
+  String reasonAM, {
+  bool isNewCust = false,
+  Customer? customer,
+}) {
   return showModalBottomSheet(
     elevation: 2,
     backgroundColor: Colors.white,
@@ -905,63 +963,55 @@ formWaitingContract(
         position,
         reasonSM,
         reasonAM,
+        isNewCust: isNewCust,
+        customer: customer,
       );
     },
   );
 }
 
-donwloadCustomer(int idCust, Function stopLoading()) async {
-  var url =
-      'https://timurrayalab.com/salesforce/download/customers_pdf/$idCust';
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
-  }
-}
+// donwloadContract(dynamic idCust, Function stopLoading()) async {
+//   var url = 'https://timurrayalab.com/salesforce/download/contract_pdf/$idCust';
+//   if (await canLaunch(url)) {
+//     await launch(url);
+//   } else {
+//     throw 'Could not launch $url';
+//   }
+// }
 
-donwloadContract(dynamic idCust, Function stopLoading()) async {
-  var url = 'https://timurrayalab.com/salesforce/download/contract_pdf/$idCust';
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
-  }
-}
+// approveCustomerContract(bool isAr, String idCust, String username) async {
+//   var url = !isAr
+//       ? '$API_URL/approval/approveContractSM'
+//       : '$API_URL/approval/approveContractAM';
 
-approveCustomerContract(bool isAr, String idCust, String username) async {
-  var url = !isAr
-      ? '$API_URL/approval/approveContractSM'
-      : '$API_URL/approval/approveContractAM';
+//   var response = await http.post(
+//     url,
+//     body: !isAr
+//         ? {
+//             'id_customer': idCust,
+//             'approver_sm': username,
+//           }
+//         : {
+//             'id_customer': idCust,
+//             'approver_am': username,
+//           },
+//   );
 
-  var response = await http.post(
-    url,
-    body: !isAr
-        ? {
-            'id_customer': idCust,
-            'approver_sm': username,
-          }
-        : {
-            'id_customer': idCust,
-            'approver_am': username,
-          },
-  );
-
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-}
+//   print('Response status: ${response.statusCode}');
+//   print('Response body: ${response.body}');
+// }
 
 formRejected(
   BuildContext context,
   List<Customer> customer,
   int position, {
-  String div,
+  String div = '',
   ttd,
   idCust,
   username,
-  String reasonSM,
-  String reasonAM,
-  Contract contract,
+  String reasonSM = '',
+  String reasonAM = '',
+  Contract? contract,
 }) {
   return showModalBottomSheet(
     elevation: 2,
@@ -990,12 +1040,12 @@ formRejected(
   );
 }
 
-convertDateOra(String tgl) {
-  DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm:ss");
-  DateTime date = dateFormat.parse(tgl);
+// convertDateOra(String tgl) {
+//   DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm:ss");
+//   DateTime date = dateFormat.parse(tgl);
 
-  return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year.toString()}";
-}
+//   return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year.toString()}";
+// }
 
 convertDateIndo(String tgl) {
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
@@ -1015,40 +1065,28 @@ convertMonth(String input) {
   switch (input) {
     case 'Jan':
       return '01';
-      break;
     case 'Feb':
       return '02';
-      break;
     case 'Mar':
       return '03';
-      break;
     case 'Apr':
       return '04';
-      break;
     case 'May':
       return '05';
-      break;
     case 'Jun':
       return '06';
-      break;
     case 'Jul':
       return '07';
-      break;
     case 'Aug':
       return '08';
-      break;
     case 'Sep':
       return '09';
-      break;
     case 'Oct':
       return '10';
-      break;
     case 'Nov':
       return '11';
-      break;
     default:
       return '12';
-      break;
   }
 }
 
@@ -1099,6 +1137,31 @@ convertDateWithMonthHour(
   return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()} ${isPukul ? 'Pukul' : ''} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}";
 }
 
+convertDateWithMonthHourNoSecond(
+  String tgl, {
+  bool isPukul = true,
+}) {
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm");
+  DateTime date = dateFormat.parse(tgl);
+
+  List<String> months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Des'
+  ];
+
+  return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()} ${isPukul ? 'Pukul' : ''} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+}
+
 String convertToIdr(dynamic number, int decimalDigit) {
   NumberFormat currencyFormatter = NumberFormat.currency(
     locale: 'id',
@@ -1122,80 +1185,78 @@ int counterTwoDays(DateTime from, DateTime to) {
   return diff.inDays;
 }
 
-String getEndDays({String input}) {
-  DateTime now = DateTime.now();
-  DateTime compare = DateTime.parse(input);
+String getEndDays({String input = ''}) {
+  if (input.isNotEmpty) {
+    DateTime now = DateTime.now();
+    DateTime compare = DateTime.parse(input);
 
-  return '${counterTwoDays(now, compare)} Hari';
+    return '${counterTwoDays(now, compare)} Hari';
+  } else {
+    return 'Inputan kosong';
+  }
 }
 
-void showError(BuildContext context, dynamic exception) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(exception),
-    duration: Duration(seconds: 2),
-  ));
-}
+// void showError(BuildContext context, dynamic exception) {
+//   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+//     content: Text(exception),
+//     duration: Duration(seconds: 2),
+//   ));
+// }
 
 Future<void> checkUpdate(BuildContext context) async {
   AppUpdateInfo _updateInfo;
 
   InAppUpdate.checkForUpdate().then((info) {
     _updateInfo = info;
-    if (_updateInfo.updateAvailable) {
+    if (_updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
       print('Info : $_updateInfo');
       print('Update please');
 
-      InAppUpdate.performImmediateUpdate().catchError((e) =>
-          Fluttertoast.showToast(
-              msg: e.toString(),
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16));
-
-      // InAppUpdate.startFlexibleUpdate()
-      //     .then((value) => print('Update please'))
-      //     .catchError((e) => Fluttertoast.showToast(
-      //         msg: e.toString(),
-      //         toastLength: Toast.LENGTH_SHORT,
-      //         gravity: ToastGravity.BOTTOM,
-      //         timeInSecForIosWeb: 1,
-      //         backgroundColor: Colors.red,
-      //         textColor: Colors.white,
-      //         fontSize: 16));
-      SystemNavigator.pop();
+      InAppUpdate.performImmediateUpdate().catchError((e) {
+        showStyledToast(
+          child: Text(
+            e.toString(),
+          ),
+          context: context,
+          backgroundColor: Colors.red,
+          borderRadius: BorderRadius.circular(15.r),
+          duration: Duration(seconds: 2),
+        );
+        SystemNavigator.pop();
+      });
     }
   }).catchError((e) {
-    Fluttertoast.showToast(
-        msg: 'Pastikan aplikasimu sudah versi terbaru',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16);
+    showStyledToast(
+      child: Text(
+        e.toString(),
+      ),
+      context: context,
+      backgroundColor: Colors.red,
+      borderRadius: BorderRadius.circular(15.r),
+      duration: Duration(seconds: 2),
+    );
 
     print(e.toString());
   });
 }
 
 getCustomerContractNew({
-  BuildContext context,
+  BuildContext? context,
   dynamic idCust,
-  String divisi,
-  String ttdPertama,
-  String username,
-  bool isSales,
-  bool isContract,
-  bool isHorizontal,
+  String? divisi,
+  String? ttdPertama,
+  String? username,
+  bool isSales = false,
+  bool isContract = false,
+  bool isHorizontal = false,
+  bool isNewCust = false,
 }) async {
   const timeout = 15;
   var url = '$API_URL/contract?id_customer=$idCust';
 
   try {
-    var response = await http.get(url).timeout(Duration(seconds: timeout));
+    var response =
+        await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
     print('Response status: ${response.statusCode}');
 
     try {
@@ -1208,49 +1269,128 @@ getCustomerContractNew({
         itemContract = Contract.fromJson(rest[0]);
 
         openDialogNew(
-          context,
-          divisi,
-          ttdPertama,
-          username,
+          context!,
+          divisi!,
+          ttdPertama!,
+          username!,
           isSales,
           isContract,
+          isNewCust: isNewCust,
         );
       } else {
         handleStatus(
-          context,
-          'Harap ajukan kontrak baru',
+          context!,
+          'Kontrak belum disetujui',
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     } on FormatException catch (e) {
       print('Format Error : $e');
       handleStatus(
-        context,
+        context!,
         e.toString(),
         false,
         isHorizontal: isHorizontal,
+        isLogout: false,
       );
     }
   } on TimeoutException catch (e) {
     print('Timeout Error : $e');
-    handleTimeout(context);
+    handleTimeout(context!);
   } on SocketException catch (e) {
     print('Socket Error : $e');
-    handleSocket(context);
+    handleSocket(context!);
   } on Error catch (e) {
     print('General Error : $e');
     handleStatus(
-      context,
+      context!,
       e.toString(),
       false,
       isHorizontal: isHorizontal,
+      isLogout: false,
+    );
+  }
+}
+
+getMonitoringContractNew({
+  BuildContext? context,
+  dynamic idCust,
+  String? divisi,
+  String? ttdPertama,
+  String? username,
+  bool isSales = false,
+  bool isContract = false,
+  bool isHorizontal = false,
+  bool isNewCust = false,
+}) async {
+  const timeout = 15;
+  var url = '$API_URL/contract/getActiveContractById?id=$idCust';
+
+  try {
+    var response =
+        await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+    print('Response status: ${response.statusCode}');
+
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        itemContract = Contract.fromJson(rest[0]);
+
+        openDialogNew(
+          context!,
+          divisi!,
+          ttdPertama!,
+          username!,
+          isSales,
+          isContract,
+          isNewCust: isNewCust,
+        );
+      } else {
+        handleStatus(
+          context!,
+          'Kontrak belum disetujui',
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+      handleStatus(
+        context!,
+        e.toString(),
+        false,
+        isHorizontal: isHorizontal,
+        isLogout: false,
+      );
+    }
+  } on TimeoutException catch (e) {
+    print('Timeout Error : $e');
+    handleTimeout(context!);
+  } on SocketException catch (e) {
+    print('Socket Error : $e');
+    handleSocket(context!);
+  } on Error catch (e) {
+    print('General Error : $e');
+    handleStatus(
+      context!,
+      e.toString(),
+      false,
+      isHorizontal: isHorizontal,
+      isLogout: false,
     );
   }
 }
 
 openDialogNew(BuildContext context, String div, String ttdPertama,
-    String username, bool isSales, bool isContract) async {
+    String username, bool isSales, bool isContract,
+    {bool isNewCust = false}) async {
   await formContractNew(
     context,
     itemContract,
@@ -1259,11 +1399,13 @@ openDialogNew(BuildContext context, String div, String ttdPertama,
     username,
     isSales,
     isContract,
+    isNewCust: isNewCust,
   );
 }
 
 formContractNew(BuildContext context, Contract item, String div,
-    String ttdPertama, String username, bool isSales, bool isContract) {
+    String ttdPertama, String username, bool isSales, bool isContract,
+    {bool isNewCust = false}) {
   return showModalBottomSheet(
       elevation: 2,
       backgroundColor: Colors.white,
@@ -1284,43 +1426,52 @@ formContractNew(BuildContext context, Contract item, String div,
           isSales,
           isContract: isContract,
           isAdminRenewal: false,
+          isNewCust: isNewCust,
         );
       });
 }
 
-signOut() async {
+signOut({bool isChangePassword = false, BuildContext? context}) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setBool("islogin", false);
-  await preferences.setString("role", null);
+  await preferences.setString("role", '');
   await Future.delayed(const Duration(seconds: 2), () {});
-  SystemNavigator.pop();
+  if (isChangePassword) {
+    Navigator.pop(context!);
+    Navigator.of(context).pop();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => Login(),
+      ),
+    );
+  } else {
+    SystemNavigator.pop();
+  }
 }
 
 handleLogout(BuildContext context) {
-  AlertDialog alert = AlertDialog(
-    title: Text("Informasi"),
-    content: Container(
-      child: Text("Apakah anda yakin menutup aplikasi ini?"),
-    ),
-    actions: [
-      TextButton(
-        child: Text('Iya'),
-        onPressed: () => signOut(),
-      ),
-      TextButton(
-        child: Text('Tidak'),
-        onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-      ),
-    ],
+  showDialog(
+    context: context,
+    builder: (context) {
+      return DialogLogout();
+    },
   );
-
-  showDialog(context: context, builder: (context) => alert);
 }
 
 void handleTimeout(BuildContext context) {
-  handleStatus(context, 'Internet tidak stabil atau lambat', false);
+  handleStatus(
+    context,
+    'Internet tidak stabil atau lambat',
+    false,
+    isLogout: false,
+  );
 }
 
 void handleSocket(BuildContext context) {
-  handleStatus(context, 'Aktifkan paket data atau wifi', false);
+  handleStatus(
+    context,
+    'Aktifkan paket data atau wifi',
+    false,
+    isLogout: false,
+  );
 }

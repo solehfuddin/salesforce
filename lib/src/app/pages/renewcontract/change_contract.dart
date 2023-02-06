@@ -12,6 +12,7 @@ import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/actcontract.dart';
 import 'package:sample/src/domain/entities/contract.dart';
+import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/discount.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
@@ -20,12 +21,23 @@ import 'package:sample/src/domain/entities/stbcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:signature/signature.dart';
 
+// ignore: must_be_immutable
 class ChangeContract extends StatefulWidget {
-  final OldCustomer oldCustomer;
+  final OldCustomer? oldCustomer;
+  final Customer? customer;
   final List<Contract> actContract;
   dynamic keyword;
-  ChangeContract(this.oldCustomer, this.actContract, {this.keyword});
+  bool? isNewCust = false;
+
+  ChangeContract(
+    this.actContract, {
+    this.oldCustomer,
+    this.customer,
+    this.keyword,
+    this.isNewCust,
+  });
 
   @override
   State<ChangeContract> createState() => _ChangeContractState();
@@ -37,24 +49,27 @@ class _ChangeContractState extends State<ChangeContract> {
   List<FormItemDisc> defaultDisc = List.empty(growable: true);
   List<FormItemDisc> fixedDisc = List.empty(growable: true);
   List<FormItemProduct> formProduct = List.empty(growable: true);
+  List<FormItemProduct> fixedProduct = List.empty(growable: true);
   List<String> tmpDiv = List.empty(growable: true);
   List<String> tmpDivInput = List.empty(growable: true);
   List<String> tmpProduct = List.empty(growable: true);
-  List<Proddiv> itemProdDiv;
+  late List<Proddiv> itemProdDiv;
   List<ActContract> itemActiveContract = List.empty(growable: true);
   List<StbCustomer> itemStbCust = List.empty(growable: true);
-  List<Product> itemProduct;
+  late List<Product> itemProduct;
   Map<String, String> selectMapProddiv = {"": ""};
   Map<String, String> selectMapProduct = {"": ""};
   String search = '';
-  String id = '';
-  String role = '';
-  String username = '';
-  String name = '';
-  String ttdKedua = '';
-  String token = '';
-  String idCustomer, jabatanKedua, ttdPertama;
-  String _chosenNikon,
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? name = '';
+  String? ttdKedua = '';
+  String? token = '';
+  String? tokenSm = '';
+  String? idSm = '';
+  String? idCustomer, jabatanKedua, ttdPertama;
+  String? _chosenNikon,
       _durasiNikon,
       _chosenNikonSt,
       _durasiNikonSt,
@@ -82,9 +97,6 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isValLeinz = false;
   bool _isValOriental = false;
   bool _isValMoe = false;
-  // bool _isTanggalSt = false;
-  // bool _isTanggalEd = false;
-  // bool _isRegularDisc = false;
   bool _isConnected = false;
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
@@ -92,7 +104,13 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isCashbackContrack = false;
   bool _isContractActive = false;
   var thisYear, nextYear;
-  int formLen;
+  int formLen = 0;
+
+  final SignatureController _signController = SignatureController(
+    penStrokeWidth: 3,
+    penColor: Colors.black,
+    exportBackgroundColor: Colors.white,
+  );
 
   callback(newVal) {
     setState(() {
@@ -135,7 +153,9 @@ class _ChangeContractState extends State<ChangeContract> {
       print('Next Year : $nextYear');
 
       print("Dashboard : $role");
-      idCustomer = widget.oldCustomer.customerShipNumber;
+      idCustomer = widget.isNewCust!
+          ? widget.customer!.id
+          : widget.oldCustomer!.customerShipNumber;
     });
   }
 
@@ -143,7 +163,7 @@ class _ChangeContractState extends State<ChangeContract> {
     var url = '$API_URL/users?id=$input';
 
     if (_isConnected) {
-      var response = await http.get(url);
+      var response = await http.get(Uri.parse(url));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -153,6 +173,10 @@ class _ChangeContractState extends State<ChangeContract> {
         if (sts) {
           ttdPertama = data['data']['ttd'];
           token = data['data']['gentoken'];
+          int areaId = data['data']['area'] != null
+              ? int.parse(data['data']['area'])
+              : 29;
+          getTokenSM(areaId);
           print(ttdPertama);
         }
       } on FormatException catch (e) {
@@ -161,14 +185,48 @@ class _ChangeContractState extends State<ChangeContract> {
     }
   }
 
+  getTokenSM(int smID) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$smID';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          idSm = data['data']['id'];
+          tokenSm = data['data']['gentoken'];
+          print('Id SM : $idSm');
+          print('Token SM : $tokenSm');
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
   Future<List<Discount>> getDiscountData(dynamic idCust,
-      {bool isHorizontal}) async {
-    List<Discount> list;
+      {bool isHorizontal = false}) async {
+    List<Discount> list = List.empty(growable: true);
     const timeout = 15;
     var url = '$API_URL/discount/getByIdCustomer?id_customer=$idCust';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -181,8 +239,6 @@ class _ChangeContractState extends State<ChangeContract> {
           list = rest.map<Discount>((json) => Discount.fromJson(json)).toList();
           print("List Size: ${list.length}");
         }
-
-        return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
         handleStatus(
@@ -190,6 +246,7 @@ class _ChangeContractState extends State<ChangeContract> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     } on TimeoutException catch (e) {
@@ -199,14 +256,17 @@ class _ChangeContractState extends State<ChangeContract> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    return list;
   }
 
   Future<List<StbCustomer>> getSearchParent(String input) async {
-    List<StbCustomer> list;
+    List<StbCustomer> list = List.empty(growable: true);
     const timeout = 15;
     var url = '$API_URL/customers/oldCustIsActive?bill_name=$input';
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status : ${response.statusCode}');
 
       try {
@@ -225,8 +285,6 @@ class _ChangeContractState extends State<ChangeContract> {
           print("List Size: ${list.length}");
           print("Product Size: ${itemStbCust.length}");
         }
-
-        return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -239,6 +297,8 @@ class _ChangeContractState extends State<ChangeContract> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    return list;
   }
 
   @override
@@ -246,6 +306,7 @@ class _ChangeContractState extends State<ChangeContract> {
     super.initState();
     getRole();
     getItemProdDiv();
+    _signController.addListener(() => print('Value changed'));
   }
 
   getItemProdDiv() async {
@@ -253,7 +314,8 @@ class _ChangeContractState extends State<ChangeContract> {
     var url = '$API_URL/product/getProDiv';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -270,7 +332,7 @@ class _ChangeContractState extends State<ChangeContract> {
 
         _isConnected = true;
         getSearchProduct('');
-        getTtdSales(int.parse(id));
+        getTtdSales(int.parse(id!));
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -289,7 +351,7 @@ class _ChangeContractState extends State<ChangeContract> {
   }
 
   Future<List<Product>> getSearchProduct(String input) async {
-    List<Product> list;
+    List<Product> list = List.empty(growable: true);
     const timeout = 15;
 
     var url = input == ''
@@ -297,7 +359,8 @@ class _ChangeContractState extends State<ChangeContract> {
         : '$API_URL/product/search?search=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -321,8 +384,6 @@ class _ChangeContractState extends State<ChangeContract> {
             }
           }
         }
-
-        return list;
       } on FormatException catch (e) {
         print('Format Error : $e');
       }
@@ -333,6 +394,8 @@ class _ChangeContractState extends State<ChangeContract> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+
+    return list;
   }
 
   getActiveContract(String input) async {
@@ -341,7 +404,8 @@ class _ChangeContractState extends State<ChangeContract> {
     var url = '$API_URL/contract/parentCheck?id_customer=$input';
 
     try {
-      var response = await http.get(url).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status : ${response.statusCode}');
 
       try {
@@ -376,7 +440,7 @@ class _ChangeContractState extends State<ChangeContract> {
   }
 
   getSelectedItem() {
-    if (itemProduct != null) {
+    if (itemProduct.isNotEmpty) {
       for (int i = 0; i < itemProduct.length; i++) {
         if (itemProduct[i].ischecked) {
           if (!tmpProduct.contains(itemProduct[i].proddesc)) {
@@ -389,6 +453,7 @@ class _ChangeContractState extends State<ChangeContract> {
               formProduct.add(FormItemProduct(
                 index: formProduct.length,
                 product: itemProduct[i],
+                itemLength: 2,
               ));
             });
           }
@@ -400,43 +465,19 @@ class _ChangeContractState extends State<ChangeContract> {
             });
 
             setState(() {
-              if (formProduct != null) {
-                formProduct.removeWhere(
-                    (item) => item.product.proddesc == itemProduct[i].proddesc);
+              if (formProduct.length > 0) {
+                formProduct.removeWhere((item) =>
+                    item.product!.proddesc == itemProduct[i].proddesc);
               }
             });
           }
         }
       }
     }
-    // selectMapProduct.clear();
-
-    // if (itemProduct != null) {
-    //   itemProduct.forEach((item) {
-    //     if (item.ischecked) {
-    //       selectMapProduct[item.proddiv] = item.proddesc;
-    //       Product itemProduct = Product(item.categoryid, item.proddiv,
-    //           item.prodcat, item.proddesc, item.diskon, item.status);
-    //       if (!tmpProduct.contains(item.proddesc)) {
-    //         tmpProduct.add(item.proddesc);
-    //         tmpProduct.forEach((element) {
-    //           print(element);
-    //         });
-
-    //         setState(() {
-    //           formProduct.add(FormItemProduct(
-    //             index: formProduct.length,
-    //             product: itemProduct,
-    //           ));
-    //         });
-    //       }
-    //     }
-    //   });
-    // }
   }
 
   getSelectedProddiv() {
-    if (itemProdDiv != null) {
+    if (itemProdDiv.isNotEmpty) {
       for (int i = 0; i < itemProdDiv.length; i++) {
         if (itemProdDiv[i].ischecked) {
           Proddiv prodiv = Proddiv(itemProdDiv[i].alias, itemProdDiv[i].proddiv,
@@ -463,61 +504,35 @@ class _ChangeContractState extends State<ChangeContract> {
             });
 
             setState(() {
-              if (formDisc != null) {
-                formDisc.removeWhere(
-                    (element) => element.proddiv.alias == itemProdDiv[i].alias);
+              if (formDisc.length > 0) {
+                formDisc.removeWhere((element) =>
+                    element.proddiv!.alias == itemProdDiv[i].alias);
               }
             });
           }
         }
       }
     }
-    // selectMapProddiv.clear();
-
-    // if (itemProdDiv != null) {
-    //   itemProdDiv.forEach((item) {
-    //     if (item.ischecked) {
-    //       selectMapProddiv[item.proddiv] = item.alias;
-    //       Proddiv itemProddiv = Proddiv(item.alias, item.proddiv, item.diskon);
-
-    //       if (!tmpDiv.contains(item.proddiv)) {
-    //         tmpDiv.add(item.proddiv);
-    //         tmpDiv.forEach((element) {
-    //           print(element);
-    //         });
-
-    //         setState(() {
-    //           formDisc.add(FormItemDisc(
-    //             index: formDisc.length,
-    //             proddiv: itemProddiv,
-    //           ));
-    //         });
-    //       }
-    //     }
-    //   });
-    // }
   }
 
-  multipleInputDiskon({bool isHorizontal}) async {
-    bool allValid = true;
-
+  multipleInputDiskon({bool isHorizontal = false}) async {
     if (fixedDisc.length > 0) {
       for (int i = 0; i < fixedDisc.length; i++) {
         FormItemDisc item = fixedDisc[i];
-        if (item.proddiv.ischecked) {
-          debugPrint("Proddiv: ${item.proddiv.proddiv}");
-          debugPrint("Alias: ${item.proddiv.alias}");
-          debugPrint("Diskon: ${item.proddiv.diskon}");
-          debugPrint("Is Checked : ${item.proddiv.ischecked}");
+        if (item.proddiv!.ischecked) {
+          debugPrint("Proddiv: ${item.proddiv!.proddiv}");
+          debugPrint("Alias: ${item.proddiv!.alias}");
+          debugPrint("Diskon: ${item.proddiv!.diskon}");
+          debugPrint("Is Checked : ${item.proddiv!.ischecked}");
 
           print(
-              'Id Cust : $idCustomer \n Ischecked : ${item.proddiv.ischecked} Proddiv : ${item.proddiv.proddiv} \n Diskon : ${item.proddiv.diskon} \n Alias : ${item.proddiv.alias}');
+              'Id Cust : $idCustomer \n Ischecked : ${item.proddiv!.ischecked} Proddiv : ${item.proddiv!.proddiv} \n Diskon : ${item.proddiv!.diskon} \n Alias : ${item.proddiv!.alias}');
 
           postMultiDiv(
-            idCustomer,
-            item.proddiv.proddiv,
-            item.proddiv.diskon,
-            item.proddiv.alias,
+            idCustomer!,
+            item.proddiv!.proddiv,
+            item.proddiv!.diskon,
+            item.proddiv!.alias,
             isHorizontal: isHorizontal,
           );
         }
@@ -526,26 +541,23 @@ class _ChangeContractState extends State<ChangeContract> {
       print("Form is Not Valid");
     }
 
-    formProduct
-        .forEach((element) => allValid = (allValid && element.isValidated()));
-
-    if (allValid) {
-      for (int i = 0; i < formProduct.length; i++) {
-        FormItemProduct item = formProduct[i];
-        if (item.product.ischecked) {
-          debugPrint("Category Id: ${item.product.categoryid}");
-          debugPrint("Proddiv: ${item.product.proddiv}");
-          debugPrint("Prodcat: ${item.product.prodcat}");
-          debugPrint("Proddesc: ${item.product.proddesc}");
-          debugPrint("Diskon: ${item.product.diskon}");
+    if (fixedProduct.length > 0) {
+      for (int i = 0; i < fixedProduct.length; i++) {
+        FormItemProduct item = fixedProduct[i];
+        if (item.product!.ischecked) {
+          debugPrint("Category Id: ${item.product!.categoryid}");
+          debugPrint("Proddiv: ${item.product!.proddiv}");
+          debugPrint("Prodcat: ${item.product!.prodcat}");
+          debugPrint("Proddesc: ${item.product!.proddesc}");
+          debugPrint("Diskon: ${item.product!.diskon}");
 
           postMultiItem(
-            idCustomer,
-            item.product.categoryid,
-            item.product.proddiv,
-            item.product.prodcat,
-            item.product.proddesc,
-            item.product.diskon,
+            idCustomer!,
+            item.product!.categoryid,
+            item.product!.proddiv,
+            item.product!.prodcat,
+            item.product!.proddesc,
+            item.product!.diskon,
             isHorizontal: isHorizontal,
           );
         }
@@ -553,13 +565,40 @@ class _ChangeContractState extends State<ChangeContract> {
     } else {
       print("Form is Not Valid");
     }
+
+    //Send to me
+    pushNotif(
+      4,
+      3,
+      idUser: id,
+      rcptToken: token,
+      opticName: widget.isNewCust!
+          ? widget.customer!.namaUsaha
+          : widget.oldCustomer!.customerShipName,
+    );
+
+    //Send to Sales Manager
+    pushNotif(
+      1,
+      3,
+      salesName: name,
+      idUser: idSm,
+      rcptToken: tokenSm,
+      opticName: widget.isNewCust!
+          ? widget.customer!.namaUsaha
+          : widget.oldCustomer!.customerShipName,
+    );
+
+    widget.isNewCust!
+        ? print('opticName : ${widget.customer!.namaUsaha}')
+        : print('opticName : ${widget.oldCustomer!.customerShipName}');
   }
 
   postMultiDiv(String idCust, String proddiv, String diskon, String alias,
-      {bool isHorizontal}) async {
+      {bool isHorizontal = false}) async {
     var url = '$API_URL/discount/divCustomDiscount';
     var response = await http.post(
-      url,
+      Uri.parse(url),
       body: {
         'id_customer': idCust,
         'prod_div[]': proddiv,
@@ -584,6 +623,7 @@ class _ChangeContractState extends State<ChangeContract> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
@@ -591,10 +631,10 @@ class _ChangeContractState extends State<ChangeContract> {
 
   postMultiItem(String idCust, String categoryId, String prodDiv,
       String prodCat, String prodDesc, String disc,
-      {bool isHorizontal}) async {
+      {bool isHorizontal = false}) async {
     var url = '$API_URL/discount/customDiscount';
     var response = await http.post(
-      url,
+      Uri.parse(url),
       body: {
         'id_customer': idCust,
         'category_id[]': categoryId,
@@ -621,28 +661,32 @@ class _ChangeContractState extends State<ChangeContract> {
           e.toString(),
           false,
           isHorizontal: isHorizontal,
+          isLogout: false,
         );
       }
     }
   }
 
   void handleContractActive({
-    bool isHorizontal,
-    BuildContext context,
+    bool isHorizontal = false,
+    BuildContext? context,
   }) {
     _isContractActive
-        ? Navigator.pop(context)
+        ? Navigator.pop(context!)
         : handleStatus(
-            context,
+            context!,
             'Optik tidak memiliki kontrak active',
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
   }
 
-  checkInput(Function stop, {bool isHorizontal}) async {
+  checkInput(Function stop, {bool isHorizontal = false}) async {
     fixedDisc.clear();
+    fixedProduct.clear();
     tmpDivInput.clear();
+    tmpProduct.clear();
 
     var outNikon,
         outNikonSt,
@@ -659,7 +703,7 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenNikon == null) {
       outNikon = '-';
     } else if (_chosenNikon == "KREDIT") {
-      outNikon = _chosenNikon + '-' + _durasiNikon;
+      outNikon = "$_chosenNikon - $_durasiNikon";
     } else {
       outNikon = _chosenNikon;
     }
@@ -667,7 +711,7 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenNikonSt == null) {
       outNikonSt = '-';
     } else if (_chosenNikonSt == "KREDIT") {
-      outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
+      outNikonSt = "$_chosenNikonSt - $_durasiNikonSt";
     } else {
       outNikonSt = _chosenNikonSt;
     }
@@ -675,7 +719,7 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenLeinz == null) {
       outLeinz = '-';
     } else if (_chosenLeinz == "KREDIT") {
-      outLeinz = _chosenLeinz + '-' + _durasiLeinz;
+      outLeinz = "$_chosenLeinz - $_durasiLeinz";
     } else {
       outLeinz = _chosenLeinz;
     }
@@ -683,7 +727,7 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenLeinzSt == null) {
       outLeinzSt = '-';
     } else if (_chosenLeinzSt == "KREDIT") {
-      outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
+      outLeinzSt = "$_chosenLeinzSt - $_durasiLeinzSt";
     } else {
       outLeinzSt = _chosenLeinzSt;
     }
@@ -691,7 +735,7 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenOriental == null) {
       outOriental = '-';
     } else if (_chosenOriental == "KREDIT") {
-      outOriental = _chosenOriental + '-' + _durasiOriental;
+      outOriental = "$_chosenOriental - $_durasiOriental";
     } else {
       outOriental = _chosenOriental;
     }
@@ -699,7 +743,7 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenOrientalSt == null) {
       outOrientalSt = '-';
     } else if (_chosenOrientalSt == "KREDIT") {
-      outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
+      outOrientalSt = "$_chosenOrientalSt - $_durasiOrientalSt";
     } else {
       outOrientalSt = _chosenOrientalSt;
     }
@@ -707,13 +751,10 @@ class _ChangeContractState extends State<ChangeContract> {
     if (_chosenMoe == null) {
       outMoe = '-';
     } else if (_chosenMoe == "KREDIT") {
-      outMoe = _chosenMoe + '-' + _durasiMoe;
+      outMoe = "$_chosenMoe - $_durasiMoe";
     } else {
       outMoe = _chosenMoe;
     }
-
-    // textTanggalSt.text.isEmpty ? _isTanggalSt = true : _isTanggalSt = false;
-    // textTanggalEd.text.isEmpty ? _isTanggalEd = true : _isTanggalEd = false;
 
     valNikon =
         textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
@@ -727,7 +768,6 @@ class _ChangeContractState extends State<ChangeContract> {
     print('id_customer: $idCustomer');
     print('nama_pertama : $name');
     print('jabatan_pertama: $role');
-    // print('nama_kedua : $namaKedua');
     print('tp_nikon: ${valNikon.replaceAll('.', '')}');
     print('tp_leinz: ${valLeinz.replaceAll('.', '')}');
     print('tp_oriental: ${valOriental.replaceAll('.', '')}');
@@ -761,28 +801,48 @@ class _ChangeContractState extends State<ChangeContract> {
       setState(() {
         if (defaultDisc.length > 0) {
           defaultDisc.forEach((element) {
-            element.proddiv.ischecked = true;
+            element.proddiv!.ischecked = true;
           });
           fixedDisc.addAll(defaultDisc);
           for (int i = 0; i < defaultDisc.length; i++) {
-            tmpDivInput.add(defaultDisc[i].proddiv.alias);
+            tmpDivInput.add(defaultDisc[i].proddiv!.alias);
           }
         }
 
         if (formDisc.length > 0) {
           for (int i = 0; i < formDisc.length; i++) {
-            if (formDisc[i].proddiv.ischecked) {
-              if (!tmpDivInput.contains(formDisc[i].proddiv.alias)) {
-                tmpDivInput.add(formDisc[i].proddiv.alias);
+            if (formDisc[i].proddiv!.ischecked) {
+              if (!tmpDivInput.contains(formDisc[i].proddiv!.alias)) {
+                tmpDivInput.add(formDisc[i].proddiv!.alias);
                 fixedDisc.add(formDisc[i]);
               } else {
                 fixedDisc.removeWhere((element) =>
-                    element.proddiv.alias == formDisc[i].proddiv.alias);
+                    element.proddiv!.alias == formDisc[i].proddiv!.alias);
                 fixedDisc.add(formDisc[i]);
               }
             } else {
               fixedDisc.removeWhere((element) =>
-                  element.proddiv.alias == formDisc[i].proddiv.alias);
+                  element.proddiv!.alias == formDisc[i].proddiv!.alias);
+            }
+          }
+        }
+
+        if (formProduct.length > 0) {
+          for (int i = 0; i < formProduct.length; i++) {
+            if (formProduct[i].product!.ischecked) {
+              if (!tmpProduct.contains(formProduct[i].product!.proddesc)) {
+                tmpProduct.add(formProduct[i].product!.proddesc);
+                fixedProduct.add(formProduct[i]);
+              } else {
+                fixedProduct.removeWhere((element) =>
+                    element.product!.proddesc ==
+                    formProduct[i].product!.proddesc);
+                fixedProduct.add(formProduct[i]);
+              }
+            } else {
+              fixedProduct.removeWhere((element) =>
+                  element.product!.proddesc ==
+                  formProduct[i].product!.proddesc);
             }
           }
         }
@@ -790,157 +850,206 @@ class _ChangeContractState extends State<ChangeContract> {
 
       print('Total Data Diskon =  ${fixedDisc.length}');
       fixedDisc.forEach((element) {
-        print(element.proddiv.alias);
-        print(element.proddiv.diskon);
-        print(element.proddiv.ischecked);
+        print(element.proddiv!.alias);
+        print(element.proddiv!.diskon);
+        print(element.proddiv!.ischecked);
+      });
+
+      print('Total Data Product =  ${fixedProduct.length}');
+      fixedProduct.forEach((element) {
+        print(element.product!.proddesc);
+        print(element.product!.diskon);
+        print(element.product!.ischecked);
       });
     }
 
-    stop();
+    if (_signController.isEmpty) {
+      handleStatus(
+        context,
+        'Silahkan isi tanda tangan dahulu',
+        false,
+        isHorizontal: isHorizontal,
+        isLogout: false,
+      );
+    } else {
+      var data = await _signController.toPngBytes();
+      ttdKedua = base64Encode(data!);
 
-    const timeout = 15;
-    var url = '$API_URL/contract/upload';
+      print('id_customer: $idCustomer');
+      print('nama_pertama: $name');
+      print('jabatan_pertama : $role');
+      print(
+          'nama_kedua: ${widget.isNewCust! ? widget.customer!.nama : widget.oldCustomer!.contactPerson}');
+      print('jabatan_kedua: $jabatanKedua');
+      print(
+          'alamat_kedua: ${widget.isNewCust! ? widget.customer!.alamatUsaha : widget.oldCustomer!.address2}');
+      print(
+          'telp_kedua: ${widget.isNewCust! ? widget.customer!.noTlp : widget.oldCustomer!.phone}');
+      print('fax_kedua: -');
+      print('tp_nikon: ${valNikon.replaceAll('.', '')}');
+      print('tp_leinz: ${valLeinz.replaceAll('.', '')}');
+      print('tp_oriental :  ${valOriental.replaceAll('.', '')}');
+      print('tp_moe: ${valMoe.replaceAll('.', '')}');
+      print('pembayaran_nikon: $outNikon');
+      print('pembayaran_leinz: $outLeinz');
+      print('pembayaran_oriental: $outOriental');
+      print('pembayaran_moe: $outMoe');
+      print('pembayaran_nikon_stock: $outNikonSt');
+      print('pembayaran_leinz_stock: $outLeinzSt');
+      print('pembayaran_oriental_stock: $outOrientalSt');
+      print('start_contract: $startContract');
+      print('type_contract: ${_isCashbackContrack ? 'FRAME' : 'LENSA'}');
+      print('is_frame: ${_isFrameContract ? '1' : '0'}');
+      print('is_partai: ${_isPartaiContract ? '1' : '0'}');
+      print('catatan: ${textCatatan.text}');
+      print('no_account: ');
+      print('ttd_pertama: $ttdPertama');
+      print('ttd_kedua: $ttdKedua');
+      print('created_by: $id');
+      print('has_parent: ${_isContractActive ? '1' : '0'}');
+      print(
+          'id_parent: ${_isContractActive ? itemActiveContract[0].idCustomer : ''}');
+      print(
+          'id_contract_parent: ${_isContractActive ? itemActiveContract[0].idContract : ''}');
 
-    try {
-      var response = await http.post(
-        url,
-        body: {
-          'id_customer': idCustomer,
-          'nama_pertama': name,
-          'jabatan_pertama': role,
-          'nama_kedua': widget.oldCustomer.contactPerson,
-          'jabatan_kedua': jabatanKedua,
-          'alamat_kedua': widget.oldCustomer.address2,
-          'telp_kedua': widget.oldCustomer.phone,
-          'fax_kedua': '-',
-          'tp_nikon': valNikon.replaceAll('.', ''),
-          'tp_leinz': valLeinz.replaceAll('.', ''),
-          'tp_oriental': valOriental.replaceAll('.', ''),
-          'tp_moe': valMoe.replaceAll('.', ''),
-          'pembayaran_nikon': outNikon,
-          'pembayaran_leinz': outLeinz,
-          'pembayaran_oriental': outOriental,
-          'pembayaran_moe': outMoe,
-          'pembayaran_nikon_stock': outNikonSt,
-          'pembayaran_leinz_stock': outLeinzSt,
-          'pembayaran_oriental_stock': outOrientalSt,
-          'start_contract': startContract,
-          'type_contract': _isCashbackContrack ? 'FRAME' : 'LENSA',
-          'is_frame': _isFrameContract ? '1' : '0',
-          'is_partai': _isPartaiContract ? '1' : '0',
-          'catatan': textCatatan.text,
-          'no_account': idCustomer,
-          'ttd_pertama': ttdPertama,
-          'ttd_kedua': ttdKedua,
-          'created_by': id,
-          'has_parent': _isContractActive ? '1' : '0',
-          'id_parent':
-              _isContractActive ? itemActiveContract[0].idCustomer : '',
-          'id_contract_parent':
-              _isContractActive ? itemActiveContract[0].idContract : '',
-        },
-      ).timeout(Duration(seconds: timeout));
-
-      print('ttd 1 : $ttdPertama');
-      print('ttd 2 : $ttdKedua');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      const timeout = 15;
+      var url = '$API_URL/contract';
 
       try {
+        var response = await http.post(
+          Uri.parse(url),
+          body: {
+            'id_customer': idCustomer,
+            'nama_pertama': name,
+            'jabatan_pertama': role,
+            'nama_kedua': widget.isNewCust!
+                ? widget.customer!.nama
+                : widget.oldCustomer!.contactPerson,
+            'jabatan_kedua': jabatanKedua,
+            'alamat_kedua': widget.isNewCust!
+                ? widget.customer!.alamatUsaha
+                : widget.oldCustomer!.address2,
+            'telp_kedua': widget.isNewCust!
+                ? widget.customer!.noTlp
+                : widget.oldCustomer!.phone,
+            'fax_kedua': '-',
+            'tp_nikon': valNikon.replaceAll('.', ''),
+            'tp_leinz': valLeinz.replaceAll('.', ''),
+            'tp_oriental': valOriental.replaceAll('.', ''),
+            'tp_moe': valMoe.replaceAll('.', ''),
+            'pembayaran_nikon': outNikon,
+            'pembayaran_leinz': outLeinz,
+            'pembayaran_oriental': outOriental,
+            'pembayaran_moe': outMoe,
+            'pembayaran_nikon_stock': outNikonSt,
+            'pembayaran_leinz_stock': outLeinzSt,
+            'pembayaran_oriental_stock': outOrientalSt,
+            'start_contract': startContract,
+            'type_contract': _isCashbackContrack ? 'FRAME' : 'LENSA',
+            'is_frame': _isFrameContract ? '1' : '0',
+            'is_partai': _isPartaiContract ? '1' : '0',
+            'catatan': textCatatan.text,
+            'no_account': '',
+            // 'no_account': idCustomer,
+            'ttd_pertama': ttdPertama,
+            'ttd_kedua': ttdKedua,
+            'created_by': id,
+            'has_parent': _isContractActive ? '1' : '0',
+            'id_parent':
+                _isContractActive ? itemActiveContract[0].idCustomer : '',
+            'id_contract_parent':
+                _isContractActive ? itemActiveContract[0].idContract : '',
+          },
+        ).timeout(Duration(seconds: timeout));
+
+        print('ttd 1 : $ttdPertama');
+        print('ttd 2 : $ttdKedua');
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+
         var res = json.decode(response.body);
         final bool sts = res['status'];
         final String msg = res['message'];
+        print(msg);
 
-        if (sts) {
-          textValLeinz.clear();
-          textValMoe.clear();
-          textValNikon.clear();
-          textValOriental.clear();
-
-          if (_isContractActive) {
-            print('Ini child');
-          } else if (_isCashbackContrack) {
-            print('Ini Cashback');
-          } else {
-            multipleInputDiskon(
-              isHorizontal: isHorizontal,
-            );
-          }
-
-          // //Send to all admin
-          // pushNotif(
-          //   5,
-          //   1,
-          //   salesName: name,
-          //   opticName: widget.oldCustomer.customerShipName,
-          //   idUser: '',
-          // );
-
-          // //Send to me
-          // pushNotif(
-          //   4,
-          //   3,
-          //   idUser: id,
-          //   rcptToken: token,
-          //   opticName: widget.oldCustomer.customerShipName,
-          // );
-        }
-
-        handleStatusChangeContract(
-          widget.oldCustomer,
-          context,
-          capitalize(msg),
-          sts,
-          keyword: widget.keyword,
-          isHorizontal: isHorizontal,
-        );
-        stop();
-        setState(() {});
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-        if (mounted) {
+        if (!sts) {
           handleStatus(
             context,
-            e.toString(),
+            msg,
             false,
             isHorizontal: isHorizontal,
+            isLogout: false,
           );
         }
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error : $e');
-      if (mounted) {
-        handleTimeout(context);
-      }
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-      if (mounted) {
-        handleConnection(context);
-      }
-    } on Error catch (e) {
-      print('General Error : $e');
-      if (mounted) {
-        handleStatus(
-          context,
-          e.toString(),
-          false,
-          isHorizontal: isHorizontal,
-        );
+
+        try {
+          if (sts) {
+            textValLeinz.clear();
+            textValMoe.clear();
+            textValNikon.clear();
+            textValOriental.clear();
+
+            if (_isContractActive) {
+              print('Ini child');
+            } else if (_isCashbackContrack) {
+              print('Ini Cashback');
+            } else {
+              multipleInputDiskon(
+                isHorizontal: isHorizontal,
+              );
+            }
+          }
+
+          if (widget.isNewCust!) {
+            handleStatusChangeContract(
+              context,
+              capitalize(msg),
+              true,
+              keyword: widget.keyword,
+              isHorizontal: isHorizontal,
+              isNewCust: widget.isNewCust!,
+              customer: widget.customer,
+            );
+          } else {
+            handleStatusChangeContract(
+              context,
+              capitalize(msg),
+              true,
+              keyword: widget.keyword,
+              isHorizontal: isHorizontal,
+              isNewCust: widget.isNewCust!,
+              item: widget.oldCustomer!,
+            );
+          }
+          setState(() {});
+        } on FormatException catch (e) {
+          print('Format Error : $e');
+          if (mounted) {
+            handleStatus(
+              context,
+              e.toString(),
+              false,
+              isHorizontal: isHorizontal,
+              isLogout: false,
+            );
+          }
+        }
+      } on TimeoutException catch (e) {
+        print('Timeout Error : $e');
+        if (mounted) {
+          handleTimeout(context);
+        }
+      } on SocketException catch (e) {
+        print('Socket Error : $e');
+        if (mounted) {
+          handleConnection(context);
+        }
+      } on Error catch (e) {
+        print('General Error : $e');
       }
     }
-  }
 
-  simpanDiskon(String idCust) async {
-    var url = '$API_URL/discount/defaultDiscount';
-    var response = await http.post(
-      url,
-      body: {
-        'id_customer': idCust,
-      },
-    );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    stop();
   }
 
   @override
@@ -955,7 +1064,7 @@ class _ChangeContractState extends State<ChangeContract> {
     });
   }
 
-  Widget childChangeContract({bool isHorizontal}) {
+  Widget childChangeContract({bool isHorizontal = false}) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -1024,7 +1133,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   ),
                   Expanded(
                     child: Text(
-                      name,
+                      name!,
                       style: TextStyle(
                           fontSize: isHorizontal ? 24.sp : 14.sp,
                           fontFamily: 'Montserrat',
@@ -1056,7 +1165,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   ),
                   Expanded(
                     child: Text(
-                      role,
+                      role!,
                       style: TextStyle(
                           fontSize: isHorizontal ? 24.sp : 14.sp,
                           fontFamily: 'Montserrat',
@@ -1199,7 +1308,9 @@ class _ChangeContractState extends State<ChangeContract> {
                   ),
                   Expanded(
                     child: Text(
-                      widget.oldCustomer.contactPerson.trim(),
+                      widget.isNewCust!
+                          ? widget.customer!.nama
+                          : widget.oldCustomer!.contactPerson.trim(),
                       style: TextStyle(
                           fontSize: isHorizontal ? 24.sp : 14.sp,
                           fontFamily: 'Montserrat',
@@ -1263,7 +1374,9 @@ class _ChangeContractState extends State<ChangeContract> {
                   ),
                   Expanded(
                     child: Text(
-                      widget.oldCustomer.phone,
+                      widget.isNewCust!
+                          ? widget.customer!.noTlp
+                          : widget.oldCustomer!.phone,
                       style: TextStyle(
                           fontSize: isHorizontal ? 24.sp : 14.sp,
                           fontFamily: 'Montserrat',
@@ -1327,7 +1440,9 @@ class _ChangeContractState extends State<ChangeContract> {
                   ),
                   Expanded(
                     child: Text(
-                      widget.oldCustomer.address2,
+                      widget.isNewCust!
+                          ? widget.customer!.alamatUsaha
+                          : widget.oldCustomer!.address2,
                       overflow: TextOverflow.fade,
                       style: TextStyle(
                           fontSize: isHorizontal ? 24.sp : 14.sp,
@@ -1555,7 +1670,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                     style: TextStyle(color: Colors.black54)),
                               );
                             }).toList(),
-                            onChanged: (String value) {
+                            onChanged: (String? value) {
                               setState(() {
                                 _chosenNikon = value;
                               });
@@ -1631,7 +1746,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                   style: TextStyle(color: Colors.black54)),
                             );
                           }).toList(),
-                          onChanged: (String value) {
+                          onChanged: (String? value) {
                             setState(() {
                               _chosenNikonSt = value;
                             });
@@ -1708,7 +1823,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                     style: TextStyle(color: Colors.black54)),
                               );
                             }).toList(),
-                            onChanged: (String value) {
+                            onChanged: (String? value) {
                               setState(() {
                                 _chosenLeinz = value;
                               });
@@ -1783,7 +1898,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                   style: TextStyle(color: Colors.black54)),
                             );
                           }).toList(),
-                          onChanged: (String value) {
+                          onChanged: (String? value) {
                             setState(() {
                               _chosenLeinzSt = value;
                             });
@@ -1860,7 +1975,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                     style: TextStyle(color: Colors.black54)),
                               );
                             }).toList(),
-                            onChanged: (String value) {
+                            onChanged: (String? value) {
                               setState(() {
                                 _chosenOriental = value;
                               });
@@ -1935,7 +2050,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                   style: TextStyle(color: Colors.black54)),
                             );
                           }).toList(),
-                          onChanged: (String value) {
+                          onChanged: (String? value) {
                             setState(() {
                               _chosenOrientalSt = value;
                             });
@@ -2012,7 +2127,7 @@ class _ChangeContractState extends State<ChangeContract> {
                                     style: TextStyle(color: Colors.black54)),
                               );
                             }).toList(),
-                            onChanged: (String value) {
+                            onChanged: (String? value) {
                               setState(() {
                                 _chosenMoe = value;
                               });
@@ -2103,43 +2218,73 @@ class _ChangeContractState extends State<ChangeContract> {
                   : SizedBox(
                       width: 5.w,
                     ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isHorizontal ? 10.r : 5.r,
-                  vertical: isHorizontal ? 10.r : 5.r,
-                ),
-                alignment: Alignment.centerRight,
-                child: ArgonButton(
-                  height: isHorizontal ? 60.h : 40.h,
-                  width: isHorizontal ? 80.w : 100.w,
-                  borderRadius: isHorizontal ? 60.r : 30.r,
-                  color: Colors.blue[700],
-                  child: Text(
-                    "Simpan",
-                    style: TextStyle(
+              areaSigned(
+                isHorizontal: isHorizontal,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: StadiumBorder(),
+                      primary: Colors.orange[800],
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isHorizontal ? 40.r : 20.r,
+                        vertical: isHorizontal ? 20.r : 10.r,
+                      ),
+                    ),
+                    child: Text(
+                      'Hapus Ttd',
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: isHorizontal ? 24.sp : 14.sp,
-                        fontWeight: FontWeight.w700),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Segoe ui',
+                      ),
+                    ),
+                    onPressed: () {
+                      _signController.clear();
+                    },
                   ),
-                  loader: Container(
-                    padding: EdgeInsets.all(8.r),
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isHorizontal ? 10.r : 5.r,
+                      vertical: isHorizontal ? 10.r : 5.r,
+                    ),
+                    alignment: Alignment.centerRight,
+                    child: ArgonButton(
+                      height: isHorizontal ? 60.h : 40.h,
+                      width: isHorizontal ? 80.w : 100.w,
+                      borderRadius: isHorizontal ? 60.r : 30.r,
+                      color: Colors.blue[700],
+                      child: Text(
+                        "Simpan",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isHorizontal ? 24.sp : 14.sp,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      loader: Container(
+                        padding: EdgeInsets.all(8.r),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onTap: (startLoading, stopLoading, btnState) {
+                        if (btnState == ButtonState.Idle) {
+                          setState(() {
+                            startLoading();
+                            waitingLoad();
+                            checkInput(
+                              stopLoading,
+                              isHorizontal: isHorizontal,
+                            );
+                          });
+                        }
+                      },
                     ),
                   ),
-                  onTap: (startLoading, stopLoading, btnState) {
-                    if (btnState == ButtonState.Idle) {
-                      setState(() {
-                        startLoading();
-                        waitingLoad();
-                        checkInput(
-                          stopLoading,
-                          isHorizontal: isHorizontal,
-                        );
-                      });
-                    }
-                  },
-                ),
+                ],
               ),
               SizedBox(
                 height: 10.h,
@@ -2151,7 +2296,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget areaFrameContract({bool isHorizontal}) {
+  Widget areaFrameContract({bool isHorizontal = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2201,9 +2346,9 @@ class _ChangeContractState extends State<ChangeContract> {
                             ),
                             child: Checkbox(
                               value: this._isFrameContract,
-                              onChanged: (bool value) {
+                              onChanged: (bool? value) {
                                 setState(() {
-                                  this._isFrameContract = value;
+                                  this._isFrameContract = value!;
                                 });
                               },
                             ),
@@ -2236,10 +2381,10 @@ class _ChangeContractState extends State<ChangeContract> {
                             ),
                             child: Checkbox(
                               value: this._isPartaiContract,
-                              onChanged: (bool value) {
+                              onChanged: (bool? value) {
                                 setState(
                                   () {
-                                    this._isPartaiContract = value;
+                                    this._isPartaiContract = value!;
                                   },
                                 );
                               },
@@ -2282,9 +2427,9 @@ class _ChangeContractState extends State<ChangeContract> {
                     ),
                     child: Checkbox(
                       value: this._isCashbackContrack,
-                      onChanged: (bool value) {
+                      onChanged: (bool? value) {
                         setState(() {
-                          this._isCashbackContrack = value;
+                          this._isCashbackContrack = value!;
                           formDisc.clear();
                           formProduct.clear();
                           tmpDiv.clear();
@@ -2326,9 +2471,9 @@ class _ChangeContractState extends State<ChangeContract> {
                     ),
                     child: Checkbox(
                       value: this._isChildContract,
-                      onChanged: (bool value) {
+                      onChanged: (bool? value) {
                         setState(() {
-                          this._isChildContract = value;
+                          this._isChildContract = value!;
                           formDisc.clear();
                           formProduct.clear();
                           tmpDiv.clear();
@@ -2418,7 +2563,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget selectParent({bool isHorizontal}) {
+  Widget selectParent({bool isHorizontal = false}) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
         scrollable: true,
@@ -2536,9 +2681,9 @@ class _ChangeContractState extends State<ChangeContract> {
               return CheckboxListTile(
                 value: item[index].ischecked,
                 title: Text(_key),
-                onChanged: (bool val) {
+                onChanged: (bool? val) {
                   setState(() {
-                    item[index].ischecked = val;
+                    item[index].ischecked = val!;
                     item[index].ischecked
                         ? getActiveContract(item[index].customerBillNumber)
                         : print('Disable');
@@ -2550,7 +2695,7 @@ class _ChangeContractState extends State<ChangeContract> {
     });
   }
 
-  Widget areaTarget({bool isHorizontal}) {
+  Widget areaTarget({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 5.r : 0,
@@ -2718,7 +2863,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget areaJangkaWaktu({bool isHorizontal}) {
+  Widget areaJangkaWaktu({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 5.r : 0,
@@ -2846,9 +2991,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembNikonSt != null
-                        ? widget.actContract[0].pembNikonSt
-                        : '-',
+                    widget.actContract[0].pembNikonSt,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -2857,9 +3000,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembNikonSt != null
-                        ? widget.actContract[0].pembNikonSt
-                        : '-',
+                    widget.actContract[0].pembNikonSt,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -2971,9 +3112,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembOrientalSt != null
-                        ? widget.actContract[0].pembOrientalSt
-                        : '-',
+                    widget.actContract[0].pembOrientalSt,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -3014,9 +3153,9 @@ class _ChangeContractState extends State<ChangeContract> {
               return CheckboxListTile(
                 value: item[index].ischecked,
                 title: Text(_key),
-                onChanged: (bool val) {
+                onChanged: (bool? val) {
                   setState(() {
-                    item[index].ischecked = val;
+                    item[index].ischecked = val!;
                   });
                 },
               );
@@ -3117,9 +3256,9 @@ class _ChangeContractState extends State<ChangeContract> {
               return CheckboxListTile(
                 value: item[index].ischecked,
                 title: Text(_key),
-                onChanged: (bool val) {
+                onChanged: (bool? val) {
                   setState(() {
-                    item[index].ischecked = val;
+                    item[index].ischecked = val!;
                   });
                 },
               );
@@ -3128,7 +3267,7 @@ class _ChangeContractState extends State<ChangeContract> {
     });
   }
 
-  Widget areaDiskon(Contract item, {bool isHorizontal}) {
+  Widget areaDiskon(Contract item, {bool isHorizontal = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3187,15 +3326,16 @@ class _ChangeContractState extends State<ChangeContract> {
                 item.idCustomer,
                 isHorizontal: isHorizontal,
               ),
-              builder: (context, snapshot) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Discount>> snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
                     return Center(child: CircularProgressIndicator());
                   default:
                     return snapshot.data != null
                         ? listDiscWidget(
-                            snapshot.data,
-                            snapshot.data.length,
+                            snapshot.data!,
+                            snapshot.data!.length,
                             isHorizontal: isHorizontal,
                           )
                         : Column(
@@ -3228,7 +3368,8 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget listDiscWidget(List<Discount> item, int len, {bool isHorizontal}) {
+  Widget listDiscWidget(List<Discount> item, int len,
+      {bool isHorizontal = false}) {
     return ListView.builder(
         itemCount: len,
         padding: EdgeInsets.symmetric(
@@ -3243,9 +3384,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    item[position].prodDesc != null
-                        ? item[position].prodDesc
-                        : '-',
+                    item[position].prodDesc,
                     style: TextStyle(
                       fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontFamily: 'Segoe ui',
@@ -3255,9 +3394,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Expanded(
                   child: Text(
-                    item[position].discount != null
-                        ? '${item[position].discount} %'
-                        : '-',
+                    item[position].discount,
                     style: TextStyle(
                       fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontFamily: 'Segoe ui',
@@ -3272,7 +3409,7 @@ class _ChangeContractState extends State<ChangeContract> {
         });
   }
 
-  Widget areaMultiFormDiv({bool isHorizontal}) {
+  Widget areaMultiFormDiv({bool isHorizontal = false}) {
     return Column(
       children: [
         SizedBox(
@@ -3404,7 +3541,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget areaMultiFormProduct({bool isHorizontal}) {
+  Widget areaMultiFormProduct({bool isHorizontal = false}) {
     return Column(
       children: [
         SizedBox(
@@ -3536,7 +3673,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiNikon({bool isHorizontal}) {
+  Widget durasiNikon({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3586,7 +3723,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiNikon = value;
                   });
@@ -3599,7 +3736,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiNikonSt({bool isHorizontal}) {
+  Widget durasiNikonSt({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3649,7 +3786,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiNikonSt = value;
                   });
@@ -3662,7 +3799,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiMoe({bool isHorizontal}) {
+  Widget durasiMoe({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3712,7 +3849,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiMoe = value;
                   });
@@ -3725,7 +3862,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiLeinz({bool isHorizontal}) {
+  Widget durasiLeinz({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3775,7 +3912,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiLeinz = value;
                   });
@@ -3788,7 +3925,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiLeinzSt({bool isHorizontal}) {
+  Widget durasiLeinzSt({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3838,7 +3975,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiLeinzSt = value;
                   });
@@ -3851,7 +3988,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiOriental({bool isHorizontal}) {
+  Widget durasiOriental({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3901,7 +4038,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiOriental = value;
                   });
@@ -3914,7 +4051,7 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiOrientalSt({bool isHorizontal}) {
+  Widget durasiOrientalSt({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3964,7 +4101,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     child: Text(e, style: TextStyle(color: Colors.black54)),
                   );
                 }).toList(),
-                onChanged: (String value) {
+                onChanged: (String? value) {
                   setState(() {
                     _durasiOrientalSt = value;
                   });
@@ -3974,6 +4111,45 @@ class _ChangeContractState extends State<ChangeContract> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget areaSigned({bool isHorizontal = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isHorizontal ? 10.r : 5.r,
+            vertical: isHorizontal ? 18.r : 8.r,
+          ),
+          child: Text(
+            'Persetujuan Customer',
+            style: TextStyle(
+              color: Colors.black87,
+              fontFamily: 'Montserrat',
+              fontSize: isHorizontal ? 26.sp : 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: isHorizontal ? 30.h : 5.h,
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isHorizontal ? 10.r : 5.r,
+          ),
+          child: Signature(
+            controller: _signController,
+            height: isHorizontal ? 250.h : 150.h,
+            backgroundColor: Colors.blueGrey.shade50,
+          ),
+        ),
+        SizedBox(
+          height: isHorizontal ? 30.h : 15.h,
+        ),
+      ],
     );
   }
 }

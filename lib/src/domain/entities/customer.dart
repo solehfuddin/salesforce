@@ -1,12 +1,16 @@
 class Customer {
-  String id, nama, agama, tempatLahir, tanggalLahir, alamat, noTlp, fax, noIdentitas, uploadIdentitas,
+  String noAccount = '';
+  String id, nama, agama, tempatLahir, tanggalLahir, alamat, noTlp, fax, noIdentitas, 
+  uploadIdentitas, gambarKartuNama, gambarPendukung,
   namaUsaha, alamatUsaha, tlpUsaha, faxUsaha, emailUsaha, namaPj, sistemPembayaran, kreditLimit, 
   uploadDokumen, ttdCustomer, ttdArManager, ttdSalesManager, namaSalesman, namaArManager, note, 
-  econtract, status, isRevisi, createdBy, dateAdded, dateSM, dateAM, namaSales, jabatanSales;
-
-  Customer();
+  econtract, status, isRevisi, createdBy, dateAdded;
+  String dateSM = '';
+  String dateAM = '';
+  String noNpwp = '';
 
   Customer.fromJson(Map json): 
+    noAccount = json['no_account'] ?? '',
     id = json['id'],
     nama = json['nama'],
     agama = json['agama'],
@@ -15,35 +19,37 @@ class Customer {
     alamat = json['alamat'],
     noTlp = json['no_telp'],
     fax = json['fax'],
-    noIdentitas = json['no_identitas'],
-    uploadIdentitas = json['upload_identitas'],
-    namaUsaha = json['nama_usaha'],
+    noIdentitas = json['no_identitas'] ?? '',
+    noNpwp = json['no_npwp'] ?? '',
+    uploadIdentitas = json['upload_identitas'] ?? '',
+    gambarKartuNama = json['gambar_kartu_nama'] ?? '',
+    gambarPendukung = json['gambar_pendukung'] ?? '',
+    namaUsaha = json['nama_usaha'] ?? '',
     alamatUsaha = json['alamat_usaha'],
     tlpUsaha = json['telp_usaha'],
     faxUsaha = json['fax_usaha'],
     emailUsaha = json['email_usaha'],
     namaPj = json['nama_pj'],
-    sistemPembayaran = json['sistem_pembayaran'],
+    sistemPembayaran = json['sistem_pembayaran'] ?? '',
     kreditLimit = json['kredit_limit'],
-    uploadDokumen = json['upload_dokumen'],
+    uploadDokumen = json['upload_dokumen'] ?? '',
     ttdCustomer = json['ttd_customer'],
     ttdArManager = json['ttd_ar_manager'],
     ttdSalesManager = json['ttd_sales_manager'],
-    namaSalesman = json['nama_salesman'],
-    namaArManager = json['nama_ar_manager'],
+    namaSalesman = json['nama_salesmanager'] ?? '',
+    namaArManager = json['nama_ar_manager'] ?? '',
     note = json['note'],
     econtract = json['e_contract'],
     status = json['status'],
     isRevisi = json['is_revisi'],
     createdBy = json['created_by'],
     dateAdded = json['date_added'],
-    dateSM = json['date_approved_sm'],
-    dateAM = json['date_approved_am'],
-    namaSales = json['name'],
-    jabatanSales = json['role'];
+    dateSM = json['date_approved_sm'] ?? '',
+    dateAM = json['date_approved_am'] ?? '';
 
   Map toJson(){
     return {
+      'no_account' : noAccount,
       'id' : id,
       'nama' : nama,
       'agama' : agama,
@@ -53,7 +59,10 @@ class Customer {
       'no_telp' : noTlp,
       'fax' : fax,
       'no_identitas' : noIdentitas,
+      'no_npwp' : noNpwp,
       'upload_identitas' : uploadIdentitas,
+      'gambar_kartu_nama' : gambarKartuNama,
+      'gambar_pendukung' : gambarPendukung,
       'nama_usaha' : namaUsaha,
       'alamat_usaha' : alamatUsaha,
       'telp_usaha' : tlpUsaha,
@@ -69,9 +78,9 @@ class Customer {
       'nama_salesman' : namaSalesman,
       'nama_ar_manager' : namaArManager,
       'note' : note,
+      'e_contract' : econtract,
       'status': status,
       'is_revisi' : isRevisi,
-      'e_contract' : econtract,
       'created_by' : createdBy,
       'date_added' : dateAdded,
       'date_approved_sm' : dateSM,

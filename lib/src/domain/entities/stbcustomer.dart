@@ -2,8 +2,8 @@ class StbCustomer {
   String id, customerBillName, customerBillNumber, status, idFlag, customerCategoryCode,
   customerShipNumber, territoryId, area, taxCode, glIdFreight, partyId, customerId, 
   partySiteId, partyLocationId, addressId, siteUseId, billToSiteUseId, customerShipName,
-  address2, address3, address4, city, postalCode, state, province, phone, contactPerson,
-  totalContract;
+  address2, address3, address4, city, postalCode, state, province, phone, contactPerson;
+  String totalContract = '';
   bool ischecked = false;
 
   StbCustomer.fromJson(Map json):

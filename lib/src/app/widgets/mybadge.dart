@@ -8,12 +8,12 @@ class MyBadge extends StatelessWidget {
   final Color color; // the  background color of the badge - default is red
 
   const MyBadge(
-      {Key key,
-      this.child,
-      this.value,
+      {Key? key,
+      required this.child,
+      this.value = "",
       this.color = Colors.red,
-      this.top,
-      this.right})
+      this.top = 0,
+      this.right = 0,})
       : super(key: key);
 
   @override
