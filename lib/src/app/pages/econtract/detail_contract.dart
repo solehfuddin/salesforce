@@ -559,14 +559,12 @@ class _DetailContractState extends State<DetailContract> {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        approveContract(
-          isAr,
-          idCust,
-          username,
-          isHorizontal: isHorizontal,
-        );
-      }
+      approveContract(
+        isAr,
+        idCust,
+        username,
+        isHorizontal: isHorizontal,
+      );
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       if (mounted) {
@@ -755,6 +753,12 @@ class _DetailContractState extends State<DetailContract> {
   }
 
   approveOldCustomer({bool isHorizontal = false}) {
+    print('Area old customer');
+
+    // widget.div == "AR"
+    //   ? print('Approve kontrak AR')
+    //   : print('Approve kontrak SM');
+
     widget.div == "AR"
         ? approveContract(
             true,
@@ -771,35 +775,40 @@ class _DetailContractState extends State<DetailContract> {
   }
 
   approveNewCustomer({bool isHorizontal = false}) {
+    print('Area new customer');
     widget.div == "AR"
-        ? approveCustomer(
-            true,
-            widget.item.idCustomer,
-            widget.ttd,
-            widget.username,
-            isHorizontal: isHorizontal,
-          )
-        : approveCustomer(
-            false,
-            widget.item.idCustomer,
-            widget.ttd,
-            widget.username,
-            isHorizontal: isHorizontal,
-          );
-
-    widget.div == "AR"
-        ? approveContract(
-            true,
-            widget.item.idCustomer,
-            widget.username,
-            isHorizontal: isHorizontal,
-          )
-        : approveContract(
-            false,
-            widget.item.idCustomer,
-            widget.username,
-            isHorizontal: isHorizontal,
-          );
+        ? cust!.ttdArManager == "0"
+            // ? print('Ekse AR approve customer + kontrak')
+            // : print('Ekse AR approve kontrak')
+            ? approveCustomer(
+                true,
+                widget.item.idCustomer,
+                widget.ttd,
+                widget.username,
+                isHorizontal: isHorizontal,
+              )
+            : approveContract(
+                true,
+                widget.item.idCustomer,
+                widget.username,
+                isHorizontal: isHorizontal,
+              )
+        : cust!.ttdSalesManager == "0"
+            // ? print('Ekse SM approve customer + kontrak')
+            // : print('Ekse SM approve kontrak');
+            ? approveCustomer(
+                false,
+                widget.item.idCustomer,
+                widget.ttd,
+                widget.username,
+                isHorizontal: isHorizontal,
+              )
+            : approveContract(
+                false,
+                widget.item.idCustomer,
+                widget.username,
+                isHorizontal: isHorizontal,
+              );
   }
 
   rejectOldCustomer({bool isHorizontal = false}) {
@@ -844,7 +853,7 @@ class _DetailContractState extends State<DetailContract> {
     textReason.text.isEmpty ? _isReason = true : _isReason = false;
 
     if (!_isReason) {
-      widget.isContract!
+      widget.isContract == false
           ? rejectOldCustomer(
               isHorizontal: isHorizontal,
             )
@@ -2044,6 +2053,24 @@ class _DetailContractState extends State<DetailContract> {
                                         : SizedBox(
                                             width: 10.h,
                                           ),
+                                    SizedBox(
+                                      height: isHor ? 15.h : 10.h,
+                                    ),
+                                    widget.item.catatan.contains(
+                                            'KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1')
+                                        ? Text(
+                                            'Kontrak Khusus Leinz Prestige (Jepang) - Beli 3 Gratis 1 .',
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: isHor ? 14.sp : 12.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                            ),
+                                            textAlign: TextAlign.justify,
+                                          )
+                                        : SizedBox(
+                                            width: 10.h,
+                                          ),
                                   ],
                                 ),
                               )
@@ -2439,7 +2466,7 @@ class _DetailContractState extends State<DetailContract> {
                 setState(() {
                   startLoading();
                   waitingLoad();
-                  widget.isContract!
+                  widget.isContract == false
                       ? approveOldCustomer(
                           isHorizontal: isHorizontal,
                         )

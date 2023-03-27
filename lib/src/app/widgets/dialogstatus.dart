@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
+import 'package:sample/src/app/pages/staff/staff_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,6 +142,11 @@ class _DialogStatusState extends State<DialogStatus> {
                             Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(
                                     builder: (context) => AdminScreen()),
+                                (route) => false);
+                          } else if (role == "STAFF") {
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => StaffScreen()),
                                 (route) => false);
                           } else {
                             Navigator.of(context).pushAndRemoveUntil(

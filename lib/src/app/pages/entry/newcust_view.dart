@@ -344,7 +344,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         : _isTlpUsahaValid = false;
     textFaxOptik.text.isEmpty
         ? _isFaxUsahaValid = false
-        : textFaxOptik.text.length < 13
+        : textFaxOptik.text.length < 10
             ? _isFaxUsahaValid = true
             : _isFaxUsahaValid = false;
     textFaxUser.text.isEmpty
@@ -858,7 +858,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.r),
                     ),
-                    errorText: _isNamaOptik ? 'Data wajib diisi' : null,
+                    errorText: _isKota ? 'Wajib diisi' : null,
                   ),
                   maxLength: 50,
                   controller: textKotaOptik,

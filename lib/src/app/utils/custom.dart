@@ -15,6 +15,7 @@ import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/login/login_view.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
+import 'package:sample/src/app/pages/staff/staff_view.dart';
 // import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/widgets/detail_rejected.dart';
@@ -31,6 +32,7 @@ import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 // import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -383,6 +385,15 @@ savePref(
       print(pref.getString("role"));
       print(pref.getString("ttduser"));
       print(pref.getString("tokenuser"));
+    } else if (role == "STAFF") {
+      print('Login Ke Staff');
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => StaffScreen()));
+
+      print(pref.getString("name"));
+      print(pref.getString("role"));
+      print(pref.getString("ttduser"));
+      print(pref.getString("tokenuser"));
     } else {
       print('Login Ke Sales');
       Navigator.of(context).pushReplacement(
@@ -645,7 +656,7 @@ handleStatusChangeContract(
   dynamic keyword,
   bool isHorizontal = false,
   bool isNewCust = false,
-  Customer? customer,
+  CustomerNoImage? customer,
 }) {
   AlertDialog alert = AlertDialog(
     content: Container(
@@ -699,14 +710,17 @@ handleStatusChangeContract(
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop(context);
                 if (status) {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
                       builder: (context) => HistoryContract(
-                            item: item,
-                            cust: customer,
-                            keyword: keyword,
-                            isAdmin: false,
-                            isNewCust: isNewCust,
-                          )));
+                        item: item,
+                        cust: customer,
+                        keyword: keyword,
+                        isAdmin: false,
+                        isNewCust: isNewCust,
+                      ),
+                    ),
+                  );
                 }
               },
             ),
@@ -865,7 +879,7 @@ handleDigitalSigned(
 
 formWaiting(
   BuildContext context,
-  List<Customer> customer,
+  List<CustomerNoImage> customer,
   int position, {
   String reasonSM = '',
   String reasonAM = '',
@@ -902,7 +916,7 @@ formWaiting(
 
 formWaitingAdmin(
   BuildContext context,
-  List<Customer> customer,
+  List<CustomerNoImage> customer,
   int position, {
   String reasonSM = '',
   String reasonAM = '',
@@ -944,7 +958,9 @@ formWaitingContract(
   String reasonSM,
   String reasonAM, {
   bool isNewCust = false,
-  Customer? customer,
+  CustomerNoImage? customer,
+  String? ttdCustomer,
+  dynamic idCustomer,
 }) {
   return showModalBottomSheet(
     elevation: 2,
@@ -965,6 +981,8 @@ formWaitingContract(
         reasonAM,
         isNewCust: isNewCust,
         customer: customer,
+        idCustomer: idCustomer,
+        ttdCustomer: ttdCustomer,
       );
     },
   );

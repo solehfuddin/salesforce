@@ -5,9 +5,12 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
+import 'package:sample/src/app/pages/attendance/attendance_service.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/dbhelper.dart';
+import 'package:sample/src/app/utils/mylocation.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
 import 'package:sample/src/app/widgets/areabanner.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
@@ -33,6 +36,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DbHelper dbHelper = DbHelper.instance;
+  MyLocation _myLocation = MyLocation();
+  late SharedPreferences preferences;
   List<Notifikasi> listNotifLocal = List.empty(growable: true);
   String? id = '';
   String? role = '';
@@ -42,6 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String? userUpper = '';
   String? ttdSales = '';
   String? changePass = '';
+  bool? isProminentAccess = false;
+  bool isPermissionCamera = false;
+  bool isLocationService = false;
+  bool isPermissionService = false;
   bool _isLoading = true;
   bool _hidePerform = false;
   bool _isBadge = false;
@@ -55,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
   dynamic totalSales;
 
   getRole() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences = await SharedPreferences.getInstance();
     setState(() {
       id = preferences.getString("id");
       role = preferences.getString("role");
@@ -64,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
       userUpper = username?.toUpperCase();
       divisi = preferences.getString("divisi");
       ttdSales = preferences.getString("ttduser") ?? '';
+      isProminentAccess = preferences.getBool("check_prominent") ?? false;
 
       print("Dashboard : $role");
       print("TTD Sales : $ttdSales");
@@ -87,6 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
     FirebaseMessaging.instance.unsubscribeFromTopic("allar");
     getRole();
 
+    checkPermission();
+
     DateTime now = new DateTime.now();
 
     stDate = "01/${now.month}/${now.year}";
@@ -98,6 +110,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
     dateSelected =
         "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
+  }
+
+  void checkPermission() async {
+    isPermissionService = await _myLocation.isPermissionEnable();
+    setState(() {
+      if (!isProminentAccess!) {
+        dialogProminentService(context);
+      }
+      else
+      {
+        checkService();
+      }
+    });
+  }
+
+  void checkService() async {
+    isLocationService = await _myLocation.isServiceEnable();
+    setState(() {
+      if (isPermissionService && isLocationService) {
+        print('Granted');
+      } else {
+        dialogLocationService(context);
+      }
+    });
   }
 
   checkPassword(int input) async {
@@ -148,6 +184,49 @@ class _HomeScreenState extends State<HomeScreen> {
             name,
           ),
         );
+      },
+    );
+  }
+
+  dialogLocationService(BuildContext context) {
+    return showModalBottomSheet(
+      elevation: 2,
+      backgroundColor: Colors.white,
+      isDismissible: false,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15),
+          topRight: Radius.circular(15),
+        ),
+      ),
+      context: context,
+      builder: (context) {
+        return AttendanceService();
+      },
+    );
+  }
+
+  dialogProminentService(BuildContext context) {
+    return showModalBottomSheet(
+      elevation: 2,
+      backgroundColor: Colors.white,
+      isDismissible: false,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15),
+          topRight: Radius.circular(15),
+        ),
+      ),
+      context: context,
+      builder: (context) {
+        return AttendanceProminent();
+      },
+    ).whenComplete(
+      () {
+        preferences.setBool("check_prominent", true);
+        checkService();
       },
     );
   }

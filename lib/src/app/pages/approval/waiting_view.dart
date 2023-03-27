@@ -408,7 +408,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: isHorizontal ? 120.h : 90.h,
+                      height: isHorizontal ? 130.h : 100.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -547,7 +547,8 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                       setState(() {
                         getCustomerContract(
                           customer[position].id,
-                          false,
+                          // false,
+                          true,
                           isHorizontal: isHorizontal,
                         );
                       });

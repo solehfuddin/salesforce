@@ -12,7 +12,8 @@ import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/actcontract.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:sample/src/domain/entities/discount.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
@@ -26,7 +27,7 @@ import 'package:signature/signature.dart';
 // ignore: must_be_immutable
 class ChangeContract extends StatefulWidget {
   final OldCustomer? oldCustomer;
-  final Customer? customer;
+  final CustomerNoImage? customer;
   final List<Contract> actContract;
   dynamic keyword;
   bool? isNewCust = false;
@@ -100,6 +101,8 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isConnected = false;
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
+  bool _isPrestigeContract = false;
+  bool _isCashbackWithDiscContract = false;
   bool _isChildContract = false;
   bool _isCashbackContrack = false;
   bool _isContractActive = false;
@@ -780,12 +783,12 @@ class _ChangeContractState extends State<ChangeContract> {
     print('pembayaran_leinz_stock : $outLeinzSt');
     print('pembayaran_oriental_stock : $outOrientalSt');
     print('start_contract : $startContract');
-    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : 'LENSA'}');
+    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : ${_isFrameContract ? '1' : '0'}');
     print('is_partai : ${_isPartaiContract ? '1' : '0'}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
-    print('catatan : ${textCatatan.text}');
+    print('catatan : ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
     print('created_by : $id');
     print('has_parent : ${_isContractActive ? '1' : '0'}');
     print(
@@ -799,15 +802,16 @@ class _ChangeContractState extends State<ChangeContract> {
       print('Child');
     } else {
       setState(() {
-        if (defaultDisc.length > 0) {
-          defaultDisc.forEach((element) {
-            element.proddiv!.ischecked = true;
-          });
-          fixedDisc.addAll(defaultDisc);
-          for (int i = 0; i < defaultDisc.length; i++) {
-            tmpDivInput.add(defaultDisc[i].proddiv!.alias);
-          }
-        }
+        //Ubah kontrak tidak perlu default diskon
+        // if (defaultDisc.length > 0) {
+        //   defaultDisc.forEach((element) {
+        //     element.proddiv!.ischecked = true;
+        //   });
+        //   fixedDisc.addAll(defaultDisc);
+        //   for (int i = 0; i < defaultDisc.length; i++) {
+        //     tmpDivInput.add(defaultDisc[i].proddiv!.alias);
+        //   }
+        // }
 
         if (formDisc.length > 0) {
           for (int i = 0; i < formDisc.length; i++) {
@@ -898,10 +902,10 @@ class _ChangeContractState extends State<ChangeContract> {
       print('pembayaran_leinz_stock: $outLeinzSt');
       print('pembayaran_oriental_stock: $outOrientalSt');
       print('start_contract: $startContract');
-      print('type_contract: ${_isCashbackContrack ? 'FRAME' : 'LENSA'}');
+      print('type_contract: ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
       print('is_frame: ${_isFrameContract ? '1' : '0'}');
       print('is_partai: ${_isPartaiContract ? '1' : '0'}');
-      print('catatan: ${textCatatan.text}');
+      print('catatan: ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
       print('no_account: ');
       print('ttd_pertama: $ttdPertama');
       print('ttd_kedua: $ttdKedua');
@@ -945,10 +949,10 @@ class _ChangeContractState extends State<ChangeContract> {
             'pembayaran_leinz_stock': outLeinzSt,
             'pembayaran_oriental_stock': outOrientalSt,
             'start_contract': startContract,
-            'type_contract': _isCashbackContrack ? 'FRAME' : 'LENSA',
+            'type_contract': _isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA',
             'is_frame': _isFrameContract ? '1' : '0',
             'is_partai': _isPartaiContract ? '1' : '0',
-            'catatan': textCatatan.text,
+            'catatan': "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
             'no_account': '',
             // 'no_account': idCustomer,
             'ttd_pertama': ttdPertama,
@@ -2385,6 +2389,80 @@ class _ChangeContractState extends State<ChangeContract> {
                                 setState(
                                   () {
                                     this._isPartaiContract = value!;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 Gratis 1',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isPrestigeContract,
+                              onChanged: (bool? value) {
+                                setState(
+                                  () {
+                                    this._isPrestigeContract = value!;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Cashback (Dengan Diskon)',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isCashbackWithDiscContract,
+                              onChanged: (bool? value) {
+                                setState(
+                                  () {
+                                    this._isCashbackWithDiscContract = value!;
                                   },
                                 );
                               },

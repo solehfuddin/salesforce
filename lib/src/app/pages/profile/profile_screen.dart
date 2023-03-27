@@ -369,8 +369,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                     color: Colors.green.shade500,
                                     borderRadius: BorderRadius.all(
-                                        Radius.circular(22.r))),
-                              ))
+                                        Radius.circular(22.r),),),
+                              ),)
                         ],
                       ),
                     ),

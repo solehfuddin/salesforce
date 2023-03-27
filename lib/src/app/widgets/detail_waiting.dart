@@ -15,12 +15,13 @@ import 'package:sample/src/app/pages/econtract/econtract_view.dart';
 import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
 class DetailWaiting extends StatefulWidget {
-  List<Customer>? customer;
+  List<CustomerNoImage>? customer;
   int? position;
   String? reasonSM;
   String? reasonAM;

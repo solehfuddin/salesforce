@@ -8,7 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApprovedScreen extends StatefulWidget {
@@ -26,9 +27,9 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
   String? divisi = '';
   String? ttdPertama = '';
 
-  List<Customer> tmpList = List.empty(growable: true);
-  List<Customer> currList = List.empty(growable: true);
-  Future<List<Customer>>? _listFuture;
+  List<CustomerNoImage> tmpList = List.empty(growable: true);
+  List<CustomerNoImage> currList = List.empty(growable: true);
+  Future<List<CustomerNoImage>>? _listFuture;
   int page = 1;
   int pageCount = 5;
   int startAt = 0;
@@ -92,13 +93,13 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
     }
   }
 
-  Future<List<Customer>> getCustomerData(bool isAr) async {
+  Future<List<CustomerNoImage>> getCustomerData(bool isAr) async {
     setState(() {
       isDataFound = true;
     });
 
     const timeout = 15;
-    List<Customer> list = List.empty(growable: true);
+    List<CustomerNoImage> list = List.empty(growable: true);
     var url = !isAr
         ? '$API_URL/customers/approvedSM/$id?limit=$pageCount&offset=$startAt'
         : '$API_URL/customers/approvedAM?limit=$pageCount&offset=$startAt';
@@ -115,7 +116,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          list = rest.map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json)).toList();
           print("List Size: ${list.length}");
 
           setState(() {
@@ -141,7 +142,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
     return list;
   }
 
-  getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
+  getCustomerContract(List<CustomerNoImage> listCust, int pos, int idCust) async {
     const timeout = 15;
     var url = '$API_URL/contract?id_customer=$idCust';
 
@@ -283,7 +284,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                         child: FutureBuilder(
                             future: _listFuture,
                             builder: (BuildContext context,
-                                AsyncSnapshot<List<Customer>> snapshot) {
+                                AsyncSnapshot<List<CustomerNoImage>> snapshot) {
                               switch (snapshot.connectionState) {
                                 case ConnectionState.waiting:
                                   return Center(
@@ -350,7 +351,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len,
+  Widget listViewWidget(List<CustomerNoImage> customer, int len,
       {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(

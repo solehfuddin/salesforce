@@ -38,7 +38,7 @@ class Customer {
     ttdSalesManager = json['ttd_sales_manager'],
     namaSalesman = json['nama_salesmanager'] ?? '',
     namaArManager = json['nama_ar_manager'] ?? '',
-    note = json['note'],
+    note = json['note'] ?? '',
     econtract = json['e_contract'],
     status = json['status'],
     isRevisi = json['is_revisi'],

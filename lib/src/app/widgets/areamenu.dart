@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/pages/activity/daily_activity.dart';
+import 'package:sample/src/app/pages/attendance/attendance.dart';
+import 'package:sample/src/app/pages/eform/eform.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
@@ -43,317 +46,535 @@ SliverToBoxAdapter areaMenu(
         vertical: isHorizontal ? 10.r : 10.r,
         horizontal: isHorizontal ? 5.r : 15.r,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: isHorizontal ? 10.h : 7.h,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/entry_customer_new.png',
-                          width: isHorizontal ? 60.r : 45.r,
-                          height: isHorizontal ? 60.r : 45.r,
-                        ),
-                        SizedBox(
-                          height: screenHeight * 0.015,
-                        ),
-                        Text(
-                          'Kustomer',
-                          style: TextStyle(
-                              fontSize: isHorizontal ? 17.sp : 13.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe ui',
-                              color: Colors.black54),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
+      child: role == "STAFF"
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: isHorizontal ? 10.h : 7.h,
                 ),
-                onTap: () {
-                  checkSigned(idSales, role, context, isConnected: isConnected);
-                },
-              ),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/e_contract_new.png',
-                          width: isHorizontal ? 55.r : 45.r,
-                          height: isHorizontal ? 55.r : 45.r,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/check_in_attendance.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Masuk',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        SizedBox(
-                          height: screenHeight * 0.015,
-                        ),
-                        Text(
-                          'E-Kontrak',
-                          style: TextStyle(
-                              fontSize: isHorizontal ? 17.sp : 13.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe ui',
-                              color: Colors.black54),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  checkCustomer(idSales!, context);
-                },
-              ),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/mon_contract.png',
-                          width: isHorizontal ? 55.r : 45.r,
-                          height: isHorizontal ? 55.r : 45.r,
-                        ),
-                        SizedBox(
-                          height: screenHeight * 0.015,
-                        ),
-                        Text(
-                          'Monitoring',
-                          style: TextStyle(
-                              fontSize: isHorizontal ? 17.sp : 13.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe ui',
-                              color: Colors.black54),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => SearchContract(),
-                    ),
-                  );
-                },
-              ),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/renew_contract.png',
-                        width: isHorizontal ? 55.r : 45.r,
-                        height: isHorizontal ? 55.r : 45.r,
-                      ),
-                      SizedBox(
-                        height: screenHeight * 0.015,
-                      ),
-                      Text(
-                        'Ubah Kontrak',
-                        style: TextStyle(
-                            fontSize: isHorizontal ? 17.sp : 13.sp,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Segoe ui',
-                            color: Colors.black54),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => RenewalContract(
-                        keyword: '',
-                        isAdmin: false,
+                        onTap: () async {
+                          await Permission.camera.request();
+                          if (await Permission.camera.isGranted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AttendanceScreen(
+                                  isCekin: true,
+                                ),
+                              ),
+                            );
+                          } else {
+                            print('Access camera tidak diizinkan');
+                          }
+                        },
                       ),
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
-          SizedBox(
-            height: isHorizontal ? 15.h : 10.h,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/agenda_menu_new.png',
-                          width: isHorizontal ? 55.r : 45.r,
-                          height: isHorizontal ? 55.r : 45.r,
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/check_out_attendance.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Pulang',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        SizedBox(
-                          height: screenHeight * 0.015,
-                        ),
-                        Text(
-                          'Aktivitas',
-                          style: TextStyle(
-                              fontSize: isHorizontal ? 17.sp : 13.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe ui',
-                              color: Colors.black54),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => DailyActivity(
-                        isAdmin: false,
+                        onTap: () async {
+                          await Permission.camera.request();
+                          if (await Permission.camera.isGranted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AttendanceScreen(
+                                  isCekin: false,
+                                ),
+                              ),
+                            );
+                          } else {
+                            print('Access camera tidak diizinkan');
+                          }
+                        },
                       ),
                     ),
-                  );
-                },
-              ),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        // Image.asset(
-                        //   'assets/images/e_contract_new.png',
-                        //   width: isHorizontal ? 50.r : 40.r,
-                        //   height: isHorizontal ? 50.r : 40.r,
-                        // ),
-                        // SizedBox(
-                        //   height: screenHeight * 0.015,
-                        // ),
-                        // Text(
-                        //   'E-Kontrak',
-                        //   style: TextStyle(
-                        //       fontSize: isHorizontal ? 17.sp : 13.sp,
-                        //       fontWeight: FontWeight.w600,
-                        //       fontFamily: 'Segoe ui',
-                        //       color: Colors.black54),
-                        //   textAlign: TextAlign.center,
-                        // ),
-                        SizedBox(
-                          width: isHorizontal ? 90.r : 65.r,
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/e-form.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'E-form',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        SizedBox(
-                          height: screenHeight * 0.015,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  // checkCustomer(idSales!, context);
-                },
-              ),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        // Image.asset(
-                        //   'assets/images/mon_contract.png',
-                        //   width: isHorizontal ? 50.r : 40.r,
-                        //   height: isHorizontal ? 50.r : 40.r,
-                        // ),
-                        // SizedBox(
-                        //   height: screenHeight * 0.015,
-                        // ),
-                        // Text(
-                        //   'Monitoring',
-                        //   style: TextStyle(
-                        //       fontSize: isHorizontal ? 17.sp : 13.sp,
-                        //       fontWeight: FontWeight.w600,
-                        //       fontFamily: 'Segoe ui',
-                        //       color: Colors.black54),
-                        //   textAlign: TextAlign.center,
-                        // ),
-                        SizedBox(
-                          width: isHorizontal ? 90.r : 65.r,
-                        ),
-                        SizedBox(
-                          height: screenHeight * 0.015,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(
-                  //     builder: (context) => SearchContract(),
-                  //   ),
-                  // );
-                },
-              ),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: Column(
-                    children: [
-                      // Image.asset(
-                      //   'assets/images/renew_contract.png',
-                      //   width: isHorizontal ? 50.r : 40.r,
-                      //   height: isHorizontal ? 50.r : 40.r,
-                      // ),
-                      // SizedBox(
-                      //   height: screenHeight * 0.015,
-                      // ),
-                      // Text(
-                      //   'Ubah Kontrak',
-                      //   style: TextStyle(
-                      //       fontSize: isHorizontal ? 17.sp : 13.sp,
-                      //       fontWeight: FontWeight.w600,
-                      //       fontFamily: 'Segoe ui',
-                      //       color: Colors.black54),
-                      //   textAlign: TextAlign.center,
-                      // ),
-                      SizedBox(
-                        width: isHorizontal ? 90.r : 65.r,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EformScreen(),
+                            ),
+                          );
+                        },
                       ),
-                      SizedBox(
-                        height: screenHeight * 0.015,
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                // Image.asset(
+                                //   'assets/images/renew_contract.png',
+                                //   width: isHorizontal ? 50.r : 40.r,
+                                //   height: isHorizontal ? 50.r : 40.r,
+                                // ),
+                                // SizedBox(
+                                //   height: screenHeight * 0.015,
+                                // ),
+                                // Text(
+                                //   'Ubah Kontrak',
+                                //   style: TextStyle(
+                                //       fontSize: isHorizontal ? 17.sp : 13.sp,
+                                //       fontWeight: FontWeight.w600,
+                                //       fontFamily: 'Segoe ui',
+                                //       color: Colors.black54),
+                                //   textAlign: TextAlign.center,
+                                // ),
+                                SizedBox(
+                                  width: isHorizontal ? 105.r : 84.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (context) => RenewalContract(
+                          //       keyword: '',
+                          //       isAdmin: false,
+                          //     ),
+                          //   ),
+                          // );
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                onTap: () {
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(
-                  //     builder: (context) => RenewalContract(
-                  //       keyword: '',
-                  //       isAdmin: false,
-                  //     ),
-                  //   ),
-                  // );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: isHorizontal ? 10.h : 7.h,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/entry_customer_new.png',
+                                  width: isHorizontal ? 60.r : 45.r,
+                                  height: isHorizontal ? 60.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Kustomer',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          checkSigned(idSales, role, context,
+                              isConnected: isConnected);
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/e_contract_new.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'E-Kontrak',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          checkCustomer(idSales!, context);
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/mon_contract.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Monitoring',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SearchContract(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/renew_contract.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Ubah Kontrak',
+                                  style: TextStyle(
+                                    fontSize: isHorizontal ? 17.sp : 13.sp,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Segoe ui',
+                                    color: Colors.black54,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => RenewalContract(
+                                keyword: '',
+                                isAdmin: false,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: isHorizontal ? 20.h : 15.h,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/agenda_menu_new.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Aktivitas',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DailyActivity(
+                                isAdmin: false,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/check_in_attendance.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Masuk',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () async {
+                          await Permission.camera.request();
+                          if (await Permission.camera.isGranted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AttendanceScreen(
+                                  isCekin: true,
+                                ),
+                              ),
+                            );
+                          } else {
+                            print('Access camera tidak diizinkan');
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/check_out_attendance.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'Pulang',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () async {
+                          await Permission.camera.request();
+                          if (await Permission.camera.isGranted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AttendanceScreen(
+                                  isCekin: false,
+                                ),
+                              ),
+                            );
+                          } else {
+                            print('Access camera tidak diizinkan');
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/e-form.png',
+                                  width: isHorizontal ? 55.r : 45.r,
+                                  height: isHorizontal ? 55.r : 45.r,
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.015,
+                                ),
+                                Text(
+                                  'E-form',
+                                  style: TextStyle(
+                                      fontSize: isHorizontal ? 17.sp : 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Segoe ui',
+                                      color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EformScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
     ),
   );
 }

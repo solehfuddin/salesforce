@@ -8,7 +8,8 @@ import 'package:sample/src/app/pages/renewcontract/change_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 
 import 'package:http/http.dart' as http;
@@ -17,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ignore: must_be_immutable
 class HistoryContract extends StatefulWidget {
   OldCustomer? item;
-  Customer? cust;
+  CustomerNoImage? cust;
   dynamic keyword;
   bool? isAdmin = false;
   bool? isNewCust = false;
@@ -580,16 +581,13 @@ class _HistoryContractState extends State<HistoryContract> {
                                                   Text(
                                                     'Data tidak ditemukan',
                                                     style: TextStyle(
-                                                      fontSize:
-                                                          isHorizontal
-                                                              ? 16.sp
-                                                              : 18.sp,
+                                                      fontSize: isHorizontal
+                                                          ? 16.sp
+                                                          : 18.sp,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color:
-                                                          Colors.red[600],
-                                                      fontFamily:
-                                                          'Montserrat',
+                                                      color: Colors.red[600],
+                                                      fontFamily: 'Montserrat',
                                                     ),
                                                   )
                                                 ],
@@ -598,10 +596,8 @@ class _HistoryContractState extends State<HistoryContract> {
                                               return listViewWidget(
                                                 snapshot.data!,
                                                 snapshot.data!.length,
-                                                isHorizontal:
-                                                    isHorizontal,
-                                                isNewCust:
-                                                    widget.isNewCust!,
+                                                isHorizontal: isHorizontal,
+                                                isNewCust: widget.isNewCust!,
                                               );
                                             }
                                           } else {
@@ -758,8 +754,10 @@ class _HistoryContractState extends State<HistoryContract> {
                       position,
                       item[position].reasonSm,
                       item[position].reasonAm,
-                      isNewCust: widget.isNewCust!,
+                      isNewCust: isNewCust,
                       customer: widget.cust,
+                      idCustomer: item[position].idCustomer,
+                      ttdCustomer: ttdPertama,
                     );
             },
           );

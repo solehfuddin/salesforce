@@ -14,18 +14,20 @@ import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/actcontract.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:sample/src/domain/entities/discount.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:sample/src/domain/entities/product.dart';
 import 'package:sample/src/domain/entities/stbcustomer.dart';
+import 'package:sample/src/domain/entities/tipe_kontrak.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 // ignore: must_be_immutable
 class EcontractScreen extends StatefulWidget {
-  final List<Customer> customerList;
+  final List<CustomerNoImage> customerList;
   final int position;
   bool? isRevisi = false;
   bool? isAdmin = false;
@@ -48,12 +50,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
   List<String> tmpDivInput = List.empty(growable: true);
   List<String> tmpProduct = List.empty(growable: true);
   List<Proddiv> itemProdDiv = List.empty(growable: true);
+  List<TipeKontrak> itemTipeKontrak = List.empty(growable: true);
   List<ActContract> itemActiveContract = List.empty(growable: true);
   List<Product> itemProduct = List.empty(growable: true);
   List<StbCustomer> itemStbCust = List.empty(growable: true);
   List<Contract> dtContract = List.empty(growable: true);
   List<Discount> dtDisc = List.empty(growable: true);
   List<Discount> dtCustomDisc = List.empty(growable: true);
+  List<TipeKontrak> _listFuture = List.empty(growable: true);
+  List<TipeKontrak> _listFutureTmp = List.empty(growable: true);
   var _now = new DateTime.now();
   var _formatter = new DateFormat('yyyy-MM-dd');
   bool _isLoading = true;
@@ -96,6 +101,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
   TextEditingController textCatatan = new TextEditingController();
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
+  bool _isPrestigeContract = false;
+  bool _isCashbackWithDiscContract = false;
   bool _isChildContract = false;
   bool _isCashbackContrack = false;
   bool _isContractActive = false;
@@ -128,6 +135,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
   getRole() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    _listFuture = await getTipeKontrak();
+    _listFutureTmp = await getTipeKontrak();
+
     setState(() {
       id = preferences.getString("id");
       role = preferences.getString("role");
@@ -144,6 +154,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
       print("Dashboard : $role");
       getTtdSales(int.parse(id!));
       getItemProdDiv();
+
       setRegularDisc();
 
       ttdKedua = widget.customerList[widget.position].ttdCustomer;
@@ -198,7 +209,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
               rest.map<Contract>((json) => Contract.fromJson(json)).toList();
           print("List Size: ${dtContract.length}");
 
-          textCatatan.text = dtContract[0].catatan;
+          var catat = dtContract[0].catatan;
+          textCatatan.text = catat.replaceAll("KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1", "");
 
           handleTargetEdit(dtContract);
           handleJangkaWaktuEdit(dtContract);
@@ -304,6 +316,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
     _contract[0].typeContract == "CASHBACK"
         ? _isCashbackContrack = true
         : _isCashbackContrack = false;
+    _contract[0].typeContract == "CASHBACK DENGAN DISKON"
+        ? _isCashbackWithDiscContract = true
+        : _isCashbackWithDiscContract = false;
+    _contract[0].catatan.contains("KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1")
+        ? _isPrestigeContract = true
+        : _isPrestigeContract = false;
     _contract[0].isPartai == "1"
         ? _isPartaiContract = true
         : _isPartaiContract = false;
@@ -426,6 +444,41 @@ class _EcontractScreenState extends State<EcontractScreen> {
     } on Error catch (e) {
       print('General Error : $e');
     }
+  }
+
+  Future<List<TipeKontrak>> getTipeKontrak() async {
+    const timeout = 15;
+    List<TipeKontrak> list = List.empty(growable: true);
+    var url = '$API_URL/contract/tipe_kontrak';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print("Tipe kontrak : $rest");
+          list = rest
+              .map<TipeKontrak>((json) => TipeKontrak.fromJson(json))
+              .toList();
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    return list;
   }
 
   getActiveContract(String input) async {
@@ -971,7 +1024,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('pembayaran_nikon_st : $outNikonSt');
     print('pembayaran_leinz_St : $outLeinzSt');
     print('pembayaran_oriental_st : $outOrientalSt');
-    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : 'LENSA'}');
+    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : $_isFrameContract');
     print('is_partai : $_isPartaiContract');
     print('updated_by : $id');
@@ -1074,10 +1127,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'pembayaran_leinz_stock': outLeinzSt,
           'pembayaran_oriental_stock': outOrientalSt,
           'start_contract': startContract,
-          'type_contract': _isCashbackContrack ? 'CASHBACK' : 'LENSA',
+          'type_contract': _isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA',
           'is_frame': _isFrameContract ? '1' : '0',
           'is_partai': _isPartaiContract ? '1' : '0',
-          'catatan': textCatatan.text,
+          'catatan': "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'updated_by': id,
           'has_parent': _isContractActive ? '1' : '0',
           'id_parent':
@@ -1282,12 +1335,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('pembayaran_leinz_stock : $outLeinzSt');
     print('pembayaran_oriental_stock : $outOrientalSt');
     print('start_contract : $startContract');
-    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : 'LENSA'}');
+    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : ${_isFrameContract ? '1' : '0'}');
     print('is_partai : ${_isPartaiContract ? '1' : '0'}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
-    print('catatan : ${textCatatan.text}');
+    print('catatan : ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
     print('created_by : $id');
     print('has_parent : ${_isContractActive ? '1' : '0'}');
     print(
@@ -1395,10 +1448,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'pembayaran_leinz_stock': outLeinzSt,
           'pembayaran_oriental_stock': outOrientalSt,
           'start_contract': startContract,
-          'type_contract': _isCashbackContrack ? 'CASHBACK' : 'LENSA',
+          'type_contract': _isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA',
           'is_frame': _isFrameContract ? '1' : '0',
           'is_partai': _isPartaiContract ? '1' : '0',
-          'catatan': textCatatan.text,
+          'catatan': "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'ttd_pertama': ttdPertama,
           'ttd_kedua': ttdKedua,
           'created_by': id,
@@ -3466,6 +3519,116 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
+  // Widget selectParent({bool isHorizontal = false}) {
+  //   return StatefulBuilder(builder: (context, setState) {
+  //     return AlertDialog(
+  //       scrollable: true,
+  //       title: Text('Pilih Optik Parent'),
+  //       content: Container(
+  //         height: MediaQuery.of(context).size.height / 1.5,
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.stretch,
+  //           children: [
+  //             Container(
+  //               width: 350.w,
+  //               padding: EdgeInsets.symmetric(
+  //                 horizontal: 5.r,
+  //                 vertical: 10.r,
+  //               ),
+  //               color: Colors.white,
+  //               height: 80.h,
+  //               child: TextField(
+  //                 textInputAction: TextInputAction.search,
+  //                 autocorrect: true,
+  //                 decoration: InputDecoration(
+  //                   hintText: 'Pencarian data ...',
+  //                   prefixIcon: Icon(Icons.search),
+  //                   hintStyle: TextStyle(color: Colors.grey),
+  //                   filled: true,
+  //                   fillColor: Colors.white70,
+  //                   contentPadding: EdgeInsets.symmetric(vertical: 3.r),
+  //                   enabledBorder: OutlineInputBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+  //                     borderSide: BorderSide(color: Colors.grey, width: 2.r),
+  //                   ),
+  //                   focusedBorder: OutlineInputBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+  //                     borderSide: BorderSide(color: Colors.blue, width: 2.r),
+  //                   ),
+  //                 ),
+  //                 onSubmitted: (value) {
+  //                   setState(() {
+  //                     search = value;
+  //                   });
+  //                 },
+  //               ),
+  //             ),
+  //             Expanded(
+  //               child: SizedBox(
+  //                 height: 100.h,
+  //                 child: FutureBuilder(
+  //                     future: search.isNotEmpty
+  //                         ? getSearchParent(search)
+  //                         : getSearchParent(''),
+  //                     builder: (BuildContext context,
+  //                         AsyncSnapshot<List<StbCustomer>> snapshot) {
+  //                       switch (snapshot.connectionState) {
+  //                         case ConnectionState.waiting:
+  //                           return Center(child: CircularProgressIndicator());
+  //                         default:
+  //                           return snapshot.hasData
+  //                               ? listParentWidget(itemStbCust)
+  //                               : Center(
+  //                                   child: Text('Data tidak ditemukan'),
+  //                                 );
+  //                       }
+  //                     }),
+  //               ),
+  //             ),
+  //             Padding(
+  //               padding: EdgeInsets.symmetric(
+  //                 horizontal: 20.r,
+  //                 vertical: 5.r,
+  //               ),
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   ElevatedButton(
+  //                     style: ElevatedButton.styleFrom(
+  //                       primary: Colors.red.shade700,
+  //                     ),
+  //                     onPressed: () {
+  //                       setState(() {
+  //                         _listFutureTmp.where((element) => element.flag == "CHILD" ? !element.ischecked : element.ischecked);
+  //                       });
+
+  //                       this._isChildContract = false;
+  //                       itemStbCust.clear();
+  //                       itemActiveContract.clear();
+  //                       Navigator.pop(context);
+  //                     },
+  //                     child: Text("Batal"),
+  //                   ),
+  //                   ElevatedButton(
+  //                     onPressed: () => handleContractActive(
+  //                       isHorizontal: isHorizontal,
+  //                       context: context,
+  //                     ),
+  //                     style: ElevatedButton.styleFrom(
+  //                       primary: Colors.blue,
+  //                     ),
+  //                     child: Text("Pilih"),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     );
+  //   });
+  // }
+
   Widget selectParent({bool isHorizontal = false}) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
@@ -3651,6 +3814,92 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
+  Widget tipeKontrakWidget(
+    List<TipeKontrak> item, {
+    bool isHorizontal = false,
+  }) {
+    return StatefulBuilder(builder: (context, setState) {
+      return Container(
+        child: ListView.builder(
+            itemCount: item.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isHorizontal ? 10.r : 8.r,
+                        vertical: isHorizontal ? 5.r : 2.r,
+                      ),
+                      child: Text(
+                        item[index].deskripsi!,
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isHorizontal ? 10.r : 8.r,
+                      vertical: isHorizontal ? 5.r : 2.r,
+                    ),
+                    child: Checkbox(
+                      value: item[index].ischecked,
+                      onChanged: (bool? value) {
+                        setState(
+                          () {
+                            item[index].ischecked = value!;
+                            handleTipeKontrak(
+                              item[index],
+                              isHorizontal: isHorizontal,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }),
+      );
+    });
+  }
+
+  void handleTipeKontrak(TipeKontrak item, {bool isHorizontal = false}) {
+    if (item.flag == "CHILD") {
+      formDisc.clear();
+      formProduct.clear();
+      tmpDiv.clear();
+      tmpProduct.clear();
+      itemActiveContract.clear();
+      this._isContractActive = false;
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return selectParent(
+              isHorizontal: isHorizontal,
+            );
+          }).then((_) => setState(() {}));
+    } else if (item.flag == "CASHBACK") {
+      if (item.ischecked) {
+        setState(() {
+          print('Remove : ${item.ischecked}');
+          _listFutureTmp.removeWhere((element) => element.flag != "CASHBACK");
+        });
+      } else {
+        setState(() {
+          print('Restore : ${item.ischecked}');
+          _listFutureTmp = _listFuture;
+        });
+      }
+    }
+  }
+
   Widget listItemWidget(List<Product> item) {
     return StatefulBuilder(builder: (context, setState) {
       return Container(
@@ -3705,6 +3954,58 @@ class _EcontractScreenState extends State<EcontractScreen> {
               ));
     });
   }
+
+  // Widget areaFrameContract({bool isHorizontal = false}) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       SizedBox(
+  //         height: 10.h,
+  //       ),
+  //       Container(
+  //         padding: EdgeInsets.symmetric(
+  //           vertical: isHorizontal ? 18.r : 8.r,
+  //         ),
+  //         child: Text(
+  //           'Tipe Kontrak : ',
+  //           style: TextStyle(
+  //             fontSize: isHorizontal ? 19.sp : 15.sp,
+  //             fontFamily: 'Montserrat',
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //       ),
+  //       SizedBox(
+  //         height: 290.h,
+  //         child: tipeKontrakWidget(
+  //           _listFutureTmp,
+  //           isHorizontal: isHorizontal,
+  //         ),
+  //       ),
+  //       // SizedBox(
+  //       //   height: 290.h,
+  //       //   child: FutureBuilder(
+  //       //       future: _listFutureTmp,
+  //       //       builder: (BuildContext context,
+  //       //           AsyncSnapshot<List<TipeKontrak>> snapshot) {
+  //       //         switch (snapshot.connectionState) {
+  //       //           case ConnectionState.waiting:
+  //       //             return Center(child: CircularProgressIndicator());
+  //       //           default:
+  //       //             return snapshot.data != null
+  //       //                 ? tipeKontrakWidget(
+  //       //                     snapshot.data!,
+  //       //                     isHorizontal: isHorizontal,
+  //       //                   )
+  //       //                 : Center(
+  //       //                     child: Text('Data tidak ditemukan'),
+  //       //                   );
+  //       //         }
+  //       //       }),
+  //       // ),
+  //     ],
+  //   );
+  // }
 
   Widget areaFrameContract({bool isHorizontal = false}) {
     return Column(
@@ -3796,6 +4097,80 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                 setState(
                                   () {
                                     this._isPartaiContract = value!;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 Gratis 1',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isPrestigeContract,
+                              onChanged: (bool? value) {
+                                setState(
+                                  () {
+                                    this._isPrestigeContract = value!;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Cashback (Dengan Diskon)',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isCashbackWithDiscContract,
+                              onChanged: (bool? value) {
+                                setState(
+                                  () {
+                                    this._isCashbackWithDiscContract = value!;
                                   },
                                 );
                               },

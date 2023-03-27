@@ -10,7 +10,8 @@ import 'package:sample/src/app/pages/econtract/econtract_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerScreen extends StatefulWidget {
@@ -29,9 +30,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
   String search = '';
   var thisYear, nextYear;
   bool isDataFound = true;
-  List<Customer> currList = List.empty(growable: true);
-  List<Customer> tmpList = List.empty(growable: true);
-  Future<List<Customer>>? _listFuture;
+  List<CustomerNoImage> currList = List.empty(growable: true);
+  List<CustomerNoImage> tmpList = List.empty(growable: true);
+  Future<List<CustomerNoImage>>? _listFuture;
   int page = 1;
   int pageCount = 5;
   int startAt = 0;
@@ -104,14 +105,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
     }
   }
 
-  Future<List<Customer>> getCustomerByIdOld(int input) async {
+  Future<List<CustomerNoImage>> getCustomerByIdOld(int input) async {
     setState(() {
       isDataFound = true;
     });
 
     tmpList.clear();
-    List<Customer> list = List.empty(growable: true);
-    const timeout = 5;
+    List<CustomerNoImage> list = List.empty(growable: true);
+    // const timeout = 15;
 
     try {
       var url = role == "ADMIN"
@@ -120,8 +121,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
               : '$API_URL/customers?id=&limit=$pageCount&offset=$startAt&id_salesmanager=$id'
           : '$API_URL/customers/getBySales?created_by=$input&limit=$pageCount&offset=$startAt';
 
-      var response =
-          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print(url);
+
+      var response = await http.get(Uri.parse(url));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -131,7 +133,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          list = rest
+              .map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json))
+              .toList();
           print("List Size: ${list.length}");
 
           setState(() {
@@ -151,7 +155,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
       print('Socket Error : $e');
       handleSocket(context);
     } on Error catch (e) {
-      print('General Error : $e');
+      print('General Error : ${e.stackTrace}');
     }
 
     setState(() {
@@ -161,13 +165,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
     return list;
   }
 
-  Future<List<Customer>> getCustomerBySeach(String input) async {
+  Future<List<CustomerNoImage>> getCustomerBySeach(String input) async {
     setState(() {
       isDataFound = true;
     });
 
     tmpList.clear();
-    List<Customer> list = List.empty(growable: true);
+    List<CustomerNoImage> list = List.empty(growable: true);
     const timeout = 15;
     var url = role == "ADMIN"
         ? divisi == "AR"
@@ -187,7 +191,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          list = rest
+              .map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json))
+              .toList();
           print("List Size: ${list.length}");
 
           setState(() {
@@ -223,7 +229,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
     });
   }
 
-  getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
+  getCustomerContract(
+      List<CustomerNoImage> listCust, int pos, int idCust) async {
     const timeout = 15;
     var url = '$API_URL/contract?id_customer=$idCust';
 
@@ -260,7 +267,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
       print('Socket Error : $e');
       handleSocket(context);
     } on Error catch (e) {
-      print('General Error : $e');
+      print('General Error : ${e.stackTrace}');
     }
   }
 
@@ -399,7 +406,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                         child: FutureBuilder(
                             future: _listFuture,
                             builder: (BuildContext context,
-                                AsyncSnapshot<List<Customer>> snapshot) {
+                                AsyncSnapshot<List<CustomerNoImage>> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.done) {
                                 if (snapshot.hasError) {
@@ -469,7 +476,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len,
+  Widget listViewWidget(List<CustomerNoImage> customer, int len,
       {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(

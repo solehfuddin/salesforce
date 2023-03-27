@@ -9,11 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
@@ -23,7 +25,9 @@ class DetailWaitingContract extends StatefulWidget {
   String reasonSM;
   String reasonAM;
   bool? isNewCust = false;
-  Customer? customer;
+  dynamic idCustomer;
+  String? ttdCustomer = '';
+  CustomerNoImage? customer;
 
   DetailWaitingContract(
     this.item,
@@ -32,6 +36,8 @@ class DetailWaitingContract extends StatefulWidget {
     this.reasonAM, {
     this.isNewCust,
     this.customer,
+    this.idCustomer,
+    this.ttdCustomer,
   });
 
   @override
@@ -51,6 +57,7 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
       role = preferences.getString("role");
       username = preferences.getString("username");
       name = preferences.getString("name");
+      divisi = preferences.getString("divisi");
     });
   }
 
@@ -514,13 +521,13 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: StadiumBorder(),
-                      primary: Colors.red[800],
+                      primary: Colors.orange[800],
                       padding: EdgeInsets.symmetric(
                           horizontal: isHorizontal ? 40.r : 20.r,
                           vertical: 10.r),
                     ),
                     child: Text(
-                      'Tutup',
+                      'Detail Kontrak',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: isHorizontal ? 24.sp : 14.sp,
@@ -529,7 +536,21 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
+                      //Loloskan kontrak yang masih pending untuk view detail kontrak (req harmanto)
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DetailContract(
+                            widget.item[widget.position],
+                            divisi!,
+                            widget.ttdCustomer!,
+                            username!,
+                            true,
+                            isContract: true,
+                            isAdminRenewal: true,
+                            isNewCust: false,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 )

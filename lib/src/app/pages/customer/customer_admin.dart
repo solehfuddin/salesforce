@@ -11,7 +11,8 @@ import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-import 'package:sample/src/domain/entities/customer.dart';
+// import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerAdmin extends StatefulWidget {
@@ -30,10 +31,10 @@ class _CustomerAdminState extends State<CustomerAdmin> {
   String search = '';
   bool isDataFound = true;
   var thisYear, nextYear;
-  List<Customer> customerList = List.empty(growable: true);
-  List<Customer> currList = List.empty(growable: true);
-  List<Customer> tmpList = List.empty(growable: true);
-  Future<List<Customer>>? _listFuture;
+  List<CustomerNoImage> customerList = List.empty(growable: true);
+  List<CustomerNoImage> currList = List.empty(growable: true);
+  List<CustomerNoImage> tmpList = List.empty(growable: true);
+  Future<List<CustomerNoImage>>? _listFuture;
   int page = 1;
   int pageCount = 5;
   int startAt = 0;
@@ -105,8 +106,8 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     }
   }
 
-  Future<List<Customer>> getCustomerByIdOld(int input) async {
-    List<Customer> list = List.empty(growable: true);
+  Future<List<CustomerNoImage>> getCustomerByIdOld(int input) async {
+    List<CustomerNoImage> list = List.empty(growable: true);
     const timeout = 50;
     tmpList.clear();
 
@@ -130,7 +131,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          list = rest.map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json)).toList();
           print("List Size: ${customerList.length}");
 
           setState(() {
@@ -160,8 +161,8 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     return list;
   }
 
-  Future<List<Customer>> getCustomerBySeach(String input) async {
-    List<Customer> list = List.empty(growable: true);
+  Future<List<CustomerNoImage>> getCustomerBySeach(String input) async {
+    List<CustomerNoImage> list = List.empty(growable: true);
     const timeout = 15;
     var url =
         '$API_URL/customers/search?search=$input&limit=$pageCount&offset=$startAt&id_salesmanager=&created_by=$id';
@@ -183,7 +184,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<Customer>((json) => Customer.fromJson(json)).toList();
+          list = rest.map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json)).toList();
           print("List Size: ${list.length}");
 
           setState(() {
@@ -211,7 +212,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     return list;
   }
 
-  getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
+  getCustomerContract(List<CustomerNoImage> listCust, int pos, int idCust) async {
     const timeout = 15;
     var url = '$API_URL/contract?id_customer=$idCust';
 
@@ -408,7 +409,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                         child: FutureBuilder(
                             future: _listFuture,
                             builder: (BuildContext context,
-                                AsyncSnapshot<List<Customer>> snapshot) {
+                                AsyncSnapshot<List<CustomerNoImage>> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.done) {
                                 if (snapshot.hasError) {
@@ -478,7 +479,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
     );
   }
 
-  Widget listViewWidget(List<Customer> customer, int len,
+  Widget listViewWidget(List<CustomerNoImage> customer, int len,
       {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(
@@ -679,8 +680,11 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                 ),
                               ),
                             )
-                          : getCustomerContract(customer, position,
-                              int.parse(customer[position].id));
+                          : getCustomerContract(
+                              customer,
+                              position,
+                              int.parse(customer[position].id),
+                            );
                     },
                   ),
                   clipper: ShapeBorderClipper(

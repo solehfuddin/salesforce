@@ -1,10 +1,19 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:sample/src/app/pages/maintenance/maintenance_view.dart';
+import 'package:sample/src/app/utils/config.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
+import 'package:sample/src/app/pages/staff/staff_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/dialoglogin.dart';
+import 'package:sample/src/domain/entities/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -13,6 +22,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  List<AppConfig> listAppconfig = List.empty(growable: true);
   String messageTitle = "Empty";
   String notificationAlert = "alert";
   String? token = '123445';
@@ -34,6 +44,40 @@ class _LoginState extends State<Login> {
   generateTokenFCM() async {
     token = await FirebaseMessaging.instance.getToken();
     print('Akses token : $token');
+  }
+
+  getConfig() async {
+    const timeout = 15;
+    var url = '$API_URL/config/';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+
+          listAppconfig =
+              rest.map<AppConfig>((json) => AppConfig.fromJson(json)).toList();
+
+          loginStatus();
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
   }
 
   check({bool isHorizontal = false}) {
@@ -65,30 +109,54 @@ class _LoginState extends State<Login> {
         return DialogLogin();
       },
     );
-    
+
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? role = pref.getString("role");
     print('Akses role : $role');
 
+    if (listAppconfig[0].status == "0") {
     if (role == 'ADMIN') {
-      Navigator.pop(context);
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminScreen()));
+        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => AdminScreen(),
+          ),
+        );
     } else if (role == 'SALES') {
-      Navigator.pop(context);
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomeScreen()));
+        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(),
+          ),
+        );
+    } else if (role == 'STAFF') {
+        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => StaffScreen(),
+          ),
+        );
     } else {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(
+        Duration(seconds: 1),
+      );
       print('Belum Login');
       Navigator.pop(dialogContext);
+    }
+    } else {
+      Navigator.pop(context);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MaintenanceScreen(),
+        ),
+      );
     }
   }
 
   @override
   void initState() {
     super.initState();
-    loginStatus();
+    getConfig();
     generateTokenFCM();
   }
 
@@ -267,7 +335,7 @@ class _LoginState extends State<Login> {
                           vertical: 15.r,
                         ),
                         child: Text(
-                          'versi 1.3.0',
+                          'versi 1.3.3',
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
@@ -431,7 +499,7 @@ class _LoginState extends State<Login> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.r),
                       child: Text(
-                        'versi 1.3.0',
+                        'versi 1.3.3',
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
