@@ -5,12 +5,17 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:location/location.dart';
+import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
+import 'package:sample/src/app/pages/attendance/attendance_service.dart';
 import 'package:sample/src/app/pages/customer/customer_admin.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
+import 'package:sample/src/app/utils/mylocation.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
+import 'package:sample/src/app/widgets/areamenu.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/areanewcustrenewal.dart';
 import 'package:sample/src/app/widgets/arearenewal.dart';
@@ -35,6 +40,8 @@ class _AdminContentState extends State<AdminContent> {
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<PieReport> _samplePie = List.empty(growable: true);
   List<SalesPerform> listPerform = List.empty(growable: true);
+  MyLocation _myLocation = MyLocation();
+  late SharedPreferences preferences;
 
   String? id = '';
   String? role = '';
@@ -47,6 +54,10 @@ class _AdminContentState extends State<AdminContent> {
   bool _isLoading = true;
   bool _isLoadRenewal = true;
   bool _isLoadNewcustRenewal = true;
+  bool? isProminentAccess = false;
+  bool isPermissionCamera = false;
+  bool isLocationService = false;
+  bool isPermissionService = false;
   bool _hidePerform = false;
   bool _isPerform = true;
 
@@ -67,6 +78,9 @@ class _AdminContentState extends State<AdminContent> {
     super.initState();
     if (listContract.length > 0) listContract.clear();
 
+    // initialService();
+    checkPermission();
+
     DateTime now = new DateTime.now();
 
     stDate = "01/${now.month}/${now.year}";
@@ -83,7 +97,7 @@ class _AdminContentState extends State<AdminContent> {
   }
 
   getRole() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences = await SharedPreferences.getInstance();
     setState(() {
       id = preferences.getString("id");
       role = preferences.getString("role");
@@ -106,6 +120,85 @@ class _AdminContentState extends State<AdminContent> {
       print("Dashboard : $role");
       print("TTD Sales : $ttdPertama");
     });
+  }
+
+  // void initialService() async {
+  //   isLocationService = await _myLocation.isServiceEnable();
+  //   setState(() {
+  //     if (isPermissionService && isLocationService) {
+  //       Location _myLocation = Location(); 
+  //       _myLocation.
+  //     } else {
+  //       checkPermission();
+  //     }
+  //   });
+  // }
+
+  void checkPermission() async {
+    isPermissionService = await _myLocation.isPermissionEnable();
+    setState(() {
+      if (!isProminentAccess!) {
+        dialogProminentService(context);
+      }
+      else
+      {
+        checkService();
+      }
+    });
+  }
+
+  void checkService() async {
+    isLocationService = await _myLocation.isServiceEnable();
+    setState(() {
+      if (isPermissionService && isLocationService) {
+        print('Granted');
+      } else {
+        dialogLocationService(context);
+      }
+    });
+  }
+
+  dialogLocationService(BuildContext context) {
+    return showModalBottomSheet(
+      elevation: 2,
+      backgroundColor: Colors.white,
+      isDismissible: false,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15),
+          topRight: Radius.circular(15),
+        ),
+      ),
+      context: context,
+      builder: (context) {
+        return AttendanceService();
+      },
+    );
+  }
+
+  dialogProminentService(BuildContext context) {
+    return showModalBottomSheet(
+      elevation: 2,
+      backgroundColor: Colors.white,
+      isDismissible: false,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15),
+          topRight: Radius.circular(15),
+        ),
+      ),
+      context: context,
+      builder: (context) {
+        return AttendanceProminent();
+      },
+    ).whenComplete(
+      () {
+        preferences.setBool("check_prominent", true);
+        checkService();
+      },
+    );
   }
 
   getCounterData(bool isAr) async {
@@ -496,6 +589,38 @@ class _AdminContentState extends State<AdminContent> {
             context,
             isHorizontal: true,
           ),
+          SliverPadding(
+            padding: EdgeInsets.only(
+              left: 20.r,
+              right: 20.r,
+              top: 0.r,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Feature',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ),
+          areaMenu(
+            screenHeight,
+            context,
+            id,
+            role,
+            isConnected: true,
+            isHorizontal: true,
+          ),
           _hidePerform
               ? SliverPadding(
                   padding: EdgeInsets.only(
@@ -695,6 +820,38 @@ class _AdminContentState extends State<AdminContent> {
             totalOldCustomer.toString(),
             id,
             context,
+            isHorizontal: false,
+          ),
+          SliverPadding(
+            padding: EdgeInsets.only(
+              left: 20.r,
+              right: 20.r,
+              top: 10.r,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Feature',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ),
+          areaMenu(
+            screenHeight,
+            context,
+            id,
+            role,
+            isConnected: true,
             isHorizontal: false,
           ),
           _hidePerform

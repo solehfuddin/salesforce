@@ -46,13 +46,17 @@ SliverToBoxAdapter areaMenu(
         vertical: isHorizontal ? 10.r : 10.r,
         horizontal: isHorizontal ? 5.r : 15.r,
       ),
-      child: role == "STAFF"
+      child: role == "STAFF" || role == "ADMIN"
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: isHorizontal ? 10.h : 7.h,
-                ),
+                role == "ADMIN"
+                    ? SizedBox(
+                        height: isHorizontal ? 0.h : 0.h,
+                      )
+                    : SizedBox(
+                        height: isHorizontal ? 10.h : 7.h,
+                      ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
