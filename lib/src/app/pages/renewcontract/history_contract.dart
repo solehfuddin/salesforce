@@ -737,15 +737,25 @@ class _HistoryContractState extends State<HistoryContract> {
             ),
             onTap: () {
               item[position].status.contains('ACTIVE')
-                  ? getCustomerContractNew(
-                      context: context,
-                      idCust: item[position].idCustomer,
-                      divisi: divisi,
-                      username: username,
-                      ttdPertama: ttdPertama,
-                      isSales: true,
-                      isContract: false,
-                      isHorizontal: isHorizontal,
+                  // ? getCustomerContractNew(
+                  //     context: context,
+                  //     idCust: item[position].idCustomer,
+                  //     divisi: divisi,
+                  //     username: username,
+                  //     ttdPertama: ttdPertama,
+                  //     isSales: true,
+                  //     isContract: false,
+                  //     isHorizontal: isHorizontal,
+                  //     isNewCust: isNewCust,
+                  //   )
+                  ? formContractNew(
+                      context,
+                      item[position],
+                      divisi!,
+                      ttdPertama!,
+                      username!,
+                      true,
+                      false,
                       isNewCust: isNewCust,
                     )
                   : formWaitingContract(

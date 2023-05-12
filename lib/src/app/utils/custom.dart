@@ -1485,6 +1485,15 @@ void handleTimeout(BuildContext context) {
   );
 }
 
+void handleTimeoutAbsen(BuildContext context) {
+  handleStatus(
+    context,
+    'Server tidak merespon (401)',
+    true,
+    isLogout: false,
+  );
+}
+
 void handleSocket(BuildContext context) {
   handleStatus(
     context,

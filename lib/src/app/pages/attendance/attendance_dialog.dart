@@ -40,7 +40,7 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
   String base64Imgprofile = '';
 
   cekIn(Function stop) async {
-    const timeout = 15;
+    const timeout = 60;
     var url = '$API_URL/absensi';
 
     try {
@@ -94,7 +94,8 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       if (mounted) {
-        handleTimeout(context);
+        // handleTimeout(context);
+        handleTimeoutAbsen(context);
       }
     } on SocketException catch (e) {
       print('Socket Error : $e');
@@ -109,7 +110,7 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
   }
 
   cekOut(Function stop) async {
-    const timeout = 15;
+    const timeout = 60;
     var url = '$API_URL/absensi/checkout';
 
     try {
@@ -163,7 +164,8 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
     } on TimeoutException catch (e) {
       print('Timeout Error : $e');
       if (mounted) {
-        handleTimeout(context);
+        // handleTimeout(context);
+        handleTimeoutAbsen(context);
       }
     } on SocketException catch (e) {
       print('Socket Error : $e');

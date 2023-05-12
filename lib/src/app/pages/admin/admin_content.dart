@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:location/location.dart';
 import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
 import 'package:sample/src/app/pages/attendance/attendance_service.dart';
 import 'package:sample/src/app/pages/customer/customer_admin.dart';

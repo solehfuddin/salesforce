@@ -98,15 +98,14 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
       isDataFound = true;
     });
 
-    const timeout = 15;
+    // const timeout = 15;
     List<CustomerNoImage> list = List.empty(growable: true);
     var url = !isAr
         ? '$API_URL/customers/approvedSM/$id?limit=$pageCount&offset=$startAt'
         : '$API_URL/customers/approvedAM?limit=$pageCount&offset=$startAt';
 
     try {
-      var response =
-          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      var response = await http.get(Uri.parse(url));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -116,7 +115,9 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json)).toList();
+          list = rest
+              .map<CustomerNoImage>((json) => CustomerNoImage.fromJson(json))
+              .toList();
           print("List Size: ${list.length}");
 
           setState(() {
@@ -142,7 +143,8 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
     return list;
   }
 
-  getCustomerContract(List<CustomerNoImage> listCust, int pos, int idCust) async {
+  getCustomerContract(
+      List<CustomerNoImage> listCust, int pos, int idCust) async {
     const timeout = 15;
     var url = '$API_URL/contract?id_customer=$idCust';
 
@@ -476,11 +478,12 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                                           child: Text(
                                             customer[position].nama,
                                             style: TextStyle(
-                                                fontSize: isHorizontal
-                                                    ? 17.sp
-                                                    : 12.sp,
-                                                fontFamily: 'Montserrat',
-                                                fontWeight: FontWeight.w600),
+                                              fontSize:
+                                                  isHorizontal ? 17.sp : 12.sp,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w600,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
                                         ),
                                       ],
