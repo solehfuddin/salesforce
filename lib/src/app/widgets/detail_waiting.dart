@@ -287,7 +287,7 @@ class _DetailWaitingState extends State<DetailWaiting> {
                 ),
               ),
               widget.customer![widget.position!].status != "REJECTED" &&
-                      role != "ADMIN"
+                      divisi != "AR"
                   ? Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: isHorizontal ? 15.r : 10.r,
