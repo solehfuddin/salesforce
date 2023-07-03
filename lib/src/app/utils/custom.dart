@@ -30,9 +30,11 @@ import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/app/widgets/dialoglogout.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
+import 'package:sample/src/app/widgets/dialogverificationaction.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
+import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 // import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -474,6 +476,17 @@ handleSigned(BuildContext context) {
     builder: (context) => WillPopScope(
       onWillPop: () async => false,
       child: DialogSigned(),
+    ),
+  );
+}
+
+handleVerificationAction(BuildContext context, inkaroHeaderList, position) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) => WillPopScope(
+      onWillPop: () async => false,
+      child: DialogVerificationAction(inkaroHeaderList, position),
     ),
   );
 }

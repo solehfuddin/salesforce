@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/pages/activity/daily_activity.dart';
 import 'package:sample/src/app/pages/attendance/attendance.dart';
 import 'package:sample/src/app/pages/eform/eform.dart';
+import 'package:sample/src/app/pages/inkaro/list_customer.dart';
 import 'package:sample/src/app/pages/news/product_corner.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,8 +33,6 @@ checkCustomer(String id, BuildContext context) {
   Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => CustomerScreen(int.parse(id))));
 }
-
-
 
 SliverToBoxAdapter areaMenu(
   double screenHeight,
@@ -1089,32 +1088,45 @@ SliverToBoxAdapter areaMenu(
                                         child: InkWell(
                                           child: Padding(
                                             padding: EdgeInsets.all(5),
-                                            // child: Center(
-                                            //   child: Column(
-                                            //     children: [
-                                            //       Image.asset(
-                                            //         'assets/images/e_contract_new.png',
-                                            //         width: isHorizontal ? 55.r : 45.r,
-                                            //         height: isHorizontal ? 55.r : 45.r,
-                                            //       ),
-                                            //       SizedBox(
-                                            //         height: screenHeight * 0.015,
-                                            //       ),
-                                            //       Text(
-                                            //         'E-Kontrak',
-                                            //         style: TextStyle(
-                                            //             fontSize: isHorizontal ? 17.sp : 13.sp,
-                                            //             fontWeight: FontWeight.w600,
-                                            //             fontFamily: 'Segoe ui',
-                                            //             color: Colors.black54),
-                                            //         textAlign: TextAlign.center,
-                                            //       ),
-                                            //     ],
-                                            //   ),
-                                            // ),
+                                            child: Center(
+                                              child: Column(
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/inkaro.png',
+                                                    width: isHorizontal
+                                                        ? 55.r
+                                                        : 45.r,
+                                                    height: isHorizontal
+                                                        ? 55.r
+                                                        : 45.r,
+                                                  ),
+                                                  SizedBox(
+                                                    height:
+                                                        screenHeight * 0.015,
+                                                  ),
+                                                  Text(
+                                                    'Inkaro',
+                                                    style: TextStyle(
+                                                        fontSize: isHorizontal
+                                                            ? 17.sp
+                                                            : 13.sp,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontFamily: 'Segoe ui',
+                                                        color: Colors.black54),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                           onTap: () {
-                                            // checkCustomer(idSales!, context);
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ListCustomerInkaroScreen(
+                                                            int.parse(
+                                                                idSales!))));
                                           },
                                         ),
                                       ),
