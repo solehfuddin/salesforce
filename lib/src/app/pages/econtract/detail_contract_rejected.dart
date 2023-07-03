@@ -1407,7 +1407,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Lensa Nikon',
+                          'Lensa Leinz',
                           style: TextStyle(
                             fontSize: isHor ? 16.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1417,7 +1417,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                       ),
                       Expanded(
                         child: Text(
-                          'Lensa Leinz',
+                          'Lensa Oriental',
                           style: TextStyle(
                             fontSize: isHor ? 16.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1436,7 +1436,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     children: [
                       Expanded(
                         child: Text(
-                          convertToIdr(int.parse(widget.item!.tpNikon), 0),
+                          convertToIdr(int.parse(widget.item!.tpLeinz), 0),
                           style: TextStyle(
                               fontSize: isHor ? 16.sp : 14.sp,
                               fontFamily: 'Montserrat',
@@ -1445,7 +1445,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                       ),
                       Expanded(
                         child: Text(
-                          convertToIdr(int.parse(widget.item!.tpLeinz), 0),
+                          convertToIdr(int.parse(widget.item!.tpOriental), 0),
                           style: TextStyle(
                               fontSize: isHor ? 16.sp : 14.sp,
                               fontFamily: 'Montserrat',
@@ -1463,25 +1463,25 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Lensa Oriental',
-                          style: TextStyle(
-                            fontSize: isHor ? 16.sp : 14.sp,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
                           'Lensa Moe',
                           style: TextStyle(
                             fontSize: isHor ? 16.sp : 14.sp,
                             fontFamily: 'Montserrat',
                             fontWeight: FontWeight.w500,
                           ),
-                          textAlign: TextAlign.end,
                         ),
                       ),
+                      // Expanded(
+                      //   child: Text(
+                      //     'Lensa Moe',
+                      //     style: TextStyle(
+                      //       fontSize: isHor ? 16.sp : 14.sp,
+                      //       fontFamily: 'Montserrat',
+                      //       fontWeight: FontWeight.w500,
+                      //     ),
+                      //     textAlign: TextAlign.end,
+                      //   ),
+                      // ),
                     ],
                   ),
                   SizedBox(
@@ -1492,23 +1492,23 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     children: [
                       Expanded(
                         child: Text(
-                          convertToIdr(int.parse(widget.item!.tpOriental), 0),
-                          style: TextStyle(
-                              fontSize: isHor ? 16.sp : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
                           convertToIdr(int.parse(widget.item!.tpMoe), 0),
                           style: TextStyle(
                               fontSize: isHor ? 16.sp : 14.sp,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.end,
                         ),
                       ),
+                      // Expanded(
+                      //   child: Text(
+                      //     convertToIdr(int.parse(widget.item!.tpMoe), 0),
+                      //     style: TextStyle(
+                      //         fontSize: isHor ? 16.sp : 14.sp,
+                      //         fontFamily: 'Montserrat',
+                      //         fontWeight: FontWeight.w600),
+                      //     textAlign: TextAlign.end,
+                      //   ),
+                      // ),
                     ],
                   ),
                   SizedBox(
@@ -1530,7 +1530,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Lensa Nikon RX',
+                          'Lensa Leinz RX',
                           style: TextStyle(
                             fontSize: isHor ? 16.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1540,7 +1540,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                       ),
                       Expanded(
                         child: Text(
-                          'Lensa Leinz RX',
+                          'Lensa Leinz Stock',
                           style: TextStyle(
                             fontSize: isHor ? 24.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1559,63 +1559,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.item!.pembNikon,
-                          style: TextStyle(
-                              fontSize: isHor ? 16.sp : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
                           widget.item!.pembLeinz,
-                          style: TextStyle(
-                              fontSize: isHor ? 16.sp : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Lensa Nikon Stock',
-                          style: TextStyle(
-                            fontSize: isHor ? 16.sp : 14.sp,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Lensa Leinz Stock',
-                          style: TextStyle(
-                            fontSize: isHor ? 16.sp : 14.sp,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.item!.pembNikonSt,
                           style: TextStyle(
                               fontSize: isHor ? 16.sp : 14.sp,
                               fontFamily: 'Montserrat',
@@ -1652,7 +1596,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                       ),
                       Expanded(
                         child: Text(
-                          'Lensa Moe RX',
+                          'Lensa Oriental Stock',
                           style: TextStyle(
                             fontSize: isHor ? 16.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1680,7 +1624,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                       ),
                       Expanded(
                         child: Text(
-                          widget.item!.pembMoe,
+                          widget.item!.pembOrientalSt,
                           style: TextStyle(
                             fontSize: isHor ? 16.sp : 14.sp,
                             fontFamily: 'Montserrat',
@@ -1689,6 +1633,62 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                           textAlign: TextAlign.end,
                         ),
                       ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Lensa Moe Rx',
+                          style: TextStyle(
+                            fontSize: isHor ? 16.sp : 14.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      // Expanded(
+                      //   child: Text(
+                      //     'Lensa Leinz Stock',
+                      //     style: TextStyle(
+                      //       fontSize: isHor ? 16.sp : 14.sp,
+                      //       fontFamily: 'Montserrat',
+                      //       fontWeight: FontWeight.w500,
+                      //     ),
+                      //     textAlign: TextAlign.end,
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 3.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.item!.pembMoe,
+                          style: TextStyle(
+                              fontSize: isHor ? 16.sp : 14.sp,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      // Expanded(
+                      //   child: Text(
+                      //     widget.item!.pembLeinzSt,
+                      //     style: TextStyle(
+                      //         fontSize: isHor ? 16.sp : 14.sp,
+                      //         fontFamily: 'Montserrat',
+                      //         fontWeight: FontWeight.w600),
+                      //     textAlign: TextAlign.end,
+                      //   ),
+                      // ),
                     ],
                   ),
                   SizedBox(

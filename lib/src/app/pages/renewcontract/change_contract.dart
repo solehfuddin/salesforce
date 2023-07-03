@@ -70,11 +70,11 @@ class _ChangeContractState extends State<ChangeContract> {
   String? tokenSm = '';
   String? idSm = '';
   String? idCustomer, jabatanKedua, ttdPertama;
-  String? _chosenNikon,
-      _durasiNikon,
-      _chosenNikonSt,
-      _durasiNikonSt,
-      _chosenLeinz,
+  // String? _chosenNikon,
+  //     _durasiNikon,
+  //     _chosenNikonSt,
+  //     _durasiNikonSt,
+  String? _chosenLeinz,
       _durasiLeinz,
       _chosenLeinzSt,
       _durasiLeinzSt,
@@ -85,7 +85,7 @@ class _ChangeContractState extends State<ChangeContract> {
       _chosenMoe,
       _durasiMoe;
   final format = DateFormat("yyyy-MM-dd");
-  TextEditingController textValNikon = new TextEditingController();
+  // TextEditingController textValNikon = new TextEditingController();
   TextEditingController textValLeinz = new TextEditingController();
   TextEditingController textValOriental = new TextEditingController();
   TextEditingController textValMoe = new TextEditingController();
@@ -94,7 +94,7 @@ class _ChangeContractState extends State<ChangeContract> {
   TextEditingController textCatatan = new TextEditingController();
   var _now = new DateTime.now();
   var _formatter = new DateFormat('yyyy-MM-dd');
-  bool _isValNikon = false;
+  // bool _isValNikon = false;
   bool _isValLeinz = false;
   bool _isValOriental = false;
   bool _isValMoe = false;
@@ -124,10 +124,10 @@ class _ChangeContractState extends State<ChangeContract> {
   setRegularDisc() {
     List<Proddiv> regProddiv = [
       Proddiv("ALL LEINZ RX", "TRLX", "10"),
-      Proddiv("ALL NIKON RX", "TRNX", "10"),
+      //Proddiv("ALL NIKON RX", "TRNX", "10"),
       Proddiv("ALL ORIENTAL RX", "TRTX", "10"),
       Proddiv("ALL MOE STOCK", "TRML", "15"),
-      Proddiv("ALL NIKON STOCK", "TRNL", "15"),
+      //Proddiv("ALL NIKON STOCK", "TRNL", "15"),
       Proddiv("ALL LEINZ STOCK", "TROL", "15"),
       Proddiv("ALL ORIENTAL STOCK", "TRTL", "15"),
     ];
@@ -691,33 +691,29 @@ class _ChangeContractState extends State<ChangeContract> {
     tmpDivInput.clear();
     tmpProduct.clear();
 
-    var outNikon,
-        outNikonSt,
-        outLeinz,
-        outLeinzSt,
-        outOriental,
-        outOrientalSt,
-        outMoe,
-        startContract;
-    var valNikon, valLeinz, valOriental, valMoe;
+    // var outNikon,
+    //     outNikonSt,
+    var outLeinz, outLeinzSt, outOriental, outOrientalSt, outMoe, startContract;
+    // var valNikon,
+    var valLeinz, valOriental, valMoe;
 
     startContract = _formatter.format(_now);
 
-    if (_chosenNikon == null) {
-      outNikon = '-';
-    } else if (_chosenNikon == "KREDIT") {
-      outNikon = "$_chosenNikon - $_durasiNikon";
-    } else {
-      outNikon = _chosenNikon;
-    }
+    // if (_chosenNikon == null) {
+    //   outNikon = '-';
+    // } else if (_chosenNikon == "KREDIT") {
+    //   outNikon = "$_chosenNikon - $_durasiNikon";
+    // } else {
+    //   outNikon = _chosenNikon;
+    // }
 
-    if (_chosenNikonSt == null) {
-      outNikonSt = '-';
-    } else if (_chosenNikonSt == "KREDIT") {
-      outNikonSt = "$_chosenNikonSt - $_durasiNikonSt";
-    } else {
-      outNikonSt = _chosenNikonSt;
-    }
+    // if (_chosenNikonSt == null) {
+    //   outNikonSt = '-';
+    // } else if (_chosenNikonSt == "KREDIT") {
+    //   outNikonSt = "$_chosenNikonSt - $_durasiNikonSt";
+    // } else {
+    //   outNikonSt = _chosenNikonSt;
+    // }
 
     if (_chosenLeinz == null) {
       outLeinz = '-';
@@ -759,8 +755,8 @@ class _ChangeContractState extends State<ChangeContract> {
       outMoe = _chosenMoe;
     }
 
-    valNikon =
-        textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
+    // valNikon =
+    //     textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
     valLeinz =
         textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
     valOriental = textValOriental.text.length > 0
@@ -771,24 +767,26 @@ class _ChangeContractState extends State<ChangeContract> {
     print('id_customer: $idCustomer');
     print('nama_pertama : $name');
     print('jabatan_pertama: $role');
-    print('tp_nikon: ${valNikon.replaceAll('.', '')}');
+    // print('tp_nikon: ${valNikon.replaceAll('.', '')}');
     print('tp_leinz: ${valLeinz.replaceAll('.', '')}');
     print('tp_oriental: ${valOriental.replaceAll('.', '')}');
     print('tp_moe: ${valMoe.replaceAll('.', '')}');
-    print('pembayaran_nikon : $outNikon');
+    // print('pembayaran_nikon : $outNikon');
     print('pembayaran_leinz : $outLeinz');
     print('pembayaran_oriental : $outOriental');
     print('pembayaran_moe : $outMoe');
-    print('pembayaran_nikon_stock : $outNikonSt');
+    // print('pembayaran_nikon_stock : $outNikonSt');
     print('pembayaran_leinz_stock : $outLeinzSt');
     print('pembayaran_oriental_stock : $outOrientalSt');
     print('start_contract : $startContract');
-    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
+    print(
+        'type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : ${_isFrameContract ? '1' : '0'}');
     print('is_partai : ${_isPartaiContract ? '1' : '0'}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
-    print('catatan : ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
+    print(
+        'catatan : ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
     print('created_by : $id');
     print('has_parent : ${_isContractActive ? '1' : '0'}');
     print(
@@ -890,22 +888,24 @@ class _ChangeContractState extends State<ChangeContract> {
       print(
           'telp_kedua: ${widget.isNewCust! ? widget.customer!.noTlp : widget.oldCustomer!.phone}');
       print('fax_kedua: -');
-      print('tp_nikon: ${valNikon.replaceAll('.', '')}');
+      // print('tp_nikon: ${valNikon.replaceAll('.', '')}');
       print('tp_leinz: ${valLeinz.replaceAll('.', '')}');
       print('tp_oriental :  ${valOriental.replaceAll('.', '')}');
       print('tp_moe: ${valMoe.replaceAll('.', '')}');
-      print('pembayaran_nikon: $outNikon');
+      // print('pembayaran_nikon: $outNikon');
       print('pembayaran_leinz: $outLeinz');
       print('pembayaran_oriental: $outOriental');
       print('pembayaran_moe: $outMoe');
-      print('pembayaran_nikon_stock: $outNikonSt');
+      // print('pembayaran_nikon_stock: $outNikonSt');
       print('pembayaran_leinz_stock: $outLeinzSt');
       print('pembayaran_oriental_stock: $outOrientalSt');
       print('start_contract: $startContract');
-      print('type_contract: ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
+      print(
+          'type_contract: ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
       print('is_frame: ${_isFrameContract ? '1' : '0'}');
       print('is_partai: ${_isPartaiContract ? '1' : '0'}');
-      print('catatan: ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
+      print(
+          'catatan: ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
       print('no_account: ');
       print('ttd_pertama: $ttdPertama');
       print('ttd_kedua: $ttdKedua');
@@ -937,22 +937,27 @@ class _ChangeContractState extends State<ChangeContract> {
                 ? widget.customer!.noTlp
                 : widget.oldCustomer!.phone,
             'fax_kedua': '-',
-            'tp_nikon': valNikon.replaceAll('.', ''),
+            // 'tp_nikon': valNikon.replaceAll('.', ''),
             'tp_leinz': valLeinz.replaceAll('.', ''),
             'tp_oriental': valOriental.replaceAll('.', ''),
             'tp_moe': valMoe.replaceAll('.', ''),
-            'pembayaran_nikon': outNikon,
+            // 'pembayaran_nikon': outNikon,
             'pembayaran_leinz': outLeinz,
             'pembayaran_oriental': outOriental,
             'pembayaran_moe': outMoe,
-            'pembayaran_nikon_stock': outNikonSt,
+            // 'pembayaran_nikon_stock': outNikonSt,
             'pembayaran_leinz_stock': outLeinzSt,
             'pembayaran_oriental_stock': outOrientalSt,
             'start_contract': startContract,
-            'type_contract': _isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA',
+            'type_contract': _isCashbackContrack
+                ? 'CASHBACK'
+                : _isCashbackWithDiscContract
+                    ? 'CASHBACK DENGAN DISKON'
+                    : 'LENSA',
             'is_frame': _isFrameContract ? '1' : '0',
             'is_partai': _isPartaiContract ? '1' : '0',
-            'catatan': "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
+            'catatan':
+                "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
             'no_account': '',
             // 'no_account': idCustomer,
             'ttd_pertama': ttdPertama,
@@ -990,7 +995,7 @@ class _ChangeContractState extends State<ChangeContract> {
           if (sts) {
             textValLeinz.clear();
             textValMoe.clear();
-            textValNikon.clear();
+            // textValNikon.clear();
             textValOriental.clear();
 
             if (_isContractActive) {
@@ -1478,36 +1483,36 @@ class _ChangeContractState extends State<ChangeContract> {
               SizedBox(
                 height: isHorizontal ? 18.h : 8.h,
               ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isHorizontal ? 10.r : 5.r,
-                ),
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: 'Lensa Nikon',
-                    labelText: 'Lensa Nikon',
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 3.r,
-                      horizontal: 15.r,
-                    ),
-                    errorText: _isValNikon ? 'Data wajib diisi' : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.r),
-                    ),
-                  ),
-                  inputFormatters: [ThousandsSeparatorInputFormatter()],
-                  controller: textValNikon,
-                  maxLength: 5,
-                  style: TextStyle(
-                    fontSize: isHorizontal ? 24.sp : 14.sp,
-                    fontFamily: 'Segoe Ui',
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: isHorizontal ? 18.h : 8.h,
-              ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(
+              //     horizontal: isHorizontal ? 10.r : 5.r,
+              //   ),
+              //   child: TextFormField(
+              //     keyboardType: TextInputType.number,
+              //     decoration: InputDecoration(
+              //       hintText: 'Lensa Nikon',
+              //       labelText: 'Lensa Nikon',
+              //       contentPadding: EdgeInsets.symmetric(
+              //         vertical: 3.r,
+              //         horizontal: 15.r,
+              //       ),
+              //       errorText: _isValNikon ? 'Data wajib diisi' : null,
+              //       border: OutlineInputBorder(
+              //         borderRadius: BorderRadius.circular(5.r),
+              //       ),
+              //     ),
+              //     inputFormatters: [ThousandsSeparatorInputFormatter()],
+              //     controller: textValNikon,
+              //     maxLength: 5,
+              //     style: TextStyle(
+              //       fontSize: isHorizontal ? 24.sp : 14.sp,
+              //       fontFamily: 'Segoe Ui',
+              //     ),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: isHorizontal ? 18.h : 8.h,
+              // ),
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: isHorizontal ? 10.r : 5.r,
@@ -1621,7 +1626,7 @@ class _ChangeContractState extends State<ChangeContract> {
               SizedBox(
                 height: isHorizontal ? 18.h : 8.h,
               ),
-              Padding(
+              /* Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isHorizontal ? 10.r : 5.r,
                 ),
@@ -1770,7 +1775,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     )
                   : SizedBox(
                       width: 20.w,
-                    ),
+                    ),*/
               SizedBox(
                 height: isHorizontal ? 18.h : 8.h,
               ),
@@ -2801,9 +2806,9 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    'Lensa Nikon',
+                    'Lensa Leinz',
                     style: TextStyle(
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                      fontSize: isHorizontal ? 16.sp : 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                     ),
@@ -2811,9 +2816,9 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Expanded(
                   child: Text(
-                    'Lensa Leinz',
+                    'Lensa Oriental',
                     style: TextStyle(
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
+                      fontSize: isHorizontal ? 16.sp : 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                     ),
@@ -2837,7 +2842,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   child: Text(
                     widget.actContract.isNotEmpty
                         ? convertToIdr(
-                            int.parse(widget.actContract[0].tpNikon), 0)
+                            int.parse(widget.actContract[0].tpLeinz), 0)
                         : 'Rp 0',
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
@@ -2849,7 +2854,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   child: Text(
                     widget.actContract.isNotEmpty
                         ? convertToIdr(
-                            int.parse(widget.actContract[0].tpLeinz), 0)
+                            int.parse(widget.actContract[0].tpOriental), 0)
                         : 'Rp 0',
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
@@ -2873,25 +2878,25 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    'Lensa Oriental',
-                    style: TextStyle(
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
                     'Lensa Moe',
                     style: TextStyle(
                       fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w500,
                     ),
-                    textAlign: TextAlign.end,
                   ),
                 ),
+                // Expanded(
+                //   child: Text(
+                //     'Lensa Moe',
+                //     style: TextStyle(
+                //       fontSize: isHorizontal ? 24.sp : 14.sp,
+                //       fontFamily: 'Montserrat',
+                //       fontWeight: FontWeight.w500,
+                //     ),
+                //     textAlign: TextAlign.end,
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -2909,27 +2914,27 @@ class _ChangeContractState extends State<ChangeContract> {
                   child: Text(
                     widget.actContract.isNotEmpty
                         ? convertToIdr(
-                            int.parse(widget.actContract[0].tpOriental), 0)
-                        : 'Rp 0',
-                    style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    widget.actContract.isNotEmpty
-                        ? convertToIdr(
                             int.parse(widget.actContract[0].tpMoe), 0)
                         : 'Rp 0',
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.end,
                   ),
                 ),
+                // Expanded(
+                //   child: Text(
+                //     widget.actContract.isNotEmpty
+                //         ? convertToIdr(
+                //             int.parse(widget.actContract[0].tpMoe), 0)
+                //         : 'Rp 0',
+                //     style: TextStyle(
+                //         fontSize: isHorizontal ? 24.sp : 14.sp,
+                //         fontFamily: 'Montserrat',
+                //         fontWeight: FontWeight.w600),
+                //     textAlign: TextAlign.end,
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -2969,73 +2974,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    'Lensa Nikon RX',
-                    style: TextStyle(
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
                     'Lensa Leinz RX',
-                    style: TextStyle(
-                      fontSize: isHorizontal ? 24.sp : 14.sp,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: isHorizontal ? 10.h : 5.h,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 10.r : 5.r,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.actContract[0].pembNikon,
-                    style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    widget.actContract[0].pembLeinz,
-                    style: TextStyle(
-                        fontSize: isHorizontal ? 24.sp : 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: isHorizontal ? 20.h : 10.h,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isHorizontal ? 10.r : 5.r,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Lensa Nikon Stock',
                     style: TextStyle(
                       fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontFamily: 'Montserrat',
@@ -3069,7 +3008,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembNikonSt,
+                    widget.actContract[0].pembLeinz,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -3078,7 +3017,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembNikonSt,
+                    widget.actContract[0].pembLeinzSt,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -3092,6 +3031,72 @@ class _ChangeContractState extends State<ChangeContract> {
           SizedBox(
             height: isHorizontal ? 20.h : 10.h,
           ),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(
+          //     horizontal: isHorizontal ? 10.r : 5.r,
+          //   ),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Expanded(
+          //         child: Text(
+          //           'Lensa Nikon Stock',
+          //           style: TextStyle(
+          //             fontSize: isHorizontal ? 24.sp : 14.sp,
+          //             fontFamily: 'Montserrat',
+          //             fontWeight: FontWeight.w500,
+          //           ),
+          //         ),
+          //       ),
+          //       Expanded(
+          //         child: Text(
+          //           'Lensa Leinz Stock',
+          //           style: TextStyle(
+          //             fontSize: isHorizontal ? 24.sp : 14.sp,
+          //             fontFamily: 'Montserrat',
+          //             fontWeight: FontWeight.w500,
+          //           ),
+          //           textAlign: TextAlign.end,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: isHorizontal ? 10.h : 5.h,
+          // ),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(
+          //     horizontal: isHorizontal ? 10.r : 5.r,
+          //   ),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Expanded(
+          //         child: Text(
+          //           widget.actContract[0].pembNikonSt,
+          //           style: TextStyle(
+          //               fontSize: isHorizontal ? 24.sp : 14.sp,
+          //               fontFamily: 'Montserrat',
+          //               fontWeight: FontWeight.w600),
+          //         ),
+          //       ),
+          //       Expanded(
+          //         child: Text(
+          //           widget.actContract[0].pembNikonSt,
+          //           style: TextStyle(
+          //               fontSize: isHorizontal ? 24.sp : 14.sp,
+          //               fontFamily: 'Montserrat',
+          //               fontWeight: FontWeight.w600),
+          //           textAlign: TextAlign.end,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: isHorizontal ? 20.h : 10.h,
+          // ),
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: isHorizontal ? 10.r : 5.r,
@@ -3111,7 +3116,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Expanded(
                   child: Text(
-                    'Lensa Moe RX',
+                    'Lensa Oriental Stock',
                     style: TextStyle(
                       fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontFamily: 'Montserrat',
@@ -3144,7 +3149,7 @@ class _ChangeContractState extends State<ChangeContract> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembMoe,
+                    widget.actContract[0].pembOrientalSt,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -3167,7 +3172,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    'Lensa Oriental Stock',
+                    'Lensa Moe Rx',
                     style: TextStyle(
                       fontSize: isHorizontal ? 24.sp : 14.sp,
                       fontFamily: 'Montserrat',
@@ -3190,7 +3195,7 @@ class _ChangeContractState extends State<ChangeContract> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.actContract[0].pembOrientalSt,
+                    widget.actContract[0].pembMoe,
                     style: TextStyle(
                         fontSize: isHorizontal ? 24.sp : 14.sp,
                         fontFamily: 'Montserrat',
@@ -3751,131 +3756,131 @@ class _ChangeContractState extends State<ChangeContract> {
     );
   }
 
-  Widget durasiNikon({bool isHorizontal = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 10.r : 5.r,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
-                : MediaQuery.of(context).size.width / 3.2,
-            child: Text(
-              'Durasi : ',
-              style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.r),
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: DropdownButton(
-                underline: SizedBox(),
-                isExpanded: true,
-                value: _durasiNikon,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
-                  fontFamily: 'Segoe Ui',
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _durasiNikon = value;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget durasiNikon({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 5.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 24.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiNikon,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 24.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiNikon = value;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget durasiNikonSt({bool isHorizontal = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 10.r : 5.r,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: isHorizontal
-                ? MediaQuery.of(context).size.width / 5.5
-                : MediaQuery.of(context).size.width / 3.2,
-            child: Text(
-              'Durasi : ',
-              style: TextStyle(
-                fontSize: isHorizontal ? 24.h : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.r),
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: DropdownButton(
-                underline: SizedBox(),
-                isExpanded: true,
-                value: _durasiNikonSt,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 24.sp : 14.sp,
-                  fontFamily: 'Segoe Ui',
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _durasiNikonSt = value;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget durasiNikonSt({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 5.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 24.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiNikonSt,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 24.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiNikonSt = value;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget durasiMoe({bool isHorizontal = false}) {
     return Padding(

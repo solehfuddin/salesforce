@@ -78,10 +78,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
   String faxKedua = '';
   String ttdPertama = '';
   String ttdKedua = '';
-  String _chosenNikon = '-';
-  String _durasiNikon = '7 HARI';
-  String _chosenNikonSt = '-';
-  String _durasiNikonSt = '7 HARI';
+  // String _chosenNikon = '-';
+  // String _durasiNikon = '7 HARI';
+  // String _chosenNikonSt = '-';
+  // String _durasiNikonSt = '7 HARI';
   String _chosenLeinz = '-';
   String _durasiLeinz = '7 HARI';
   String _chosenLeinzSt = '-';
@@ -94,7 +94,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   String _durasiMoe = '';
   bool _isEmpty = false;
   final format = DateFormat("dd MMM yyyy");
-  TextEditingController textValNikon = new TextEditingController();
+  // TextEditingController textValNikon = new TextEditingController();
   TextEditingController textValLeinz = new TextEditingController();
   TextEditingController textValOriental = new TextEditingController();
   TextEditingController textValMoe = new TextEditingController();
@@ -118,10 +118,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
   setRegularDisc() {
     List<Proddiv> regProddiv = [
       Proddiv("ALL LEINZ RX", "TRLX", "10"),
-      Proddiv("ALL NIKON RX", "TRNX", "10"),
+      // Proddiv("ALL NIKON RX", "TRNX", "10"),
       Proddiv("ALL ORIENTAL RX", "TRTX", "10"),
       Proddiv("ALL MOE STOCK", "TRML", "15"),
-      Proddiv("ALL NIKON STOCK", "TRNL", "15"),
+      // Proddiv("ALL NIKON STOCK", "TRNL", "15"),
       Proddiv("ALL LEINZ STOCK", "TROL", "15"),
       Proddiv("ALL ORIENTAL STOCK", "TRTL", "15"),
     ];
@@ -160,6 +160,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
       ttdKedua = widget.customerList[widget.position].ttdCustomer;
       idCustomer = widget.customerList[widget.position].id;
 
+      print("Ttd Kedua : $ttdKedua");
+
       if (!widget.isRevisi!) {
         var strsplit;
         bool isKredit = false;
@@ -170,10 +172,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
           isKredit = true;
         }
 
-        _chosenNikon = isKredit ? strsplit[0] : tmpJenis;
-        _durasiNikon = isKredit ? strsplit[1] : '7 HARI';
-        _chosenNikonSt = isKredit ? strsplit[0] : tmpJenis;
-        _durasiNikonSt = isKredit ? strsplit[1] : '7 HARI';
+        // _chosenNikon = isKredit ? strsplit[0] : tmpJenis;
+        // _durasiNikon = isKredit ? strsplit[1] : '7 HARI';
+        // _chosenNikonSt = isKredit ? strsplit[0] : tmpJenis;
+        // _durasiNikonSt = isKredit ? strsplit[1] : '7 HARI';
         _chosenLeinz = isKredit ? strsplit[0] : tmpJenis;
         _durasiLeinz = isKredit ? strsplit[1] : '7 HARI';
         _chosenLeinzSt = isKredit ? strsplit[0] : tmpJenis;
@@ -239,13 +241,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
   handleTargetEdit(List<Contract> _contract) {
     NumberFormat myFormat = NumberFormat.decimalPattern('id');
     dynamic leinzVal = getSatuan(_contract[0].tpLeinz);
-    dynamic nikonVal = getSatuan(_contract[0].tpNikon);
+    // dynamic nikonVal = getSatuan(_contract[0].tpNikon);
     dynamic moeVal = getSatuan(_contract[0].tpMoe);
     dynamic orientalVal = getSatuan(_contract[0].tpOriental);
 
     print('Target Leinz Revisi : $leinzVal');
     textValLeinz.text = myFormat.format(leinzVal);
-    textValNikon.text = myFormat.format(nikonVal);
+    // textValNikon.text = myFormat.format(nikonVal);
     textValMoe.text = myFormat.format(moeVal);
     textValOriental.text = myFormat.format(orientalVal);
   }
@@ -277,20 +279,20 @@ class _EcontractScreenState extends State<EcontractScreen> {
   }
 
   handleJangkaWaktuEdit(List<Contract> _contract) {
-    bool isKreditNikon = handleIsKreditEdit(_contract[0].pembNikon);
-    bool isKreditNikonSt = handleIsKreditEdit(_contract[0].pembNikonSt);
+    // bool isKreditNikon = handleIsKreditEdit(_contract[0].pembNikon);
+    // bool isKreditNikonSt = handleIsKreditEdit(_contract[0].pembNikonSt);
     bool isKreditLeinz = handleIsKreditEdit(_contract[0].pembLeinz);
     bool isKreditLeinzSt = handleIsKreditEdit(_contract[0].pembLeinzSt);
     bool isKreditOriental = handleIsKreditEdit(_contract[0].pembOriental);
     bool isKreditOrientalSt = handleIsKreditEdit(_contract[0].pembOrientalSt);
     bool isKreditMoe = handleIsKreditEdit(_contract[0].pembMoe);
 
-    _chosenNikon = handleChosenEdit(_contract[0].pembNikon, isKreditNikon);
-    _durasiNikon = handleDurasiEdit(_contract[0].pembNikon, isKreditNikon);
-    _chosenNikonSt =
-        handleChosenEdit(_contract[0].pembNikonSt, isKreditNikonSt);
-    _durasiNikonSt =
-        handleDurasiEdit(_contract[0].pembNikonSt, isKreditNikonSt);
+    // _chosenNikon = handleChosenEdit(_contract[0].pembNikon, isKreditNikon);
+    // _durasiNikon = handleDurasiEdit(_contract[0].pembNikon, isKreditNikon);
+    // _chosenNikonSt =
+    //     handleChosenEdit(_contract[0].pembNikonSt, isKreditNikonSt);
+    // _durasiNikonSt =
+    //     handleDurasiEdit(_contract[0].pembNikonSt, isKreditNikonSt);
     _chosenLeinz = handleChosenEdit(_contract[0].pembLeinz, isKreditLeinz);
     _durasiLeinz = handleDurasiEdit(_contract[0].pembLeinz, isKreditLeinz);
     _chosenLeinzSt =
@@ -959,17 +961,17 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
     startContract = _formatter.format(_now);
 
-    if (_chosenNikon == "KREDIT") {
-      outNikon = _chosenNikon + '-' + _durasiNikon;
-    } else {
-      outNikon = _chosenNikon;
-    }
+    // if (_chosenNikon == "KREDIT") {
+    //   outNikon = _chosenNikon + '-' + _durasiNikon;
+    // } else {
+    //   outNikon = _chosenNikon;
+    // }
 
-    if (_chosenNikonSt == "KREDIT") {
-      outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
-    } else {
-      outNikonSt = _chosenNikonSt;
-    }
+    // if (_chosenNikonSt == "KREDIT") {
+    //   outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
+    // } else {
+    //   outNikonSt = _chosenNikonSt;
+    // }
 
     if (_chosenLeinz == "KREDIT") {
       outLeinz = _chosenLeinz + '-' + _durasiLeinz;
@@ -1001,8 +1003,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
       outMoe = _chosenMoe;
     }
 
-    valNikon =
-        textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
+    // valNikon =
+    //     textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
     valLeinz =
         textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
     valOriental = textValOriental.text.length > 0
@@ -1153,7 +1155,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
         if (sts) {
           textValLeinz.clear();
           textValMoe.clear();
-          textValNikon.clear();
+          // textValNikon.clear();
           textValOriental.clear();
 
           print('RUN UPDATE DISKON : ${dtContract[0].idContract}');
@@ -1257,27 +1259,28 @@ class _EcontractScreenState extends State<EcontractScreen> {
     tmpDivInput.clear();
     tmpProduct.clear();
 
-    var outNikon,
-        outNikonSt,
-        outLeinz,
+    // var outNikon,
+    //     outNikonSt,
+    var outLeinz,
         outLeinzSt,
         outOriental,
         outOrientalSt,
         outMoe,
         startContract;
-    var valNikon, valLeinz, valOriental, valMoe;
+    // var valNikon;
+    var valLeinz, valOriental, valMoe;
 
-    if (_chosenNikon == "KREDIT") {
-      outNikon = _chosenNikon + '-' + _durasiNikon;
-    } else {
-      outNikon = _chosenNikon;
-    }
+    // if (_chosenNikon == "KREDIT") {
+    //   outNikon = _chosenNikon + '-' + _durasiNikon;
+    // } else {
+    //   outNikon = _chosenNikon;
+    // }
 
-    if (_chosenNikonSt == "KREDIT") {
-      outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
-    } else {
-      outNikonSt = _chosenNikonSt;
-    }
+    // if (_chosenNikonSt == "KREDIT") {
+    //   outNikonSt = _chosenNikonSt + '-' + _durasiNikonSt;
+    // } else {
+    //   outNikonSt = _chosenNikonSt;
+    // }
 
     if (_chosenLeinz == "KREDIT") {
       outLeinz = _chosenLeinz + '-' + _durasiLeinz;
@@ -1310,8 +1313,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
 
     startContract = _formatter.format(_now);
-    valNikon =
-        textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
+    // valNikon =
+    //     textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
     valLeinz =
         textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
     valOriental = textValOriental.text.length > 0
@@ -1323,15 +1326,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('nama_pertama : $name');
     print('jabatan_pertama: $role');
     print('nama_kedua : $namaKedua');
-    print('tp_nikon: ${valNikon.replaceAll('.', '')}');
+    // print('tp_nikon: ${valNikon.replaceAll('.', '')}');
     print('tp_leinz: ${valLeinz.replaceAll('.', '')}');
     print('tp_oriental: ${valOriental.replaceAll('.', '')}');
     print('tp_moe: ${valMoe.replaceAll('.', '')}');
-    print('pembayaran_nikon : $outNikon');
+    // print('pembayaran_nikon : $outNikon');
     print('pembayaran_leinz : $outLeinz');
     print('pembayaran_oriental : $outOriental');
     print('pembayaran_moe : $outMoe');
-    print('pembayaran_nikon_stock : $outNikonSt');
+    // print('pembayaran_nikon_stock : $outNikonSt');
     print('pembayaran_leinz_stock : $outLeinzSt');
     print('pembayaran_oriental_stock : $outOrientalSt');
     print('start_contract : $startContract');
@@ -1436,15 +1439,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'alamat_kedua': alamatKedua,
           'telp_kedua': telpKedua,
           'fax_kedua': faxKedua,
-          'tp_nikon': valNikon.replaceAll('.', ''),
+          // 'tp_nikon': valNikon.replaceAll('.', ''),
           'tp_leinz': valLeinz.replaceAll('.', ''),
           'tp_oriental': valOriental.replaceAll('.', ''),
           'tp_moe': valMoe.replaceAll('.', ''),
-          'pembayaran_nikon': outNikon,
+          // 'pembayaran_nikon': outNikon,
           'pembayaran_leinz': outLeinz,
           'pembayaran_oriental': outOriental,
           'pembayaran_moe': outMoe,
-          'pembayaran_nikon_stock': outNikonSt,
+          // 'pembayaran_nikon_stock': outNikonSt,
           'pembayaran_leinz_stock': outLeinzSt,
           'pembayaran_oriental_stock': outOrientalSt,
           'start_contract': startContract,
@@ -1476,7 +1479,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
         if (sts) {
           textValLeinz.clear();
           textValMoe.clear();
-          textValNikon.clear();
+          // textValNikon.clear();
           textValOriental.clear();
 
           if (_isContractActive) {
@@ -2173,35 +2176,35 @@ class _EcontractScreenState extends State<EcontractScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 10.r : 5.r,
-                    ),
-                    child: TextFormField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: 'Lensa Nikon',
-                        labelText: 'Lensa Nikon',
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 3.r,
-                          horizontal: 15.r,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.r),
-                        ),
-                      ),
-                      inputFormatters: [ThousandsSeparatorInputFormatter()],
-                      controller: textValNikon,
-                      maxLength: 5,
-                      style: TextStyle(
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontFamily: 'Segoe Ui',
-                      ),
-                    ),
-                  ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // Container(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isHorizontal ? 10.r : 5.r,
+                  //   ),
+                  //   child: TextFormField(
+                  //     keyboardType: TextInputType.number,
+                  //     decoration: InputDecoration(
+                  //       hintText: 'Lensa Nikon',
+                  //       labelText: 'Lensa Nikon',
+                  //       contentPadding: EdgeInsets.symmetric(
+                  //         vertical: 3.r,
+                  //         horizontal: 15.r,
+                  //       ),
+                  //       border: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(5.r),
+                  //       ),
+                  //     ),
+                  //     inputFormatters: [ThousandsSeparatorInputFormatter()],
+                  //     controller: textValNikon,
+                  //     maxLength: 5,
+                  //     style: TextStyle(
+                  //       fontSize: isHorizontal ? 18.sp : 14.sp,
+                  //       fontFamily: 'Segoe Ui',
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
@@ -2305,156 +2308,156 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 10.r : 5.r,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 3.5
-                              : MediaQuery.of(context).size.width / 3.2,
-                          child: Text(
-                            'Lensa Nikon RX : ',
-                            style: TextStyle(
-                              fontSize: isHorizontal ? 18.h : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.r),
-                            decoration: BoxDecoration(
-                              color: Colors.white70,
-                              border: Border.all(color: Colors.black54),
-                              borderRadius: BorderRadius.circular(5.r),
-                            ),
-                            child: DropdownButton(
-                              underline: SizedBox(),
-                              isExpanded: true,
-                              value: _chosenNikon,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 18.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              items: [
-                                '-',
-                                'COD',
-                                'TRANSFER',
-                                'DEPOSIT',
-                                'KREDIT',
-                              ].map((e) {
-                                return DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e,
-                                      style: TextStyle(color: Colors.black54)),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _chosenNikon = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  _chosenNikon == "KREDIT"
-                      ? durasiNikon(
-                          isHorizontal: isHorizontal,
-                        )
-                      : SizedBox(
-                          width: 20.w,
-                        ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 10.r : 5.r,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 3.5
-                              : MediaQuery.of(context).size.width / 3.2,
-                          child: Text(
-                            'Lensa Nikon Stock : ',
-                            style: TextStyle(
-                              fontSize: isHorizontal ? 18.h : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.r),
-                            decoration: BoxDecoration(
-                              color: Colors.white70,
-                              border: Border.all(color: Colors.black54),
-                              borderRadius: BorderRadius.circular(5.r),
-                            ),
-                            child: DropdownButton(
-                              underline: SizedBox(),
-                              isExpanded: true,
-                              value: _chosenNikonSt,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 18.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              items: [
-                                '-',
-                                'COD',
-                                'TRANSFER',
-                                'DEPOSIT',
-                                'KREDIT',
-                              ].map((e) {
-                                return DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e,
-                                      style: TextStyle(color: Colors.black54)),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _chosenNikonSt = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  _chosenNikonSt == "KREDIT"
-                      ? durasiNikonSt(
-                          isHorizontal: isHorizontal,
-                        )
-                      : SizedBox(
-                          width: 20.w,
-                        ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isHorizontal ? 10.r : 5.r,
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //       Container(
+                  //         width: isHorizontal
+                  //             ? MediaQuery.of(context).size.width / 3.5
+                  //             : MediaQuery.of(context).size.width / 3.2,
+                  //         child: Text(
+                  //           'Lensa Nikon RX : ',
+                  //           style: TextStyle(
+                  //             fontSize: isHorizontal ? 18.h : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w500,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Expanded(
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(horizontal: 10.r),
+                  //           decoration: BoxDecoration(
+                  //             color: Colors.white70,
+                  //             border: Border.all(color: Colors.black54),
+                  //             borderRadius: BorderRadius.circular(5.r),
+                  //           ),
+                  //           child: DropdownButton(
+                  //             underline: SizedBox(),
+                  //             isExpanded: true,
+                  //             value: _chosenNikon,
+                  //             style: TextStyle(
+                  //               fontSize: isHorizontal ? 18.sp : 14.sp,
+                  //               fontFamily: 'Segoe Ui',
+                  //               color: Colors.black54,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //             items: [
+                  //               '-',
+                  //               'COD',
+                  //               'TRANSFER',
+                  //               'DEPOSIT',
+                  //               'KREDIT',
+                  //             ].map((e) {
+                  //               return DropdownMenuItem(
+                  //                 value: e,
+                  //                 child: Text(e,
+                  //                     style: TextStyle(color: Colors.black54)),
+                  //               );
+                  //             }).toList(),
+                  //             onChanged: (String? value) {
+                  //               setState(() {
+                  //                 _chosenNikon = value!;
+                  //               });
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // _chosenNikon == "KREDIT"
+                  //     ? durasiNikon(
+                  //         isHorizontal: isHorizontal,
+                  //       )
+                  //     : SizedBox(
+                  //         width: 20.w,
+                  //       ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isHorizontal ? 10.r : 5.r,
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //       Container(
+                  //         width: isHorizontal
+                  //             ? MediaQuery.of(context).size.width / 3.5
+                  //             : MediaQuery.of(context).size.width / 3.2,
+                  //         child: Text(
+                  //           'Lensa Nikon Stock : ',
+                  //           style: TextStyle(
+                  //             fontSize: isHorizontal ? 18.h : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w500,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Expanded(
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(horizontal: 10.r),
+                  //           decoration: BoxDecoration(
+                  //             color: Colors.white70,
+                  //             border: Border.all(color: Colors.black54),
+                  //             borderRadius: BorderRadius.circular(5.r),
+                  //           ),
+                  //           child: DropdownButton(
+                  //             underline: SizedBox(),
+                  //             isExpanded: true,
+                  //             value: _chosenNikonSt,
+                  //             style: TextStyle(
+                  //               fontSize: isHorizontal ? 18.sp : 14.sp,
+                  //               fontFamily: 'Segoe Ui',
+                  //               color: Colors.black54,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //             items: [
+                  //               '-',
+                  //               'COD',
+                  //               'TRANSFER',
+                  //               'DEPOSIT',
+                  //               'KREDIT',
+                  //             ].map((e) {
+                  //               return DropdownMenuItem(
+                  //                 value: e,
+                  //                 child: Text(e,
+                  //                     style: TextStyle(color: Colors.black54)),
+                  //               );
+                  //             }).toList(),
+                  //             onChanged: (String? value) {
+                  //               setState(() {
+                  //                 _chosenNikonSt = value!;
+                  //               });
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // _chosenNikonSt == "KREDIT"
+                  //     ? durasiNikonSt(
+                  //         isHorizontal: isHorizontal,
+                  //       )
+                  //     : SizedBox(
+                  //         width: 20.w,
+                  //       ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 10.r : 5.r,
@@ -3078,131 +3081,131 @@ class _EcontractScreenState extends State<EcontractScreen> {
     });
   }
 
-  Widget durasiNikon({bool isHorizontal = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 10.r : 5.r,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: isHorizontal
-                ? MediaQuery.of(context).size.width / 3.5
-                : MediaQuery.of(context).size.width / 3.2,
-            child: Text(
-              'Durasi : ',
-              style: TextStyle(
-                fontSize: isHorizontal ? 18.h : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.r),
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: DropdownButton(
-                underline: SizedBox(),
-                isExpanded: true,
-                value: _durasiNikon,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 18.sp : 14.sp,
-                  fontFamily: 'Segoe Ui',
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _durasiNikon = value!;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget durasiNikon({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 3.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 18.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiNikon,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 18.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiNikon = value!;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget durasiNikonSt({bool isHorizontal = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 10.r : 5.r,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: isHorizontal
-                ? MediaQuery.of(context).size.width / 3.5
-                : MediaQuery.of(context).size.width / 3.2,
-            child: Text(
-              'Durasi : ',
-              style: TextStyle(
-                fontSize: isHorizontal ? 18.h : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.r),
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: DropdownButton(
-                underline: SizedBox(),
-                isExpanded: true,
-                value: _durasiNikonSt,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 18.sp : 14.sp,
-                  fontFamily: 'Segoe Ui',
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _durasiNikonSt = value!;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget durasiNikonSt({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 3.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 18.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiNikonSt,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 18.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiNikonSt = value!;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget durasiMoe({bool isHorizontal = false}) {
     return Padding(
