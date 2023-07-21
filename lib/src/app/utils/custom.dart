@@ -175,10 +175,19 @@ String getNotifImg({int template = 10}) {
       return 'assets/images/renew_contract.png';
     case 6:
     case 7:
+    case 11:
+    case 15:
       return 'assets/images/success.png';
     case 8:
     case 9:
+    case 16:
       return 'assets/images/failure.png';
+    case 10:
+      return 'assets/images/agenda_menu_new.png';
+    case 12:
+    case 13:
+    case 14:
+      return 'assets/images/contract-reward.png';
     default:
       return 'assets/images/myleinz.png';
   }
@@ -278,6 +287,36 @@ pushNotif(
       body =
           'Hai, pengajuan aktivitas $opticName telah dikonfirmasi oleh $admName.';
       tmplate = '11';
+      break;
+    case 12:
+      title = 'Pengajuan Inkaro Sukses';
+      body =
+          'Pengajuan inkaro $opticName berhasil di-input kedalam sistem. Mohon menunggu untuk persetujuan dari sales manager';
+      tmplate = '12';
+      break;
+    case 13:
+      title = 'Ada Inkaro Baru';
+      body =
+          '$salesName mengajukan inkaro $opticName. Mohon segera proses pengajuan inkaro tersebut';
+      tmplate = '13';
+      break;
+    case 14:
+      title = 'Ada Perubahan Inkaro';
+      body =
+          '$salesName telah meng-update inkaro $opticName. Mohon segera cek pengajuan inkaro tersebut';
+      tmplate = '14';
+      break;
+    case 15:
+      title = 'Inkaro Disetujui';
+      body =
+          'Hai, pengajuan inkaro $opticName telah disetujui oleh $admName. Selalu periksa status pengajuan inkaro anda';
+      tmplate = '15';
+      break;
+    case 16:
+      title = 'Inkaro Telah Ditolak';
+      body =
+          'Hai, pengajuan inkaro $opticName telah ditolak oleh $admName. Segera update pengajuan inkaro tersebut agar segera disetujui sales manager';
+      tmplate = '16';
       break;
   }
 

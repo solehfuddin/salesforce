@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 
@@ -106,8 +107,23 @@ class _FormItemDiscState extends State<FormItemDisc> {
               height: isHorizontal ? 55.r : 50.r,
               child: TextFormField(
                 enabled: _isDisabled,
-                keyboardType: TextInputType.number,
-                maxLength: 2,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r"[0-9.]"),
+                  ),
+                  TextInputFormatter.withFunction(
+                    (oldValue, newValue) {
+                      final text = newValue.text;
+                      return text.isEmpty
+                          ? newValue
+                          : double.tryParse(text) == null
+                              ? oldValue
+                              : newValue;
+                    },
+                  ),
+                ],
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                maxLength: 4,
                 decoration: InputDecoration(
                   hintText: '0',
                   counterText: "",
@@ -125,7 +141,19 @@ class _FormItemDiscState extends State<FormItemDisc> {
                 ),
                 textAlign: TextAlign.center,
                 controller: widget._discvalController,
-                onChanged: (value) => widget.proddiv!.diskon = value,
+                // onChanged: (value) => widget.proddiv!.diskon = value,
+                onChanged: (value) {
+                  print('Value : $value');
+                  if (value.length > 0) {
+                    if (double.parse(value) >= 80) {
+                      widget._discvalController.value = TextEditingValue(
+                        text: "80",
+                      );
+                    }
+                  }
+
+                  widget.proddiv!.diskon = value;
+                },
                 onSaved: (value) => widget.proddiv!.diskon = value!,
               ),
             ),

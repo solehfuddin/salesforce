@@ -302,6 +302,7 @@ class _StaffScreenState extends State<StaffScreen> {
                       context,
                       id,
                       role,
+                      divisi,
                       isConnected: true,
                       isHorizontal: false,
                     ),
