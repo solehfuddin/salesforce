@@ -1,5 +1,6 @@
 class ListInkaroHeader {
   String inkaroContractId,
+      noAccount,
       startPeriode,
       endPeriode,
       nikKTP,
@@ -22,6 +23,7 @@ class ListInkaroHeader {
 
   ListInkaroHeader.fromJson(Map json)
       : inkaroContractId = json['id_inkaro_contract'],
+        noAccount = json['CUSTOMER_SHIP_NUMBER'],
         startPeriode = json['start_periode'] ?? '',
         endPeriode = json['end_periode'] ?? '',
         nikKTP = json['nik_ktp'],
@@ -45,6 +47,7 @@ class ListInkaroHeader {
   Map toJson() {
     return {
       'id_inkaro_contract': inkaroContractId,
+      'CUSTOMER_SHIP_NUMBER': noAccount,
       'nama_usaha': startPeriode,
       'alamat_usaha': endPeriode,
       'nik_ktp': nikKTP,

@@ -30,10 +30,16 @@ import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/app/widgets/dialoglogout.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
-import 'package:sample/src/app/widgets/dialogverificationaction.dart';
+import 'package:sample/src/app/widgets/dialogverifieditheaderinkaro.dart';
+import 'package:sample/src/app/widgets/dialogverifupdateinkaroitem.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_inkaro.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
+import 'package:sample/src/domain/entities/inkaro_manual.dart';
+import 'package:sample/src/domain/entities/inkaro_program.dart';
+import 'package:sample/src/domain/entities/inkaro_reguler.dart';
+import 'package:sample/src/domain/entities/list_inkaro_detail.dart';
 import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 // import 'package:sample/src/domain/entities/oldcustomer.dart';
@@ -519,13 +525,47 @@ handleSigned(BuildContext context) {
   );
 }
 
-handleVerificationAction(BuildContext context, inkaroHeaderList, position) {
+handleVerifEditHeaderInkaro(BuildContext context, inkaroHeaderList, position) {
   showDialog(
     barrierDismissible: false,
     context: context,
     builder: (context) => WillPopScope(
       onWillPop: () async => false,
-      child: DialogVerificationAction(inkaroHeaderList, position),
+      child: DialogVerifEditHeaderInkaro(inkaroHeaderList, position),
+    ),
+  );
+}
+
+handleVerifUpdateInkaroItem(
+    BuildContext context,
+    List<ListCustomerInkaro> customerList,
+    positionCustomer,
+    List<ListInkaroHeader> inkaroHeaderList,
+    positionInkaroHeader,
+    List<InkaroReguler> inkaroRegSelected,
+    List<InkaroProgram> inkaroProgSelected,
+    List<InkaroManual> inkaroManualSelected,
+    void Function(List<ListInkaroDetail>) inkaroDetail,
+    List<ListInkaroDetail> inkaroDetailUpdate,
+    int positionDetail,
+    String typeUpdate) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) => WillPopScope(
+      onWillPop: () async => false,
+      child: DialogVerifUpdateInkaroItem(
+          inkaroHeaderList,
+          positionInkaroHeader,
+          customerList,
+          positionCustomer,
+          inkaroRegSelected,
+          inkaroProgSelected,
+          inkaroManualSelected,
+          inkaroDetail,
+          inkaroDetailUpdate,
+          positionDetail,
+          typeUpdate),
     ),
   );
 }

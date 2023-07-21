@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -15,6 +16,8 @@ import 'package:sample/src/domain/entities/customer_inkaro.dart';
 import 'package:sample/src/domain/entities/inkaro_manual.dart';
 import 'package:sample/src/domain/entities/inkaro_program.dart';
 import 'package:sample/src/domain/entities/inkaro_reguler.dart';
+import 'package:sample/src/domain/entities/list_inkaro_detail.dart';
+import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:sample/src/domain/entities/master_bank.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,6 +40,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   TextEditingController textSelesaiPeriode = new TextEditingController();
   TextEditingController textAtasNama = new TextEditingController();
   TextEditingController textTelpKonfirmasi = new TextEditingController();
+  TextEditingController textNotesContract = new TextEditingController();
   final formKeyInkaroManual = GlobalKey<FormState>();
 
   late String tokenSm, idSm;
@@ -47,6 +51,15 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   String searchInkaroManual = '';
   final format = DateFormat("dd MMM yyyy");
   bool _isEmpty = false;
+  bool _isLoadingInkaroManualSelected = false,
+      isSwitchedCopyTemplateContract = false,
+      isSwitchedHouseBrandProgram = false,
+      isSwitchedHouseBrandManual = false;
+
+  bool checkAllInkaroReguler = false,
+      checkAllInkaroProgram = false,
+      checkAllInkaroManual = false,
+      checkSetAllValueManual = false;
 
   String? namaStaff,
       nikKTP,
@@ -58,7 +71,9 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       telpKonfirmasi,
       _choosenBank,
       _choosenFilterSubcatProg,
-      _choosenFilterSubcatManual;
+      _choosenFilterSubcatManual,
+      _choosenCopyContract;
+  String notesContract = '', allValueManual = '';
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
       _emptyNpwp = false,
@@ -66,7 +81,8 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       _emptyMulaiPeriode = false,
       _emptySelesaiPeriode = false,
       _emptyAtasNama = false,
-      _emptyTelpKonfirmasi = false;
+      _emptyTelpKonfirmasi = false,
+      _emptyNotesContract = false;
 
   checkEntry(Function stop, {bool isHorizontal = false}) {
     setState(() {
@@ -90,10 +106,10 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       textAtasNama.text.isEmpty
           ? _emptyAtasNama = true
           : _emptyAtasNama = false;
-      mulaiPeriode != ''
+      (mulaiPeriode != '' && mulaiPeriode != null)
           ? _emptyMulaiPeriode = false
           : _emptyMulaiPeriode = true;
-      selesaiPeriode != ''
+      (selesaiPeriode != '' && selesaiPeriode != null)
           ? _emptySelesaiPeriode = false
           : _emptySelesaiPeriode = true;
     });
@@ -127,32 +143,50 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       );
       stop();
     } else {
-      if (inkaroRegSelected.isEmpty &&
-          inkaroProgSelected.isEmpty &&
-          inkaroManualSelected.isEmpty) {
-        handleStatus(
-          context,
-          'Silahkan Tambahkan Inkaro Terlebih Dahulu.',
-          false,
-          isHorizontal: isHorizontal,
-          isLogout: false,
-        );
+      if (isSwitchedCopyTemplateContract &&
+          _choosenCopyContract != null &&
+          _choosenCopyContract != '') {
+        simpanData(stop, isHorizontal: isHorizontal);
         stop();
       } else {
-        if (validationInkaroManual) {
+        if (!isSwitchedCopyTemplateContract) {
+          if (inkaroRegSelected.isEmpty &&
+              inkaroProgSelected.isEmpty &&
+              inkaroManualSelected.isEmpty) {
+            handleStatus(
+              context,
+              'Silahkan Tambahkan Inkaro Terlebih Dahulu.',
+              false,
+              isHorizontal: isHorizontal,
+              isLogout: false,
+            );
+            stop();
+          } else {
+            if (validationInkaroManual) {
+              handleStatus(
+                context,
+                'Harap Lengkapi Nilai Inkaro untuk Tipe Inkaro Manual.',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+              stop();
+            } else {
+              simpanData(stop, isHorizontal: isHorizontal);
+            }
+
+            stop();
+          }
+        } else {
           handleStatus(
             context,
-            'Harap Lengkapi Nilai Inkaro untuk Tipe Inkaro Manual.',
+            'Pilih Kontrak Yang Ingin Disalin Terlebih Dahulu.',
             false,
             isHorizontal: isHorizontal,
             isLogout: false,
           );
           stop();
-        } else {
-          simpanData(stop, isHorizontal: isHorizontal);
         }
-
-        stop();
       }
     }
   }
@@ -222,6 +256,14 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       });
     }
 
+    // Check Data Copy Contract
+    String copyContract = '';
+    if (isSwitchedCopyTemplateContract) {
+      copyContract = _choosenCopyContract!;
+    } else {
+      copyContract = '';
+    }
+
     try {
       var response = await http.post(Uri.parse(url), body: {
         'cust_ship_num': widget.customerList[widget.position].noAccount,
@@ -238,21 +280,18 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         'an_rekening': atasNama,
         'telp_konfirmasi': telpKonfirmasi,
         'created_by': id,
-        'detail_inkaro': json.encode(finalListInkaro)
+        'detail_inkaro': json.encode(finalListInkaro),
+        'notes': notesContract,
+        'copyContract': copyContract
       }, headers: {
         "api-key-trl": API_KEY
       }).timeout(Duration(seconds: timeout));
-
-      // RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
-      // print(response.body.replaceAll(exp, ''));
-      // print('test');
 
       var res = json.decode(response.body);
       final bool sts = res['status'];
       final String msg = res['message'].toString();
 
-      // print(res);
-      debugPrint(response.body, wrapWidth: 10240);
+      // debugPrint(response.body, wrapWidth: 10240);
 
       if (mounted) {
         handleStatus(
@@ -354,7 +393,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
-          print(rest);
           setState(() {
             itemInkaroProgram = rest
                 .map<InkaroProgram>((json) => InkaroProgram.fromJson(json))
@@ -426,7 +464,24 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
             indexInkaroManualSelected.add(listInkaroManual[i].idSubcategory);
 
             setState(() {
+              // Set Value Inkaro New Selected to Same Value [feat.setAllValue]
+              if (checkSetAllValueManual) {
+                listInkaroManual[i].inkaroValue =
+                    allValueManual.replaceAll('.', '');
+              }
               inkaroManualSelected.add(listInkaroManual[i]);
+            });
+          } else {
+            // Get Index List inkaroManualSelected with Value SubCategory is Checked [feat.setAllValue]
+            final indexTempSelected = inkaroManualSelected.indexWhere(
+                (element) =>
+                    element.idSubcategory == listInkaroManual[i].idSubcategory);
+            setState(() {
+              // Set Value Inkaro Before Selected to Same Value [feat.setAllValue]
+              if (checkSetAllValueManual) {
+                inkaroManualSelected[indexTempSelected].inkaroValue =
+                    allValueManual.replaceAll('.', '');
+              }
             });
           }
         } else {
@@ -449,9 +504,9 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   Future<List<InkaroProgram>> getSearchInkaroProgram(String input) async {
     List<InkaroProgram> list = List.empty(growable: true);
     const timeout = 15;
+    String houseBrand = isSwitchedHouseBrandProgram ? 'on' : 'off';
     var url =
-        '$API_URL/inkaro/item_inkaro?search=$input&category_id=$_choosenFilterSubcatProg';
-    print(url);
+        '$API_URL/inkaro/item_inkaro?search=$input&category_id=$_choosenFilterSubcatProg&house_brand=$houseBrand';
     try {
       var response = await http.get(Uri.parse(url), headers: {
         "api-key-trl": API_KEY
@@ -463,7 +518,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
 
         if (sts) {
           var rest = data['data'];
-          print(rest);
           setState(() {
             list = rest
                 .map<InkaroProgram>((json) => InkaroProgram.fromJson(json))
@@ -472,9 +526,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                 .map<InkaroProgram>((json) => InkaroProgram.fromJson(json))
                 .toList();
           });
-
-          print("List Size: ${list.length}");
-          print("Product Size: ${listInkaroProgram.length}");
 
           // CHECKLIST CHECKBOX YANG SUDAH DI CHECKLIST SEBELUMNYA BERDASARKAN indexSelected
           for (int j = 0; j < listInkaroProgram.length; j++) {
@@ -506,8 +557,9 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   Future<List<InkaroManual>> getSearchInkaroManual(String input) async {
     List<InkaroManual> list = List.empty(growable: true);
     const timeout = 15;
+    String houseBrand = isSwitchedHouseBrandManual ? 'on' : 'off';
     var url =
-        '$API_URL/inkaro/item_inkaro?search=$input&category_id=$_choosenFilterSubcatManual';
+        '$API_URL/inkaro/item_inkaro?search=$input&category_id=$_choosenFilterSubcatManual&house_brand=$houseBrand';
     try {
       var response = await http.get(Uri.parse(url), headers: {
         "api-key-trl": API_KEY
@@ -519,7 +571,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
 
         if (sts) {
           var rest = data['data'];
-          print(rest);
           setState(() {
             list = rest
                 .map<InkaroManual>((json) => InkaroManual.fromJson(json))
@@ -528,9 +579,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                 .map<InkaroManual>((json) => InkaroManual.fromJson(json))
                 .toList();
           });
-
-          print("List Size: ${list.length}");
-          print("Product Size: ${listInkaroManual.length}");
 
           // CHECKLIST CHECKBOX YANG SUDAH DI CHECKLIST SEBELUMNYA BERDASARKAN indexSelected
           for (int j = 0; j < listInkaroManual.length; j++) {
@@ -561,6 +609,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   }
 
   List<ListMasterBank> _dataBank = List.empty(growable: true);
+  List<ListInkaroHeader> _dataCopyContract = List.empty(growable: true);
   List<InkaroReguler> _dataFilterSubcat = List.empty(growable: true);
 
   List<InkaroReguler> itemInkaroReguler = List.empty(growable: true);
@@ -575,6 +624,97 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   List<InkaroManual> listInkaroManual = List.empty(growable: true);
   List<InkaroManual> inkaroManualSelected = List.empty(growable: true);
   List<String> indexInkaroManualSelected = List.empty(growable: true);
+
+  Future<List<ListInkaroHeader>> getOptionCopyContract() async {
+    const timeout = 15;
+    var url = '$API_URL/inkaro/getInkaroHeader';
+    List<ListInkaroHeader> list = List.empty(growable: true);
+    try {
+      var response = await http.get(Uri.parse(url), headers: {
+        "api-key-trl": API_KEY
+      }).timeout(Duration(seconds: timeout));
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          list = rest
+              .map<ListInkaroHeader>((json) => ListInkaroHeader.fromJson(json))
+              .toList();
+          setState(() {
+            _dataCopyContract = list;
+          });
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    return list;
+  }
+
+  List<ListInkaroDetail> listInkaroDetailReguler = List.empty(growable: true);
+  List<ListInkaroDetail> listInkaroDetailProgram = List.empty(growable: true);
+  List<ListInkaroDetail> listInkaroDetailManual = List.empty(growable: true);
+
+  getListInkaro() async {
+    List<ListInkaroDetail> listTmp = List.empty(growable: true);
+    const timeout = 15;
+    var url =
+        '$API_URL/inkaro/getInkaroDetail?id_inkaro_header=$_choosenCopyContract';
+
+    try {
+      var response = await http.get(Uri.parse(url), headers: {
+        "api-key-trl": API_KEY
+      }).timeout(Duration(seconds: timeout));
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+        if (sts) {
+          var rest = data['data'];
+          setState(() {
+            listInkaroDetailReguler = rest['reguler']
+                .map<ListInkaroDetail>(
+                    (json) => ListInkaroDetail.fromJson(json))
+                .toList();
+            listInkaroDetailProgram = rest['program']
+                .map<ListInkaroDetail>(
+                    (json) => ListInkaroDetail.fromJson(json))
+                .toList();
+            listInkaroDetailManual = rest['manual']
+                .map<ListInkaroDetail>(
+                    (json) => ListInkaroDetail.fromJson(json))
+                .toList();
+
+            listTmp = [
+              ...listInkaroDetailReguler,
+              ...listInkaroDetailProgram,
+              ...listInkaroDetailManual
+            ];
+          });
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
 
   Future<List<ListMasterBank>> getOptionBank() async {
     const timeout = 15;
@@ -657,6 +797,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
     super.initState();
     getRole();
     getOptionBank();
+    getOptionCopyContract();
     getKategoriInkaro();
     getCategoryForFilterSubcat();
   }
@@ -1041,7 +1182,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                         ),
                       ),
                       Text(
-                        'Atas Nama',
+                        'Nomor Rekening / e-Wallet',
                         style: TextStyle(
                           fontSize: isHorizontal ? 18.sp : 12.sp,
                           fontFamily: 'Montserrat',
@@ -1050,9 +1191,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                         ),
                       ),
                     ],
-                  ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
                   ),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1108,72 +1246,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                           child: Container(
                             margin: EdgeInsets.only(top: 15.0),
                             child: TextFormField(
-                              textCapitalization: TextCapitalization.characters,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5.r),
-                                ),
-                                errorText:
-                                    _emptyAtasNama ? 'Wajib diisi' : null,
-                              ),
-                              maxLength: 50,
-                              controller: textAtasNama,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                              ),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  atasNama = value!;
-                                  if (value == '') {
-                                    _emptyAtasNama = true;
-                                  } else {
-                                    _emptyAtasNama = false;
-                                  }
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ]),
-                  SizedBox(
-                    height: isHorizontal ? 22.sp : 12.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Nomor Rekening / e-Wallet',
-                        style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Text(
-                        'Telp/HP Konfirmasi',
-                        style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 4,
-                          child: Container(
-                            margin: EdgeInsets.only(top: 15.0),
-                            child: TextFormField(
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
@@ -1199,6 +1271,69 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                                     }
                                   });
                                 }),
+                          ),
+                        ),
+                      ]),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Atas Nama',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Telp/HP Konfirmasi',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: Container(
+                            margin: EdgeInsets.only(top: 15.0),
+                            child: TextFormField(
+                              textCapitalization: TextCapitalization.characters,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.r),
+                                ),
+                                errorText:
+                                    _emptyAtasNama ? 'Wajib diisi' : null,
+                              ),
+                              maxLength: 50,
+                              controller: textAtasNama,
+                              style: TextStyle(
+                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontFamily: 'Segoe Ui',
+                              ),
+                              onChanged: (String? value) {
+                                setState(() {
+                                  atasNama = value!;
+                                  if (value == '') {
+                                    _emptyAtasNama = true;
+                                  } else {
+                                    _emptyAtasNama = false;
+                                  }
+                                });
+                              },
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -1240,12 +1375,119 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                 ],
               ),
             ),
-            buildSelectedInkaroReguler(inkaroRegSelected,
-                isHorizontal: isHorizontal),
-            buildSelectedInkaroProgram(inkaroProgSelected,
-                isHorizontal: isHorizontal),
-            buildSelectedInkaroManual(inkaroManualSelected,
-                isHorizontal: isHorizontal),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.sp, horizontal: 10.sp),
+              child: Row(
+                children: [
+                  Switch(
+                    value: isSwitchedCopyTemplateContract,
+                    onChanged: (value) {
+                      setState(() {
+                        isSwitchedCopyTemplateContract = value;
+                      });
+                    },
+                    activeTrackColor: Colors.lightGreenAccent,
+                    activeColor: Colors.green,
+                  ),
+                  Text(
+                    "Salin Data Kontrak dari Kontrak Lain",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.sp,
+                      fontFamily: 'Montserrat',
+                    ),
+                  )
+                ],
+              ),
+            ),
+            isSwitchedCopyTemplateContract
+                ? Padding(
+                    padding: EdgeInsets.all(15.sp),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Pilih Kontrak yang ingin disalin",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.sp,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.sp,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.r, vertical: 7.r),
+                          decoration: BoxDecoration(
+                              color: Colors.white70,
+                              border: Border.all(color: Colors.black54),
+                              borderRadius: BorderRadius.circular(5.r)),
+                          child: DropdownButton(
+                            underline: SizedBox(),
+                            isExpanded: true,
+                            value: _choosenCopyContract,
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontFamily: 'Segoe Ui',
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            items: _dataCopyContract.map((e) {
+                              return DropdownMenuItem(
+                                value: e.inkaroContractId,
+                                child: Text(e.customerShipName,
+                                    style: TextStyle(color: Colors.black54)),
+                              );
+                            }).toList(),
+                            hint: Text(
+                              "Pilih Kontrak",
+                              style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Segoe Ui'),
+                            ),
+                            onChanged: (String? value) async {
+                              setState(() {
+                                _choosenCopyContract = value!;
+                              });
+                              await getListInkaro();
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.sp,
+                        ),
+                        _choosenCopyContract != null
+                            ? buildPreviewDetailContractToCopy(
+                                listInkaroDetailReguler,
+                                listInkaroDetailProgram,
+                                listInkaroDetailManual)
+                            : Padding(
+                                padding: EdgeInsets.all(15.sp),
+                                child: Text(
+                                    "Silahkan Pilih Kontrak Yang Ingin Disalin"))
+                      ],
+                    ),
+                  )
+                : StatefulBuilder(builder: (context, setState) {
+                    return buildSelectedInkaroReguler(inkaroRegSelected,
+                        isHorizontal: isHorizontal);
+                  }),
+            isSwitchedCopyTemplateContract
+                ? SizedBox()
+                : StatefulBuilder(builder: (context, setState) {
+                    return buildSelectedInkaroProgram(inkaroProgSelected,
+                        isHorizontal: isHorizontal);
+                  }),
+            isSwitchedCopyTemplateContract
+                ? SizedBox()
+                : StatefulBuilder(builder: (context, setState) {
+                    return buildSelectedInkaroManual(inkaroManualSelected,
+                        isHorizontal: isHorizontal);
+                  }),
             SizedBox(
               height: 5.h,
             ),
@@ -1297,6 +1539,449 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
     );
   }
 
+  Widget buildPreviewDetailContractToCopy(
+      List<ListInkaroDetail> listPreviewInkaroReguler,
+      List<ListInkaroDetail> listPreviewInkaroProgram,
+      List<ListInkaroDetail> listPreviewInkaroManual) {
+    return StatefulBuilder(builder: (context, setState) {
+      return Column(
+        children: [
+          Card(
+              margin: EdgeInsets.all(10.w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green.shade300,
+                  // implement shadow effect
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Colors.black38, // shadow color
+                        blurRadius: 5, // shadow radius
+                        offset: Offset(3, 3), // shadow offset
+                        spreadRadius:
+                            0.1, // The amount the box should be inflated prior to applying the blur
+                        blurStyle: BlurStyle.normal // set blur style
+                        ),
+                  ],
+                ),
+                child: ExpansionTile(
+                  title: Text(
+                    'INKARO REGULER',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                  children: <Widget>[
+                    Card(
+                      color: Colors.white,
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.sp, vertical: 10.sp),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text(
+                                      'BRAND',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      'Percent',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.sp,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      'Inkaro',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.sp,
+                                      ),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10.h,
+                              ),
+                              listPreviewInkaroReguler.length > 0
+                                  ? SingleChildScrollView(
+                                      physics: ScrollPhysics(),
+                                      child: ListView.builder(
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount:
+                                              listPreviewInkaroReguler.length,
+                                          itemBuilder: (context, index) {
+                                            return Padding(
+                                                padding: EdgeInsets.only(
+                                                  top: 1.sp,
+                                                  bottom: 1.sp,
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 4,
+                                                      child: Text(
+                                                        listPreviewInkaroReguler[
+                                                                index]
+                                                            .descKategori,
+                                                        style: TextStyle(
+                                                          fontSize: 11.sp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: Text(
+                                                        listPreviewInkaroReguler[
+                                                                index]
+                                                            .inkaroPercent,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 11.sp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: Text(
+                                                        convertToIdr(
+                                                            int.parse(
+                                                                listPreviewInkaroReguler[
+                                                                        index]
+                                                                    .inkaroValue),
+                                                            0),
+                                                        textAlign:
+                                                            TextAlign.right,
+                                                        style: TextStyle(
+                                                          fontSize: 11.sp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ));
+                                          }),
+                                    )
+                                  : Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 30.r,
+                                          bottom: 30.r,
+                                          left: 10.r,
+                                          right: 10.r),
+                                      child: Center(
+                                          child:
+                                              Text('Inkaro Reguler Tidak Ada',
+                                                  style: TextStyle(
+                                                    fontSize: 14.sp,
+                                                    fontFamily: 'Montserrat',
+                                                  ))))
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              )),
+          Card(
+            margin: EdgeInsets.all(10.w),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.green.shade300,
+                // implement shadow effect
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.black38, // shadow color
+                      blurRadius: 5, // shadow radius
+                      offset: Offset(3, 3), // shadow offset
+                      spreadRadius:
+                          0.1, // The amount the box should be inflated prior to applying the blur
+                      blurStyle: BlurStyle.normal // set blur style
+                      ),
+                ],
+              ),
+              child: ExpansionTile(
+                title: Text(
+                  'INKARO PROGRAM',
+                  style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.sp),
+                ),
+                // subtitle: Text('Trailing expansion arrow icon'),
+                children: <Widget>[
+                  Card(
+                    color: Colors.white,
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.sp, vertical: 10.sp),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Text(
+                                    'BRAND',
+                                    style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.sp),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    'Percent',
+                                    style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.sp),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    'Inkaro',
+                                    style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.sp),
+                                    textAlign: TextAlign.end,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10.h,
+                            ),
+                            listPreviewInkaroProgram.length > 0
+                                ? SingleChildScrollView(
+                                    physics: ScrollPhysics(),
+                                    child: ListView.builder(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            listPreviewInkaroProgram.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                              padding: EdgeInsets.only(
+                                                top: 1.sp,
+                                                bottom: 1.sp,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 4,
+                                                    child: Text(
+                                                      listPreviewInkaroProgram[
+                                                              index]
+                                                          .descSubcategory,
+                                                      style: TextStyle(
+                                                          fontSize: 11.sp),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      listPreviewInkaroProgram[
+                                                              index]
+                                                          .inkaroPercent,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                          fontSize: 11.sp),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      convertToIdr(
+                                                          int.parse(
+                                                              listPreviewInkaroProgram[
+                                                                      index]
+                                                                  .inkaroValue),
+                                                          0),
+                                                      textAlign: TextAlign.end,
+                                                      style: TextStyle(
+                                                          fontSize: 11.sp),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ));
+                                        }))
+                                : Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 30.r,
+                                        bottom: 30.r,
+                                        left: 10.r,
+                                        right: 10.r),
+                                    child: Center(
+                                        child: Text('Inkaro Program Tidak Ada',
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontFamily: 'Montserrat',
+                                            ))))
+                          ],
+                        )),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Card(
+              margin: EdgeInsets.all(10.w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green.shade300,
+                  // implement shadow effect
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Colors.black38, // shadow color
+                        blurRadius: 5, // shadow radius
+                        offset: Offset(3, 3), // shadow offset
+                        spreadRadius:
+                            0.1, // The amount the box should be inflated prior to applying the blur
+                        blurStyle: BlurStyle.normal // set blur style
+                        ),
+                  ],
+                ),
+                child: ExpansionTile(
+                  title: Text(
+                    'INKARO MANUAL',
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.sp),
+                  ),
+                  // subtitle: Text('Trailing expansion arrow icon'),
+                  children: <Widget>[
+                    Card(
+                      color: Colors.white,
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.sp, vertical: 10.sp),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text(
+                                      'BRAND',
+                                      style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10.sp),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text(
+                                      'Inkaro',
+                                      style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10.sp),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10.h,
+                              ),
+                              listPreviewInkaroManual.length > 0
+                                  ? SingleChildScrollView(
+                                      physics: ScrollPhysics(),
+                                      child: ListView.builder(
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount:
+                                              listPreviewInkaroManual.length,
+                                          itemBuilder: (context, index) {
+                                            return Padding(
+                                                padding: EdgeInsets.only(
+                                                  top: 1.sp,
+                                                  bottom: 1.sp,
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 4,
+                                                      child: Text(
+                                                        listPreviewInkaroManual[
+                                                                index]
+                                                            .descSubcategory,
+                                                        style: TextStyle(
+                                                            fontSize: 11.sp),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 4,
+                                                      child: Text(
+                                                        convertToIdr(
+                                                            int.parse(
+                                                                listPreviewInkaroManual[
+                                                                        index]
+                                                                    .inkaroValue),
+                                                            0),
+                                                        style: TextStyle(
+                                                            fontSize: 11.sp),
+                                                        textAlign:
+                                                            TextAlign.end,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ));
+                                          }))
+                                  : Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 30.r,
+                                          bottom: 30.r,
+                                          left: 10.r,
+                                          right: 10.r),
+                                      child: Center(
+                                          child: Text('Inkaro Manual Tidak Ada',
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                fontFamily: 'Montserrat',
+                                              ))))
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      );
+    });
+  }
+
   Widget buildSelectedInkaroReguler(List<InkaroReguler> itemSelected,
       {bool isHorizontal = false}) {
     return Padding(
@@ -1338,6 +2023,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                         iconSize: isHorizontal ? 20.r : 15.r,
                         color: Colors.white,
                         onPressed: () {
+                          checkAllInkaroReguler = false;
                           showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -1455,7 +2141,8 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ))
+                    ),
+                  )
           ],
         ));
   }
@@ -1463,49 +2150,93 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   Widget dialogInkaroReguler(List<InkaroReguler> item) {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
-        title: Text('Pilih Inkaro Reguler'),
+        title: Text(
+          'Pilih Inkaro Reguler',
+          textAlign: TextAlign.center,
+        ),
         actions: [
           Container(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
-                    onPressed: () {
-                      getSelectedInkaroReguler();
-                      print('submit');
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Submit",
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )),
+                  onPressed: () {
+                    getSelectedInkaroReguler();
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Submit",
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             ),
           )
         ],
-        content: Container(
-          // width: double.minPositive.w,
-          width: MediaQuery.of(context).size.width / 1,
-          height: 300.h,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: item.length,
-            itemBuilder: (BuildContext context, int index) {
-              String _key = item[index].descKategori;
-              return CheckboxListTile(
-                value: item[index].ischecked,
-                title: Text(_key),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  )),
+              margin: EdgeInsets.only(bottom: 10.h),
+              child: CheckboxListTile(
+                value: checkAllInkaroReguler,
+                title: Padding(
+                  padding: EdgeInsets.only(bottom: 10.h, top: 10.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Pilih Semua",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 13.sp),
+                      ),
+                    ],
+                  ),
+                ),
                 onChanged: (bool? val) {
                   setState(() {
-                    item[index].ischecked = val!;
+                    checkAllInkaroReguler = val!;
+                    for (var loopUpdateCheckedReguler = 0;
+                        loopUpdateCheckedReguler < itemInkaroReguler.length;
+                        loopUpdateCheckedReguler++) {
+                      itemInkaroReguler[loopUpdateCheckedReguler].ischecked =
+                          val;
+                    }
                   });
                 },
-              );
-            },
-          ),
+              ),
+            ),
+            Container(
+              // width: double.minPositive.w,
+              width: MediaQuery.of(context).size.width / 1,
+              height: 300.h,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: item.length,
+                itemBuilder: (BuildContext context, int index) {
+                  String _key = item[index].descKategori;
+                  return CheckboxListTile(
+                    value: item[index].ischecked,
+                    title: Text(_key),
+                    onChanged: (bool? val) {
+                      setState(() {
+                        item[index].ischecked = val!;
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       );
     });
@@ -1552,11 +2283,14 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                         iconSize: isHorizontal ? 20.r : 15.r,
                         color: Colors.white,
                         onPressed: () {
+                          checkAllInkaroProgram = false;
+                          _choosenFilterSubcatProg = null;
                           showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                print(itemInkaroProgram);
-                                return dialogInkaroProgram(itemInkaroProgram);
+                                checkAllInkaroProgram = false;
+                                searchInkaroProgram = '';
+                                return dialogInkaroProgram();
                               });
                         },
                       ),
@@ -1694,19 +2428,23 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         ));
   }
 
-  Widget dialogInkaroProgram(List<InkaroProgram> item) {
+  Widget dialogInkaroProgram() {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
-        title: Text('Pilih Inkaro Program'),
+        scrollable: true,
+        title: Text(
+          'Pilih Inkaro Program',
+          textAlign: TextAlign.center,
+        ),
         actions: [
           Container(
+            padding: EdgeInsets.only(left: 7.0, right: 7.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
                     onPressed: () {
                       getSelectedInkaroProgram();
-                      print('submit');
                       Navigator.pop(context);
                     },
                     child: Text(
@@ -1720,184 +2458,277 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
             ),
           )
         ],
-        content: Container(
-          height: MediaQuery.of(context).size.height / 1.5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                width: 350.w,
-                color: Colors.white,
-                height: 50.h,
-                child: TextField(
-                  textInputAction: TextInputAction.search,
-                  autocorrect: true,
-                  decoration: InputDecoration(
-                    hintText: 'Pencarian data ...',
-                    prefixIcon: Icon(Icons.search),
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
-                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
-                    ),
-                  ),
-                  onSubmitted: (value) {
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Padding(
+            //   padding: EdgeInsets.only(bottom: 10.sp),
+            //   child: TextField(
+            //     textInputAction: TextInputAction.search,
+            //     autocorrect: true,
+            //     decoration: InputDecoration(
+            //       hintText: 'Pencarian data ...',
+            //       prefixIcon: Icon(Icons.search),
+            //       hintStyle: TextStyle(color: Colors.grey),
+            //       filled: true,
+            //       fillColor: Colors.white70,
+            //       contentPadding: EdgeInsets.symmetric(vertical: 15.sp),
+            //       enabledBorder: OutlineInputBorder(
+            //         borderRadius: BorderRadius.all(Radius.circular(7.0.sp)),
+            //         borderSide: BorderSide(color: Colors.grey, width: 2.r),
+            //       ),
+            //       focusedBorder: OutlineInputBorder(
+            //         borderRadius: BorderRadius.all(Radius.circular(7.0.sp)),
+            //         borderSide: BorderSide(color: Colors.blue, width: 2.r),
+            //       ),
+            //     ),
+            //     onSubmitted: (value) {
+            //       setState(() {
+            //         searchInkaroProgram = value;
+            //       });
+            //     },
+            //   ),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Switch(
+                  value: isSwitchedHouseBrandProgram,
+                  onChanged: (value) {
                     setState(() {
-                      searchInkaroProgram = value;
+                      isSwitchedHouseBrandProgram = value;
+                    });
+                  },
+                  activeTrackColor: Colors.lightGreenAccent,
+                  activeColor: Colors.green,
+                ),
+                Text(
+                  "House Brand",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12.sp,
+                    fontFamily: 'Montserrat',
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 10.r),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white70,
+                    border: Border.all(color: Colors.black54),
+                    borderRadius: BorderRadius.circular(5.r)),
+                child: DropdownButton(
+                  underline: SizedBox(),
+                  isExpanded: true,
+                  value: _choosenFilterSubcatProg,
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontFamily: 'Segoe Ui',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  items: _dataFilterSubcat.map((e) {
+                    return DropdownMenuItem(
+                      value: e.idKategori,
+                      child: Padding(
+                          padding: EdgeInsets.only(left: 15.sp, right: 15.sp),
+                          child: Text(e.descKategori,
+                              style: TextStyle(color: Colors.black54))),
+                    );
+                  }).toList(),
+                  hint: Padding(
+                      padding: EdgeInsets.only(left: 15.sp, right: 15.sp),
+                      child: Text(
+                        "Filter Kategori",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      )),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _choosenFilterSubcatProg = value!;
+                      searchInkaroProgram.isNotEmpty
+                          ? getSearchInkaroProgram(searchInkaroProgram)
+                          : getSearchInkaroProgram('');
+                      checkAllInkaroProgram = false;
                     });
                   },
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(bottom: 10.r),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white70,
-                      border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5.r)),
-                  child: DropdownButton(
-                    underline: SizedBox(),
-                    isExpanded: true,
-                    value: _choosenFilterSubcatProg,
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontFamily: 'Segoe Ui',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    items: _dataFilterSubcat.map((e) {
-                      return DropdownMenuItem(
-                        value: e.idKategori,
-                        child: Padding(
-                            padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                            child: Text(e.descKategori,
-                                style: TextStyle(color: Colors.black54))),
-                      );
-                    }).toList(),
-                    hint: Padding(
-                        padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                        child: Text(
-                          "Filter Kategori",
-                          style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe Ui'),
-                        )),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _choosenFilterSubcatProg = value!;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 100.h,
-                  child: FutureBuilder(
-                      future: searchInkaroProgram.isNotEmpty
-                          ? getSearchInkaroProgram(searchInkaroProgram)
-                          : getSearchInkaroProgram(''),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<List<InkaroProgram>> snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                            return Center(child: CircularProgressIndicator());
-                          default:
-                            print(listInkaroProgram.length);
-                            return snapshot.hasData
-                                ? widgetListInkaroProgram(listInkaroProgram)
-                                : Center(
-                                    child: Text('Data tidak ditemukan'),
-                                  );
-                        }
-                      }),
-                ),
-              ),
-            ],
-          ),
+            ),
+            FutureBuilder(
+                future: searchInkaroProgram.isNotEmpty
+                    ? getSearchInkaroProgram(searchInkaroProgram)
+                    : getSearchInkaroProgram(''),
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<InkaroProgram>> snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                      return Center(child: CircularProgressIndicator());
+                    default:
+                      return snapshot.hasData
+                          ? widgetListInkaroProgram()
+                          : Center(
+                              child: Text('Data tidak ditemukan'),
+                            );
+                  }
+                })
+          ],
         ),
       );
     });
   }
 
-  Widget widgetListInkaroProgram(List<InkaroProgram> item) {
+  Widget widgetListInkaroProgram() {
     return StatefulBuilder(builder: (context, setState) {
-      return _isEmpty
-          ? Center(
-              child: Text("Masukkan pencarian lain"),
-            )
-          : Container(
-              width: double.minPositive.w,
-              height: 350.h,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: item.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          )),
-                      margin: EdgeInsets.only(bottom: 10.h),
-                      child: indexInkaroManualSelected
-                              .contains(item[index].idSubcategory)
-                          ? Padding(
-                              padding: EdgeInsets.all(10.h),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item[index].descCategory,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                      'Kategori : ' + item[index].descCategory),
-                                  SizedBox(height: 10.h),
-                                  Text(
-                                    'Sudah Dipilih di Form Inkaro Manual',
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ))
-                          : CheckboxListTile(
-                              value: item[index].ischecked,
-                              title: Padding(
-                                  padding:
-                                      EdgeInsets.only(bottom: 10.h, top: 10.h),
+      return Column(
+        children: [
+          listInkaroProgram.length > 0
+              ? Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      )),
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  child: CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: checkAllInkaroProgram,
+                    title: Padding(
+                      padding: EdgeInsets.only(bottom: 10.h, top: 10.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Pilih Semua",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w800, fontSize: 13.sp),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onChanged: (bool? val) {
+                      setState(() {
+                        checkAllInkaroProgram = val!;
+                        for (var loopUpdateCheckedProgram = 0;
+                            loopUpdateCheckedProgram < listInkaroProgram.length;
+                            loopUpdateCheckedProgram++) {
+                          if (!indexInkaroManualSelected.contains(
+                              listInkaroProgram[loopUpdateCheckedProgram]
+                                  .idSubcategory)) {
+                            listInkaroProgram[loopUpdateCheckedProgram]
+                                .ischecked = val;
+                          }
+                        }
+                      });
+                    },
+                  ),
+                )
+              : SizedBox(),
+          listInkaroProgram.length > 0
+              ? Container(
+                  // width: double.minPositive.w,
+                  width: MediaQuery.of(context).size.width / 1,
+                  height: 300.h,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: listInkaroProgram.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              )),
+                          margin: EdgeInsets.only(bottom: 10.h),
+                          child: indexInkaroManualSelected.contains(
+                                  listInkaroProgram[index].idSubcategory)
+                              ? Padding(
+                                  padding: EdgeInsets.all(10.h),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item[index].descSubcategory,
+                                        listInkaroProgram[index]
+                                            .descSubcategory,
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                        ),
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 12.sp),
                                       ),
-                                      Text('Kategori : ' +
-                                          item[index].descCategory)
+                                      Text(
+                                          'Kategori : ' +
+                                              listInkaroProgram[index]
+                                                  .descCategory,
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                          )),
+                                      SizedBox(height: 10.h),
+                                      Text(
+                                        'Sudah Dipilih di Form Inkaro Manual',
+                                        textAlign: TextAlign.center,
+                                      )
                                     ],
-                                  )),
-                              onChanged: (bool? val) {
-                                setState(() {
-                                  item[index].ischecked = val!;
-                                });
-                              },
-                            ));
-                },
-              ));
+                                  ))
+                              : CheckboxListTile(
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  value: listInkaroProgram[index].ischecked,
+                                  title: Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: 10.h, top: 10.h),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          listInkaroProgram[index]
+                                              .descSubcategory,
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 12.sp,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5.sp,
+                                        ),
+                                        Text(
+                                          "Inkaro : " +
+                                              convertToIdr(
+                                                  int.parse(
+                                                      listInkaroProgram[index]
+                                                          .inkaroValue),
+                                                  0),
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: 12.sp,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  onChanged: (bool? val) {
+                                    setState(() {
+                                      listInkaroProgram[index].ischecked = val!;
+                                    });
+                                  },
+                                ));
+                    },
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.only(top: 20.sp),
+                  child: Text("Data Kosong"),
+                ),
+        ],
+      );
     });
   }
 
@@ -1942,10 +2773,15 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                         iconSize: isHorizontal ? 20.r : 15.r,
                         color: Colors.white,
                         onPressed: () {
+                          checkSetAllValueManual = false;
+                          checkAllInkaroManual = false;
+                          _choosenFilterSubcatManual = null;
                           showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return dialogInkaroManual(itemInkaroManual);
+                                checkAllInkaroProgram = false;
+                                searchInkaroManual = '';
+                                return dialogInkaroManual();
                               });
                         },
                       ),
@@ -2009,141 +2845,152 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
               ],
             ),
             itemSelected.length > 0
-                ? Form(
-                    key: formKeyInkaroManual,
-                    child: Container(
-                        padding: EdgeInsets.only(top: 10.w),
-                        height: isHorizontal ? 160.h : 150.h,
-                        child: ListView.builder(
-                          itemCount: itemSelected.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                                padding:
-                                    EdgeInsets.only(bottom: 10.r, right: 3.r),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: isHorizontal ? 5 : 4,
-                                      child: Padding(
-                                          padding: EdgeInsets.only(
-                                            left: isHorizontal ? 5.r : 5.r,
-                                            top: 2.r,
-                                            bottom: 2.r,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                itemSelected[index]
-                                                    .descSubcategory,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w800,
-                                                ),
+                ? _isLoadingInkaroManualSelected
+                    ? CircularProgressIndicator()
+                    : Form(
+                        key: formKeyInkaroManual,
+                        child: Container(
+                            padding: EdgeInsets.only(top: 10.w),
+                            height: isHorizontal ? 160.h : 150.h,
+                            child: ListView.builder(
+                              itemCount: itemSelected.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: 10.r, right: 3.r),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: isHorizontal ? 5 : 4,
+                                          child: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: isHorizontal ? 5.r : 5.r,
+                                                top: 2.r,
+                                                bottom: 2.r,
                                               ),
-                                              Text('Kategori : ' +
-                                                  itemSelected[index]
-                                                      .descCategory)
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    itemSelected[index]
+                                                        .descSubcategory,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                  Text('Kategori : ' +
+                                                      itemSelected[index]
+                                                          .descCategory),
+                                                  Text('Inkaro Program : ' +
+                                                      convertToIdr(
+                                                          int.parse(itemSelected[
+                                                                  index]
+                                                              .inkaroProgram),
+                                                          0))
+                                                ],
+                                              )),
+                                        ),
+                                        // Expanded(
+                                        //   flex: 1,
+                                        //   child: TextFormField(
+                                        //     initialValue:
+                                        //         itemSelected[index].inkaroPercent,
+                                        //     keyboardType: TextInputType.number,
+                                        //     maxLength: 3,
+                                        //     decoration: InputDecoration(
+                                        //       counterText: "",
+                                        //       contentPadding: EdgeInsets.symmetric(
+                                        //         horizontal: isHorizontal ? 10.r : 10.r,
+                                        //       ),
+                                        //       border: OutlineInputBorder(
+                                        //         borderRadius: BorderRadius.circular(5),
+                                        //       ),
+                                        //       hintStyle: TextStyle(
+                                        //         fontFamily: 'Segoe Ui',
+                                        //         fontSize: isHorizontal ? 18.sp : 16.sp,
+                                        //         fontWeight: FontWeight.w600,
+                                        //       ),
+                                        //     ),
+                                        //     textAlign: TextAlign.center,
+                                        //     // controller: widget._discvalController,
+                                        //     onChanged: (value) {
+                                        //       setState(() {
+                                        //         inkaroManualSelected[index]
+                                        //             .inkaroPercent = value;
+                                        //       });
+                                        //     },
+                                        //     onSaved: (value) {
+                                        //       setState(() {
+                                        //         inkaroManualSelected[index]
+                                        //             .inkaroPercent = value!;
+                                        //       });
+                                        //     },
+                                        //   ),
+                                        // ),
+                                        // SizedBox(
+                                        //   width: isHorizontal ? 5.w : 10.w,
+                                        // ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: TextFormField(
+                                            inputFormatters: [
+                                              ThousandsSeparatorInputFormatter()
                                             ],
-                                          )),
-                                    ),
-                                    // Expanded(
-                                    //   flex: 1,
-                                    //   child: TextFormField(
-                                    //     initialValue:
-                                    //         itemSelected[index].inkaroPercent,
-                                    //     keyboardType: TextInputType.number,
-                                    //     maxLength: 3,
-                                    //     decoration: InputDecoration(
-                                    //       counterText: "",
-                                    //       contentPadding: EdgeInsets.symmetric(
-                                    //         horizontal: isHorizontal ? 10.r : 10.r,
-                                    //       ),
-                                    //       border: OutlineInputBorder(
-                                    //         borderRadius: BorderRadius.circular(5),
-                                    //       ),
-                                    //       hintStyle: TextStyle(
-                                    //         fontFamily: 'Segoe Ui',
-                                    //         fontSize: isHorizontal ? 18.sp : 16.sp,
-                                    //         fontWeight: FontWeight.w600,
-                                    //       ),
-                                    //     ),
-                                    //     textAlign: TextAlign.center,
-                                    //     // controller: widget._discvalController,
-                                    //     onChanged: (value) {
-                                    //       setState(() {
-                                    //         inkaroManualSelected[index]
-                                    //             .inkaroPercent = value;
-                                    //       });
-                                    //     },
-                                    //     onSaved: (value) {
-                                    //       setState(() {
-                                    //         inkaroManualSelected[index]
-                                    //             .inkaroPercent = value!;
-                                    //       });
-                                    //     },
-                                    //   ),
-                                    // ),
-                                    // SizedBox(
-                                    //   width: isHorizontal ? 5.w : 10.w,
-                                    // ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: TextFormField(
-                                        inputFormatters: [
-                                          ThousandsSeparatorInputFormatter()
-                                        ],
-                                        keyboardType: TextInputType.number,
-                                        maxLength: 10,
-                                        decoration: InputDecoration(
-                                          counterText: "",
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal:
-                                                isHorizontal ? 10.r : 10.r,
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          hintStyle: TextStyle(
-                                            fontFamily: 'Segoe Ui',
-                                            fontSize:
-                                                isHorizontal ? 18.sp : 16.sp,
-                                            fontWeight: FontWeight.w600,
+                                            keyboardType: TextInputType.number,
+                                            maxLength: 10,
+                                            decoration: InputDecoration(
+                                              counterText: "",
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal:
+                                                    isHorizontal ? 10.r : 10.r,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                              hintStyle: TextStyle(
+                                                fontFamily: 'Segoe Ui',
+                                                fontSize: isHorizontal
+                                                    ? 18.sp
+                                                    : 16.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            initialValue:
+                                                ThousandsSeparatorInputFormatter()
+                                                    .formatEditUpdate(
+                                                        TextEditingValue.empty,
+                                                        TextEditingValue(
+                                                            text:
+                                                                inkaroManualSelected[
+                                                                        index]
+                                                                    .inkaroValue
+                                                                    .toString()))
+                                                    .text,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                inkaroManualSelected[index]
+                                                        .inkaroValue =
+                                                    value.replaceAll(".", "");
+                                              });
+                                            },
+                                            onSaved: (value) {
+                                              setState(() {
+                                                inkaroManualSelected[index]
+                                                        .inkaroValue =
+                                                    value!.replaceAll(".", "");
+                                              });
+                                            },
                                           ),
                                         ),
-                                        textAlign: TextAlign.center,
-                                        initialValue:
-                                            ThousandsSeparatorInputFormatter()
-                                                .formatEditUpdate(
-                                                    TextEditingValue.empty,
-                                                    TextEditingValue(
-                                                        text:
-                                                            inkaroManualSelected[
-                                                                    index]
-                                                                .inkaroValue
-                                                                .toString()))
-                                                .text,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            inkaroManualSelected[index]
-                                                    .inkaroValue =
-                                                value.replaceAll(".", "");
-                                          });
-                                        },
-                                        onSaved: (value) {
-                                          setState(() {
-                                            inkaroManualSelected[index]
-                                                    .inkaroValue =
-                                                value!.replaceAll(".", "");
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ));
-                          },
-                        )))
+                                      ],
+                                    ));
+                              },
+                            )))
                 : Padding(
                     padding: EdgeInsets.only(
                         top: 70.r, bottom: 70.r, left: 10.r, right: 10.r),
@@ -2156,27 +3003,135 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ))
+                    )),
+            SizedBox(
+              height: 10.sp,
+            ),
+            Row(
+              children: [
+                Text('Catatan Kontrak',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.start),
+              ],
+            ),
+            SizedBox(
+              height: 10.sp,
+            ),
+            TextFormField(
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.r),
+                ),
+              ),
+              keyboardType: TextInputType.multiline,
+              minLines: 3,
+              maxLines: 4,
+              maxLength: 250,
+              controller: textNotesContract,
+              style: TextStyle(
+                fontSize: isHorizontal ? 18.sp : 14.sp,
+                fontFamily: 'Segoe Ui',
+              ),
+              onChanged: (String? value) {
+                setState(() {
+                  notesContract = value!;
+                  if (value == '') {
+                    _emptyNotesContract = true;
+                  } else {
+                    _emptyNotesContract = false;
+                  }
+                });
+              },
+            ),
           ],
         ));
   }
 
-  Widget dialogInkaroManual(List<InkaroManual> item) {
+  Widget dialogInkaroManual() {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
-        title: Text('Pilih Inkaro Manual'),
+        scrollable: true,
+        title: Text(
+          'Pilih Inkaro Manual',
+          textAlign: TextAlign.center,
+        ),
         actions: [
           Container(
+            padding: EdgeInsets.only(left: 7.0, right: 7.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: checkSetAllValueManual,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Set Semua Inkaro yang Dipilih Menjadi : ",
+                        style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                        textAlign: TextAlign.start,
+                      ),
+                      SizedBox(
+                        height: 5.sp,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 3.sp),
+                        child: TextFormField(
+                          enabled: checkSetAllValueManual,
+                          inputFormatters: [ThousandsSeparatorInputFormatter()],
+                          keyboardType: TextInputType.number,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            counterText: "",
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 5.sp,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            hintStyle: TextStyle(
+                              fontFamily: 'Segoe Ui',
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                          initialValue: ThousandsSeparatorInputFormatter()
+                              .formatEditUpdate(TextEditingValue.empty,
+                                  TextEditingValue(text: "0"))
+                              .text,
+                          onChanged: (value) {
+                            allValueManual = value;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  onChanged: (bool? val) {
+                    setState(() {
+                      checkAllInkaroManual = false;
+                      checkSetAllValueManual = val!;
+                    });
+                  },
+                ),
                 ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       setState(() {
-                        getSelectedInkaroManual();
+                        _isLoadingInkaroManualSelected = true;
                       });
-                      formKeyInkaroManual.currentState?.reset();
-                      Navigator.pop(context);
+                      await getSelectedInkaroManual();
+                      Timer(Duration(milliseconds: 500), () {
+                        setState(() {
+                          _isLoadingInkaroManualSelected = false;
+                          Navigator.pop(context);
+                        });
+                      });
                     },
                     child: Text(
                       "Submit",
@@ -2189,191 +3144,275 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
             ),
           )
         ],
-        content: Container(
-          height: MediaQuery.of(context).size.height / 1.5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                width: 350.w,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 5.r,
-                  vertical: 10.r,
-                ),
-                color: Colors.white,
-                height: 80.h,
-                child: TextField(
-                  textInputAction: TextInputAction.search,
-                  autocorrect: true,
-                  decoration: InputDecoration(
-                    hintText: 'Pencarian data ...',
-                    prefixIcon: Icon(Icons.search),
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
-                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
-                    ),
-                  ),
-                  onSubmitted: (value) {
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Padding(
+            //   padding: EdgeInsets.only(bottom: 10.sp),
+            //   child: TextField(
+            //     textInputAction: TextInputAction.search,
+            //     autocorrect: true,
+            //     decoration: InputDecoration(
+            //       hintText: 'Pencarian data ...',
+            //       prefixIcon: Icon(Icons.search),
+            //       hintStyle: TextStyle(color: Colors.grey),
+            //       filled: true,
+            //       fillColor: Colors.white70,
+            //       contentPadding: EdgeInsets.symmetric(vertical: 15.sp),
+            //       enabledBorder: OutlineInputBorder(
+            //         borderRadius: BorderRadius.all(Radius.circular(7.0.sp)),
+            //         borderSide: BorderSide(color: Colors.grey, width: 2.r),
+            //       ),
+            //       focusedBorder: OutlineInputBorder(
+            //         borderRadius: BorderRadius.all(Radius.circular(7.0.sp)),
+            //         borderSide: BorderSide(color: Colors.blue, width: 2.r),
+            //       ),
+            //     ),
+            //     onSubmitted: (value) {
+            //       setState(() {
+            //         searchInkaroManual = value;
+            //       });
+            //     },
+            //   ),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Switch(
+                  value: isSwitchedHouseBrandManual,
+                  onChanged: (value) {
                     setState(() {
-                      searchInkaroManual = value;
+                      isSwitchedHouseBrandManual = value;
+                    });
+                  },
+                  activeTrackColor: Colors.lightGreenAccent,
+                  activeColor: Colors.green,
+                ),
+                Text(
+                  "House Brand",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12.sp,
+                    fontFamily: 'Montserrat',
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 10.r),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white70,
+                    border: Border.all(color: Colors.black54),
+                    borderRadius: BorderRadius.circular(5.r)),
+                child: DropdownButton(
+                  underline: SizedBox(),
+                  isExpanded: true,
+                  value: _choosenFilterSubcatManual,
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontFamily: 'Segoe Ui',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  items: _dataFilterSubcat.map((e) {
+                    return DropdownMenuItem(
+                      value: e.idKategori,
+                      child: Padding(
+                          padding: EdgeInsets.only(left: 15.sp, right: 15.sp),
+                          child: Text(e.descKategori,
+                              style: TextStyle(color: Colors.black54))),
+                    );
+                  }).toList(),
+                  hint: Padding(
+                      padding: EdgeInsets.only(left: 15.sp, right: 15.sp),
+                      child: Text(
+                        "Filter Kategori",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      )),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _choosenFilterSubcatManual = value!;
+                      searchInkaroManual.isNotEmpty
+                          ? getSearchInkaroManual(searchInkaroManual)
+                          : getSearchInkaroManual('');
+                      checkAllInkaroManual = false;
                     });
                   },
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(bottom: 10.r),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white70,
-                      border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(5.r)),
-                  child: DropdownButton(
-                    underline: SizedBox(),
-                    isExpanded: true,
-                    value: _choosenFilterSubcatManual,
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontFamily: 'Segoe Ui',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    items: _dataFilterSubcat.map((e) {
-                      return DropdownMenuItem(
-                        value: e.idKategori,
-                        child: Padding(
-                            padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                            child: Text(e.descKategori,
-                                style: TextStyle(color: Colors.black54))),
-                      );
-                    }).toList(),
-                    hint: Padding(
-                        padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                        child: Text(
-                          "Filter Kategori",
-                          style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe Ui'),
-                        )),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _choosenFilterSubcatManual = value!;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 100.h,
-                  child: FutureBuilder(
-                      future: searchInkaroManual.isNotEmpty
-                          ? getSearchInkaroManual(searchInkaroManual)
-                          : getSearchInkaroManual(''),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<List<InkaroManual>> snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                            return Center(child: CircularProgressIndicator());
-                          default:
-                            return snapshot.hasData
-                                ? widgetListInkaroManual(listInkaroManual)
-                                : Center(
-                                    child: Text('Data tidak ditemukan'),
-                                  );
-                        }
-                      }),
-                ),
-              ),
-            ],
-          ),
+            ),
+            FutureBuilder(
+                future: searchInkaroManual.isNotEmpty
+                    ? getSearchInkaroManual(searchInkaroManual)
+                    : getSearchInkaroManual(''),
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<InkaroManual>> snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                      return Center(child: CircularProgressIndicator());
+                    default:
+                      return snapshot.hasData
+                          ? widgetListInkaroManual()
+                          : Center(
+                              child: Text('Data tidak ditemukan'),
+                            );
+                  }
+                })
+          ],
         ),
       );
     });
   }
 
-  Widget widgetListInkaroManual(List<InkaroManual> item) {
+  Widget widgetListInkaroManual() {
     return StatefulBuilder(builder: (context, setState) {
-      return _isEmpty
-          ? Center(
-              child: Text("Masukkan pencarian lain"),
-            )
-          : Container(
-              width: double.minPositive.w,
-              height: 350.h,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: item.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          )),
-                      margin: EdgeInsets.only(bottom: 10.h),
-                      child: indexInkaroProgSelected
-                              .contains(item[index].idSubcategory)
-                          ? Padding(
-                              padding: EdgeInsets.only(
-                                  bottom: 10.h,
-                                  top: 10.h,
-                                  left: 10.r,
-                                  right: 10.r),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item[index].descSubcategory,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                      'Kategori : ' + item[index].descCategory),
-                                  SizedBox(height: 10.h),
-                                  Text(
-                                    'Sudah Dipilih di Form Inkaro Program',
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ))
-                          : CheckboxListTile(
-                              value: item[index].ischecked,
-                              title: Padding(
-                                  padding:
-                                      EdgeInsets.only(bottom: 10.h, top: 10.h),
+      return Column(
+        children: [
+          listInkaroManual.length > 0
+              ? Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      )),
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  child: CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: checkAllInkaroManual,
+                    title: Padding(
+                      padding: EdgeInsets.only(bottom: 10.h, top: 10.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Pilih Semua",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w800, fontSize: 13.sp),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onChanged: (bool? val) {
+                      setState(() {
+                        checkAllInkaroManual = val!;
+                        for (var loopUpdateCheckedManual = 0;
+                            loopUpdateCheckedManual < listInkaroManual.length;
+                            loopUpdateCheckedManual++) {
+                          if (!indexInkaroProgSelected.contains(
+                              listInkaroManual[loopUpdateCheckedManual]
+                                  .idSubcategory)) {
+                            listInkaroManual[loopUpdateCheckedManual]
+                                .ischecked = val;
+                          }
+                        }
+                      });
+                    },
+                  ),
+                )
+              : SizedBox(),
+          listInkaroManual.length > 0
+              ? Container(
+                  // width: double.minPositive.w,
+                  width: MediaQuery.of(context).size.width / 1,
+                  height: 300.h,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: listInkaroManual.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              )),
+                          margin: EdgeInsets.only(bottom: 10.h),
+                          child: indexInkaroProgSelected.contains(
+                                  listInkaroManual[index].idSubcategory)
+                              ? Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: 10.h,
+                                      top: 10.h,
+                                      left: 10.r,
+                                      right: 10.r),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item[index].descSubcategory,
+                                        listInkaroManual[index].descSubcategory,
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                        ),
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 12.sp),
                                       ),
-                                      Text('Kategori : ' +
-                                          item[index].descCategory)
+                                      Text(
+                                          'Kategori : ' +
+                                              listInkaroManual[index]
+                                                  .descCategory,
+                                          style: TextStyle(fontSize: 12.sp)),
+                                      SizedBox(height: 10.h),
+                                      Text(
+                                          'Sudah Dipilih di Form Inkaro Program',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 12.sp))
                                     ],
-                                  )),
-                              onChanged: (bool? val) {
-                                setState(() {
-                                  item[index].ischecked = val!;
-                                });
-                              },
-                            ));
-                },
-              ));
+                                  ))
+                              : CheckboxListTile(
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  value: listInkaroManual[index].ischecked,
+                                  title: Padding(
+                                      padding: EdgeInsets.only(
+                                          bottom: 10.h, top: 10.h),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            listInkaroManual[index]
+                                                .descSubcategory,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 12.sp),
+                                          ),
+                                          Text(
+                                              'Kategori : ' +
+                                                  listInkaroManual[index]
+                                                      .descCategory,
+                                              style:
+                                                  TextStyle(fontSize: 12.sp)),
+                                          Text(
+                                            'Inkaro : ' +
+                                                convertToIdr(
+                                                    int.parse(
+                                                        listInkaroManual[index]
+                                                            .inkaroProgram),
+                                                    0),
+                                            style: TextStyle(fontSize: 12.sp),
+                                          )
+                                        ],
+                                      )),
+                                  onChanged: (bool? val) {
+                                    setState(() {
+                                      checkAllInkaroManual = false;
+                                      listInkaroManual[index].ischecked = val!;
+                                    });
+                                  },
+                                ));
+                    },
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.only(top: 20.sp),
+                  child: Text("Data Kosong"),
+                ),
+        ],
+      );
     });
   }
 }

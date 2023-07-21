@@ -3,6 +3,7 @@ class InkaroManual {
   String descSubcategory = '';
   String hpp = '';
   String inkaroPercent = '';
+  String inkaroProgram = '';
   String inkaroValue = '';
   String idInkaroCategory = '';
   String descCategory = '';
@@ -13,6 +14,7 @@ class InkaroManual {
       this.descSubcategory,
       this.hpp,
       this.inkaroPercent,
+      this.inkaroProgram,
       this.inkaroValue,
       this.idInkaroCategory,
       this.descCategory);
@@ -22,6 +24,7 @@ class InkaroManual {
         descSubcategory = json['DESC_SUBCATEGORY'].toString(),
         hpp = json['hpp'].toString(),
         inkaroPercent = json['inkaro_percent'].toString(),
+        inkaroProgram = json['inkaro_program'].toString(),
         inkaroValue = json['inkaro_value'].toString(),
         idInkaroCategory = json['CATEGORY_ID'].toString(),
         descCategory = json['DESC_CATEGORY'].toString();
@@ -32,6 +35,7 @@ class InkaroManual {
       'DESC_SUBCATEGORY': descSubcategory,
       'hpp': hpp,
       'inkaro_percent': inkaroPercent,
+      'inkaro_program': inkaroProgram,
       'inkaro_value': inkaroValue,
       'CATEGORY_ID': idInkaroCategory,
       'DESC_CATEGORY': descCategory
