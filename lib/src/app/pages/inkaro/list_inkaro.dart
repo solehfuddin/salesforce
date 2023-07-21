@@ -337,43 +337,50 @@ class _ListInkaroScreenState extends State<ListInkaroScreen> {
                                     fontWeight: FontWeight.w600),
                               ),
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: isHorizontal ? 15.r : 0.r,
-                              ),
-                              child: Ink(
-                                decoration: const ShapeDecoration(
-                                  color: Colors.lightBlue,
-                                  shape: CircleBorder(),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      constraints: BoxConstraints(
-                                        maxHeight: isHorizontal ? 40.r : 30.r,
-                                        maxWidth: isHorizontal ? 40.r : 30.r,
-                                      ),
-                                      icon: const Icon(Icons.add),
-                                      iconSize: isHorizontal ? 20.r : 15.r,
-                                      color: Colors.white,
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CreateInkaroScreen(
-                                              widget.customerList,
-                                              widget.position,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                            tmpList.length == 0
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: isHorizontal ? 15.r : 0.r,
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                    child: Ink(
+                                      decoration: const ShapeDecoration(
+                                        color: Colors.lightBlue,
+                                        shape: CircleBorder(),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          IconButton(
+                                            constraints: BoxConstraints(
+                                              maxHeight:
+                                                  isHorizontal ? 40.r : 30.r,
+                                              maxWidth:
+                                                  isHorizontal ? 40.r : 30.r,
+                                            ),
+                                            icon: const Icon(Icons.add),
+                                            iconSize:
+                                                isHorizontal ? 20.r : 15.r,
+                                            color: Colors.white,
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CreateInkaroScreen(
+                                                    widget.customerList,
+                                                    widget.position,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
                           ],
                         ),
                       ],

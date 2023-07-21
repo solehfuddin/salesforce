@@ -1,5 +1,6 @@
 class ListInkaroHeader {
   String inkaroContractId,
+      noAccount,
       startPeriode,
       endPeriode,
       nikKTP,
@@ -11,10 +12,17 @@ class ListInkaroHeader {
       nomorRekening,
       telpKonfirmasi,
       approvalSM,
-      status;
+      reasonSM,
+      status,
+      notes,
+      customerShipName,
+      addressShipName,
+      createdById,
+      createdByName;
 
   ListInkaroHeader.fromJson(Map json)
       : inkaroContractId = json['id_inkaro_contract'],
+        noAccount = json['CUSTOMER_SHIP_NUMBER'],
         startPeriode = json['start_periode'] ?? '',
         endPeriode = json['end_periode'] ?? '',
         nikKTP = json['nik_ktp'],
@@ -26,11 +34,18 @@ class ListInkaroHeader {
         nomorRekening = json['nomor_rekening'],
         telpKonfirmasi = json['telp_konfirmasi'],
         approvalSM = json['approval_sm'],
-        status = json['status'];
+        reasonSM = json['reason_sm'],
+        status = json['status'],
+        notes = json['notes'],
+        customerShipName = json['CUSTOMER_SHIP_NAME'],
+        addressShipName = json['ADDRESS'],
+        createdByName = json['SALES_NAME'],
+        createdById = json['create_by'];
 
   Map toJson() {
     return {
       'id_inkaro_contract': inkaroContractId,
+      'CUSTOMER_SHIP_NUMBER': noAccount,
       'nama_usaha': startPeriode,
       'alamat_usaha': endPeriode,
       'nik_ktp': nikKTP,
@@ -42,7 +57,13 @@ class ListInkaroHeader {
       'nomor_rekening': nomorRekening,
       'telp_konfirmasi': telpKonfirmasi,
       'approval_sm': approvalSM,
-      'status': status
+      'reason_sm': reasonSM,
+      'status': status,
+      'notes': notes,
+      'CUSTOMER_SHIP_NAME': customerShipName,
+      'ADDRESS': addressShipName,
+      'SALES_NAME': createdByName,
+      'create_by': createdById
     };
   }
 }
