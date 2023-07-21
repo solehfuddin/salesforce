@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -50,7 +49,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   String searchInkaroProgram = '';
   String searchInkaroManual = '';
   final format = DateFormat("dd MMM yyyy");
-  bool _isEmpty = false;
   bool _isLoadingInkaroManualSelected = false,
       isSwitchedCopyTemplateContract = false,
       isSwitchedHouseBrandProgram = false,
@@ -668,7 +666,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   List<ListInkaroDetail> listInkaroDetailManual = List.empty(growable: true);
 
   getListInkaro() async {
-    List<ListInkaroDetail> listTmp = List.empty(growable: true);
     const timeout = 15;
     var url =
         '$API_URL/inkaro/getInkaroDetail?id_inkaro_header=$_choosenCopyContract';
@@ -696,12 +693,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                 .map<ListInkaroDetail>(
                     (json) => ListInkaroDetail.fromJson(json))
                 .toList();
-
-            listTmp = [
-              ...listInkaroDetailReguler,
-              ...listInkaroDetailProgram,
-              ...listInkaroDetailManual
-            ];
           });
         }
       } on FormatException catch (e) {
