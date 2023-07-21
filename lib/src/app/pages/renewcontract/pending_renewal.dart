@@ -312,6 +312,8 @@ class _PendingRenewalState extends State<PendingRenewal> {
               onSubmitted: (value) {
                 setState(() {
                   search = value;
+                  startAt = 0;
+                  page = 1;
                   _listFuture = search.isNotEmpty
                       ? getPendingBySearch(
                           search,

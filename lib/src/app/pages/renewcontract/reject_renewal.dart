@@ -310,6 +310,8 @@ class _RejectRenewalState extends State<RejectRenewal> {
               onSubmitted: (value) {
                 setState(() {
                   search = value;
+                  startAt = 0;
+                  page = 1;
                   _listFuture = search!.isNotEmpty
                       ? getRejectBySearch(
                           search!,

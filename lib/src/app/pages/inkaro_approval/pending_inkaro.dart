@@ -2,42 +2,42 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/econtract/detail_contract.dart';
+import 'package:sample/src/app/pages/inkaro_approval/detail_inkaro_approval.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/contract.dart';
+import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
-class ApproveRenewal extends StatefulWidget {
-  const ApproveRenewal({Key? key}) : super(key: key);
+class PendingInkaro extends StatefulWidget {
+  const PendingInkaro({Key? key}) : super(key: key);
 
   @override
-  State<ApproveRenewal> createState() => _ApproveRenewalState();
+  State<PendingInkaro> createState() => _PendingInkaroState();
 }
 
-class _ApproveRenewalState extends State<ApproveRenewal> {
-  String? search = '';
+class _PendingInkaroState extends State<PendingInkaro> {
+  String search = '';
   String? id = '';
   String? role = '';
   String? username = '';
   String? divisi = '';
   String? ttdPertama = '';
 
-  List<Contract> tmpList = List.empty(growable: true);
-  List<Contract> currList = List.empty(growable: true);
-  Future<List<Contract>>? _listFuture;
+  List<ListInkaroHeader> tmpList = List.empty(growable: true);
+  List<ListInkaroHeader> currList = List.empty(growable: true);
+  Future<List<ListInkaroHeader>>? _listFuture;
   int page = 1;
-  int pageCount = 5;
+  int pageCount = 2;
   int startAt = 0;
   int endAt = 0;
   int totalPages = 0;
   bool isDataFound = true;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     getRole();
   }
@@ -51,9 +51,9 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
       divisi = preferences.getString("divisi");
       ttdPertama = preferences.getString("ttduser") ?? '';
 
-      _listFuture = search!.isNotEmpty
-          ? getApprovalBySearch(
-              search!,
+      _listFuture = search.isNotEmpty
+          ? getPendingBySearch(
+              search,
               divisi == "AR" ? true : false,
               isHorizontal:
                   MediaQuery.of(context).orientation == Orientation.landscape
@@ -61,10 +61,9 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                       : false,
             )
           : divisi == "AR"
-              ? getApprovalData(true)
-              : getApprovalData(false);
+              ? getPendingData(true)
+              : getPendingData(false);
       print("Search Contract : $role");
-      print("Divisi : $divisi");
     });
   }
 
@@ -82,9 +81,9 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         startAt = startAt - pageCount;
         endAt =
             page == totalPages ? endAt - currList.length : endAt - pageCount;
-        _listFuture = search!.isNotEmpty
-            ? getApprovalBySearch(
-                search!,
+        _listFuture = search.isNotEmpty
+            ? getPendingBySearch(
+                search,
                 divisi == "AR" ? true : false,
                 isHorizontal:
                     MediaQuery.of(context).orientation == Orientation.landscape
@@ -92,8 +91,8 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                         : false,
               )
             : divisi == "AR"
-                ? getApprovalData(true)
-                : getApprovalData(false);
+                ? getPendingData(true)
+                : getPendingData(false);
         page = page - 1;
       });
     }
@@ -106,9 +105,9 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         endAt = currList.length > endAt + pageCount
             ? endAt + pageCount
             : currList.length;
-        _listFuture = search!.isNotEmpty
-            ? getApprovalBySearch(
-                search!,
+        _listFuture = search.isNotEmpty
+            ? getPendingBySearch(
+                search,
                 divisi == "AR" ? true : false,
                 isHorizontal:
                     MediaQuery.of(context).orientation == Orientation.landscape
@@ -116,28 +115,36 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                         : false,
               )
             : divisi == "AR"
-                ? getApprovalData(true)
-                : getApprovalData(false);
+                ? getPendingData(true)
+                : getPendingData(false);
         page = page + 1;
       });
     }
   }
 
-  Future<List<Contract>> getApprovalData(bool isAr) async {
+  Future<List<ListInkaroHeader>> getPendingBySearch(String input, bool isAr,
+      {bool isHorizontal = false}) async {
+    List<ListInkaroHeader> list = List.empty(growable: true);
     const timeout = 15;
-    List<Contract> list = List.empty(growable: true);
     var url = !isAr
-        ? '$API_URL/contract/acceptedContractOldCustSM?id_manager=$id&limit=$pageCount&offset=$startAt'
-        : '$API_URL/contract/acceptedContractOldCustAM?id_customer=&limit=$pageCount&offset=$startAt';
+        ? '$API_URL/inkaro/getInkaroHeader?approval_sm=PENDING&search=$input&limit=$pageCount&offset=$startAt'
+        : '$API_URL/inkaro/getInkaroHeader?approval_am=PENDING&search=$input&limit=$pageCount&offset=$startAt';
     tmpList.clear();
+
+    print('ID SALES : $id');
 
     setState(() {
       isDataFound = true;
     });
 
     try {
-      var response =
-          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      var response = await http.get(
+        Uri.parse(url),
+        headers: {"api-key-trl": API_KEY},
+      ).timeout(
+        Duration(seconds: timeout),
+      );
+
       print('Response status: ${response.statusCode}');
 
       try {
@@ -147,7 +154,72 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
         if (sts) {
           var rest = data['data'];
           print(rest);
-          list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
+          list = rest
+              .map<ListInkaroHeader>((json) => ListInkaroHeader.fromJson(json))
+              .toList();
+          print("List Size: ${list.length}");
+
+          setState(() {
+            initalizePage(data['total']);
+            tmpList = list;
+          });
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    setState(() {
+      isDataFound = false;
+    });
+
+    return list;
+  }
+
+  Future<List<ListInkaroHeader>> getPendingData(bool isAr) async {
+    List<ListInkaroHeader> list = List.empty(growable: true);
+    const timeout = 15;
+    var url = !isAr
+        ? '$API_URL/inkaro/getInkaroHeader?approval_sm=PENDING&limit=$pageCount&offset=$startAt'
+        : '$API_URL/inkaro/getInkaroHeader?approval_am=PENDING&limit=$pageCount&offset=$startAt';
+    tmpList.clear();
+
+    setState(() {
+      isDataFound = true;
+    });
+
+    try {
+      var response = await http.get(
+        Uri.parse(url),
+        headers: {"api-key-trl": API_KEY},
+      ).timeout(
+        Duration(seconds: timeout),
+      );
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<ListInkaroHeader>((json) => ListInkaroHeader.fromJson(json))
+              .toList();
           print("List Size: ${list.length}");
 
           setState(() {
@@ -173,86 +245,11 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
     return list;
   }
 
-  Future<List<Contract>> getApprovalBySearch(String input, bool isAr,
-      {bool isHorizontal = false}) async {
-    const timeout = 15;
-    List<Contract> list = List.empty(growable: true);
-    var url = '$API_URL/contract/findOldCustContract';
-    tmpList.clear();
-
-    setState(() {
-      isDataFound = true;
-    });
-
-    try {
-      var response = await http
-          .post(
-            Uri.parse(url),
-            body: !isAr
-                ? {
-                    'search': input,
-                    'approval_sm': '1',
-                    'id_salesmanager': '$id',
-                    'limit': '$pageCount',
-                    'offset': '$startAt',
-                  }
-                : {
-                    'search': input,
-                    'approval_sm': '1',
-                    'approval_am': '1',
-                    'limit': '$pageCount',
-                    'offset': '$startAt',
-                  },
-          )
-          .timeout(Duration(seconds: timeout));
-
-      print('Response status: ${response.statusCode}');
-
-      try {
-        var data = json.decode(response.body);
-        final bool sts = data['status'];
-
-        if (sts) {
-          var rest = data['data'];
-          print(rest);
-          list = rest.map<Contract>((json) => Contract.fromJson(json)).toList();
-          print("List Size: ${list.length}");
-
-          setState(() {
-            initalizePage(data['total']);
-            tmpList = list;
-          });
-        }
-      } on FormatException catch (e) {
-        print('Format Error : $e');
-        handleStatus(
-          context,
-          e.toString(),
-          false,
-          isHorizontal: isHorizontal,
-          isLogout: false,
-        );
-      }
-    } on TimeoutException catch (e) {
-      print('Timeout Error :$e');
-    } on SocketException catch (e) {
-      print('Socket Error : $e');
-    } on Error catch (e) {
-      print('General Error : $e');
-    }
-
-    setState(() {
-      isDataFound = false;
-    });
-
-    return list;
-  }
-
   Future<void> _refreshData() async {
     setState(() {
-      _listFuture = search!.isNotEmpty
-          ? getApprovalBySearch(
-              search!,
+      _listFuture = search.isNotEmpty
+          ? getPendingBySearch(
+              search,
               divisi == "AR" ? true : false,
               isHorizontal:
                   MediaQuery.of(context).orientation == Orientation.landscape
@@ -260,8 +257,8 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                       : false,
             )
           : divisi == "AR"
-              ? getApprovalData(true)
-              : getApprovalData(false);
+              ? getPendingData(true)
+              : getPendingData(false);
     });
   }
 
@@ -270,14 +267,13 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > 600 ||
           MediaQuery.of(context).orientation == Orientation.landscape) {
-        return childApproveRenewal(isHorizontal: true);
+        return childPendingInkaro(isHorizontal: true);
       }
-
-      return childApproveRenewal(isHorizontal: false);
+      return childPendingInkaro(isHorizontal: false);
     });
   }
 
-  Widget childApproveRenewal({bool isHorizontal = false}) {
+  Widget childPendingInkaro({bool isHorizontal = false}) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -314,18 +310,15 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                   search = value;
                   startAt = 0;
                   page = 1;
-                  _listFuture = search!.isNotEmpty
-                      ? getApprovalBySearch(
-                          search!,
+                  _listFuture = search.isNotEmpty
+                      ? getPendingBySearch(
+                          search,
                           divisi == "AR" ? true : false,
-                          isHorizontal: MediaQuery.of(context).orientation ==
-                                  Orientation.landscape
-                              ? true
-                              : false,
+                          isHorizontal: true,
                         )
                       : divisi == "AR"
-                          ? getApprovalData(true)
-                          : getApprovalData(false);
+                          ? getPendingData(true)
+                          : getPendingData(false);
                 });
               },
             ),
@@ -383,7 +376,8 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
                         child: FutureBuilder(
                             future: _listFuture,
                             builder: (BuildContext context,
-                                AsyncSnapshot<List<Contract>> snapshot) {
+                                AsyncSnapshot<List<ListInkaroHeader>>
+                                    snapshot) {
                               switch (snapshot.connectionState) {
                                 case ConnectionState.waiting:
                                   return Center(
@@ -458,7 +452,7 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
     );
   }
 
-  Widget listViewWidget(List<Contract> item, int len,
+  Widget listViewWidget(List<ListInkaroHeader> item, int len,
       {bool isHorizontal = false}) {
     return RefreshIndicator(
       child: Container(
@@ -470,100 +464,115 @@ class _ApproveRenewalState extends State<ApproveRenewal> {
             ),
             shrinkWrap: true,
             itemBuilder: (context, position) {
-              return InkWell(
-                child: Container(
-                  margin: EdgeInsets.only(
-                    bottom: 10.r,
-                  ),
-                  padding: EdgeInsets.all(isHorizontal ? 15.r : 10.r),
-                  height: isHorizontal ? 90.h : 75.h,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(isHorizontal ? 20.r : 15.r),
-                    ),
-                    border: Border.all(
-                      color: Colors.black26,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/images/e_contract_new.png',
-                        filterQuality: FilterQuality.medium,
-                        width: isHorizontal ? 45.r : 35.r,
-                        height: isHorizontal ? 45.r : 35.r,
-                      ),
-                      SizedBox(
-                        width: isHorizontal ? 8.w : 10.w,
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          item[position].customerShipName != ''
-                              ? item[position].customerShipName
-                              : '-',
-                          style: TextStyle(
-                            fontSize: isHorizontal ? 20.sp : 14.sp,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Segoe ui',
-                            color: Colors.black87,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            convertDateWithMonth(item[position].dateAdded),
-                            style: TextStyle(
-                              fontSize: isHorizontal ? 20.sp : 14.sp,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Segoe ui',
-                              color: Colors.black,
-                            ),
-                          ),
-                          Text(
-                            'ACTIVE',
-                            style: TextStyle(
-                              fontSize: isHorizontal ? 20.sp : 14.sp,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Segoe ui',
-                              color: Colors.green.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: 10.r,
                 ),
-                onTap: () {
-                  item[position].idCustomer != ''
-                      ? Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => DetailContract(
-                              item[position],
-                              divisi!,
-                              ttdPertama!,
-                              username!,
-                              true,
-                              isContract: true,
-                              isAdminRenewal: false,
-                              isNewCust: false,
-                            ),
+                child: InkWell(
+                  child: Container(
+                    padding: EdgeInsets.all(isHorizontal ? 15.r : 10.r),
+                    height: isHorizontal ? 90.h : 70.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(isHorizontal ? 20.r : 15.r),
+                      ),
+                      border: Border.all(
+                        color: Colors.black26,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/contract-reward.png',
+                          filterQuality: FilterQuality.medium,
+                          width: isHorizontal ? 45.r : 35.r,
+                          height: isHorizontal ? 45.r : 35.r,
+                        ),
+                        SizedBox(
+                          width: isHorizontal ? 8.w : 10.w,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                item[position].customerShipName != ''
+                                    ? item[position].customerShipName
+                                    : '-',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 20.sp : 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Segoe ui',
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              Text(
+                                item[position].salesName != ''
+                                    ? '(${item[position].salesName})'
+                                    : '-',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 20.sp : 14.sp,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Segoe ui',
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ],
                           ),
-                        )
-                      : handleStatus(
-                          context,
-                          'Id customer tidak ditemukan',
-                          false,
-                          isHorizontal: isHorizontal,
-                          isLogout: false,
-                        );
-                },
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              convertDateWithMonth(item[position].createDate),
+                              style: TextStyle(
+                                fontSize: isHorizontal ? 20.sp : 14.sp,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Segoe ui',
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'PENDING',
+                              style: TextStyle(
+                                fontSize: isHorizontal ? 20.sp : 14.sp,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Segoe ui',
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    item[position].inkaroContractId != ''
+                        ? Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DetailInkaroApproval(
+                                item[position],
+                                isPending: true,
+                              ),
+                            ),
+                          )
+                        : handleStatus(
+                            context,
+                            'Id customer tidak ditemukan',
+                            false,
+                            isHorizontal: isHorizontal,
+                            isLogout: false,
+                          );
+                  },
+                ),
               );
             }),
       ),

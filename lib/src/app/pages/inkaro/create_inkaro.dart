@@ -43,6 +43,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   TextEditingController textNotesContract = new TextEditingController();
   final formKeyInkaroManual = GlobalKey<FormState>();
 
+  late String tokenSm, idSm;
   String? id = '';
   String? role = '';
   String? username = '';
@@ -190,6 +191,39 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
     }
   }
 
+  getTokenSM(int smID) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$smID';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          idSm = data['data']['id'];
+          tokenSm = data['data']['gentoken'];
+          print('Id SM : $idSm');
+          print('Token SM : $tokenSm');
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
   simpanData(Function stop, {bool isHorizontal = false}) async {
     const timeout = 15;
     var url = '$API_URL/inkaro/';
@@ -266,6 +300,15 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
           sts,
           isHorizontal: isHorizontal,
           isLogout: false,
+        );
+
+        pushNotif(
+          13,
+          3,
+          idUser: idSm,
+          rcptToken: tokenSm,
+          salesName: username,
+          opticName: widget.customerList[widget.position].namaUsaha,
         );
       }
     } on FormatException catch (e) {
@@ -767,7 +810,28 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       username = preferences.getString("username");
 
       print("Dashboard : $role");
+      getTtdSales(int.parse(id!));
     });
+  }
+
+  getTtdSales(int input) async {
+    var url = '$API_URL/users?id=$input';
+
+    var response = await http.get(Uri.parse(url));
+    print('Response status: ${response.statusCode}');
+
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        int areaId =
+            data['data']['area'] != null ? int.parse(data['data']['area']) : 29;
+        getTokenSM(areaId);
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+    }
   }
 
   @override

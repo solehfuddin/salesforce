@@ -158,7 +158,8 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
     String custName,
     String locatedFile,
   ) async {
-    var url = '$PDFURL/contract_pdf/$idCust';
+    // var url = '$PDFURL/contract_pdf/$idCust';
+    var url = '$PDFURL/newcontract_pdf/$idCust';
 
     await FlutterDownloader.enqueue(
       url: url,
