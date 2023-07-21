@@ -19,7 +19,9 @@ class ListInkaroHeader {
       contactPerson,
       salesName,
       createBy,
-      createDate;
+      createDate,
+      reasonSM,
+      notes;
 
   ListInkaroHeader.fromJson(Map json)
       : inkaroContractId = json['id_inkaro_contract'],
@@ -42,7 +44,9 @@ class ListInkaroHeader {
         contactPerson = json['CONTACT_PERSON'],
         salesName = json['SALES_NAME'],
         createBy = json['create_by'],
-        createDate = json['create_date'];
+        createDate = json['create_date'],
+        reasonSM = json['reason_sm'],
+        notes = json['notes'];
 
   Map toJson() {
     return {
@@ -60,13 +64,14 @@ class ListInkaroHeader {
       'telp_konfirmasi': telpKonfirmasi,
       'approval_sm': approvalSM,
       'status': status,
-      'CUSTOMER_SHIP_NAME' : customerShipName,
-      'ADDRESS' : address,
-      'PHONE' : phone,
-      'CONTACT_PERSON' : contactPerson,
-      'SALES_NAME' : salesName,
-      'create_by' : createBy,
-      'create_date' : createDate
+      'CUSTOMER_SHIP_NAME': customerShipName,
+      'ADDRESS': address,
+      'PHONE': phone,
+      'CONTACT_PERSON': contactPerson,
+      'SALES_NAME': salesName,
+      'create_by': createBy,
+      'create_date': createDate,
+      'notes': notes
     };
   }
 }

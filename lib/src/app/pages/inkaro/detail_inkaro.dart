@@ -5,13 +5,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/inkaro/create_inkaro.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
-import 'package:sample/src/app/widgets/areasyncchart.dart';
 import 'package:sample/src/domain/entities/customer_inkaro.dart';
 import 'package:sample/src/domain/entities/inkaro_manual.dart';
 import 'package:sample/src/domain/entities/inkaro_program.dart';

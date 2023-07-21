@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/customer_inkaro.dart';
 import 'package:sample/src/domain/entities/inkaro_manual.dart';
 import 'package:sample/src/domain/entities/inkaro_program.dart';
 import 'package:sample/src/domain/entities/inkaro_reguler.dart';
@@ -52,7 +51,6 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   final format = DateFormat("dd MMM yyyy");
   late DateTime startPeriode;
   late DateTime endPeriode;
-  bool _isEmpty = false;
 
   String? namaStaff,
       nikKTP,
@@ -220,8 +218,6 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   }
 
   List<ListMasterBank> _dataBank = List.empty(growable: true);
-  List<InkaroReguler> _dataFilterSubcat = List.empty(growable: true);
-
   List<InkaroReguler> itemInkaroReguler = List.empty(growable: true);
   List<InkaroReguler> inkaroRegSelected = List.empty(growable: true);
 
@@ -382,14 +378,13 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       name = preferences.getString("name");
 
       getAdmToken(int.parse(id!));
-      if (double.tryParse(
-              widget.inkaroHeaderList[widget.position].createdById) ==
+      if (double.tryParse(widget.inkaroHeaderList[widget.position].createBy) ==
           null) {
         print('The input is not a numeric string');
       } else {
         print('Yes, it is a numeric string');
         getSalesToken(
-            int.parse(widget.inkaroHeaderList[widget.position].createdById));
+            int.parse(widget.inkaroHeaderList[widget.position].createBy));
       }
 
       print("Dashboard : $role");
