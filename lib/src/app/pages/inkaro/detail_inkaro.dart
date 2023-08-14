@@ -617,7 +617,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                         right: 15.0.sp,
                         bottom: 10.0.sp),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
@@ -744,10 +744,20 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                           children: [
                             Expanded(
                               child: Container(
+                                padding: EdgeInsets.only(bottom: 5.sp),
                                 decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
                                           color: Colors.black12, width: 2)),
+                                ),
+                                child: Text(
+                                  widget.listInkaroHeader[widget.positionInkaro]
+                                      .nomorKontrak,
+                                  style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13.sp),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),

@@ -23,7 +23,8 @@ class ListInkaroHeader {
       createBy,
       createDate,
       reasonSM,
-      notes;
+      notes,
+      nomorKontrak;
 
   ListInkaroHeader.fromJson(Map json)
       : inkaroContractId = json['id_inkaro_contract'],
@@ -50,7 +51,8 @@ class ListInkaroHeader {
         createBy = json['create_by'],
         createDate = json['create_date'],
         reasonSM = json['reason_sm'],
-        notes = json['notes'];
+        notes = json['notes'],
+        nomorKontrak = json['nomor_kontrak'];
 
   Map toJson() {
     return {
@@ -77,7 +79,8 @@ class ListInkaroHeader {
       'SALES_NAME': salesName,
       'create_by': createBy,
       'create_date': createDate,
-      'notes': notes
+      'notes': notes,
+      'nomor_kontrak': nomorKontrak
     };
   }
 }
