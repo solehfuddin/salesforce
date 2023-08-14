@@ -30,7 +30,7 @@ class _PendingInkaroState extends State<PendingInkaro> {
   List<ListInkaroHeader> currList = List.empty(growable: true);
   Future<List<ListInkaroHeader>>? _listFuture;
   int page = 1;
-  int pageCount = 2;
+  int pageCount = 5;
   int startAt = 0;
   int endAt = 0;
   int totalPages = 0;

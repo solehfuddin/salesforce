@@ -60,7 +60,9 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       selesaiPeriode,
       atasNama,
       telpKonfirmasi,
-      _choosenBank;
+      _choosenBank,
+      _choosenJabatan,
+      _choosenIntervalPembayaran;
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
       _emptyNpwp = false,
@@ -137,10 +139,12 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
         'npwp': npwp != null ? npwp : '',
         'nik_ktp': nikKTP,
         'nama_staff': namaStaff,
+        'jabatan': _choosenJabatan,
         'bank': _choosenBank,
         'nomor_rekening': nomorRekening,
         'an_rekening': atasNama,
         'telp_konfirmasi': telpKonfirmasi,
+        'interval_pembayaran': _choosenIntervalPembayaran,
         'notes': notesContract,
         'update_by': id,
       }, headers: {
@@ -218,6 +222,15 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   }
 
   List<ListMasterBank> _dataBank = List.empty(growable: true);
+  List _dataJabatan = [
+    {'label': 'Karyawan Optik', 'value_jabatan': 'KARYAWAN OPTIK'},
+    {'label': 'Manager Optik', 'value_jabatan': 'MANAGER OPTIK'},
+  ];
+  List _dataIntervalPembayaran = [
+    {'label': '1 Bulan', 'value_interval': '1 BULAN'},
+    {'label': '3 Bulan', 'value_interval': '3 BULAN'},
+    {'label': '6 Bulan', 'value_interval': '6 BULAN'},
+  ];
   List<InkaroReguler> itemInkaroReguler = List.empty(growable: true);
   List<InkaroReguler> inkaroRegSelected = List.empty(growable: true);
 
@@ -367,6 +380,9 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
     atasNama = widget.inkaroHeaderList[widget.position].anRekening;
     telpKonfirmasi = widget.inkaroHeaderList[widget.position].telpKonfirmasi;
     notesContract = widget.inkaroHeaderList[widget.position].notes;
+    _choosenJabatan = widget.inkaroHeaderList[widget.position].jabatan;
+    _choosenIntervalPembayaran =
+        widget.inkaroHeaderList[widget.position].intervalPembayaran;
   }
 
   getRole() async {
@@ -601,6 +617,73 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       }),
                   SizedBox(
                     height: isHorizontal ? 20.h : 15.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Pilih Jabatan',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        '(wajib diisi)',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 18.h : 8.h,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenJabatan,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      items: _dataJabatan
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_jabatan"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Jabatan",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenJabatan = value.toString();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -937,6 +1020,73 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       ]),
                   SizedBox(
                     height: 10.sp,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Pilih Interval Pembayaran',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        '(wajib diisi)',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 18.h : 8.h,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenIntervalPembayaran,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      items: _dataIntervalPembayaran
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_interval"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Interval Pembayaran",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenIntervalPembayaran = value.toString();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
                   ),
                   Row(
                     children: [

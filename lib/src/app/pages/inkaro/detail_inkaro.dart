@@ -1,11 +1,19 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
-import 'dart:convert';
+import 'dart:convert' as convert;
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
+import 'package:android_path_provider/android_path_provider.dart';
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
@@ -46,12 +54,18 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
   String namaPJ = '';
   String telpPJ = '';
   String alamatUsaha = '';
+  String allValueManual = '';
+
+  late bool _permissionReady;
+  late String _localPath;
+  final ReceivePort _port = ReceivePort();
 
   bool checkAllInkaroReguler = false,
       checkAllInkaroProgram = false,
       checkAllInkaroManual = false,
       isSwitchedHouseBrandProgram = false,
-      isSwitchedHouseBrandManual = false;
+      isSwitchedHouseBrandManual = false,
+      checkSetAllValueManual = false;
 
   String? _choosenFilterSubcatProg, _choosenFilterSubcatManual;
 
@@ -74,7 +88,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
       }).timeout(Duration(seconds: timeout));
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
 
         if (sts) {
@@ -143,7 +157,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
       }).timeout(Duration(seconds: timeout));
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
@@ -206,7 +220,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
       }).timeout(Duration(seconds: timeout));
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
@@ -269,7 +283,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
       }).timeout(Duration(seconds: timeout));
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
@@ -309,7 +323,13 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
         for (int i = 0; i < itemInkaroManual.length; i++) {
           if (itemInkaroManual[i].ischecked) {
             setState(() {
-              inkaroManualSelected.add(itemInkaroManual[i]);
+              if (checkSetAllValueManual) {
+                itemInkaroManual[i].inkaroValue =
+                    allValueManual.replaceAll(".", "");
+                inkaroManualSelected.add(itemInkaroManual[i]);
+              } else {
+                inkaroManualSelected.add(itemInkaroManual[i]);
+              }
             });
           }
         }
@@ -320,7 +340,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
   getListInkaro() async {
     const timeout = 15;
     var url =
-        '$API_URL/inkaro/getInkaroDetail?id_inkaro_header=${widget.listInkaroHeader[widget.positionInkaro].inkaroContractId}';
+        '$API_URL/inkaro/getInkaroDetail?id_inkaro_header=${widget.listInkaroHeader[widget.positionInkaro].inkaroContractId}&sort=DESC_CATEGORY,DESC_SUBCATEGORY:ASC';
 
     try {
       var response = await http.get(Uri.parse(url), headers: {
@@ -328,7 +348,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
       }).timeout(Duration(seconds: timeout));
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
@@ -385,6 +405,120 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
     getRole();
     getListInkaro();
     getCategoryForFilterSubcat();
+
+    _permissionReady = false;
+    _retryRequestPermission();
+
+    IsolateNameServer.registerPortWithName(
+      _port.sendPort,
+      'downloader_customer',
+    );
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {
+        print("Id : $id");
+        print("Status : $status");
+        print("Progress : $progress");
+      });
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port')!;
+    send.send([id, status, progress]);
+  }
+
+  Future<void> _retryRequestPermission() async {
+    final hasGranted = await _checkPermission();
+
+    if (hasGranted) {
+      await _prepareSaveDir();
+    }
+
+    setState(() {
+      _permissionReady = hasGranted;
+    });
+  }
+
+  Future<bool> _checkPermission() async {
+    if (Platform.isIOS) {
+      return true;
+    }
+
+    bool isPermit = false;
+
+    if (Platform.isAndroid) {
+      if (await Permission.storage.request().isGranted) {
+        setState(() {
+          isPermit = true;
+        });
+      } else if (await Permission.storage.request().isPermanentlyDenied) {
+        await openAppSettings();
+      } else if (await Permission.storage.request().isDenied) {
+        setState(() {
+          isPermit = false;
+        });
+      }
+    }
+    return isPermit;
+  }
+
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath())!;
+    final savedDir = Directory(_localPath);
+    final hasExisted = savedDir.existsSync();
+    if (!hasExisted) {
+      await savedDir.create();
+    }
+  }
+
+  Future<String?> _findLocalPath() async {
+    String? externalStorageDirPath;
+    if (Platform.isAndroid) {
+      try {
+        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+      } catch (e) {
+        final directory = await getExternalStorageDirectory();
+        externalStorageDirPath = directory?.path;
+      }
+    } else if (Platform.isIOS) {
+      externalStorageDirPath =
+          (await getApplicationDocumentsDirectory()).absolute.path;
+    }
+    return externalStorageDirPath;
+  }
+
+  downloadContractInkaro(
+    int idContract,
+    String custName,
+    String locatedFile,
+  ) async {
+    convert.Codec<String, String> stringToBase64 =
+        convert.utf8.fuse(convert.base64);
+    String encoded =
+        (stringToBase64.encode(idContract.toString())).replaceAll('=', '');
+    var url = '$WEBADMIN/download/inkaro_pdf/$encoded';
+
+    await FlutterDownloader.enqueue(
+      url: url,
+      fileName: "Kontrak Inkaro $custName.pdf",
+      requiresStorageNotLow: true,
+      savedDir: locatedFile,
+      showNotification: true,
+      openFileFromNotification: true,
+    );
   }
 
   @override
@@ -478,7 +612,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                   ),
                   child: Padding(
                     padding: EdgeInsets.only(
-                        top: 30.0.sp,
+                        top: 15.0.sp,
                         left: 15.0.sp,
                         right: 15.0.sp,
                         bottom: 10.0.sp),
@@ -486,6 +620,72 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 5.r,
+                                vertical: 5.r,
+                              ),
+                              alignment: Alignment.centerRight,
+                              child: ArgonButton(
+                                height: 40.h,
+                                width: 100.w,
+                                borderRadius: 10.r,
+                                color: Colors.red[700],
+                                child: Text(
+                                  "PDF Kontrak",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                                loader: Container(
+                                  padding: EdgeInsets.all(8.r),
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                onTap: (startLoading, stopLoading, btnState) {
+                                  if (btnState == ButtonState.Idle) {
+                                    if (_permissionReady) {
+                                      downloadContractInkaro(
+                                        int.parse(widget
+                                            .listInkaroHeader[
+                                                widget.positionInkaro]
+                                            .inkaroContractId),
+                                        widget
+                                            .listInkaroHeader[
+                                                widget.positionInkaro]
+                                            .customerShipName,
+                                        _localPath,
+                                      );
+                                      showStyledToast(
+                                        child: Text('Sedang mengunduh file'),
+                                        context: context,
+                                        backgroundColor: Colors.blue,
+                                        borderRadius:
+                                            BorderRadius.circular(15.r),
+                                        duration: Duration(seconds: 2),
+                                      );
+                                    } else {
+                                      showStyledToast(
+                                        child: Text(
+                                            'Tidak mendapat izin penyimpanan'),
+                                        context: context,
+                                        backgroundColor: Colors.red,
+                                        borderRadius:
+                                            BorderRadius.circular(15.r),
+                                        duration: Duration(seconds: 2),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                         SizedBox(
                           height: isHorizontal ? 18.h : 8.h,
                         ),
@@ -549,23 +749,77 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                                       bottom: BorderSide(
                                           color: Colors.black12, width: 2)),
                                 ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
                                 child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 20, right: 20, top: 10, bottom: 10),
+                                  padding: EdgeInsets.all(10),
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      Text(
+                                        "Nama Staff",
+                                        style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 11.sp),
+                                        textAlign: TextAlign.left,
+                                      ),
                                       Text(
                                         widget
                                             .listInkaroHeader[
                                                 widget.positionInkaro]
                                             .namaStaff,
                                         style: TextStyle(
-                                            fontSize: 18,
                                             fontFamily: 'Montserrat',
-                                            fontWeight: FontWeight.w600),
-                                        textAlign: TextAlign.center,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 11.sp),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.h,
+                            ),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Jabatan",
+                                        style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 11.sp),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      Text(
+                                        widget
+                                            .listInkaroHeader[
+                                                widget.positionInkaro]
+                                            .jabatan,
+                                        style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 11.sp),
+                                        textAlign: TextAlign.left,
                                       ),
                                     ],
                                   ),
@@ -824,6 +1078,34 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Interval Pembayaran",
+                                      style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontSize: 11.sp),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                    Text(
+                                      widget
+                                          .listInkaroHeader[
+                                              widget.positionInkaro]
+                                          .intervalPembayaran,
+                                      style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 11.sp),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                             Expanded(
                               child: Padding(
                                 padding: EdgeInsets.all(10),
@@ -2067,6 +2349,60 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: checkSetAllValueManual,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Set Semua Inkaro yang Dipilih Menjadi : ",
+                        style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                        textAlign: TextAlign.start,
+                      ),
+                      SizedBox(
+                        height: 5.sp,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 3.sp),
+                        child: TextFormField(
+                          enabled: checkSetAllValueManual,
+                          inputFormatters: [ThousandsSeparatorInputFormatter()],
+                          keyboardType: TextInputType.number,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            counterText: "",
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 5.sp,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            hintStyle: TextStyle(
+                              fontFamily: 'Segoe Ui',
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                          initialValue: ThousandsSeparatorInputFormatter()
+                              .formatEditUpdate(TextEditingValue.empty,
+                                  TextEditingValue(text: "0"))
+                              .text,
+                          onChanged: (value) {
+                            allValueManual = value;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  onChanged: (bool? val) {
+                    setState(() {
+                      checkAllInkaroManual = false;
+                      checkSetAllValueManual = val!;
+                    });
+                  },
+                ),
                 ElevatedButton(
                     onPressed: () async {
                       await getSelectedInkaroManual();
@@ -2280,7 +2616,9 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                                     height: 10.h,
                                   ),
                                   TextFormField(
-                                    enabled: itemInkaroManual[index].ischecked,
+                                    enabled: checkSetAllValueManual
+                                        ? false
+                                        : itemInkaroManual[index].ischecked,
                                     inputFormatters: [
                                       ThousandsSeparatorInputFormatter()
                                     ],
@@ -2301,8 +2639,9 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                                       ),
                                     ),
                                     textAlign: TextAlign.center,
-                                    initialValue:
-                                        ThousandsSeparatorInputFormatter()
+                                    initialValue: checkSetAllValueManual
+                                        ? ''
+                                        : ThousandsSeparatorInputFormatter()
                                             .formatEditUpdate(
                                                 TextEditingValue.empty,
                                                 TextEditingValue(

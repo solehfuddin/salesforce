@@ -382,26 +382,26 @@ SliverToBoxAdapter areaMenu(
                               child: Center(
                                 child: Column(
                                   children: [
-                                    // Image.asset(
-                                    //   'assets/images/inkaro.png',
-                                    //   width: isHorizontal ? 55.r : 45.r,
-                                    //   height: isHorizontal ? 55.r : 45.r,
-                                    // ),
-                                    // SizedBox(
-                                    //   height: screenHeight * 0.015,
-                                    // ),
-                                    // Text(
-                                    //   'Inkaro',
-                                    //   style: TextStyle(
-                                    //     fontSize: isHorizontal ? 17.sp : 13.sp,
-                                    //     fontWeight: FontWeight.w600,
-                                    //     fontFamily: 'Segoe ui',
-                                    //     color: Colors.black54,
-                                    //     overflow: TextOverflow.ellipsis,
-                                    //   ),
-                                    //   textAlign: TextAlign.center,
-                                    //   maxLines: 1,
-                                    // ),
+                                    Image.asset(
+                                      'assets/images/inkaro.png',
+                                      width: isHorizontal ? 55.r : 45.r,
+                                      height: isHorizontal ? 55.r : 45.r,
+                                    ),
+                                    SizedBox(
+                                      height: screenHeight * 0.015,
+                                    ),
+                                    Text(
+                                      'Inkaro',
+                                      style: TextStyle(
+                                        fontSize: isHorizontal ? 17.sp : 13.sp,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Segoe ui',
+                                        color: Colors.black54,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -413,11 +413,12 @@ SliverToBoxAdapter areaMenu(
                               //   ),
                               // );
 
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => CompleteInkaroApproval(),
-                              //   ),
-                              // );
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CompleteInkaroApproval(),
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -2371,48 +2372,48 @@ SliverToBoxAdapter areaMenu(
                                                     child: Center(
                                                       child: Column(
                                                         children: [
-                                                          // Image.asset(
-                                                          //   'assets/images/inkaro.png',
-                                                          //   width: isHorizontal
-                                                          //       ? 55.r
-                                                          //       : 45.r,
-                                                          //   height: isHorizontal
-                                                          //       ? 55.r
-                                                          //       : 45.r,
-                                                          // ),
-                                                          // SizedBox(
-                                                          //   height:
-                                                          //       screenHeight *
-                                                          //           0.015,
-                                                          // ),
-                                                          // Text(
-                                                          //   'Inkaro',
-                                                          //   style: TextStyle(
-                                                          //       fontSize:
-                                                          //           isHorizontal
-                                                          //               ? 17.sp
-                                                          //               : 13.sp,
-                                                          //       fontWeight:
-                                                          //           FontWeight
-                                                          //               .w600,
-                                                          //       fontFamily:
-                                                          //           'Segoe ui',
-                                                          //       color: Colors
-                                                          //           .black54),
-                                                          //   textAlign: TextAlign
-                                                          //       .center,
-                                                          // ),
+                                                          Image.asset(
+                                                            'assets/images/inkaro.png',
+                                                            width: isHorizontal
+                                                                ? 55.r
+                                                                : 45.r,
+                                                            height: isHorizontal
+                                                                ? 55.r
+                                                                : 45.r,
+                                                          ),
+                                                          SizedBox(
+                                                            height:
+                                                                screenHeight *
+                                                                    0.015,
+                                                          ),
+                                                          Text(
+                                                            'Inkaro',
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    isHorizontal
+                                                                        ? 17.sp
+                                                                        : 13.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontFamily:
+                                                                    'Segoe ui',
+                                                                color: Colors
+                                                                    .black54),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
                                                   ),
                                                   onTap: () {
-                                                    // Navigator.of(context).push(
-                                                    //     MaterialPageRoute(
-                                                    //         builder: (context) =>
-                                                    //             ListCustomerInkaroScreen(
-                                                    //                 int.parse(
-                                                    //                     idSales!))));
+                                                    Navigator.of(context).push(
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ListCustomerInkaroScreen(
+                                                                    int.parse(
+                                                                        idSales!))));
                                                   },
                                                 ),
                                               ),

@@ -70,7 +70,9 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       _choosenBank,
       _choosenFilterSubcatProg,
       _choosenFilterSubcatManual,
-      _choosenCopyContract;
+      _choosenCopyContract,
+      _choosenJabatan,
+      _choosenIntervalPembayaran;
   String notesContract = '', allValueManual = '';
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
@@ -131,7 +133,11 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         _emptyAtasNama ||
         _emptyTelpKonfirmasi ||
         _choosenBank == '' ||
-        _choosenBank == null) {
+        _choosenBank == null ||
+        _choosenJabatan == '' ||
+        _choosenJabatan == null ||
+        _choosenIntervalPembayaran == '' ||
+        _choosenIntervalPembayaran == null) {
       handleStatus(
         context,
         'Harap lengkapi isian yang telah disediakan.',
@@ -273,10 +279,12 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         'npwp': npwp != null ? npwp : '',
         'nik_ktp': nikKTP,
         'nama_staff': namaStaff,
+        'jabatan': _choosenJabatan,
         'bank': _choosenBank,
         'nomor_rekening': nomorRekening,
         'an_rekening': atasNama,
         'telp_konfirmasi': telpKonfirmasi,
+        'interval_pembayaran': _choosenIntervalPembayaran,
         'created_by': id,
         'detail_inkaro': json.encode(finalListInkaro),
         'notes': notesContract,
@@ -608,6 +616,15 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
 
   List<ListMasterBank> _dataBank = List.empty(growable: true);
   List<ListInkaroHeader> _dataCopyContract = List.empty(growable: true);
+  List _dataJabatan = [
+    {'label': 'Karyawan Optik', 'value_jabatan': 'KARYAWAN OPTIK'},
+    {'label': 'Manager Optik', 'value_jabatan': 'MANAGER OPTIK'},
+  ];
+  List _dataIntervalPembayaran = [
+    {'label': '1 Bulan', 'value_interval': '1 BULAN'},
+    {'label': '3 Bulan', 'value_interval': '3 BULAN'},
+    {'label': '6 Bulan', 'value_interval': '6 BULAN'},
+  ];
   List<InkaroReguler> _dataFilterSubcat = List.empty(growable: true);
 
   List<InkaroReguler> itemInkaroReguler = List.empty(growable: true);
@@ -1040,6 +1057,73 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
+                        'Pilih Jabatan',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        '(wajib diisi)',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 18.h : 8.h,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenJabatan,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      items: _dataJabatan
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_jabatan"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Jabatan",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenJabatan = value.toString();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
                         'Mulai Periode',
                         style: TextStyle(
                           fontSize: isHorizontal ? 18.sp : 12.sp,
@@ -1292,77 +1376,147 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                     ],
                   ),
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 4,
-                          child: Container(
-                            margin: EdgeInsets.only(top: 15.0),
-                            child: TextFormField(
-                              textCapitalization: TextCapitalization.characters,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5.r),
-                                ),
-                                errorText:
-                                    _emptyAtasNama ? 'Wajib diisi' : null,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          margin: EdgeInsets.only(top: 15.0),
+                          child: TextFormField(
+                            textCapitalization: TextCapitalization.characters,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.r),
                               ),
-                              maxLength: 50,
-                              controller: textAtasNama,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                              ),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  atasNama = value!;
-                                  if (value == '') {
-                                    _emptyAtasNama = true;
-                                  } else {
-                                    _emptyAtasNama = false;
-                                  }
-                                });
-                              },
+                              errorText: _emptyAtasNama ? 'Wajib diisi' : null,
                             ),
+                            maxLength: 50,
+                            controller: textAtasNama,
+                            style: TextStyle(
+                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontFamily: 'Segoe Ui',
+                            ),
+                            onChanged: (String? value) {
+                              setState(() {
+                                atasNama = value!;
+                                if (value == '') {
+                                  _emptyAtasNama = true;
+                                } else {
+                                  _emptyAtasNama = false;
+                                }
+                              });
+                            },
                           ),
                         ),
-                        SizedBox(
-                          width: 10.r,
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Container(
-                            margin: EdgeInsets.only(top: 15.0),
-                            child: TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5.r),
-                                ),
-                                errorText:
-                                    _emptyTelpKonfirmasi ? 'Wajib diisi' : null,
+                      ),
+                      SizedBox(
+                        width: 10.r,
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          margin: EdgeInsets.only(top: 15.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.r),
                               ),
-                              maxLength: 50,
-                              controller: textTelpKonfirmasi,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                              ),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  telpKonfirmasi = value!;
-                                  if (value == '') {
-                                    _emptyTelpKonfirmasi = true;
-                                  } else {
-                                    _emptyTelpKonfirmasi = false;
-                                  }
-                                });
-                              },
+                              errorText:
+                                  _emptyTelpKonfirmasi ? 'Wajib diisi' : null,
                             ),
+                            maxLength: 50,
+                            controller: textTelpKonfirmasi,
+                            style: TextStyle(
+                              fontSize: isHorizontal ? 24.sp : 14.sp,
+                              fontFamily: 'Segoe Ui',
+                            ),
+                            onChanged: (String? value) {
+                              setState(() {
+                                telpKonfirmasi = value!;
+                                if (value == '') {
+                                  _emptyTelpKonfirmasi = true;
+                                } else {
+                                  _emptyTelpKonfirmasi = false;
+                                }
+                              });
+                            },
                           ),
                         ),
-                      ]),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Pilih Interval Pembayaran',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        '(wajib diisi)',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 18.h : 8.h,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenIntervalPembayaran,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      items: _dataIntervalPembayaran
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_interval"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Interval Pembayaran",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenIntervalPembayaran = value.toString();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
+                  ),
                 ],
               ),
             ),
