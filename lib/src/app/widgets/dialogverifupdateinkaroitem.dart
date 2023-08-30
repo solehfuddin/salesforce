@@ -83,8 +83,6 @@ class _DialogVerifUpdateInkaroItemState
       statusCreate = res['status'];
       final String msg = res['message'].toString();
 
-      print(res);
-
       if (sts) {
         Navigator.of(context, rootNavigator: true)..pop('dialog');
         await getListInkaro();
@@ -184,9 +182,6 @@ class _DialogVerifUpdateInkaroItemState
         "api-key-trl": API_KEY
       }).timeout(Duration(seconds: timeout));
 
-      print('input dataaaaaaaaaaaaaa');
-      print(response.body);
-
       var res = json.decode(response.body);
 
       final bool sts = res['status'];
@@ -252,7 +247,7 @@ class _DialogVerifUpdateInkaroItemState
   getListInkaro() async {
     const timeout = 15;
     var url =
-        '$API_URL/inkaro/getInkaroDetail?id_inkaro_header=${widget.inkaroHeaderList[widget.positionInkaroHeader].inkaroContractId}';
+        '$API_URL/inkaro/getInkaroDetail?id_inkaro_header=${widget.inkaroHeaderList[widget.positionInkaroHeader].inkaroContractId}&sort=DESC_CATEGORY,DESC_SUBCATEGORY:ASC';
 
     try {
       var response = await http.get(Uri.parse(url), headers: {
@@ -264,7 +259,6 @@ class _DialogVerifUpdateInkaroItemState
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
-          print(rest['program']);
           setState(() {
             listInkaroDetailReguler = rest['reguler']
                 .map<ListInkaroDetail>(

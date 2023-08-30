@@ -6,11 +6,13 @@ class ListInkaroHeader {
       nikKTP,
       npwp,
       namaStaff,
+      jabatan,
       anRekening,
       bank,
       namaBank,
       nomorRekening,
       telpKonfirmasi,
+      intervalPembayaran,
       approvalSM,
       status,
       customerShipName,
@@ -21,7 +23,8 @@ class ListInkaroHeader {
       createBy,
       createDate,
       reasonSM,
-      notes;
+      notes,
+      nomorKontrak;
 
   ListInkaroHeader.fromJson(Map json)
       : inkaroContractId = json['id_inkaro_contract'],
@@ -31,11 +34,13 @@ class ListInkaroHeader {
         nikKTP = json['nik_ktp'],
         npwp = json['npwp'],
         namaStaff = json['nama_staff'],
+        jabatan = json['jabatan'],
         anRekening = json['an_rekening'],
         bank = json['bank'],
         namaBank = json['nama_bank'],
         nomorRekening = json['nomor_rekening'],
         telpKonfirmasi = json['telp_konfirmasi'],
+        intervalPembayaran = json['interval_pembayaran'],
         approvalSM = json['approval_sm'],
         status = json['status'],
         customerShipName = json['CUSTOMER_SHIP_NAME'],
@@ -46,7 +51,8 @@ class ListInkaroHeader {
         createBy = json['create_by'],
         createDate = json['create_date'],
         reasonSM = json['reason_sm'],
-        notes = json['notes'];
+        notes = json['notes'],
+        nomorKontrak = json['nomor_kontrak'];
 
   Map toJson() {
     return {
@@ -57,11 +63,13 @@ class ListInkaroHeader {
       'nik_ktp': nikKTP,
       'npwp': npwp,
       'nama_staff': namaStaff,
+      'jabatan': jabatan,
       'an_rekening': anRekening,
       'bank': bank,
       'nama_bank': namaBank,
       'nomor_rekening': nomorRekening,
       'telp_konfirmasi': telpKonfirmasi,
+      'interval_pembayaran': intervalPembayaran,
       'approval_sm': approvalSM,
       'status': status,
       'CUSTOMER_SHIP_NAME': customerShipName,
@@ -71,7 +79,8 @@ class ListInkaroHeader {
       'SALES_NAME': salesName,
       'create_by': createBy,
       'create_date': createDate,
-      'notes': notes
+      'notes': notes,
+      'nomor_kontrak': nomorKontrak
     };
   }
 }

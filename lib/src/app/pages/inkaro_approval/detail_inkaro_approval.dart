@@ -1,12 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:convert' as convert;
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
+import 'package:android_path_provider/android_path_provider.dart';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/list_inkaro_detail.dart';
@@ -52,6 +58,10 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
   TextEditingController textReason = new TextEditingController();
   bool _isReason = false;
 
+  late bool _permissionReady;
+  late String _localPath;
+  final ReceivePort _port = ReceivePort();
+
   getListInkaro() async {
     const timeout = 15;
     var url =
@@ -63,7 +73,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       }).timeout(Duration(seconds: timeout));
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
         if (sts) {
           var rest = data['data'];
@@ -111,7 +121,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       print('Response status: ${response.statusCode}');
 
       try {
-        var data = json.decode(response.body);
+        var data = convert.json.decode(response.body);
         final bool sts = data['status'];
 
         if (sts) {
@@ -159,7 +169,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       print('Response body: ${response.body}');
 
       try {
-        var res = json.decode(response.body);
+        var res = convert.json.decode(response.body);
         final bool sts = res['status'];
         final String msg = res['message'];
 
@@ -240,47 +250,6 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
     }
   }
 
-  getRole() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-
-    setState(() {
-      id = preferences.getString("id");
-      role = preferences.getString("role");
-      username = preferences.getString("username");
-      name = preferences.getString("name");
-
-      var formatter = new DateFormat('yyyy');
-      thisYear = formatter.format(DateTime.now());
-      nextYear = int.parse(thisYear) + 1;
-
-      print('This Year : $thisYear');
-      print('Next Year : $nextYear');
-
-      print("Dashboard : $role");
-
-      if (double.tryParse(widget.inkaroHeader.createBy) == null) {
-        print('The input is not a numeric string');
-      } else {
-        print('Yes, it is a numeric string');
-        getSalesToken(int.parse(widget.inkaroHeader.createBy));
-      }
-    });
-  }
-
-  Future<void> _refreshData() async {
-    setState(() {
-      getRole();
-      getListInkaro();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getRole();
-    getListInkaro();
-  }
-
   handleRejection(BuildContext context, Function stop,
       {bool isHorizontal = false}) {
     AlertDialog alert = AlertDialog(
@@ -357,6 +326,161 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       context: context,
       builder: (context) => alert,
       barrierDismissible: false,
+    );
+  }
+
+  getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      username = preferences.getString("username");
+      name = preferences.getString("name");
+
+      var formatter = new DateFormat('yyyy');
+      thisYear = formatter.format(DateTime.now());
+      nextYear = int.parse(thisYear) + 1;
+
+      print('This Year : $thisYear');
+      print('Next Year : $nextYear');
+
+      print("Dashboard : $role");
+
+      if (double.tryParse(widget.inkaroHeader.createBy) == null) {
+        print('The input is not a numeric string');
+      } else {
+        print('Yes, it is a numeric string');
+        getSalesToken(int.parse(widget.inkaroHeader.createBy));
+      }
+    });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      getRole();
+      getListInkaro();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getRole();
+    getListInkaro();
+
+    _permissionReady = false;
+    _retryRequestPermission();
+
+    IsolateNameServer.registerPortWithName(
+      _port.sendPort,
+      'downloader_customer',
+    );
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {
+        print("Id : $id");
+        print("Status : $status");
+        print("Progress : $progress");
+      });
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port')!;
+    send.send([id, status, progress]);
+  }
+
+  Future<void> _retryRequestPermission() async {
+    final hasGranted = await _checkPermission();
+
+    if (hasGranted) {
+      await _prepareSaveDir();
+    }
+
+    setState(() {
+      _permissionReady = hasGranted;
+    });
+  }
+
+  Future<bool> _checkPermission() async {
+    if (Platform.isIOS) {
+      return true;
+    }
+
+    bool isPermit = false;
+
+    if (Platform.isAndroid) {
+      if (await Permission.storage.request().isGranted) {
+        setState(() {
+          isPermit = true;
+        });
+      } else if (await Permission.storage.request().isPermanentlyDenied) {
+        await openAppSettings();
+      } else if (await Permission.storage.request().isDenied) {
+        setState(() {
+          isPermit = false;
+        });
+      }
+    }
+    return isPermit;
+  }
+
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath())!;
+    final savedDir = Directory(_localPath);
+    final hasExisted = savedDir.existsSync();
+    if (!hasExisted) {
+      await savedDir.create();
+    }
+  }
+
+  Future<String?> _findLocalPath() async {
+    String? externalStorageDirPath;
+    if (Platform.isAndroid) {
+      try {
+        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+      } catch (e) {
+        final directory = await getExternalStorageDirectory();
+        externalStorageDirPath = directory?.path;
+      }
+    } else if (Platform.isIOS) {
+      externalStorageDirPath =
+          (await getApplicationDocumentsDirectory()).absolute.path;
+    }
+    return externalStorageDirPath;
+  }
+
+  downloadContractInkaro(
+    int idContract,
+    String custName,
+    String locatedFile,
+  ) async {
+    convert.Codec<String, String> stringToBase64 =
+        convert.utf8.fuse(convert.base64);
+    String encoded =
+        (stringToBase64.encode(idContract.toString())).replaceAll('=', '');
+    var url = '$WEBADMIN/download/inkaro_pdf/$encoded';
+
+    await FlutterDownloader.enqueue(
+      url: url,
+      fileName: "Kontrak Inkaro $custName.pdf",
+      requiresStorageNotLow: true,
+      savedDir: locatedFile,
+      showNotification: true,
+      openFileFromNotification: true,
     );
   }
 
@@ -445,6 +569,67 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
               SizedBox(
                 height: 5.r,
               ),
+              _isLoading
+                  ? SizedBox()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.r,
+                            vertical: 5.r,
+                          ),
+                          alignment: Alignment.centerRight,
+                          child: ArgonButton(
+                            height: 40.h,
+                            width: 100.w,
+                            borderRadius: 10.r,
+                            color: Colors.red[700],
+                            child: Text(
+                              "PDF Kontrak",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                            loader: Container(
+                              padding: EdgeInsets.all(8.r),
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                            onTap: (startLoading, stopLoading, btnState) {
+                              if (btnState == ButtonState.Idle) {
+                                if (_permissionReady) {
+                                  downloadContractInkaro(
+                                    int.parse(
+                                        widget.inkaroHeader.inkaroContractId),
+                                    widget.inkaroHeader.customerShipName,
+                                    _localPath,
+                                  );
+                                  showStyledToast(
+                                    child: Text('Sedang mengunduh file'),
+                                    context: context,
+                                    backgroundColor: Colors.blue,
+                                    borderRadius: BorderRadius.circular(15.r),
+                                    duration: Duration(seconds: 2),
+                                  );
+                                } else {
+                                  showStyledToast(
+                                    child:
+                                        Text('Tidak mendapat izin penyimpanan'),
+                                    context: context,
+                                    backgroundColor: Colors.red,
+                                    borderRadius: BorderRadius.circular(15.r),
+                                    duration: Duration(seconds: 2),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
               _isLoading
                   ? Column(
                       children: [
@@ -1198,9 +1383,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
                   ? handleAction(
                       isHorizontal: isHor,
                     )
-                  : handleDownload(
-                      isHorizontal: isHor,
-                    ),
+                  : SizedBox(),
               SizedBox(
                 height: isHor ? 20.h : 10.h,
               ),
