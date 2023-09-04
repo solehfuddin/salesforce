@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   checkPassword(int input) async {
-    const timeout = 5;
+    const timeout = 15;
     var url = '$API_URL/users?id=$input';
 
     try {

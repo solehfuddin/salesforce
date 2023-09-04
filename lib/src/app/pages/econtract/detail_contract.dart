@@ -246,7 +246,8 @@ class _DetailContractState extends State<DetailContract> {
     String locatedFile,
   ) async {
     // var url = '$PDFURL/contract_pdf/$idCust';
-    var url = '$PDFURL/newcontract_pdf/$idCust';
+    // var url = '$PDFURL/newcontract_pdf/$idCust';
+    var url = '$PDFURL/fullcontract_pdf/$idCust';
 
     await FlutterDownloader.enqueue(
       url: url,

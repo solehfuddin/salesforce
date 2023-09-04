@@ -88,9 +88,13 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
 
   static void downloadCallback(
       String id, DownloadTaskStatus status, int progress) {
-    final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port')!;
-    send.send([id, status, progress]);
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    
+    if (send != null)
+    {
+      send.send([id, status, progress]);
+    }
   }
 
   Future<void> _retryRequestPermission() async {
@@ -159,7 +163,8 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
     String locatedFile,
   ) async {
     // var url = '$PDFURL/contract_pdf/$idCust';
-    var url = '$PDFURL/newcontract_pdf/$idCust';
+    //var url = '$PDFURL/newcontract_pdf/$idCust';
+    var url = '$PDFURL/fullcontract_pdf/$idCust';
 
     await FlutterDownloader.enqueue(
       url: url,

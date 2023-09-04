@@ -435,9 +435,14 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
 
   static void downloadCallback(
       String id, DownloadTaskStatus status, int progress) {
-    final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port')!;
-    send.send([id, status, progress]);
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    // send.send([id, status, progress]);
+
+    if (send != null)
+    {
+      send.send([id, status, progress]);
+    }
   }
 
   Future<void> _retryRequestPermission() async {
