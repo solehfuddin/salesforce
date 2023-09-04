@@ -30,10 +30,16 @@ import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/app/widgets/dialoglogout.dart';
 import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
-import 'package:sample/src/app/widgets/dialogverificationaction.dart';
+import 'package:sample/src/app/widgets/dialogverifieditheaderinkaro.dart';
+import 'package:sample/src/app/widgets/dialogverifupdateinkaroitem.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
+import 'package:sample/src/domain/entities/customer_inkaro.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
+import 'package:sample/src/domain/entities/inkaro_manual.dart';
+import 'package:sample/src/domain/entities/inkaro_program.dart';
+import 'package:sample/src/domain/entities/inkaro_reguler.dart';
+import 'package:sample/src/domain/entities/list_inkaro_detail.dart';
 import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:sample/src/domain/entities/oldcustomer.dart';
 // import 'package:sample/src/domain/entities/oldcustomer.dart';
@@ -175,10 +181,19 @@ String getNotifImg({int template = 10}) {
       return 'assets/images/renew_contract.png';
     case 6:
     case 7:
+    case 11:
+    case 15:
       return 'assets/images/success.png';
     case 8:
     case 9:
+    case 16:
       return 'assets/images/failure.png';
+    case 10:
+      return 'assets/images/agenda_menu_new.png';
+    case 12:
+    case 13:
+    case 14:
+      return 'assets/images/contract-reward.png';
     default:
       return 'assets/images/myleinz.png';
   }
@@ -278,6 +293,36 @@ pushNotif(
       body =
           'Hai, pengajuan aktivitas $opticName telah dikonfirmasi oleh $admName.';
       tmplate = '11';
+      break;
+    case 12:
+      title = 'Pengajuan Inkaro Sukses';
+      body =
+          'Pengajuan inkaro $opticName berhasil di-input kedalam sistem. Mohon menunggu untuk persetujuan dari sales manager';
+      tmplate = '12';
+      break;
+    case 13:
+      title = 'Ada Inkaro Baru';
+      body =
+          '$salesName mengajukan inkaro $opticName. Mohon segera proses pengajuan inkaro tersebut';
+      tmplate = '13';
+      break;
+    case 14:
+      title = 'Ada Perubahan Inkaro';
+      body =
+          '$salesName telah meng-update inkaro $opticName. Mohon segera cek pengajuan inkaro tersebut';
+      tmplate = '14';
+      break;
+    case 15:
+      title = 'Inkaro Disetujui';
+      body =
+          'Hai, pengajuan inkaro $opticName telah disetujui oleh $admName. Selalu periksa status pengajuan inkaro anda';
+      tmplate = '15';
+      break;
+    case 16:
+      title = 'Inkaro Telah Ditolak';
+      body =
+          'Hai, pengajuan inkaro $opticName telah ditolak oleh $admName. Segera update pengajuan inkaro tersebut agar segera disetujui sales manager';
+      tmplate = '16';
       break;
   }
 
@@ -480,13 +525,47 @@ handleSigned(BuildContext context) {
   );
 }
 
-handleVerificationAction(BuildContext context, inkaroHeaderList, position) {
+handleVerifEditHeaderInkaro(BuildContext context, inkaroHeaderList, position) {
   showDialog(
     barrierDismissible: false,
     context: context,
     builder: (context) => WillPopScope(
       onWillPop: () async => false,
-      child: DialogVerificationAction(inkaroHeaderList, position),
+      child: DialogVerifEditHeaderInkaro(inkaroHeaderList, position),
+    ),
+  );
+}
+
+handleVerifUpdateInkaroItem(
+    BuildContext context,
+    List<ListCustomerInkaro> customerList,
+    positionCustomer,
+    List<ListInkaroHeader> inkaroHeaderList,
+    positionInkaroHeader,
+    List<InkaroReguler> inkaroRegSelected,
+    List<InkaroProgram> inkaroProgSelected,
+    List<InkaroManual> inkaroManualSelected,
+    void Function(List<ListInkaroDetail>) inkaroDetail,
+    List<ListInkaroDetail> inkaroDetailUpdate,
+    int positionDetail,
+    String typeUpdate) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) => WillPopScope(
+      onWillPop: () async => false,
+      child: DialogVerifUpdateInkaroItem(
+          inkaroHeaderList,
+          positionInkaroHeader,
+          customerList,
+          positionCustomer,
+          inkaroRegSelected,
+          inkaroProgSelected,
+          inkaroManualSelected,
+          inkaroDetail,
+          inkaroDetailUpdate,
+          positionDetail,
+          typeUpdate),
     ),
   );
 }

@@ -340,6 +340,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
               onSubmitted: (value) {
                 setState(() {
                   search = value;
+                  startAt = 0;
+                  page = 1;
 
                   _listFuture = search.isNotEmpty
                       ? getCustomerBySeach(search)

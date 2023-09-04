@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/inkaro/edit_header_inkaro.dart';
-import 'package:sample/src/app/pages/signed/signed_view.dart';
 import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 
-class DialogVerificationAction extends StatefulWidget {
+class DialogVerifEditHeaderInkaro extends StatefulWidget {
   final List<ListInkaroHeader> inkaroHeaderList;
   final int position;
 
   @override
-  State<DialogVerificationAction> createState() =>
-      _DialogVerificationActionState();
+  State<DialogVerifEditHeaderInkaro> createState() =>
+      _DialogVerifEditHeaderInkaroState();
 
-  DialogVerificationAction(this.inkaroHeaderList, this.position);
+  DialogVerifEditHeaderInkaro(this.inkaroHeaderList, this.position);
 }
 
-class _DialogVerificationActionState extends State<DialogVerificationAction> {
+class _DialogVerifEditHeaderInkaroState
+    extends State<DialogVerifEditHeaderInkaro> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > 600 ||
           MediaQuery.of(context).orientation == Orientation.landscape) {
-        return childDialogVerificationAction(isHorizontal: true);
+        return childDialogVerifEditHeaderInkaro(isHorizontal: true);
       }
 
-      return childDialogVerificationAction(isHorizontal: false);
+      return childDialogVerifEditHeaderInkaro(isHorizontal: false);
     });
   }
 
-  Widget childDialogVerificationAction({bool isHorizontal = false}) {
+  Widget childDialogVerifEditHeaderInkaro({bool isHorizontal = false}) {
     return AlertDialog(
       title: Center(
         child: Text(
@@ -48,13 +48,6 @@ class _DialogVerificationActionState extends State<DialogVerificationAction> {
         height: isHorizontal ? 300.h : 180.h,
         child: Column(
           children: [
-            // Center(
-            //   child: Image.asset(
-            //     'assets/images/digital_sign.png',
-            //     width: isHorizontal ? 70.r : 60.r,
-            //     height: isHorizontal ? 70.r : 60.r,
-            //   ),
-            // ),
             Center(
               child: Text(
                 'Jika Data Kontrak Mengalami Perubahan, maka status kontrak inkaro akan kembali menjadi "PENDING" dan perlu melalui proses approval Sales Manager',

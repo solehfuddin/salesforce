@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/customer_inkaro.dart';
 import 'package:sample/src/domain/entities/inkaro_manual.dart';
 import 'package:sample/src/domain/entities/inkaro_program.dart';
 import 'package:sample/src/domain/entities/inkaro_reguler.dart';
@@ -37,15 +36,21 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   TextEditingController textSelesaiPeriode = new TextEditingController();
   TextEditingController textAtasNama = new TextEditingController();
   TextEditingController textTelpKonfirmasi = new TextEditingController();
+  TextEditingController textNotesContract = new TextEditingController();
   final formKeyInkaroManual = GlobalKey<FormState>();
 
   String? id = '';
   String? role = '';
   String? username = '';
+  String? name = '';
+  String tokenAdmin = '';
+  String tokenSales = '';
   String searchInkaroProgram = '';
   String searchInkaroManual = '';
+  String notesContract = '';
   final format = DateFormat("dd MMM yyyy");
-  bool _isEmpty = false;
+  late DateTime startPeriode;
+  late DateTime endPeriode;
 
   String? namaStaff,
       nikKTP,
@@ -56,8 +61,8 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       atasNama,
       telpKonfirmasi,
       _choosenBank,
-      _choosenFilterSubcatProg,
-      _choosenFilterSubcatManual;
+      _choosenJabatan,
+      _choosenIntervalPembayaran;
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
       _emptyNpwp = false,
@@ -65,7 +70,8 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       _emptyMulaiPeriode = false,
       _emptySelesaiPeriode = false,
       _emptyAtasNama = false,
-      _emptyTelpKonfirmasi = false;
+      _emptyTelpKonfirmasi = false,
+      _emptyNotesContract = false;
 
   checkEntry(Function stop, {bool isHorizontal = false}) {
     setState(() {
@@ -73,7 +79,6 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
           ? _emptyNamaStaff = true
           : _emptyNamaStaff = false;
       textNikKTP.text.isEmpty ? _emptyNikKTP = true : _emptyNikKTP = false;
-      // textNpwp.text.isEmpty ? _emptyNpwp = true : _emptyNpwp = false;
       textTelpKonfirmasi.text.isEmpty
           ? _emptyTelpKonfirmasi = true
           : _emptyTelpKonfirmasi = false;
@@ -96,17 +101,6 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
           ? _emptySelesaiPeriode = false
           : _emptySelesaiPeriode = true;
     });
-    bool validationInkaroManual = false;
-    for (int loopManual = 0;
-        loopManual < inkaroManualSelected.length;
-        loopManual++) {
-      if (inkaroManualSelected[loopManual].inkaroValue == '0' ||
-          inkaroManualSelected[loopManual].inkaroValue == '') {
-        validationInkaroManual = true;
-        stop();
-        break;
-      }
-    }
 
     if (_emptyNamaStaff ||
         _emptyNikKTP ||
@@ -126,52 +120,32 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       );
       stop();
     } else {
-      if (inkaroRegSelected.isEmpty &&
-          inkaroProgSelected.isEmpty &&
-          inkaroManualSelected.isEmpty) {
-        handleStatus(
-          context,
-          'Silahkan Tambahkan Inkaro Terlebih Dahulu.',
-          false,
-          isHorizontal: isHorizontal,
-          isLogout: false,
-        );
-        stop();
-      } else {
-        if (validationInkaroManual) {
-          handleStatus(
-            context,
-            'Harap Lengkapi Nilai Inkaro untuk Tipe Inkaro Manual.',
-            false,
-            isHorizontal: isHorizontal,
-            isLogout: false,
-          );
-          stop();
-        } else {
-          simpanData(stop, isHorizontal: isHorizontal);
-        }
-
-        stop();
-      }
+      updateData(stop, isHorizontal: isHorizontal);
+      stop();
     }
   }
 
-  simpanData(Function stop, {bool isHorizontal = false}) async {
+  updateData(Function stop, {bool isHorizontal = false}) async {
     const timeout = 15;
-    var url = '$API_URL/inkaro/';
+    var url = '$API_URL/inkaro/updateInkaroHeader/';
 
     try {
       var response = await http.post(Uri.parse(url), body: {
-        'idContract': widget.inkaroHeaderList[widget.position].inkaroContractId,
+        'id_contract':
+            widget.inkaroHeaderList[widget.position].inkaroContractId,
+        'cust_ship_num': widget.inkaroHeaderList[widget.position].noAccount,
         'start_periode': mulaiPeriode,
         'end_periode': selesaiPeriode,
         'npwp': npwp != null ? npwp : '',
         'nik_ktp': nikKTP,
         'nama_staff': namaStaff,
+        'jabatan': _choosenJabatan,
         'bank': _choosenBank,
         'nomor_rekening': nomorRekening,
         'an_rekening': atasNama,
         'telp_konfirmasi': telpKonfirmasi,
+        'interval_pembayaran': _choosenIntervalPembayaran,
+        'notes': notesContract,
         'update_by': id,
       }, headers: {
         "api-key-trl": API_KEY
@@ -186,6 +160,23 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       final String msg = res['message'].toString();
 
       if (mounted) {
+        pushNotif(14, 3,
+            idUser: id,
+            rcptToken: tokenSales,
+            admName: username,
+            opticName:
+                widget.inkaroHeaderList[widget.position].customerShipName,
+            salesName: name);
+
+        pushNotif(
+          14,
+          1,
+          idUser: id,
+          rcptToken: tokenSales,
+          admName: username,
+          opticName: widget.inkaroHeaderList[widget.position].customerShipName,
+        );
+
         handleStatus(
           context,
           msg,
@@ -231,8 +222,15 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   }
 
   List<ListMasterBank> _dataBank = List.empty(growable: true);
-  List<InkaroReguler> _dataFilterSubcat = List.empty(growable: true);
-
+  List _dataJabatan = [
+    {'label': 'Karyawan Optik', 'value_jabatan': 'KARYAWAN OPTIK'},
+    {'label': 'Manager Optik', 'value_jabatan': 'MANAGER OPTIK'},
+  ];
+  List _dataIntervalPembayaran = [
+    {'label': '1 Bulan', 'value_interval': '1 BULAN'},
+    {'label': '3 Bulan', 'value_interval': '3 BULAN'},
+    {'label': '6 Bulan', 'value_interval': '6 BULAN'},
+  ];
   List<InkaroReguler> itemInkaroReguler = List.empty(growable: true);
   List<InkaroReguler> inkaroRegSelected = List.empty(growable: true);
 
@@ -245,6 +243,68 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   List<InkaroManual> listInkaroManual = List.empty(growable: true);
   List<InkaroManual> inkaroManualSelected = List.empty(growable: true);
   List<String> indexInkaroManualSelected = List.empty(growable: true);
+
+  getAdmToken(int input) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$input';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          tokenAdmin = data['data']['gentoken'];
+          print('Token admin : $tokenAdmin');
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
+  getSalesToken(int input) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$input';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          tokenSales = data['data']['gentoken'];
+          print('Token sales : $tokenSales');
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
 
   Future<List<ListMasterBank>> getOptionBank() async {
     const timeout = 15;
@@ -289,6 +349,40 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
     super.initState();
     getRole();
     getOptionBank();
+
+    // set old value to form
+    textNamaStaff.text = widget.inkaroHeaderList[widget.position].namaStaff;
+    textNikKTP.text = widget.inkaroHeaderList[widget.position].nikKTP;
+    textNpwp.text = widget.inkaroHeaderList[widget.position].npwp;
+    textMulaiPeriode.text =
+        widget.inkaroHeaderList[widget.position].startPeriode;
+    textSelesaiPeriode.text =
+        widget.inkaroHeaderList[widget.position].endPeriode;
+    startPeriode =
+        DateTime.parse(widget.inkaroHeaderList[widget.position].startPeriode);
+    endPeriode =
+        DateTime.parse(widget.inkaroHeaderList[widget.position].endPeriode);
+    _choosenBank = widget.inkaroHeaderList[widget.position].bank;
+    textAtasNama.text = widget.inkaroHeaderList[widget.position].anRekening;
+    textNomorRekening.text =
+        widget.inkaroHeaderList[widget.position].nomorRekening;
+    textTelpKonfirmasi.text =
+        widget.inkaroHeaderList[widget.position].telpKonfirmasi;
+    textNotesContract.text = widget.inkaroHeaderList[widget.position].notes;
+
+    // set value param post from initialize value
+    namaStaff = widget.inkaroHeaderList[widget.position].namaStaff;
+    nikKTP = widget.inkaroHeaderList[widget.position].nikKTP;
+    npwp = widget.inkaroHeaderList[widget.position].npwp;
+    nomorRekening = widget.inkaroHeaderList[widget.position].nomorRekening;
+    mulaiPeriode = widget.inkaroHeaderList[widget.position].startPeriode;
+    selesaiPeriode = widget.inkaroHeaderList[widget.position].endPeriode;
+    atasNama = widget.inkaroHeaderList[widget.position].anRekening;
+    telpKonfirmasi = widget.inkaroHeaderList[widget.position].telpKonfirmasi;
+    notesContract = widget.inkaroHeaderList[widget.position].notes;
+    _choosenJabatan = widget.inkaroHeaderList[widget.position].jabatan;
+    _choosenIntervalPembayaran =
+        widget.inkaroHeaderList[widget.position].intervalPembayaran;
   }
 
   getRole() async {
@@ -297,6 +391,17 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       id = preferences.getString("id");
       role = preferences.getString("role");
       username = preferences.getString("username");
+      name = preferences.getString("name");
+
+      getAdmToken(int.parse(id!));
+      if (double.tryParse(widget.inkaroHeaderList[widget.position].createBy) ==
+          null) {
+        print('The input is not a numeric string');
+      } else {
+        print('Yes, it is a numeric string');
+        getSalesToken(
+            int.parse(widget.inkaroHeaderList[widget.position].createBy));
+      }
 
       print("Dashboard : $role");
     });
@@ -319,7 +424,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'Entri Inkaro Baru',
+          'Ubah Data Inkaro',
           style: TextStyle(
             color: Colors.black54,
             fontSize: isHorizontal ? 20.sp : 18.sp,
@@ -369,7 +474,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'Nama Staff',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -378,7 +483,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         '(wajib diisi)',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.red[600],
@@ -400,7 +505,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       maxLength: 50,
                       controller: textNamaStaff,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                       onChanged: (String? value) {
@@ -422,7 +527,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'NIK',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -431,7 +536,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         '(wajib diisi)',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.red[600],
@@ -453,7 +558,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       maxLength: 16,
                       controller: textNikKTP,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                       onChanged: (String? value) {
@@ -475,7 +580,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'NPWP',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -497,7 +602,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       maxLength: 16,
                       controller: textNpwp,
                       style: TextStyle(
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontSize: 14.sp,
                         fontFamily: 'Segoe Ui',
                       ),
                       onChanged: (String? value) {
@@ -517,7 +622,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Mulai Periode',
+                        'Pilih Jabatan',
                         style: TextStyle(
                           fontSize: isHorizontal ? 18.sp : 12.sp,
                           fontFamily: 'Montserrat',
@@ -526,9 +631,76 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                         ),
                       ),
                       Text(
-                        'Selesai Periode',
+                        '(wajib diisi)',
                         style: TextStyle(
                           fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 18.h : 8.h,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenJabatan,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      items: _dataJabatan
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_jabatan"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Jabatan",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenJabatan = value.toString();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Mulai Periode',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Selesai Periode',
+                        style: TextStyle(
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -564,7 +736,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                               mode: DateTimeFieldPickerMode.date,
                               firstDate: DateTime(1945),
                               lastDate: DateTime.now(),
-                              initialDate: DateTime.now(),
+                              initialValue: startPeriode,
                               autovalidateMode: AutovalidateMode.always,
                               onDateSelected: (DateTime value) {
                                 setState(() {
@@ -604,7 +776,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                               mode: DateTimeFieldPickerMode.date,
                               firstDate: DateTime(1945),
                               // lastDate: DateTime.now(),
-                              initialDate: DateTime.now(),
+                              initialValue: endPeriode,
                               autovalidateMode: AutovalidateMode.always,
                               onDateSelected: (DateTime value) {
                                 setState(() {
@@ -630,7 +802,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                     style: TextStyle(
                       color: Colors.black87,
                       fontFamily: 'Montserrat',
-                      fontSize: isHorizontal ? 20.sp : 14.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -643,7 +815,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'Pilih Bank / e-Wallet',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -652,7 +824,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'Atas Nama',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -683,7 +855,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                               style: TextStyle(
                                 color: Colors.black54,
                                 fontFamily: 'Segoe Ui',
-                                fontSize: isHorizontal ? 18.sp : 14.sp,
+                                fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                               items: _dataBank.map((e) {
@@ -697,7 +869,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                                 "Pilih Bank",
                                 style: TextStyle(
                                     color: Colors.black54,
-                                    fontSize: isHorizontal ? 18.sp : 14.sp,
+                                    fontSize: 14.sp,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Segoe Ui'),
                               ),
@@ -728,7 +900,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                               maxLength: 50,
                               controller: textAtasNama,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: 14.sp,
                                 fontFamily: 'Segoe Ui',
                               ),
                               onChanged: (String? value) {
@@ -754,7 +926,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'Nomor Rekening / e-Wallet',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -763,7 +935,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                       Text(
                         'Telp/HP Konfirmasi',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontSize: 12.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -795,7 +967,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                                 maxLength: 50,
                                 controller: textNomorRekening,
                                 style: TextStyle(
-                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontSize: 14.sp,
                                   fontFamily: 'Segoe Ui',
                                 ),
                                 onChanged: (String? value) {
@@ -829,7 +1001,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                               maxLength: 50,
                               controller: textTelpKonfirmasi,
                               style: TextStyle(
-                                fontSize: isHorizontal ? 24.sp : 14.sp,
+                                fontSize: 14.sp,
                                 fontFamily: 'Segoe Ui',
                               ),
                               onChanged: (String? value) {
@@ -846,6 +1018,118 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
                           ),
                         ),
                       ]),
+                  SizedBox(
+                    height: 10.sp,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Pilih Interval Pembayaran',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        '(wajib diisi)',
+                        style: TextStyle(
+                          fontSize: isHorizontal ? 18.sp : 12.sp,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 18.h : 8.h,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenIntervalPembayaran,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      items: _dataIntervalPembayaran
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_interval"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Interval Pembayaran",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenIntervalPembayaran = value.toString();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: isHorizontal ? 22.sp : 12.h,
+                  ),
+                  Row(
+                    children: [
+                      Text('Catatan',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.start),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10.sp,
+                  ),
+                  TextFormField(
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.r),
+                      ),
+                    ),
+                    keyboardType: TextInputType.multiline,
+                    minLines: 3,
+                    maxLines: 4,
+                    maxLength: 250,
+                    controller: textNotesContract,
+                    style: TextStyle(
+                      fontSize: isHorizontal ? 18.sp : 14.sp,
+                      fontFamily: 'Segoe Ui',
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        notesContract = value!;
+                        if (value == '') {
+                          _emptyNotesContract = true;
+                        } else {
+                          _emptyNotesContract = false;
+                        }
+                      });
+                    },
+                  ),
                 ],
               ),
             ),

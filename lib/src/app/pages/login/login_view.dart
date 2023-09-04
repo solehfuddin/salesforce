@@ -335,7 +335,7 @@ class _LoginState extends State<Login> {
                           vertical: 15.r,
                         ),
                         child: Text(
-                          'versi 1.3.5',
+                          'versi 1.3.8',
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
@@ -499,7 +499,7 @@ class _LoginState extends State<Login> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.r),
                       child: Text(
-                        'versi 1.3.5',
+                        'versi 1.3.8',
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
