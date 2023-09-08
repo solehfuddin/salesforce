@@ -8,6 +8,7 @@ import 'dart:ui';
 
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -439,8 +440,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
         IsolateNameServer.lookupPortByName('downloader_send_port');
     // send.send([id, status, progress]);
 
-    if (send != null)
-    {
+    if (send != null) {
       send.send([id, status, progress]);
     }
   }
@@ -465,16 +465,28 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
     bool isPermit = false;
 
     if (Platform.isAndroid) {
-      if (await Permission.storage.request().isGranted) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      late final Map<Permission, PermissionStatus> statusess;
+
+      if (androidInfo.version.sdkInt! < 33) {
+        statusess = await [Permission.storage].request();
+      } else {
+        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+      }
+
+      var allAccepted = true;
+      statusess.forEach((permission, status) {
+        if (status != PermissionStatus.granted) {
+          allAccepted = false;
+        }
+      });
+
+      if (allAccepted) {
         setState(() {
           isPermit = true;
         });
-      } else if (await Permission.storage.request().isPermanentlyDenied) {
+      } else {
         await openAppSettings();
-      } else if (await Permission.storage.request().isDenied) {
-        setState(() {
-          isPermit = false;
-        });
       }
     }
     return isPermit;
