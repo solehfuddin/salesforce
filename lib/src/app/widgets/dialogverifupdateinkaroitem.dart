@@ -300,11 +300,17 @@ class _DialogVerifUpdateInkaroItemState
     super.initState();
     getRole();
     descCatItemDeleted =
-        widget.inkaroDetailUpdate[widget.positionDetail].descKategori;
+        widget.inkaroDetailUpdate.length > 0 
+        ?  widget.inkaroDetailUpdate[widget.positionDetail].descKategori
+        : '';
     descSubCatItemDeleted =
-        widget.inkaroDetailUpdate[widget.positionDetail].descSubcategory;
+         widget.inkaroDetailUpdate.length > 0 
+        ? widget.inkaroDetailUpdate[widget.positionDetail].descSubcategory
+        : '';
     typeInkaroDeleted =
-        widget.inkaroDetailUpdate[widget.positionDetail].typeInkaro;
+        widget.inkaroDetailUpdate.length > 0 
+        ? widget.inkaroDetailUpdate[widget.positionDetail].typeInkaro
+        : '';
   }
 
   getRole() async {
