@@ -252,7 +252,7 @@ class _HistoryContractState extends State<HistoryContract> {
                         ),
                       ),
                       Container(
-                        height: isHorizontal ? 260.r : 220.h,
+                        // height: isHorizontal ? 260.r : 220.h,
                         padding: EdgeInsets.symmetric(
                             horizontal: isHorizontal ? 30.r : 20.r),
                         child: Column(
@@ -285,9 +285,9 @@ class _HistoryContractState extends State<HistoryContract> {
                                       fontSize: 16.sp,
                                       fontFamily: 'Montserrat',
                                     ),
-                                    maxLines: 1,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
+                                    // maxLines: 1,
+                                    // softWrap: false,
+                                    // overflow: TextOverflow.ellipsis,
                                   ),
                             SizedBox(
                               height: isHorizontal ? 20.h : 10.h,

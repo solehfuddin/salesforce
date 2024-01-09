@@ -975,7 +975,7 @@ class _ChangeContractState extends State<ChangeContract> {
             'is_partai': _isPartaiContract ? '1' : '0',
             'catatan':
                 "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
-            'no_account': '',
+            'no_account': itemActiveContract[0].noAccount,
             // 'no_account': idCustomer,
             'ttd_pertama': ttdPertama,
             'ttd_kedua': ttdKedua,

@@ -6,6 +6,7 @@ import 'package:sample/src/app/pages/attendance/attendance.dart';
 import 'package:sample/src/app/pages/eform/eform.dart';
 import 'package:sample/src/app/pages/inkaro/list_customer.dart';
 import 'package:sample/src/app/pages/inkaro_approval/complete_inkaro_approval.dart';
+import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_approval.dart';
 import 'package:sample/src/app/pages/news/product_corner.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -407,17 +408,111 @@ SliverToBoxAdapter areaMenu(
                               ),
                             ),
                             onTap: () {
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => ProductCornerScreen(),
-                              //   ),
-                              // );
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      CompleteInkaroApproval(),
+                              showModalBottomSheet(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15.sp),
+                                    topRight: Radius.circular(15.sp),
+                                  ),
                                 ),
+                                context: context,
+                                builder: (context) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      top: 25.00.sp,
+                                      bottom: 25.00.sp,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 10.0.sp, right: 5.0.sp),
+                                            child: TextButton.icon(
+                                              style: TextButton.styleFrom(
+                                                textStyle: TextStyle(
+                                                    color: Colors.white),
+                                                backgroundColor: Colors.green,
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 10.sp),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0.sp),
+                                                ),
+                                              ),
+                                              onPressed: () => {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CompleteInkaroApproval(),
+                                                  ),
+                                                )
+                                              },
+                                              icon: Icon(
+                                                Icons.text_snippet,
+                                                color: Colors.white,
+                                                size: 20.0.sp,
+                                              ),
+                                              label: Text(
+                                                'Kontrak Inkaro',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 13.0.sp,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 5.0.sp, right: 10.0.sp),
+                                            child: TextButton.icon(
+                                              style: TextButton.styleFrom(
+                                                textStyle: TextStyle(
+                                                    color: Colors.white),
+                                                backgroundColor: Colors.green,
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 10.sp),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0.sp),
+                                                ),
+                                              ),
+                                              onPressed: () => {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        PencairanInkaroApproval(),
+                                                  ),
+                                                )
+                                              },
+                                              icon: Icon(
+                                                Icons.card_giftcard_sharp,
+                                                color: Colors.white,
+                                                size: 20.0.sp,
+                                              ),
+                                              label: Text(
+                                                'Pencairan Inkaro',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 13.0.sp,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               );
                             },
                           ),
@@ -1459,41 +1554,192 @@ SliverToBoxAdapter areaMenu(
                                   child: Center(
                                     child: Column(
                                       children: [
-                                        // Image.asset(
-                                        //   'assets/images/product_corner.png',
-                                        //   width: isHorizontal ? 55.r : 45.r,
-                                        //   height: isHorizontal ? 55.r : 45.r,
-                                        // ),
-                                        // SizedBox(
-                                        //   height: screenHeight * 0.015,
-                                        // ),
-                                        // Text(
-                                        //   'Product Corner',
-                                        //   style: TextStyle(
-                                        //     fontSize:
-                                        //         isHorizontal ? 17.sp : 13.sp,
-                                        //     fontWeight: FontWeight.w600,
-                                        //     fontFamily: 'Segoe ui',
-                                        //     color: Colors.black54,
-                                        //     overflow: TextOverflow.ellipsis,
-                                        //   ),
-                                        //   textAlign: TextAlign.center,
-                                        //   maxLines: 1,
-                                        // ),
+                                        Image.asset(
+                                          'assets/images/inkaro.png',
+                                          width: isHorizontal ? 55.r : 45.r,
+                                          height: isHorizontal ? 55.r : 45.r,
+                                        ),
+                                        SizedBox(
+                                          height: screenHeight * 0.015,
+                                        ),
+                                        Text(
+                                          'Inkaro',
+                                          style: TextStyle(
+                                            fontSize:
+                                                isHorizontal ? 17.sp : 13.sp,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Segoe ui',
+                                            color: Colors.black54,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 1,
+                                        ),
                                       ],
                                     ),
                                   ),
                                 ),
                                 onTap: () {
-                                  // Navigator.of(context).push(
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) =>
-                                  //         ProductCornerScreen(),
-                                  //   ),
-                                  // );
+                                  showModalBottomSheet(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        topRight: Radius.circular(15),
+                                      ),
+                                    ),
+                                    context: context,
+                                    builder: (context) {
+                                      return Padding(
+                                        padding: EdgeInsets.only(
+                                          top: 25.00,
+                                          bottom: 25.00,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            Expanded(
+                                              flex: 1,
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 10.0.sp,
+                                                    right: 5.0.sp),
+                                                child: TextButton.icon(
+                                                  style: TextButton.styleFrom(
+                                                    textStyle: TextStyle(
+                                                        color: Colors.white),
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10.sp),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0.sp),
+                                                    ),
+                                                  ),
+                                                  onPressed: () => {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CompleteInkaroApproval(),
+                                                      ),
+                                                    )
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.text_snippet,
+                                                    color: Colors.white,
+                                                    size: 20.0.sp,
+                                                  ),
+                                                  label: Text(
+                                                    'Kontrak Inkaro',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13.0.sp,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 1,
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 5.0.sp,
+                                                    right: 10.0.sp),
+                                                child: TextButton.icon(
+                                                  style: TextButton.styleFrom(
+                                                    textStyle: TextStyle(
+                                                        color: Colors.white),
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10.sp),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0.sp),
+                                                    ),
+                                                  ),
+                                                  onPressed: () => {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            PencairanInkaroApproval(),
+                                                      ),
+                                                    )
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.card_giftcard_sharp,
+                                                    color: Colors.white,
+                                                    size: 20.0.sp,
+                                                  ),
+                                                  label: Text(
+                                                    'Pencairan Inkaro',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13.0.sp,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
                                 },
                               ),
                             ),
+                            // Expanded(
+                            //   flex: 1,
+                            //   child: InkWell(
+                            //     child: Padding(
+                            //       padding: EdgeInsets.all(5),
+                            //       child: Center(
+                            //         child: Column(
+                            //           children: [
+                            //             Image.asset(
+                            //               'assets/images/product_corner.png',
+                            //               width: isHorizontal ? 55.r : 45.r,
+                            //               height: isHorizontal ? 55.r : 45.r,
+                            //             ),
+                            //             SizedBox(
+                            //               height: screenHeight * 0.015,
+                            //             ),
+                            //             Text(
+                            //               'Product Corner',
+                            //               style: TextStyle(
+                            //                 fontSize:
+                            //                     isHorizontal ? 17.sp : 13.sp,
+                            //                 fontWeight: FontWeight.w600,
+                            //                 fontFamily: 'Segoe ui',
+                            //                 color: Colors.black54,
+                            //                 overflow: TextOverflow.ellipsis,
+                            //               ),
+                            //               textAlign: TextAlign.center,
+                            //               maxLines: 1,
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     ),
+                            //     onTap: () {
+                            //       Navigator.of(context).push(
+                            //         MaterialPageRoute(
+                            //           builder: (context) =>
+                            //               ProductCornerScreen(),
+                            //         ),
+                            //       );
+                            //     },
+                            //   ),
+                            // ),
                           ],
                         ),
                       ],
@@ -2408,12 +2654,153 @@ SliverToBoxAdapter areaMenu(
                                                     ),
                                                   ),
                                                   onTap: () {
-                                                    Navigator.of(context).push(
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ListCustomerInkaroScreen(
-                                                                    int.parse(
-                                                                        idSales!))));
+                                                    showModalBottomSheet(
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  15.sp),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  15.sp),
+                                                        ),
+                                                      ),
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                            top: 25.00.sp,
+                                                            bottom: 25.00.sp,
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: <Widget>[
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Padding(
+                                                                  padding: EdgeInsets.only(
+                                                                      left: 10.0
+                                                                          .sp,
+                                                                      right: 5.0
+                                                                          .sp),
+                                                                  child:
+                                                                      TextButton
+                                                                          .icon(
+                                                                    style: TextButton
+                                                                        .styleFrom(
+                                                                      textStyle:
+                                                                          TextStyle(
+                                                                              color: Colors.white),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .green,
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          vertical:
+                                                                              10.sp),
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10.0.sp),
+                                                                      ),
+                                                                    ),
+                                                                    onPressed:
+                                                                        () => {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .push(
+                                                                              MaterialPageRoute(builder: (context) => ListCustomerInkaroScreen(int.parse(idSales!))))
+                                                                    },
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .text_snippet,
+                                                                      color: Colors
+                                                                          .white,
+                                                                      size: 20.0
+                                                                          .sp,
+                                                                    ),
+                                                                    label: Text(
+                                                                      'Kontrak Inkaro',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize: 13.0
+                                                                              .sp,
+                                                                          fontWeight:
+                                                                              FontWeight.w500),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Padding(
+                                                                  padding: EdgeInsets.only(
+                                                                      left: 5.0
+                                                                          .sp,
+                                                                      right: 10.0
+                                                                          .sp),
+                                                                  child:
+                                                                      TextButton
+                                                                          .icon(
+                                                                    style: TextButton
+                                                                        .styleFrom(
+                                                                      textStyle:
+                                                                          TextStyle(
+                                                                              color: Colors.white),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .green,
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          vertical:
+                                                                              10.sp),
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10.0.sp),
+                                                                      ),
+                                                                    ),
+                                                                    onPressed:
+                                                                        () => {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .push(
+                                                                        MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              PencairanInkaroApproval(),
+                                                                        ),
+                                                                      )
+                                                                    },
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .card_giftcard_sharp,
+                                                                      color: Colors
+                                                                          .white,
+                                                                      size: 20.0
+                                                                          .sp,
+                                                                    ),
+                                                                    label: Text(
+                                                                      'Pencairan Inkaro',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize: 13.0
+                                                                              .sp,
+                                                                          fontWeight:
+                                                                              FontWeight.w500),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
                                                   },
                                                 ),
                                               ),
