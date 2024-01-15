@@ -576,6 +576,7 @@ handleStatus(
   bool status, {
   bool isHorizontal = false,
   bool isLogout = false,
+  bool isNewCust = false,
 }) {
   showDialog(
     context: context,
@@ -583,6 +584,7 @@ handleStatus(
       msg: msg,
       status: status,
       isLogout: isLogout,
+      isNewCust:  isNewCust,
     ),
   );
 }

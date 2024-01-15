@@ -80,6 +80,11 @@ android {
             //signingConfig signingConfigs.debug
             buildConfigField 'boolean', 'UPDATE_ENABLED', 'true'
             signingConfig signingConfigs.release
+
+            minifyEnabled true
+            useProguard true
+
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
