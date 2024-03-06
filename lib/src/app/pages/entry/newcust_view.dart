@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
@@ -519,7 +520,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'no_identitas': noIdentitas,
           'no_npwp': noNpwp,
           'upload_identitas': base64ImageKtp,
-          'nama_usaha' : '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}',
+          'nama_usaha':
+              '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}',
           'alamat_usaha': alamatUsaha.toUpperCase(),
           'telp_usaha': tlpUsaha,
           'fax_usaha': faxUsaha,
@@ -552,6 +554,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
             sts,
             isHorizontal: isHorizontal,
             isLogout: false,
+            isNewCust: true,
           );
         }
       } on FormatException catch (e) {
@@ -1384,8 +1387,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
             lastDate: DateTime.now(),
             initialDate: DateTime.now(),
             autovalidateMode: AutovalidateMode.always,
-            validator: (DateTime? e) =>
-                (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+            // validator: (DateTime? e) =>
+            //     (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
             onDateSelected: (DateTime value) {
               print('before date : $value');
               tanggalLahir = DateFormat('yyyy-MM-dd').format(value);

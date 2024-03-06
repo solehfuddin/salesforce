@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/staff/staff_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -10,12 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DialogStatus extends StatefulWidget {
   dynamic msg;
   bool status;
-  bool isLogout;
+  bool isLogout, isNewCust;
 
   DialogStatus({
     this.msg,
     this.status = false,
     this.isLogout = false,
+    this.isNewCust = false,
   });
 
   @override
@@ -153,6 +155,17 @@ class _DialogStatusState extends State<DialogStatus> {
                                 MaterialPageRoute(
                                     builder: (context) => HomeScreen()),
                                 (route) => false);
+                          }
+
+                          if (widget.isNewCust)
+                          {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => CustomerScreen(
+                                  int.parse(id!),
+                                ),
+                              ),
+                            );
                           }
                         } else {
                           Navigator.of(context, rootNavigator: true)
