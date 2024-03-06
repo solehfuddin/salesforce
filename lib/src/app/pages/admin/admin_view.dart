@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/pages/activity/daily_activity.dart';
@@ -73,6 +74,24 @@ class _AdminScreenState extends State<AdminScreen> {
 
       getTtd(int.parse(id!));
       getLocalNotif();
+
+      if (role == 'ADMIN' && divisi == 'MARKETING')
+      {
+        FirebaseMessaging.instance.subscribeToTopic("allmarketing");
+        FirebaseMessaging.instance.unsubscribeFromTopic("allsales");
+        FirebaseMessaging.instance.unsubscribeFromTopic("alladmin");
+        FirebaseMessaging.instance.unsubscribeFromTopic("allar");
+        FirebaseMessaging.instance.unsubscribeFromTopic("allgm");
+      }
+      
+      if (role == 'ADMIN' && divisi == 'GM')
+      {
+        FirebaseMessaging.instance.subscribeToTopic("allgm");
+        FirebaseMessaging.instance.unsubscribeFromTopic("allsales");
+        FirebaseMessaging.instance.unsubscribeFromTopic("alladmin");
+        FirebaseMessaging.instance.unsubscribeFromTopic("allar");
+        FirebaseMessaging.instance.unsubscribeFromTopic("allmarketing");
+      }
     });
   }
 

@@ -91,9 +91,8 @@ class _DetailWaitingState extends State<DetailWaiting> {
       String id, DownloadTaskStatus status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
-    
-    if (send != null)
-    {
+
+    if (send != null) {
       send.send([id, status, progress]);
     }
   }
@@ -124,7 +123,8 @@ class _DetailWaitingState extends State<DetailWaiting> {
       if (androidInfo.version.sdkInt! < 33) {
         statusess = await [Permission.storage].request();
       } else {
-        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+        statusess =
+            await [Permission.notification, Permission.mediaLibrary].request();
       }
 
       var allAccepted = true;
@@ -674,7 +674,9 @@ class _DetailWaitingState extends State<DetailWaiting> {
                   shape: StadiumBorder(),
                   primary: Colors.red[800],
                   padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 30.r : 20.r, vertical: 10.r),
+                    horizontal: isHorizontal ? 30.r : 20.r,
+                    vertical: 10.r,
+                  ),
                 ),
                 child: Text(
                   'Tutup',

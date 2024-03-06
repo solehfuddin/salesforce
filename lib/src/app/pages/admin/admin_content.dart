@@ -14,6 +14,7 @@ import 'package:sample/src/app/utils/mylocation.dart';
 import 'package:sample/src/app/widgets/areacounter.dart';
 import 'package:sample/src/app/widgets/areafeature.dart';
 import 'package:sample/src/app/widgets/areaheader.dart';
+import 'package:sample/src/app/widgets/areamarketing.dart';
 import 'package:sample/src/app/widgets/areamenu.dart';
 import 'package:sample/src/app/widgets/areamonitoring.dart';
 import 'package:sample/src/app/widgets/areanewcustrenewal.dart';
@@ -24,6 +25,7 @@ import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesSize.dart';
+import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminContent extends StatefulWidget {
@@ -34,6 +36,7 @@ class AdminContent extends StatefulWidget {
 }
 
 class _AdminContentState extends State<AdminContent> {
+  ServicePosMaterial servicePosMaterial = new ServicePosMaterial();
   List<Contract> listContract = List.empty(growable: true);
   List<Contract> listNewContract = List.empty(growable: true);
   List<Monitoring> listMonitoring = List.empty(growable: true);
@@ -71,6 +74,7 @@ class _AdminContentState extends State<AdminContent> {
   int totalRejected = 0;
   int totalNewCustomer = 0;
   int totalOldCustomer = 0;
+  int totalPosMaterial = 0;
 
   @override
   void initState() {
@@ -118,6 +122,36 @@ class _AdminContentState extends State<AdminContent> {
 
       print("Dashboard : $role");
       print("TTD Sales : $ttdPertama");
+
+      if (role == 'ADMIN' && divisi == 'SALES') {
+        servicePosMaterial.getPosMaterialDashboard(
+          mounted,
+          context,
+          idManager: int.parse(id!),
+          isBrandManager: false,
+          status: 0,
+        ).then((value) => totalPosMaterial = value.total!);
+      }
+
+      if (role == 'ADMIN' && divisi == 'MARKETING') {
+        servicePosMaterial.getPosMaterialDashboard(
+          mounted,
+          context,
+          idManager: 0,
+          isBrandManager: true,
+          status: 0,
+        ).then((value) => totalPosMaterial = value.total!);
+      }
+
+      if (role == 'ADMIN' && divisi == 'GM') {
+        servicePosMaterial.getPosMaterialDashboard(
+          mounted,
+          context,
+          idManager: 0,
+          isBrandManager: false,
+          status: 0,
+        ).then((value) => totalPosMaterial = value.total!);
+      }
     });
   }
 
@@ -125,7 +159,7 @@ class _AdminContentState extends State<AdminContent> {
   //   isLocationService = await _myLocation.isServiceEnable();
   //   setState(() {
   //     if (isPermissionService && isLocationService) {
-  //       Location _myLocation = Location(); 
+  //       Location _myLocation = Location();
   //       _myLocation.
   //     } else {
   //       checkPermission();
@@ -138,9 +172,7 @@ class _AdminContentState extends State<AdminContent> {
     setState(() {
       if (!isProminentAccess!) {
         dialogProminentService(context);
-      }
-      else
-      {
+      } else {
         checkService();
       }
     });
@@ -508,6 +540,36 @@ class _AdminContentState extends State<AdminContent> {
           ? getNewcustRenewalData(true)
           : getNewcustRenewalData(false);
       getMonitoringData();
+
+      if (role == 'ADMIN' && divisi == 'SALES') {
+        servicePosMaterial.getPosMaterialDashboard(
+          mounted,
+          context,
+          idManager: int.parse(id!),
+          isBrandManager: false,
+          status: 0,
+        ).then((value) => totalPosMaterial = value.total!);
+      }
+
+      if (role == 'ADMIN' && divisi == 'MARKETING') {
+        servicePosMaterial.getPosMaterialDashboard(
+          mounted,
+          context,
+          idManager: 0,
+          isBrandManager: true,
+          status: 0,
+        ).then((value) => totalPosMaterial = value.total!);
+      }
+
+      if (role == 'ADMIN' && divisi == 'GM') {
+        servicePosMaterial.getPosMaterialDashboard(
+          mounted,
+          context,
+          idManager: 0,
+          isBrandManager: false,
+          status: 0,
+        ).then((value) => totalPosMaterial = value.total!);
+      }
     });
   }
 
@@ -588,6 +650,11 @@ class _AdminContentState extends State<AdminContent> {
             context,
             isHorizontal: true,
           ),
+          areaMarketing(
+            true,
+            context,
+            totalPosMaterial,
+          ),
           SliverPadding(
             padding: EdgeInsets.only(
               left: 20.r,
@@ -601,7 +668,7 @@ class _AdminContentState extends State<AdminContent> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Feature',
+                      'Fitur',
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
@@ -821,6 +888,11 @@ class _AdminContentState extends State<AdminContent> {
             id,
             context,
             isHorizontal: false,
+          ),
+          areaMarketing(
+            false,
+            context,
+            totalPosMaterial,
           ),
           SliverPadding(
             padding: EdgeInsets.only(

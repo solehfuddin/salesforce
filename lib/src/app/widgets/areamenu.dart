@@ -8,6 +8,7 @@ import 'package:sample/src/app/pages/inkaro/list_customer.dart';
 import 'package:sample/src/app/pages/inkaro_approval/complete_inkaro_approval.dart';
 import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_approval.dart';
 import 'package:sample/src/app/pages/news/product_corner.dart';
+import 'package:sample/src/app/pages/posmaterial/posmaterial_screen.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
@@ -1697,49 +1698,6 @@ SliverToBoxAdapter areaMenu(
                                 },
                               ),
                             ),
-                            // Expanded(
-                            //   flex: 1,
-                            //   child: InkWell(
-                            //     child: Padding(
-                            //       padding: EdgeInsets.all(5),
-                            //       child: Center(
-                            //         child: Column(
-                            //           children: [
-                            //             Image.asset(
-                            //               'assets/images/product_corner.png',
-                            //               width: isHorizontal ? 55.r : 45.r,
-                            //               height: isHorizontal ? 55.r : 45.r,
-                            //             ),
-                            //             SizedBox(
-                            //               height: screenHeight * 0.015,
-                            //             ),
-                            //             Text(
-                            //               'Product Corner',
-                            //               style: TextStyle(
-                            //                 fontSize:
-                            //                     isHorizontal ? 17.sp : 13.sp,
-                            //                 fontWeight: FontWeight.w600,
-                            //                 fontFamily: 'Segoe ui',
-                            //                 color: Colors.black54,
-                            //                 overflow: TextOverflow.ellipsis,
-                            //               ),
-                            //               textAlign: TextAlign.center,
-                            //               maxLines: 1,
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ),
-                            //     ),
-                            //     onTap: () {
-                            //       Navigator.of(context).push(
-                            //         MaterialPageRoute(
-                            //           builder: (context) =>
-                            //               ProductCornerScreen(),
-                            //         ),
-                            //       );
-                            //     },
-                            //   ),
-                            // ),
                           ],
                         ),
                       ],
@@ -2812,46 +2770,46 @@ SliverToBoxAdapter areaMenu(
                                                     child: Center(
                                                       child: Column(
                                                         children: [
-                                                          // Image.asset(
-                                                          //   'assets/images/product_corner.png',
-                                                          //   width: isHorizontal
-                                                          //       ? 60.r
-                                                          //       : 45.r,
-                                                          //   height: isHorizontal
-                                                          //       ? 60.r
-                                                          //       : 45.r,
-                                                          // ),
-                                                          // SizedBox(
-                                                          //   height:
-                                                          //       screenHeight * 0.015,
-                                                          // ),
-                                                          // Text(
-                                                          //   'Product Corner',
-                                                          //   style: TextStyle(
-                                                          //     fontSize: isHorizontal
-                                                          //         ? 17.sp
-                                                          //         : 13.sp,
-                                                          //     fontWeight:
-                                                          //         FontWeight.w600,
-                                                          //     fontFamily: 'Segoe ui',
-                                                          //     color: Colors.black54,
-                                                          //     overflow:
-                                                          //         TextOverflow.ellipsis,
-                                                          //   ),
-                                                          //   textAlign: TextAlign.center,
-                                                          //   maxLines: 1,
-                                                          // ),
+                                                          Image.asset(
+                                                            'assets/images/pos_material.png',
+                                                            width: isHorizontal
+                                                                ? 60.r
+                                                                : 45.r,
+                                                            height: isHorizontal
+                                                                ? 60.r
+                                                                : 45.r,
+                                                          ),
+                                                          SizedBox(
+                                                            height:
+                                                                screenHeight * 0.015,
+                                                          ),
+                                                          Text(
+                                                            'POS Material',
+                                                            style: TextStyle(
+                                                              fontSize: isHorizontal
+                                                                  ? 17.sp
+                                                                  : 13.sp,
+                                                              fontWeight:
+                                                                  FontWeight.w600,
+                                                              fontFamily: 'Segoe ui',
+                                                              color: Colors.black54,
+                                                              overflow:
+                                                                  TextOverflow.ellipsis,
+                                                            ),
+                                                            textAlign: TextAlign.center,
+                                                            maxLines: 1,
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
                                                   ),
                                                   onTap: () {
-                                                    // Navigator.of(context).push(
-                                                    //   MaterialPageRoute(
-                                                    //     builder: (context) =>
-                                                    //         ProductCornerScreen(),
-                                                    //   ),
-                                                    // );
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            Posmaterial_Screen(),
+                                                      ),
+                                                    );
                                                   },
                                                 ),
                                               ),

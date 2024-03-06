@@ -324,6 +324,22 @@ pushNotif(
           'Hai, pengajuan inkaro $opticName telah ditolak oleh $admName. Segera update pengajuan inkaro tersebut agar segera disetujui sales manager';
       tmplate = '16';
       break;
+    case 17:
+      title = 'Ada Pengajuan POS';
+      body = '$salesName mengajukan POS Material untuk $opticName. Mohon segera proses POS tersebut';
+      tmplate = '17';
+      break;
+    case 18:
+      title = 'Pengajuan POS Disetujui';
+      body = 'Hai, pengajuan POS $opticName telah disetujui oleh $admName. Selalu periksa status pengajuan POS anda';
+      tmplate = '18';
+      break;
+    case 19:
+      title = 'Pengajuan POS Ditolak';
+      body =
+          'Maaf, pengajuan POS $opticName ditolak oleh $admName. Segera cek data pengajuan POS anda';
+      tmplate = '19';
+      break;
   }
 
   switch (type) {
@@ -345,6 +361,16 @@ pushNotif(
       //ALL ADMIN AR
       to = "/topics/allar";
       notifType = '4';
+      break;
+    case 5:
+      //ALL ADMIN MARKETING
+      to = "/topics/allmarketing";
+      notifType = '5';
+      break;
+    case 6:
+      //ALL GM
+      to = "/topics/allgm";
+      notifType = '6';
       break;
     default:
       to = "/topics/all";
@@ -391,6 +417,22 @@ pushNotif(
   } on Error catch (e) {
     print('General Error : $e');
   }
+}
+
+paginatePref(int page, int startAt) async
+{
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  await pref.setInt('paginatePage', page);
+  await pref.setInt('paginateStartAt', startAt);
+}
+
+paginateClear() async 
+{
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  await pref.setInt('paginatePage', 1);
+  await pref.setInt('paginateStartAt', 0);
 }
 
 savePref(

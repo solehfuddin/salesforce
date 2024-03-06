@@ -47,12 +47,12 @@ class _LoginState extends State<Login> {
   }
 
   getConfig() async {
-    const timeout = 15;
+    // const timeout = 30;
     var url = '$API_URL/config/';
 
     try {
-      var response =
-          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      var response = await http.get(Uri.parse(url));
+          //await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout))
       print('Response status: ${response.statusCode}');
 
       try {
@@ -102,13 +102,16 @@ class _LoginState extends State<Login> {
   Future loginStatus() async {
     late BuildContext dialogContext;
     await Future.delayed(Duration.zero);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        dialogContext = context;
-        return DialogLogin();
-      },
-    );
+    if (mounted)
+    {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return DialogLogin();
+        },
+      );
+    }
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? role = pref.getString("role");

@@ -1,49 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
-import 'package:sample/src/app/pages/home/home_view.dart';
-import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_approve.dart';
-import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_pending.dart';
-import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_reject.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sample/src/app/pages/posmaterial/posmaterial_approvalapprove.dart';
+import 'package:sample/src/app/pages/posmaterial/posmaterial_approvalpending.dart';
+import 'package:sample/src/app/pages/posmaterial/posmaterial_approvalreject.dart';
+import 'package:sample/src/app/utils/colors.dart';
+import 'package:sample/src/app/utils/custom.dart';
 
-class PencairanInkaroApproval extends StatefulWidget {
-  const PencairanInkaroApproval({Key? key}) : super(key: key);
+class PosMaterialApproval extends StatefulWidget {
+  const PosMaterialApproval({Key? key}) : super(key: key);
 
   @override
-  State<PencairanInkaroApproval> createState() =>
-      _PencairanInkaroApprovalState();
+  State<PosMaterialApproval> createState() => _PosMaterialApprovalState();
 }
 
-class _PencairanInkaroApprovalState extends State<PencairanInkaroApproval>
+class _PosMaterialApprovalState extends State<PosMaterialApproval>
     with TickerProviderStateMixin {
   late TabController tabController;
-  final tabColors = [
-    Colors.grey.shade600,
-    Colors.green.shade600,
-    Colors.red.shade700
-  ];
+  final tabColors = [Colors.orange, Colors.green, Colors.red];
   late Color indicatorColor;
-
-  String? role;
-
-   getRole() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      role = preferences.getString("role") ?? '';
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    getRole();
     tabController = TabController(
       initialIndex: 0,
       length: 3,
       vsync: this,
     )..addListener(() {
         setState(() {
+          paginateClear();
           indicatorColor = tabColors[tabController.index];
         });
       });
@@ -61,24 +47,23 @@ class _PencairanInkaroApprovalState extends State<PencairanInkaroApproval>
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > 600 ||
           MediaQuery.of(context).orientation == Orientation.landscape) {
-        return childApprovalPencairanInkaro(isHorizontal: true);
+        return childWidget(isHorizontal: true);
       }
 
-      return childApprovalPencairanInkaro(isHorizontal: false);
+      return childWidget(isHorizontal: false);
     });
   }
 
-  Widget childApprovalPencairanInkaro({bool isHorizontal = false}) {
+  Widget childWidget({bool isHorizontal = false}) {
     return WillPopScope(
-      onWillPop: _onBackPressed,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          backgroundColor: Colors.white70,
+          backgroundColor: MyColors.darkColor,
           title: Text(
-            'List Pencairan Inkaro',
+            'List Pos Material',
             style: TextStyle(
-              color: Colors.black54,
+              color: Colors.white,
               fontSize: isHorizontal ? 20.sp : 18.sp,
               fontFamily: 'Segoe ui',
               fontWeight: FontWeight.w600,
@@ -88,23 +73,23 @@ class _PencairanInkaroApprovalState extends State<PencairanInkaroApproval>
           centerTitle: true,
           leading: IconButton(
             onPressed: () {
-              if (role == 'ADMIN') {
+              paginateClear();
+
               Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AdminScreen()));
-            } else if (role == 'SALES') {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomeScreen()));
-            }
+                MaterialPageRoute(
+                  builder: (context) => AdminScreen(),
+                ),
+              );
             },
             icon: Icon(
               Icons.arrow_back_ios_new,
-              color: Colors.black54,
+              color: Colors.white,
               size: isHorizontal ? 20.sp : 18.r,
             ),
           ),
           bottom: TabBar(
             controller: tabController,
-            labelColor: Colors.black54,
+            labelColor: Colors.white,
             indicatorColor: indicatorColor,
             indicatorPadding: EdgeInsets.all(3.r),
             indicatorSize: TabBarIndicatorSize.label,
@@ -125,12 +110,13 @@ class _PencairanInkaroApprovalState extends State<PencairanInkaroApproval>
         body: TabBarView(
           controller: tabController,
           children: [
-            PendingPencairanInkaro(),
-            ApprovePencairanInkaro(),
-            RejectPencairanInkaro(),
+            PosMaterialApprovalPending(),
+            PosMaterialApprovalApprove(),
+            PosMaterialApprovalReject(),
           ],
         ),
       ),
+      onWillPop: _onBackPressed,
     );
   }
 }
