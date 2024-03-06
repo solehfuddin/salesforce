@@ -51,9 +51,9 @@ class _NotifScreenState extends State<NotifScreen> {
       tempList.addAll(lokalList);
     }
 
-    lokalList.forEach((element) {
-      print("Lokal data : ${element.judul}");
-    });
+    // lokalList.forEach((element) {
+    //   print("Lokal data : ${element.judul}");
+    // });
    
     return lokalList;
   }

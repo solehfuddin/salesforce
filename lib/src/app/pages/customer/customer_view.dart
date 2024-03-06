@@ -86,6 +86,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
             ? getCustomerBySeach(search)
             : getCustomerByIdOld(widget.idOuter);
         page = page - 1;
+
+        print("""
+          page = $page
+          pageCount = $pageCount
+          startAt = $startAt
+          endAt = $endAt;
+          totalPages = $totalPages
+          """);
       });
     }
   }
@@ -101,6 +109,14 @@ class _CustomerScreenState extends State<CustomerScreen> {
             ? getCustomerBySeach(search)
             : getCustomerByIdOld(widget.idOuter);
         page = page + 1;
+
+        print("""
+          page = $page
+          pageCount = $pageCount
+          startAt = $startAt
+          endAt = $endAt;
+          totalPages = $totalPages
+          """);
       });
     }
   }

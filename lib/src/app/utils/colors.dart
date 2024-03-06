@@ -7,4 +7,5 @@ class MyColors {
   static const desciptionColor = Color(0xff707070);
   static const textColor = Color(0xff242020);
   static const bgColor = Color(0xff64c856);
+  static const darkColor = Color(0xff3b4461);
 }
