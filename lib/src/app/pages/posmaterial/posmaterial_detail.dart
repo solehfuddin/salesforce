@@ -627,27 +627,34 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
                   Divider(
                     color: Colors.grey.shade400,
                   ),
-                  FutureBuilder(
-                    future: review,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<PosMaterialReview> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.data!.posEstimation! > 0) {
-                          return posReview(
-                            snapshot.data!.review ?? '',
-                            snapshot.data!.status!,
-                          );
+                  Visibility(
+                    visible: widget.item.posterDesignOnly == '0' ? true : false,
+                    child: FutureBuilder(
+                      future: review,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<PosMaterialReview> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.data!.posEstimation! > 0) {
+                            return posReview(
+                              snapshot.data!.review ?? '',
+                              snapshot.data!.status!,
+                            );
+                          } else {
+                            return SizedBox(
+                              width: 5.w,
+                            );
+                          }
                         } else {
-                          return SizedBox(
-                            width: 5.w,
+                          return Center(
+                            child: CircularProgressIndicator(),
                           );
                         }
-                      } else {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    },
+                      },
+                    ),
+                    replacement: posReview(
+                      'Hanya desain, biaya pencetakan ditanggung optik.',
+                      true,
+                    ),
                   ),
                   FutureBuilder(
                     future: attachment,

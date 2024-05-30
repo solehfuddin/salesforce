@@ -179,11 +179,11 @@ class _Posmaterial_ScreenState extends State<Posmaterial_Screen> {
               if (snapshot.hasData && snapshot.data!.total! > 0) {
                 return CustomPageSearch(
                   isHorizontal: isHorizontal,
+                  showControl: true,
                   totalItem: totalItem,
                   limit: limit,
                   page: page,
                   totalPage: totalPage,
-                  resHeader: snapshot.data,
                   setColor: MyColors.darkColor,
                   txtSearch: txtSearch,
                   handleSearch: handleSearch,

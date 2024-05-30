@@ -9,9 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/inkaro/list_inkaro.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/contract.dart';
+// import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer_inkaro.dart';
-import 'package:sample/src/domain/entities/customer_noimage.dart';
+// import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ListCustomerInkaroScreen extends StatefulWidget {
@@ -30,7 +30,7 @@ class _ListCustomerInkaroScreen extends State<ListCustomerInkaroScreen> {
   String search = '';
   var thisYear, nextYear;
   bool isDataFound = true;
-  List<ListCustomerInkaro> ListCustomer = List.empty(growable: true);
+  List<ListCustomerInkaro> listCustomer = List.empty(growable: true);
   List<ListCustomerInkaro> tmpList = List.empty(growable: true);
   Future<List<ListCustomerInkaro>>? _listFuture;
   final inputSearchController = TextEditingController();

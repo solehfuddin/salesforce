@@ -527,9 +527,10 @@ class ServicePosMaterial {
     required int priceEstimate,
   }) async {
     late PosMaterialReview posMaterialReview;
-    var url = "$API_URL/PosMaterial/calcPos?ship_number=$shipNumber&price_estimate=$priceEstimate";
+    var url =
+        "$API_URL/PosMaterial/calcPos?ship_number=$shipNumber&price_estimate=$priceEstimate";
 
-     try {
+    try {
       var response = await http.get(Uri.parse(url));
       print('Get review pos : $response');
 
@@ -602,6 +603,7 @@ class ServicePosMaterial {
             'product_size_xl' : ${item.getProductSizeXL},
             'product_size_xxl' : ${item.getProductSizeXXL},
             'product_size_xxxl' : ${item.getProductSizeXXXL},
+            'poster_design_only' : ${item.getPosterDesignOnly},
             'poster_material_id' : ${item.getPosterMaterialId},
             'poster_material' : ${item.getPosterMaterial},
             'poster_width' : ${item.getPosterWidth},
@@ -639,6 +641,7 @@ class ServicePosMaterial {
         'product_size_xl': item.getProductSizeXL,
         'product_size_xxl': item.getProductSizeXXL,
         'product_size_xxxl': item.getProductSizeXXXL,
+        'poster_design_only' : item.getPosterDesignOnly,
         'poster_material_id': item.getPosterMaterialId,
         'poster_material': item.getPosterMaterial,
         'poster_width': item.getPosterWidth,
@@ -755,20 +758,21 @@ class ServicePosMaterial {
             isNewCust: false,
           );
 
-          if (approverSm != '')
-          {
-            pushNotif(17, 5, salesName: nameSales, opticName: opticName, idUser: '');
-            pushNotif(17, 6, salesName: nameSales, opticName: opticName, idUser: '');
+          if (approverSm != '') {
+            pushNotif(17, 5,
+                salesName: nameSales, opticName: opticName, idUser: '');
+            pushNotif(17, 6,
+                salesName: nameSales, opticName: opticName, idUser: '');
           }
 
           pushNotif(
-              18,
-              3,
-              idUser: idSales,
-              rcptToken: tokenSales,
-              admName: managerName,
-              opticName: opticName,
-            );
+            18,
+            3,
+            idUser: idSales,
+            rcptToken: tokenSales,
+            admName: managerName,
+            opticName: opticName,
+          );
         }
       } on FormatException catch (e) {
         print('Format error : $e');

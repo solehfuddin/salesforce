@@ -65,7 +65,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       _choosenIntervalPembayaran;
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
-      _emptyNpwp = false,
+      // _emptyNpwp = false,
       _emptyNomorRekening = false,
       _emptyMulaiPeriode = false,
       _emptySelesaiPeriode = false,

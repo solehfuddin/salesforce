@@ -2,20 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/approval/approval_view.dart';
 import 'package:sample/src/app/pages/approval/rejected_view.dart';
+// import 'package:sample/src/app/pages/approval/approval_view.dart';
+// import 'package:sample/src/app/pages/approval/rejected_view.dart';
+import 'package:sample/src/app/pages/approval/tab_approval_approve.dart';
+import 'package:sample/src/app/pages/approval/tab_approval_rejected.dart';
+import 'package:sample/src/app/pages/approval/tab_approval_waiting.dart';
 import 'package:sample/src/app/pages/approval/waiting_view.dart';
+// import 'package:sample/src/app/pages/approval/waiting_view.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/renewcontract/renewal_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
 SliverPadding areaCounter(
-    String totalWaiting,
-    String totalApproved,
-    String totalRejected,
-    String totalNewCustomer,
-    String totalOldCustomer,
-    dynamic idAdmin,
-    BuildContext context,
-    {bool isHorizontal = false}) {
+  String totalWaiting,
+  String totalApproved,
+  String totalRejected,
+  String totalNewCustomer,
+  String totalOldCustomer,
+  dynamic idAdmin,
+  BuildContext context, {
+  bool isHorizontal = false,
+  String divisi = '',
+  int totalWaitingCashback = 0,
+  int totalApprovedCashback = 0,
+  int totalRejectedCashback = 0,
+}) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: isHorizontal ? 18.r : 18.r,
@@ -44,7 +55,8 @@ SliverPadding areaCounter(
                   child: Container(
                     padding: EdgeInsets.all(isHorizontal ? 10.r : 10.r),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
+                      borderRadius:
+                          BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -81,7 +93,8 @@ SliverPadding areaCounter(
                           height: isHorizontal ? 6.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.green[700],
-                            borderRadius: BorderRadius.circular(isHorizontal ? 5.r :2.r),
+                            borderRadius:
+                                BorderRadius.circular(isHorizontal ? 5.r : 2.r),
                           ),
                         ),
                         SizedBox(
@@ -91,7 +104,8 @@ SliverPadding areaCounter(
                     ),
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => CustomerScreen(int.parse(idAdmin)))),
+                      builder: (context) =>
+                          CustomerScreen(int.parse(idAdmin)))),
                 ),
               ),
               SizedBox(
@@ -103,7 +117,8 @@ SliverPadding areaCounter(
                   child: Container(
                     padding: EdgeInsets.all(isHorizontal ? 10.r : 10.r),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
+                      borderRadius:
+                          BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -140,7 +155,8 @@ SliverPadding areaCounter(
                           height: isHorizontal ? 6.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.deepOrange[300],
-                            borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
+                            borderRadius:
+                                BorderRadius.circular(isHorizontal ? 5.r : 2.r),
                           ),
                         ),
                         SizedBox(
@@ -174,7 +190,8 @@ SliverPadding areaCounter(
                     padding: EdgeInsets.all(isHorizontal ? 13.r : 10.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
+                      borderRadius:
+                          BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -186,7 +203,7 @@ SliverPadding areaCounter(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              totalWaiting,
+                              '${totalWaitingCashback + int.parse(totalWaiting)}',
                               style: TextStyle(
                                 fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
@@ -217,16 +234,24 @@ SliverPadding areaCounter(
                           height: isHorizontal ? 7.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.grey[600],
-                            borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
+                            borderRadius:
+                                BorderRadius.circular(isHorizontal ? 5.r : 2.r),
                           ),
                         ),
                       ],
                     ),
                   ),
                   onTap: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => WaitingApprovalScreen(),
-                    ),
+                    divisi == "GM" || divisi == "SALES"
+                        ? MaterialPageRoute(
+                            builder: (context) => TabApprovalWaiting(
+                              totalDiskon: int.parse(totalWaiting),
+                              totalCashback: totalWaitingCashback,
+                            ),
+                          )
+                        : MaterialPageRoute(
+                            builder: (context) => WaitingApprovalScreen(),
+                          ),
                   ),
                 ),
               ),
@@ -240,7 +265,8 @@ SliverPadding areaCounter(
                     padding: EdgeInsets.all(isHorizontal ? 13.r : 10.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
+                      borderRadius:
+                          BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -252,7 +278,7 @@ SliverPadding areaCounter(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              totalApproved,
+                              '${totalApprovedCashback + int.parse(totalApproved)}',
                               style: TextStyle(
                                 fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
@@ -283,16 +309,24 @@ SliverPadding areaCounter(
                           height: isHorizontal ? 7.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.blue[600],
-                            borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
+                            borderRadius:
+                                BorderRadius.circular(isHorizontal ? 5.r : 2.r),
                           ),
                         ),
                       ],
                     ),
                   ),
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ApprovedScreen(),
-                    ),
+                    divisi == "GM" || divisi == "SALES"
+                        ? MaterialPageRoute(
+                            builder: (context) => TabApprovalApprove(
+                              totalDiskon: int.parse(totalApproved),
+                              totalCashback: totalApprovedCashback,
+                            ),
+                          )
+                        : MaterialPageRoute(
+                            builder: (context) => ApprovedScreen(),
+                          ),
                   ),
                 ),
               ),
@@ -306,7 +340,8 @@ SliverPadding areaCounter(
                     padding: EdgeInsets.all(isHorizontal ? 13.r : 10.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(isHorizontal ? 10.r : 8.r),
+                      borderRadius:
+                          BorderRadius.circular(isHorizontal ? 10.r : 8.r),
                       border: Border.all(
                         color: Colors.black26,
                       ),
@@ -318,7 +353,7 @@ SliverPadding areaCounter(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              totalRejected,
+                              '${totalRejectedCashback + int.parse(totalRejected)}',
                               style: TextStyle(
                                 fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
@@ -349,16 +384,24 @@ SliverPadding areaCounter(
                           height: isHorizontal ? 7.h : 5.h,
                           decoration: BoxDecoration(
                             color: Colors.red[700],
-                            borderRadius: BorderRadius.circular(isHorizontal ? 5.r : 2.r),
+                            borderRadius:
+                                BorderRadius.circular(isHorizontal ? 5.r : 2.r),
                           ),
                         ),
                       ],
                     ),
                   ),
                   onTap: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => RejectedScreen(),
-                    ),
+                    divisi == "GM" || divisi == "SALES"
+                        ? MaterialPageRoute(
+                            builder: (context) => TabApprovalRejected(
+                              totalDiskon: int.parse(totalRejected),
+                              totalCashback: totalRejectedCashback,
+                            ),
+                          )
+                        : MaterialPageRoute(
+                            builder: (context) => RejectedScreen(),
+                          ),
                   ),
                 ),
               ),

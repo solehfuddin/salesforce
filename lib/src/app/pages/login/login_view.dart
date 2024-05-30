@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+// import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/maintenance/maintenance_view.dart';
 import 'package:sample/src/app/utils/config.dart';
@@ -42,8 +43,19 @@ class _LoginState extends State<Login> {
   }
 
   generateTokenFCM() async {
-    token = await FirebaseMessaging.instance.getToken();
-    print('Akses token : $token');
+    // token = await FirebaseMessaging.instance.getToken();
+    // print('Akses token : $token');
+    FirebaseMessaging.instance.getToken().then((value) {
+      if (value != null)
+      {
+        token = value;
+        print('Akses token : $token');
+      }
+      else
+      {
+        print('Google play service not support');
+      }
+    });
   }
 
   getConfig() async {
@@ -66,7 +78,7 @@ class _LoginState extends State<Login> {
           listAppconfig =
               rest.map<AppConfig>((json) => AppConfig.fromJson(json)).toList();
 
-          loginStatus();
+          loginStatus(context);
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -99,11 +111,10 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future loginStatus() async {
-    late BuildContext dialogContext;
+  Future loginStatus(BuildContext dialogContext) async {
     await Future.delayed(Duration.zero);
-    if (mounted)
-    {
+    // if (mounted)
+    // {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -111,7 +122,7 @@ class _LoginState extends State<Login> {
           return DialogLogin();
         },
       );
-    }
+    // }
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? role = pref.getString("role");
@@ -161,6 +172,20 @@ class _LoginState extends State<Login> {
     super.initState();
     getConfig();
     generateTokenFCM();
+
+    /* if (Platform.isAndroid)
+    {
+      DeviceInfoPlugin().androidInfo.then((value) {
+        if (value.version.sdkInt! > 27)
+        {
+          generateTokenFCM();
+        }
+        else
+        {
+          print('Disable firebase function');
+        }
+      });
+    }*/
   }
 
   @override

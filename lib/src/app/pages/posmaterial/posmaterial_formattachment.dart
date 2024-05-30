@@ -5,6 +5,7 @@ import 'dart:io' as Io;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sample/src/app/utils/custom.dart';
 
 // ignore: camel_case_types, must_be_immutable
 class Posmaterial_formattachment extends StatefulWidget {
@@ -15,6 +16,7 @@ class Posmaterial_formattachment extends StatefulWidget {
   bool isHorizontal = false;
   bool validateAttachment = false;
   String? attachmentTitle = '';
+  String base64Image;
 
   Posmaterial_formattachment({
     Key? key,
@@ -24,6 +26,7 @@ class Posmaterial_formattachment extends StatefulWidget {
     required this.flagParent,
     required this.validateAttachment,
     required this.txtPathAttachment,
+    this.base64Image = '',
   }) : super(key: key);
 
   @override
@@ -34,18 +37,11 @@ class Posmaterial_formattachment extends StatefulWidget {
 // ignore: camel_case_types
 class _Posmaterial_formattachmentState
     extends State<Posmaterial_formattachment> {
-  String base64Image = '';
   String tmpName = '';
 
   @override
   void initState() {
     super.initState();
-
-    if (tmpName == '') {
-      widget.txtPathAttachment.text = '${widget.attachmentTitle} belum dipilih';
-    } else {
-      widget.txtPathAttachment.text = tmpName;
-    }
   }
 
   @override
@@ -77,7 +73,7 @@ class _Posmaterial_formattachmentState
               fontFamily: 'Segoe ui',
             ),
             onChanged: (value) {
-              if (base64Image.isNotEmpty) {
+              if (widget.base64Image.isNotEmpty) {
                 widget.flagParent(widget.attachmentTitle, true);
               } else {
                 widget.flagParent(widget.attachmentTitle, false);
@@ -119,11 +115,16 @@ class _Posmaterial_formattachmentState
         File tmpFile = File(imgFile.path);
         tmpName = tmpFile.path.split('/').last;
 
-        base64Image = base64Encode(Io.File(imgFile.path).readAsBytesSync());
-        widget.notifyParent(widget.attachmentTitle, base64Image);
+        compressImage(File(imgFile.path)).then((value) {
+          widget.base64Image =
+              base64Encode(Io.File(value!.path).readAsBytesSync());
+          widget.notifyParent(widget.attachmentTitle, widget.base64Image);
 
-        widget.txtPathAttachment.text = tmpName;
-        widget.flagParent(widget.attachmentTitle, true);
+          widget.txtPathAttachment.text = tmpName;
+          widget.flagParent(widget.attachmentTitle, true);
+        });
+      } else {
+        print('Tidak ada gambar yang dipilih');
       }
     });
   }

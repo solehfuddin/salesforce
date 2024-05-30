@@ -12,8 +12,13 @@ import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class ApprovedScreen extends StatefulWidget {
-  const ApprovedScreen({Key? key}) : super(key: key);
+  bool isHideAppbar;
+  ApprovedScreen({
+    Key? key,
+    this.isHideAppbar = false,
+  }) : super(key: key);
 
   @override
   State<ApprovedScreen> createState() => _ApprovedScreenState();
@@ -206,33 +211,38 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
 
   Widget childApproved({bool isHorizontal = false}) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white70,
-        title: Text(
-          'Approved Customer',
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: isHorizontal ? 28.sp : 18.sp,
-            fontFamily: 'Segoe ui',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0.0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black54,
-            size: isHorizontal ? 28.sp : 18.r,
-          ),
-        ),
-      ),
+      appBar: widget.isHideAppbar
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white70,
+              title: Text(
+                'Approved Customer',
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: isHorizontal ? 28.sp : 18.sp,
+                  fontFamily: 'Segoe ui',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              elevation: 0.0,
+              centerTitle: true,
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.black54,
+                  size: isHorizontal ? 28.sp : 18.r,
+                ),
+              ),
+            ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          SizedBox(
+            height: 8.h,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

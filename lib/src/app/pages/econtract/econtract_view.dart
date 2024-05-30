@@ -6,6 +6,7 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:sample/src/app/pages/cashback/cashback_form.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
@@ -13,6 +14,8 @@ import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/actcontract.dart';
+import 'package:sample/src/domain/entities/cashback_rekening.dart';
+import 'package:sample/src/domain/entities/cashback_resheader.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 // import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
@@ -21,6 +24,7 @@ import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:sample/src/domain/entities/product.dart';
 import 'package:sample/src/domain/entities/stbcustomer.dart';
 import 'package:sample/src/domain/entities/tipe_kontrak.dart';
+import 'package:sample/src/domain/service/service_cashback.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -41,6 +45,8 @@ class EcontractScreen extends StatefulWidget {
 
 class _EcontractScreenState extends State<EcontractScreen> {
   final globalKey = GlobalKey();
+  ServiceCashback serviceCashback = new ServiceCashback();
+  CashbackResHeader? otherHeader;
   List<FormItemDisc> formDisc = List.empty(growable: true);
   List<FormItemDisc> defaultDisc = List.empty(growable: true);
   List<FormItemDisc> fixedDisc = List.empty(growable: true);
@@ -59,6 +65,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
   List<Discount> dtCustomDisc = List.empty(growable: true);
   List<TipeKontrak> _listFuture = List.empty(growable: true);
   List<TipeKontrak> _listFutureTmp = List.empty(growable: true);
+  List<CashbackRekening> listRekening = List.empty(growable: true);
+  List<Proddiv> listTargetProddiv = List.empty(growable: true);
+  List<Proddiv> listProductProddiv = List.empty(growable: true);
+  List<Product> listProductKhusus = List.empty(growable: true);
   var _now = new DateTime.now();
   var _formatter = new DateFormat('yyyy-MM-dd');
   bool _isLoading = true;
@@ -66,7 +76,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   String? id = '';
   String? role = '';
   String? username = '';
-  String? name = '';
+  String? name = '', attachmentSign, attachmentOther;
   String tokenSm = '';
   String idSm = '';
   String mytoken = '';
@@ -108,6 +118,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   bool _isChildContract = false;
   bool _isCashbackContrack = false;
   bool _isContractActive = false;
+  bool isCashbackExpired = true;
   var thisYear, nextYear;
   int formLen = 0;
 
@@ -188,6 +199,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
         _durasiOrientalSt = isKredit ? strsplit[1] : '7 HARI';
         // _chosenMoe = isKredit ? strsplit[0] : tmpJenis;
         // _durasiMoe = isKredit ? strsplit[1] : '7 HARI';
+
+        getRekening();
       }
     });
   }
@@ -214,7 +227,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
           print("List Size: ${dtContract.length}");
 
           var catat = dtContract[0].catatan;
-          textCatatan.text = catat.replaceAll("KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1", "");
+          textCatatan.text = catat.replaceAll(
+              "KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1", "");
 
           handleTargetEdit(dtContract);
           handleJangkaWaktuEdit(dtContract);
@@ -327,7 +341,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
     _contract[0].typeContract == "CASHBACK DENGAN DISKON"
         ? _isCashbackWithDiscContract = true
         : _isCashbackWithDiscContract = false;
-    _contract[0].catatan.contains("KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1")
+    _contract[0]
+            .catatan
+            .contains("KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1")
         ? _isPrestigeContract = true
         : _isPrestigeContract = false;
     _contract[0].isPartai == "1"
@@ -422,6 +438,205 @@ class _EcontractScreenState extends State<EcontractScreen> {
     }
   }
 
+  void getRekening() {
+    serviceCashback
+        .getRekening(
+          context,
+          isMounted: mounted,
+          noAccount: widget.customerList[widget.position].noAccount.length > 0
+              ? widget.customerList[widget.position].noAccount
+              : widget.customerList[widget.position].id,
+        )
+        .then((value) => listRekening.addAll(value));
+  }
+
+  void getTargetProddiv(String proddiv) {
+    listTargetProddiv.clear();
+    serviceCashback
+        .getProddivCashbackCustom(context,
+            isMounted: mounted, inputProddiv: proddiv)
+        .then((value) {
+      listTargetProddiv.addAll(value);
+    });
+  }
+
+  void getProductLine(String cashbackId) {
+    listProductProddiv.clear();
+    listProductKhusus.clear();
+
+    serviceCashback
+        .getCashbackLine(context, isMounted: mounted, cashbackId: cashbackId)
+        .then((value) {
+      value.forEach((element) {
+        if (element.categoryId!.isEmpty) {
+          listProductProddiv.add(Proddiv(
+            element.prodCatDescription ?? '',
+            element.prodDiv ?? '',
+            element.cashback ?? '',
+          ));
+        } else {
+          listProductKhusus.add(Product(
+            element.categoryId ?? '',
+            element.prodDiv ?? '',
+            element.prodCat ?? '',
+            element.prodCatDescription ?? '',
+            element.cashback ?? '',
+            element.status ?? '',
+          ));
+        }
+      });
+    });
+  }
+
+  void getAttachment(String cashbackId) {
+    serviceCashback
+        .getAttachment(context, isMounted: mounted, idCashback: cashbackId)
+        .then((value) {
+      attachmentSign = value.attachmentSign ?? '';
+      attachmentOther = value.attachmentOther ?? '';
+    });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      serviceCashback
+          .getCashbackHeader(
+        mounted,
+        context,
+        shipNumber: widget.customerList[widget.position].noAccount.length > 0
+            ? widget.customerList[widget.position].noAccount
+            : widget.customerList[widget.position].id,
+        limit: 1,
+      )
+          .then((value) {
+        otherHeader = value;
+
+        if (value.status) {
+          getTargetProddiv(value.cashback[0].targetProduct!);
+          getProductLine(value.cashback[0].id!);
+          getAttachment(value.cashback[0].id!);
+        }
+
+        setState(() {
+          if (value.status) {
+            isCashbackExpired = getActiveCashback(value.cashback[0].endPeriode);
+          }
+        });
+      });
+    });
+  }
+
+  void handleCashback() {
+    Future.delayed(Duration(milliseconds: 500)).then((value) {
+      if (isCashbackExpired) {
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => CashbackForm(
+                  isUpdateForm: false,
+                  listRekening: listRekening,
+                  listTargetProddiv: [],
+                  listProductProddiv: [],
+                  listProductKhusus: [],
+                  constructOpticName:
+                      widget.customerList[widget.position].namaUsaha,
+                  constructOpticAddress:
+                      widget.customerList[widget.position].alamatUsaha,
+                  constructShipNumber:
+                      widget.customerList[widget.position].noAccount.length > 0
+                          ? widget.customerList[widget.position].noAccount
+                          : widget.customerList[widget.position].id,
+                  constructBillNumber:
+                      widget.customerList[widget.position].noAccount.length > 0
+                          ? widget.customerList[widget.position].noAccount
+                          : widget.customerList[widget.position].id,
+                  constructTypeAccount: 'NEW',
+                  constructOwnerName: widget.customerList[widget.position].nama,
+                  constructOwnerNik:
+                      widget.customerList[widget.position].noIdentitas,
+                  constructOwnerNpwp:
+                      widget.customerList[widget.position].noNpwp,
+                ),
+              ),
+            )
+            .then((value) => setState(() {
+                  _refreshData();
+                }));
+      } else {
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => CashbackForm(
+                  isUpdateForm: true,
+                  listRekening: listRekening,
+                  listTargetProddiv: listTargetProddiv,
+                  listProductProddiv: listProductProddiv,
+                  listProductKhusus: listProductKhusus,
+                  constructIdCashback: otherHeader!.cashback[0].id ?? '',
+                  constructOpticName:
+                      widget.customerList[widget.position].namaUsaha,
+                  constructOpticAddress:
+                      widget.customerList[widget.position].alamatUsaha,
+                  constructShipNumber:
+                      widget.customerList[widget.position].noAccount.length > 0
+                          ? widget.customerList[widget.position].noAccount
+                          : widget.customerList[widget.position].id,
+                  constructBillNumber:
+                      widget.customerList[widget.position].noAccount.length > 0
+                          ? widget.customerList[widget.position].noAccount
+                          : widget.customerList[widget.position].id,
+                  constructTypeAccount: 'NEW',
+                  constructOwnerName: widget.customerList[widget.position].nama,
+                  constructOwnerNik: otherHeader!.cashback[0].dataNik!,
+                  constructOwnerNpwp: otherHeader!.cashback[0].dataNpwp!,
+                  constructIdCashbackRekening:
+                      otherHeader!.cashback[0].idCashbackRekening!,
+                  constructStartDate: otherHeader!.cashback[0].startPeriode!,
+                  constructEndDate: otherHeader!.cashback[0].endPeriode!,
+                  constructWithdrawProcess:
+                      otherHeader!.cashback[0].withdrawProcess!,
+                  constructWithdrawDuration:
+                      otherHeader!.cashback[0].withdrawDuration!,
+                  constructPaymentDuration:
+                      otherHeader!.cashback[0].paymentDuration!,
+                  constructTypeCashback: otherHeader!.cashback[0].cashbackType!,
+                  constructTargetValue:
+                      int.parse(otherHeader!.cashback[0].targetValue!),
+                  constructCashbackValue:
+                      int.parse(otherHeader!.cashback[0].cashbackValue!),
+                  constructCashbackPercent: double.parse(
+                      otherHeader!.cashback[0].cashbackPercentage!),
+                  constructTargetProduct:
+                      otherHeader!.cashback[0].targetProduct!,
+                  constructAttachmentSign: attachmentSign ?? '',
+                  constructAttachmentOther: attachmentOther ?? '',
+                ),
+              ),
+            )
+            .then((value) => setState(() {
+                  _refreshData();
+                }));
+      }
+    });
+  }
+
+  bool getActiveCashback(String? endPeriode) {
+    bool output = true;
+    DateTime nowDate = DateTime.now();
+    DateTime endDate = DateTime.parse(endPeriode!);
+    Duration duration = nowDate.difference(endDate);
+
+    if (duration.inDays <= 0) {
+      print('Tanggal masih aktif');
+      output = false;
+    } else {
+      print('Tanggal kadaluarsa');
+      output = true;
+    }
+
+    return output;
+  }
+
   getItemProdDiv() async {
     const timeout = 15;
     var url = '$API_URL/product/getProDiv';
@@ -494,6 +709,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     const timeout = 15;
     var url = '$API_URL/contract/parentCheck?id_customer=$input';
 
+    print('New Active contract : $url');
+
     try {
       var response =
           await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
@@ -549,6 +766,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     List<StbCustomer> list = List.empty(growable: true);
     const timeout = 15;
     var url = '$API_URL/customers/oldCustIsActive?bill_name=$input';
+    print("New contract :  $url");
+
     try {
       var response =
           await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
@@ -734,6 +953,31 @@ class _EcontractScreenState extends State<EcontractScreen> {
     if (widget.isRevisi!) {
       getDataContract(widget.customerList[widget.position].id);
     }
+
+    serviceCashback
+        .getCashbackHeader(
+      mounted,
+      context,
+      shipNumber: widget.customerList[widget.position].noAccount.length > 0
+            ? widget.customerList[widget.position].noAccount
+            : widget.customerList[widget.position].id,
+      limit: 1,
+    )
+        .then((value) {
+      otherHeader = value;
+
+      if (value.status) {
+        getTargetProddiv(value.cashback[0].targetProduct!);
+        getProductLine(value.cashback[0].id!);
+        getAttachment(value.cashback[0].id!);
+      }
+
+      setState(() {
+        if (value.status) {
+          isCashbackExpired = getActiveCashback(value.cashback[0].endPeriode);
+        }
+      });
+    });
   }
 
   getTtdSales(int input) async {
@@ -959,12 +1203,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //     outNikonSt,
     //     outOriental,
     //     outMoe,
-    var outLeinz,
-        outLeinzSt,
-        outOrientalSt,
-        startContract;
+    var outLeinz, outLeinzSt, outOrientalSt, startContract;
     // var valNikon, valOriental, valMoe;
-    var valLeinz, valLeinzSt,  valOrientalSt;
+    var valLeinz, valLeinzSt, valOrientalSt;
 
     startContract = _formatter.format(_now);
 
@@ -1012,9 +1253,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
 
     // valNikon =
     //     textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
-    valLeinz = textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
-    valLeinzSt = textValLeinzSt.text.length > 0 ? '${textValLeinzSt.text}.000.000' : '0';
-    valOrientalSt = textValOrientalSt.text.length > 0 ? '${textValOrientalSt.text}.000.000' : '0';
+    valLeinz =
+        textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
+    valLeinzSt =
+        textValLeinzSt.text.length > 0 ? '${textValLeinzSt.text}.000.000' : '0';
+    valOrientalSt = textValOrientalSt.text.length > 0
+        ? '${textValOrientalSt.text}.000.000'
+        : '0';
     // valOriental = textValOriental.text.length > 0
     //     ? '${textValOriental.text}.000.000'
     //     : '0';
@@ -1036,7 +1281,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     // print('pembayaran_nikon_st : $outNikonSt');
     print('pembayaran_leinz_St : $outLeinzSt');
     print('pembayaran_oriental_st : $outOrientalSt');
-    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
+    print(
+        'type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : $_isFrameContract');
     print('is_partai : $_isPartaiContract');
     print('updated_by : $id');
@@ -1129,7 +1375,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'nama_kedua': namaKedua,
           // 'tp_nikon': valNikon.replaceAll('.', ''),
           'tp_leinz': valLeinz.replaceAll('.', ''),
-          'tp_leinz_stock' : valLeinzSt.replaceAll('.', ''),
+          'tp_leinz_stock': valLeinzSt.replaceAll('.', ''),
           // 'tp_oriental': valOriental.replaceAll('.', ''),
           'tp_oriental_stock': valOrientalSt.replaceAll('.', ''),
           // 'tp_moe': valMoe.replaceAll('.', ''),
@@ -1141,10 +1387,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'pembayaran_leinz_stock': outLeinzSt,
           'pembayaran_oriental_stock': outOrientalSt,
           'start_contract': startContract,
-          'type_contract': _isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA',
+          'type_contract': _isCashbackContrack
+              ? 'CASHBACK'
+              : _isCashbackWithDiscContract
+                  ? 'CASHBACK DENGAN DISKON'
+                  : 'LENSA',
           'is_frame': _isFrameContract ? '1' : '0',
           'is_partai': _isPartaiContract ? '1' : '0',
-          'catatan': "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
+          'catatan':
+              "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'updated_by': id,
           'has_parent': _isContractActive ? '1' : '0',
           'id_parent':
@@ -1277,10 +1528,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //     outNikonSt,
     //     outOriental,
     //     outMoe,
-    var outLeinz,
-        outLeinzSt,
-        outOrientalSt,
-        startContract;
+    var outLeinz, outLeinzSt, outOrientalSt, startContract;
     // var valNikon, valOriental, valMoe;
     var valLeinz, valLeinzSt, valOrientalSt;
 
@@ -1329,9 +1577,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
     startContract = _formatter.format(_now);
     // valNikon =
     //     textValNikon.text.length > 0 ? '${textValNikon.text}.000.000' : '0';
-    valLeinz = textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
-    valLeinzSt = textValLeinzSt.text.length > 0 ? '${textValLeinzSt.text}.000.000' : '0';
-    valOrientalSt = textValOrientalSt.text.length > 0 ? '${textValOrientalSt.text}.000.000' : '0';
+    valLeinz =
+        textValLeinz.text.length > 0 ? '${textValLeinz.text}.000.000' : '0';
+    valLeinzSt =
+        textValLeinzSt.text.length > 0 ? '${textValLeinzSt.text}.000.000' : '0';
+    valOrientalSt = textValOrientalSt.text.length > 0
+        ? '${textValOrientalSt.text}.000.000'
+        : '0';
     // valOriental = textValOriental.text.length > 0
     //     ? '${textValOriental.text}.000.000'
     //     : '0';
@@ -1355,12 +1607,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('pembayaran_leinz_stock : $outLeinzSt');
     print('pembayaran_oriental_stock : $outOrientalSt');
     print('start_contract : $startContract');
-    print('type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
+    print(
+        'type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : ${_isFrameContract ? '1' : '0'}');
     print('is_partai : ${_isPartaiContract ? '1' : '0'}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
-    print('catatan : ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
+    print(
+        'catatan : ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
     print('created_by : $id');
     print('has_parent : ${_isContractActive ? '1' : '0'}');
     print(
@@ -1458,9 +1712,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'fax_kedua': faxKedua,
           // 'tp_nikon': valNikon.replaceAll('.', ''),
           'tp_leinz': valLeinz.replaceAll('.', ''),
-          'tp_leinz_stock' : valLeinzSt.replaceAll('.', ''),
+          'tp_leinz_stock': valLeinzSt.replaceAll('.', ''),
           // 'tp_oriental': valOriental.replaceAll('.', ''),
-          'tp_oriental_stock' : valOrientalSt.replaceAll('.', ''),
+          'tp_oriental_stock': valOrientalSt.replaceAll('.', ''),
           // 'tp_moe': valMoe.replaceAll('.', ''),
           // 'pembayaran_nikon': outNikon,
           'pembayaran_leinz': outLeinz,
@@ -1470,10 +1724,15 @@ class _EcontractScreenState extends State<EcontractScreen> {
           'pembayaran_leinz_stock': outLeinzSt,
           'pembayaran_oriental_stock': outOrientalSt,
           'start_contract': startContract,
-          'type_contract': _isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA',
+          'type_contract': _isCashbackContrack
+              ? 'CASHBACK'
+              : _isCashbackWithDiscContract
+                  ? 'CASHBACK DENGAN DISKON'
+                  : 'LENSA',
           'is_frame': _isFrameContract ? '1' : '0',
           'is_partai': _isPartaiContract ? '1' : '0',
-          'catatan': "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
+          'catatan':
+              "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'ttd_pertama': ttdPertama,
           'ttd_kedua': ttdKedua,
           'created_by': id,
@@ -4247,6 +4506,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                 setState(
                                   () {
                                     this._isCashbackWithDiscContract = value!;
+                                    if (value) {
+                                      handleCashback();
+                                    }
                                   },
                                 );
                               },
@@ -4297,6 +4559,10 @@ class _EcontractScreenState extends State<EcontractScreen> {
                           tmpDiv.clear();
                           tmpProduct.clear();
                           itemActiveContract.clear();
+
+                          if (value) {
+                            handleCashback();
+                          }
                         });
                       },
                     ),

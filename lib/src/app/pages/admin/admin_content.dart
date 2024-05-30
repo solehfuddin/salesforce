@@ -25,6 +25,7 @@ import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesSize.dart';
+import 'package:sample/src/domain/service/service_cashback.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,6 +38,7 @@ class AdminContent extends StatefulWidget {
 
 class _AdminContentState extends State<AdminContent> {
   ServicePosMaterial servicePosMaterial = new ServicePosMaterial();
+  ServiceCashback serviceCashback = new ServiceCashback();
   List<Contract> listContract = List.empty(growable: true);
   List<Contract> listNewContract = List.empty(growable: true);
   List<Monitoring> listMonitoring = List.empty(growable: true);
@@ -75,14 +77,16 @@ class _AdminContentState extends State<AdminContent> {
   int totalNewCustomer = 0;
   int totalOldCustomer = 0;
   int totalPosMaterial = 0;
+  int totalCashback = 0;
+  int totalCashbackWaiting = 0;
+  int totalCashbackApprove = 0;
+  int totalCashbackReject = 0;
+  bool showAreaMarketing = false;
 
   @override
   void initState() {
     super.initState();
     if (listContract.length > 0) listContract.clear();
-
-    // initialService();
-    checkPermission();
 
     DateTime now = new DateTime.now();
 
@@ -97,6 +101,7 @@ class _AdminContentState extends State<AdminContent> {
         "${convertDateWithMonth(dateSt)} - ${convertDateWithMonth(dateEd)}";
 
     getRole();
+    checkPermission();
   }
 
   getRole() async {
@@ -109,6 +114,7 @@ class _AdminContentState extends State<AdminContent> {
       userUpper = username?.toUpperCase();
       divisi = preferences.getString("divisi");
       ttdPertama = preferences.getString("ttduser") ?? '';
+      isProminentAccess = preferences.getBool("check_prominent") ?? false;
 
       divisi == "AR" ? getCounterData(true) : getCounterData(false);
       divisi == "AR" ? getRenewalData(true) : getRenewalData(false);
@@ -124,48 +130,64 @@ class _AdminContentState extends State<AdminContent> {
       print("TTD Sales : $ttdPertama");
 
       if (role == 'ADMIN' && divisi == 'SALES') {
-        servicePosMaterial.getPosMaterialDashboard(
-          mounted,
-          context,
-          idManager: int.parse(id!),
-          isBrandManager: false,
-          status: 0,
-        ).then((value) => totalPosMaterial = value.total!);
+        servicePosMaterial
+            .getPosMaterialDashboard(
+              mounted,
+              context,
+              idManager: int.parse(id!),
+              isBrandManager: false,
+              status: 0,
+            )
+            .then((value) => totalPosMaterial = value.total!);
+
+        serviceCashback
+            .getCashbackDashboard(mounted, context,
+                idManager: int.parse(id!), status: 0)
+            .then((value) => totalCashback = value.total ?? 0);
       }
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
-        servicePosMaterial.getPosMaterialDashboard(
-          mounted,
-          context,
-          idManager: 0,
-          isBrandManager: true,
-          status: 0,
-        ).then((value) => totalPosMaterial = value.total!);
+        servicePosMaterial
+            .getPosMaterialDashboard(
+              mounted,
+              context,
+              idManager: 0,
+              isBrandManager: true,
+              status: 0,
+            )
+            .then((value) => totalPosMaterial = value.total!);
       }
 
       if (role == 'ADMIN' && divisi == 'GM') {
-        servicePosMaterial.getPosMaterialDashboard(
-          mounted,
-          context,
-          idManager: 0,
-          isBrandManager: false,
-          status: 0,
-        ).then((value) => totalPosMaterial = value.total!);
+        servicePosMaterial
+            .getPosMaterialDashboard(
+              mounted,
+              context,
+              idManager: 0,
+              isBrandManager: false,
+              status: 0,
+            )
+            .then((value) => totalPosMaterial = value.total!);
+
+        serviceCashback
+            .getCashbackDashboard(mounted, context,
+                idGeneral: int.parse(id!), status: 0)
+            .then((value) => totalCashback = value.total ?? 0);
+      }
+
+      switch (divisi) {
+        case 'AR':
+        case 'PGA':
+        case 'IT':
+        case 'SAM':
+          showAreaMarketing = false;
+          break;
+        default:
+          showAreaMarketing = true;
+          break;
       }
     });
   }
-
-  // void initialService() async {
-  //   isLocationService = await _myLocation.isServiceEnable();
-  //   setState(() {
-  //     if (isPermissionService && isLocationService) {
-  //       Location _myLocation = Location();
-  //       _myLocation.
-  //     } else {
-  //       checkPermission();
-  //     }
-  //   });
-  // }
 
   void checkPermission() async {
     isPermissionService = await _myLocation.isPermissionEnable();
@@ -257,6 +279,16 @@ class _AdminContentState extends State<AdminContent> {
           totalApproved = isAr ? counter['approvedAR'] : counter['approvedSM'];
           totalRejected = isAr ? counter['rejectedAR'] : counter['rejectedSM'];
 
+          totalCashbackWaiting = divisi == 'GM'
+              ? counter['awaitCashbackGM']
+              : counter['awaitCashbackSM'];
+          totalCashbackApprove = divisi == 'GM'
+              ? counter['approvedCashbackGM']
+              : counter['approvedCashbackSM'];
+          totalCashbackReject = divisi == 'GM'
+              ? counter['rejectedCashbackGM']
+              : counter['rejectedCashbackSM'];
+
           setState(() {});
         }
       } on FormatException catch (e) {
@@ -301,9 +333,11 @@ class _AdminContentState extends State<AdminContent> {
         }
 
         Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isLoadRenewal = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isLoadRenewal = false;
+            });
+          }
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -349,9 +383,11 @@ class _AdminContentState extends State<AdminContent> {
         }
 
         Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isLoadNewcustRenewal = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isLoadNewcustRenewal = false;
+            });
+          }
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -398,9 +434,11 @@ class _AdminContentState extends State<AdminContent> {
         }
 
         Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isLoading = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -452,9 +490,11 @@ class _AdminContentState extends State<AdminContent> {
         }
 
         Future.delayed(Duration(seconds: 1), () {
-          setState(() {
-            _isPerform = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isPerform = false;
+            });
+          }
         });
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -542,33 +582,44 @@ class _AdminContentState extends State<AdminContent> {
       getMonitoringData();
 
       if (role == 'ADMIN' && divisi == 'SALES') {
-        servicePosMaterial.getPosMaterialDashboard(
-          mounted,
-          context,
-          idManager: int.parse(id!),
-          isBrandManager: false,
-          status: 0,
-        ).then((value) => totalPosMaterial = value.total!);
+        servicePosMaterial
+            .getPosMaterialDashboard(
+              mounted,
+              context,
+              idManager: int.parse(id!),
+              isBrandManager: false,
+              status: 0,
+            )
+            .then((value) => totalPosMaterial = value.total!);
+
+        serviceCashback
+            .getCashbackDashboard(mounted, context,
+                idManager: int.parse(id!), status: 0)
+            .then((value) => totalCashback = value.total ?? 0);
       }
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
-        servicePosMaterial.getPosMaterialDashboard(
-          mounted,
-          context,
-          idManager: 0,
-          isBrandManager: true,
-          status: 0,
-        ).then((value) => totalPosMaterial = value.total!);
+        servicePosMaterial
+            .getPosMaterialDashboard(
+              mounted,
+              context,
+              idManager: 0,
+              isBrandManager: true,
+              status: 0,
+            )
+            .then((value) => totalPosMaterial = value.total!);
       }
 
       if (role == 'ADMIN' && divisi == 'GM') {
-        servicePosMaterial.getPosMaterialDashboard(
-          mounted,
-          context,
-          idManager: 0,
-          isBrandManager: false,
-          status: 0,
-        ).then((value) => totalPosMaterial = value.total!);
+        servicePosMaterial
+            .getPosMaterialDashboard(
+              mounted,
+              context,
+              idManager: 0,
+              isBrandManager: false,
+              status: 0,
+            )
+            .then((value) => totalPosMaterial = value.total!);
       }
     });
   }
@@ -641,19 +692,29 @@ class _AdminContentState extends State<AdminContent> {
         slivers: [
           areaHeader(screenHeight, userUpper, context, isHorizontal: true),
           areaCounter(
+            // (totalWaiting + totalCashbackWaiting).toString(),
             totalWaiting.toString(),
+            // (totalApproved + totalCashbackApprove).toString(),
             totalApproved.toString(),
+            // (totalRejected + totalCashbackReject).toString(),
             totalRejected.toString(),
             totalNewCustomer.toString(),
             totalOldCustomer.toString(),
             id,
             context,
+            divisi: divisi ?? '',
             isHorizontal: true,
+            totalWaitingCashback: totalCashbackWaiting,
+            totalApprovedCashback: totalCashbackApprove,
+            totalRejectedCashback: totalCashbackReject,
           ),
           areaMarketing(
             true,
             context,
             totalPosMaterial,
+            totalCashback,
+            showAreaMarketing,
+            divisi ?? '',
           ),
           SliverPadding(
             padding: EdgeInsets.only(
@@ -880,19 +941,29 @@ class _AdminContentState extends State<AdminContent> {
         slivers: [
           areaHeader(screenHeight, userUpper, context, isHorizontal: false),
           areaCounter(
+            // (totalWaiting + totalCashbackWaiting).toString(),
             totalWaiting.toString(),
+            // (totalApproved + totalCashbackApprove).toString(),
             totalApproved.toString(),
+            // (totalRejected + totalCashbackReject).toString(),
             totalRejected.toString(),
             totalNewCustomer.toString(),
             totalOldCustomer.toString(),
             id,
             context,
+            divisi: divisi ?? '',
             isHorizontal: false,
+            totalWaitingCashback: totalCashbackWaiting,
+            totalApprovedCashback: totalCashbackApprove,
+            totalRejectedCashback: totalCashbackReject,
           ),
           areaMarketing(
-            false,
+            true,
             context,
             totalPosMaterial,
+            totalCashback,
+            showAreaMarketing,
+            divisi ?? '',
           ),
           SliverPadding(
             padding: EdgeInsets.only(

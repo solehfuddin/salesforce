@@ -291,9 +291,10 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
                       startLoading();
                       waitingLoad();
 
-                      base64Imgprofile = base64Encode(
-                        screenshoot!,
-                      );
+                      compressImageUint8List(screenshoot!).then((value) {
+                        base64Imgprofile = base64Encode(value!);
+                      });
+
                       print("Eksekusi db");
                       print(base64Imgprofile);
 

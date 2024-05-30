@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/inkaro/detail_inkaro.dart';
-import 'package:sample/src/app/pages/inkaro/edit_header_inkaro.dart';
+// import 'package:sample/src/app/pages/inkaro/detail_inkaro.dart';
+// import 'package:sample/src/app/pages/inkaro/edit_header_inkaro.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/customer_inkaro.dart';

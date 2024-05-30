@@ -5,12 +5,15 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/cashback/cashback_form.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/domain/entities/actcontract.dart';
+import 'package:sample/src/domain/entities/cashback_rekening.dart';
+import 'package:sample/src/domain/entities/cashback_resheader.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 // import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
@@ -19,6 +22,7 @@ import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:sample/src/domain/entities/proddiv.dart';
 import 'package:sample/src/domain/entities/product.dart';
 import 'package:sample/src/domain/entities/stbcustomer.dart';
+import 'package:sample/src/domain/service/service_cashback.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -46,6 +50,8 @@ class ChangeContract extends StatefulWidget {
 
 class _ChangeContractState extends State<ChangeContract> {
   final globalKey = GlobalKey();
+  ServiceCashback serviceCashback = new ServiceCashback();
+  CashbackResHeader? otherHeader;
   List<FormItemDisc> formDisc = List.empty(growable: true);
   List<FormItemDisc> defaultDisc = List.empty(growable: true);
   List<FormItemDisc> fixedDisc = List.empty(growable: true);
@@ -57,7 +63,11 @@ class _ChangeContractState extends State<ChangeContract> {
   late List<Proddiv> itemProdDiv;
   List<ActContract> itemActiveContract = List.empty(growable: true);
   List<StbCustomer> itemStbCust = List.empty(growable: true);
+  List<CashbackRekening> listRekening = List.empty(growable: true);
   late List<Product> itemProduct;
+  List<Proddiv> listTargetProddiv = List.empty(growable: true);
+  List<Proddiv> listProductProddiv = List.empty(growable: true);
+  List<Product> listProductKhusus = List.empty(growable: true);
   Map<String, String> selectMapProddiv = {"": ""};
   Map<String, String> selectMapProduct = {"": ""};
   String search = '';
@@ -69,7 +79,7 @@ class _ChangeContractState extends State<ChangeContract> {
   String? token = '';
   String? tokenSm = '';
   String? idSm = '';
-  String? idCustomer, jabatanKedua, ttdPertama;
+  String? idCustomer, jabatanKedua, ttdPertama, attachmentSign, attachmentOther;
   // String? _chosenNikon,
   //     _durasiNikon,
   //     _chosenNikonSt,
@@ -108,6 +118,7 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isChildContract = false;
   bool _isCashbackContrack = false;
   bool _isContractActive = false;
+  bool isCashbackExpired = true;
   var thisYear, nextYear;
   int formLen = 0;
 
@@ -161,6 +172,8 @@ class _ChangeContractState extends State<ChangeContract> {
       idCustomer = widget.isNewCust!
           ? widget.customer!.id
           : widget.oldCustomer!.customerShipNumber;
+
+      getRekening();
     });
   }
 
@@ -223,6 +236,18 @@ class _ChangeContractState extends State<ChangeContract> {
     }
   }
 
+  void getRekening() {
+    serviceCashback
+        .getRekening(
+          context,
+          isMounted: mounted,
+          noAccount: widget.isNewCust!
+              ? widget.customer?.noAccount ?? ''
+              : widget.oldCustomer?.customerShipNumber ?? '',
+        )
+        .then((value) => listRekening.addAll(value));
+  }
+
   Future<List<Discount>> getDiscountData(dynamic idCust,
       {bool isHorizontal = false}) async {
     List<Discount> list = List.empty(growable: true);
@@ -269,6 +294,9 @@ class _ChangeContractState extends State<ChangeContract> {
     List<StbCustomer> list = List.empty(growable: true);
     const timeout = 15;
     var url = '$API_URL/customers/oldCustIsActive?bill_name=$input';
+
+    print("Change contract :  $url");
+
     try {
       var response =
           await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
@@ -312,15 +340,239 @@ class _ChangeContractState extends State<ChangeContract> {
     getRole();
     getItemProdDiv();
     _signController.addListener(() => print('Value changed'));
+
+    serviceCashback
+        .getCashbackHeader(
+      mounted,
+      context,
+      shipNumber: widget.isNewCust!
+          ? widget.customer!.noAccount.isNotEmpty ? widget.customer?.noAccount ?? '' : widget.customer?.id ?? ''
+          : widget.oldCustomer?.customerShipNumber ?? '',
+      limit: 1,
+    )
+        .then((value) {
+      otherHeader = value;
+
+      if (value.status) {
+        getTargetProddiv(value.cashback[0].targetProduct!);
+        getProductLine(value.cashback[0].id!);
+        getAttachment(value.cashback[0].id!);
+      }
+
+      setState(() {
+        if (value.status) {
+          isCashbackExpired = getActiveCashback(value.cashback[0].endPeriode);
+        }
+      });
+    });
+  }
+
+  void getTargetProddiv(String proddiv) {
+    listTargetProddiv.clear();
+    serviceCashback
+        .getProddivCashbackCustom(context,
+            isMounted: mounted, inputProddiv: proddiv)
+        .then((value) {
+      listTargetProddiv.addAll(value);
+    });
+  }
+
+  void getProductLine(String cashbackId) {
+    listProductProddiv.clear();
+    listProductKhusus.clear();
+
+    serviceCashback
+        .getCashbackLine(context, isMounted: mounted, cashbackId: cashbackId)
+        .then((value) {
+      value.forEach((element) {
+        if (element.categoryId!.isEmpty) {
+          listProductProddiv.add(Proddiv(
+            element.prodCatDescription ?? '',
+            element.prodDiv ?? '',
+            element.cashback ?? '',
+          ));
+        } else {
+          listProductKhusus.add(Product(
+            element.categoryId ?? '',
+            element.prodDiv ?? '',
+            element.prodCat ?? '',
+            element.prodCatDescription ?? '',
+            element.cashback ?? '',
+            element.status ?? '',
+          ));
+        }
+      });
+    });
+  }
+
+  void getAttachment(String cashbackId) {
+    serviceCashback
+        .getAttachment(context, isMounted: mounted, idCashback: cashbackId)
+        .then((value) {
+      attachmentSign = value.attachmentSign ?? '';
+      attachmentOther = value.attachmentOther ?? '';
+    });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      serviceCashback
+          .getCashbackHeader(
+        mounted,
+        context,
+        shipNumber: widget.isNewCust!
+          ? widget.customer!.noAccount.isNotEmpty ? widget.customer?.noAccount ?? '' : widget.customer?.id ?? ''
+          : widget.oldCustomer?.customerShipNumber ?? '',
+        limit: 1,
+      )
+          .then((value) {
+        otherHeader = value;
+
+        if (value.status) {
+          getTargetProddiv(value.cashback[0].targetProduct!);
+          getProductLine(value.cashback[0].id!);
+          getAttachment(value.cashback[0].id!);
+        }
+
+        setState(() {
+          if (value.status) {
+            isCashbackExpired = getActiveCashback(value.cashback[0].endPeriode);
+          }
+        });
+      });
+    });
+  }
+
+  void handleCashback() {
+    Future.delayed(Duration(milliseconds: 500)).then((value) {
+      if (isCashbackExpired) {
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => CashbackForm(
+                  isUpdateForm: false,
+                  listRekening: listRekening,
+                  listTargetProddiv: [],
+                  listProductProddiv: [],
+                  listProductKhusus: [],
+                  constructOpticName: widget.isNewCust!
+                      ? widget.customer?.namaUsaha ?? ''
+                      : widget.oldCustomer?.customerShipName ?? '',
+                  constructOpticAddress: widget.isNewCust!
+                      ? widget.customer?.alamatUsaha ?? ''
+                      : widget.oldCustomer?.address2 ?? '',
+                  constructShipNumber: widget.isNewCust!
+                      ? widget.customer!.noAccount.isNotEmpty
+                          ? widget.customer?.noAccount ?? ''
+                          : widget.customer?.id ?? ''
+                      : widget.oldCustomer?.customerShipNumber ?? '',
+                  constructBillNumber: widget.isNewCust!
+                      ? widget.customer?.noAccount ?? ''
+                      : widget.oldCustomer?.customerBillNumber ?? '',
+                  constructTypeAccount: widget.isNewCust! ? 'NEW' : 'OLD',
+                  constructOwnerName: widget.isNewCust!
+                      ? widget.customer?.nama ?? ''
+                      : widget.oldCustomer?.contactPerson ?? '',
+                  constructOwnerNik: widget.isNewCust!
+                      ? widget.customer?.noIdentitas ?? ''
+                      : '',
+                  constructOwnerNpwp:
+                      widget.isNewCust! ? widget.customer?.noNpwp ?? '' : '',
+                ),
+              ),
+            )
+            .then((value) => setState(() {
+                  _refreshData();
+                }));
+      } else {
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => CashbackForm(
+                  isUpdateForm: true,
+                  listRekening: listRekening,
+                  listTargetProddiv: listTargetProddiv,
+                  listProductProddiv: listProductProddiv,
+                  listProductKhusus: listProductKhusus,
+                  constructIdCashback: otherHeader!.cashback[0].id ?? '',
+                  constructOpticName: widget.isNewCust!
+                      ? widget.customer?.namaUsaha ?? ''
+                      : widget.oldCustomer?.customerShipName ?? '',
+                  constructOpticAddress: widget.isNewCust!
+                      ? widget.customer?.alamatUsaha ?? ''
+                      : widget.oldCustomer?.address2 ?? '',
+                  constructShipNumber: widget.isNewCust!
+                      ? widget.customer!.noAccount.isNotEmpty
+                          ? widget.customer?.noAccount ?? ''
+                          : widget.customer?.id ?? ''
+                      : widget.oldCustomer?.customerShipNumber ?? '',
+                  constructBillNumber: widget.isNewCust!
+                      ? widget.customer?.noAccount ?? ''
+                      : widget.oldCustomer?.customerBillNumber ?? '',
+                  constructTypeAccount: widget.isNewCust! ? 'NEW' : 'OLD',
+                  constructOwnerName: widget.isNewCust!
+                      ? widget.customer?.nama ?? ''
+                      : widget.oldCustomer?.contactPerson ?? '',
+                  constructOwnerNik: widget.isNewCust!
+                      ? widget.customer?.noIdentitas ?? ''
+                      : otherHeader?.cashback[0].dataNik ?? '',
+                  constructOwnerNpwp: widget.isNewCust!
+                      ? widget.customer?.noNpwp ?? ''
+                      : otherHeader?.cashback[0].dataNpwp ?? '',
+                  constructIdCashbackRekening:
+                      otherHeader!.cashback[0].idCashbackRekening!,
+                  constructStartDate: otherHeader!.cashback[0].startPeriode!,
+                  constructEndDate: otherHeader!.cashback[0].endPeriode!,
+                  constructWithdrawProcess:
+                      otherHeader!.cashback[0].withdrawProcess!,
+                  constructWithdrawDuration:
+                      otherHeader!.cashback[0].withdrawDuration!,
+                  constructPaymentDuration:
+                      otherHeader!.cashback[0].paymentDuration!,
+                  constructTypeCashback: otherHeader!.cashback[0].cashbackType!,
+                  constructTargetValue:
+                      int.parse(otherHeader!.cashback[0].targetValue!),
+                  constructCashbackValue:
+                      int.parse(otherHeader!.cashback[0].cashbackValue!),
+                  constructCashbackPercent: double.parse(
+                      otherHeader!.cashback[0].cashbackPercentage!),
+                  constructTargetProduct:
+                      otherHeader!.cashback[0].targetProduct!,
+                  constructAttachmentSign: attachmentSign ?? '',
+                  constructAttachmentOther: attachmentOther ?? '',
+                ),
+              ),
+            )
+            .then((value) => setState(() {
+                  _refreshData();
+                }));
+      }
+    });
+  }
+
+  bool getActiveCashback(String? endPeriode) {
+    bool output = true;
+    DateTime nowDate = DateTime.now();
+    DateTime endDate = DateTime.parse(endPeriode!);
+    Duration duration = nowDate.difference(endDate);
+
+    if (duration.inDays <= 0) {
+      print('Tanggal masih aktif');
+      output = false;
+    } else {
+      print('Tanggal kadaluarsa');
+      output = true;
+    }
+
+    return output;
   }
 
   getItemProdDiv() async {
-    const timeout = 15;
+    // const timeout = 15;
     var url = '$API_URL/product/getProDiv';
 
     try {
-      var response =
-          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      var response = await http.get(Uri.parse(url));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -407,6 +659,8 @@ class _ChangeContractState extends State<ChangeContract> {
     itemActiveContract.clear();
     const timeout = 15;
     var url = '$API_URL/contract/parentCheck?id_customer=$input';
+
+    print('Change Active contract : $url');
 
     try {
       var response =
@@ -975,7 +1229,9 @@ class _ChangeContractState extends State<ChangeContract> {
             'is_partai': _isPartaiContract ? '1' : '0',
             'catatan':
                 "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
-            'no_account': itemActiveContract.length < 1 ? idCustomer : itemActiveContract[0].noAccount,
+            'no_account': itemActiveContract.length < 1
+                ? idCustomer
+                : itemActiveContract[0].noAccount,
             'ttd_pertama': ttdPertama,
             'ttd_kedua': ttdKedua,
             'created_by': id,
@@ -2540,6 +2796,9 @@ class _ChangeContractState extends State<ChangeContract> {
                                 setState(
                                   () {
                                     this._isCashbackWithDiscContract = value!;
+                                    if (value) {
+                                      handleCashback();
+                                    }
                                   },
                                 );
                               },
@@ -2590,6 +2849,10 @@ class _ChangeContractState extends State<ChangeContract> {
                           tmpDiv.clear();
                           tmpProduct.clear();
                           itemActiveContract.clear();
+
+                          if (value) {
+                            handleCashback();
+                          }
                         });
                       },
                     ),

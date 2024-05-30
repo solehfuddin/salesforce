@@ -185,11 +185,11 @@ class _PosMaterialApprovalApproveState extends State<PosMaterialApprovalApprove>
             if (snapshot.hasData && snapshot.data!.count! > 0) {
               return CustomPageSearch(
                 isHorizontal: isHorizontal,
+                showControl: true,
                 totalItem: totalItem,
                 limit: limit,
                 page: page,
                 totalPage: totalPage,
-                resHeader: snapshot.data,
                 setColor: MyColors.darkColor,
                 txtSearch: txtSearch,
                 handleSearch: handleSearch,

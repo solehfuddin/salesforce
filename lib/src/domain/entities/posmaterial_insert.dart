@@ -15,6 +15,7 @@ class PosMaterialInsert {
       productSizeXL,
       productSizeXXL,
       productSizeXXXL,
+      posterDesignOnly,
       posterMaterialId,
       posterMaterial,
       posterWidth,
@@ -92,6 +93,10 @@ class PosMaterialInsert {
 
   String get getProductSizeXXXL {
     return productSizeXXXL ?? "0";
+  }
+
+  String get getPosterDesignOnly {
+    return posterDesignOnly ?? "";
   }
 
   String get getPosterMaterialId {
@@ -214,6 +219,10 @@ class PosMaterialInsert {
     productSizeXXXL = _productSizeXXXL;
   }
 
+  set setPosterDesignOnly(String _posterDesignOnly) {
+    posterDesignOnly = _posterDesignOnly;
+  }
+
   set setPosterMaterialId(String _posterMaterialId) {
     posterMaterialId = _posterMaterialId;
   }
@@ -288,6 +297,7 @@ class PosMaterialInsert {
       productSizeXL : $productSizeXL,
       productSizeXXL : $productSizeXXL,
       productSizeXXXL : $productSizeXXXL,
+      posterDesignOnly : $posterDesignOnly,
       posterMaterialId : $posterMaterialId,
       posterMaterial : $posterMaterial,
       posterWidth : $posterWidth,

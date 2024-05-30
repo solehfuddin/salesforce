@@ -448,7 +448,9 @@ Widget detailPosCustom({bool isHorizontal = false, PosMaterialHeader? item}) {
             ),
           ),
           Text(
-            item.priceAdjustment != '0' ? convertToIdr(int.parse(item.priceAdjustment!), 0) : convertToIdr(int.parse(item.price!), 0),
+            item.priceAdjustment != '0'
+                ? convertToIdr(int.parse(item.priceAdjustment!), 0)
+                : convertToIdr(int.parse(item.price!), 0),
             style: TextStyle(
               fontFamily: 'Segoe ui',
               fontSize: isHorizontal ? 16.sp : 14.sp,
@@ -716,8 +718,10 @@ Widget detailPosKemeja({bool isHorizontal = false, PosMaterialHeader? item}) {
               fontWeight: FontWeight.w600,
             ),
           ),
-           Text(
-            item.priceAdjustment != '0' ? convertToIdr(int.parse(item.priceAdjustment!), 0) : convertToIdr(int.parse(item.price!), 0),
+          Text(
+            item.priceAdjustment != '0'
+                ? convertToIdr(int.parse(item.priceAdjustment!), 0)
+                : convertToIdr(int.parse(item.price!), 0),
             style: TextStyle(
               fontFamily: 'Segoe ui',
               fontSize: isHorizontal ? 16.sp : 14.sp,
@@ -840,7 +844,7 @@ Widget detailPosKit({bool isHorizontal = false, PosMaterialHeader? item}) {
               fontWeight: FontWeight.w600,
             ),
           ),
-           Text(
+          Text(
             'Estimasi Harga :',
             style: TextStyle(
               fontFamily: 'Montserrat',
@@ -864,7 +868,9 @@ Widget detailPosKit({bool isHorizontal = false, PosMaterialHeader? item}) {
             ),
           ),
           Text(
-            item.priceAdjustment != '0' ? convertToIdr(int.parse(item.priceAdjustment!), 0) : convertToIdr(int.parse(item.price!), 0),
+            item.priceAdjustment != '0'
+                ? convertToIdr(int.parse(item.priceAdjustment!), 0)
+                : convertToIdr(int.parse(item.price!), 0),
             style: TextStyle(
               fontFamily: 'Segoe ui',
               fontSize: isHorizontal ? 16.sp : 14.sp,
@@ -1081,7 +1087,11 @@ Widget detailPosPoster({bool isHorizontal = false, PosMaterialHeader? item}) {
             ),
           ),
           Text(
-            item.priceAdjustment != '0' ? convertToIdr(int.parse(item.priceAdjustment!), 0) : convertToIdr(int.parse(item.price!), 0),
+            item.posterDesignOnly == '0'
+                ? item.priceAdjustment != '0'
+                    ? convertToIdr(int.parse(item.priceAdjustment!), 0)
+                    : convertToIdr(int.parse(item.price!), 0)
+                : '0',
             style: TextStyle(
               fontFamily: 'Segoe ui',
               fontSize: isHorizontal ? 16.sp : 14.sp,
@@ -1231,7 +1241,9 @@ Widget detailPosOther({
             ),
           ),
           Text(
-            item.priceAdjustment == '0' ? 'Belum ditentukan' : convertToIdr(int.parse(item.priceAdjustment!), 0),
+            item.priceAdjustment == '0'
+                ? 'Belum ditentukan'
+                : convertToIdr(int.parse(item.priceAdjustment!), 0),
             style: TextStyle(
               fontFamily: 'Segoe ui',
               fontSize: isHorizontal ? 16.sp : 14.sp,
@@ -1542,7 +1554,7 @@ Widget posReview(String message, bool status) {
           visible: status,
           child: Icon(
             Icons.check_circle_outline_sharp,
-            color: Colors.green.shade800,
+            color: Colors.green.shade700,
           ),
           replacement: Icon(
             Icons.warning_amber,
@@ -1572,22 +1584,21 @@ Widget posReview(String message, bool status) {
   );
 }
 
-
 donwloadPdfPOS(
-    String idPos,
-    String custName,
-    String locatedFile,
-  ) async {
-    var dt = DateTime.now();
-    var genTimer = dt.second;
-    var url = '$PDFURL/posmaterial_pdf/$idPos';
+  String idPos,
+  String custName,
+  String locatedFile,
+) async {
+  var dt = DateTime.now();
+  var genTimer = dt.second;
+  var url = '$PDFURL/posmaterial_pdf/$idPos';
 
-    await FlutterDownloader.enqueue(
-      url: url,
-      fileName: "POS Material $custName $genTimer.pdf",
-      requiresStorageNotLow: true,
-      savedDir: locatedFile,
-      showNotification: true,
-      openFileFromNotification: true,
-    );
-  }
+  await FlutterDownloader.enqueue(
+    url: url,
+    fileName: "POS Material $custName $genTimer.pdf",
+    requiresStorageNotLow: true,
+    savedDir: locatedFile,
+    showNotification: true,
+    openFileFromNotification: true,
+  );
+}

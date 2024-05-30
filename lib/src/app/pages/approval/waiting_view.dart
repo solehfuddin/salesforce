@@ -14,8 +14,10 @@ import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class WaitingApprovalScreen extends StatefulWidget {
-  const WaitingApprovalScreen({Key? key}) : super(key: key);
+  bool isHideAppbar;
+  WaitingApprovalScreen({Key? key, this.isHideAppbar = false,}) : super(key: key);
 
   @override
   State<WaitingApprovalScreen> createState() => _WaitingApprovalScreenState();
@@ -238,7 +240,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: widget.isHideAppbar ? null : AppBar(
           backgroundColor: Colors.white70,
           title: Text(
             'List Customer Baru',
@@ -271,6 +273,7 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            SizedBox(height: 8.h,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
