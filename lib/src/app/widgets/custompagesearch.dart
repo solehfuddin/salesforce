@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/colors.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/posmaterial_header.dart';
-import 'package:sample/src/domain/entities/posmaterial_resheader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
@@ -11,18 +10,17 @@ class CustomPageSearch extends StatefulWidget {
   final Function(dynamic input, {int limitVal, int offsetVal, int pageVal})
       handleSearch;
   TextEditingController txtSearch = new TextEditingController();
-  PosMaterialResHeader? resHeader;
-
   int page = 1;
   int? totalItem = 0;
   int? totalPage = 0;
   int? limit = 5;
   bool isHorizontal = false;
+  bool showControl = true;
   Color setColor = MyColors.darkColor;
   CustomPageSearch({
     Key? key,
     required this.isHorizontal,
-    this.resHeader,
+    required this.showControl,
     this.totalItem,
     this.totalPage,
     this.limit,
@@ -177,41 +175,48 @@ class _CustomPageSearchState extends State<CustomPageSearch> {
             ),
           ),
         ),
-        Container(
-          color: widget.setColor,
-          height: widget.isHorizontal ? 75.h : 70.h,
-          padding: EdgeInsets.only(
-            right: widget.isHorizontal ? 22.r : 12.r,
-            bottom: widget.isHorizontal ? 10.r : 5.r,
+        Visibility(
+          visible: widget.showControl,
+          child: Container(
+            color: widget.setColor,
+            height: widget.isHorizontal ? 75.h : 70.h,
+            padding: EdgeInsets.only(
+              right: widget.isHorizontal ? 22.r : 12.r,
+              bottom: widget.isHorizontal ? 10.r : 5.r,
+            ),
+            child: Row(
+              children: <Widget>[
+                FloatingActionButton(
+                  heroTag: Text("prev"),
+                  backgroundColor:
+                      widget.page > 1 ? Colors.green : Colors.green.shade200,
+                  mini: true,
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    size: widget.isHorizontal ? 30.r : 20.r,
+                  ),
+                  elevation: 0,
+                  onPressed: widget.page > 1 ? loadPreviousPage : null,
+                ),
+                FloatingActionButton(
+                  heroTag: Text("next"),
+                  backgroundColor: widget.page < widget.totalPage!
+                      ? Colors.green
+                      : Colors.green.shade200,
+                  mini: true,
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    size: widget.isHorizontal ? 30.r : 20.r,
+                  ),
+                  elevation: 0,
+                  onPressed:
+                      widget.page < widget.totalPage! ? loadNextPage : null,
+                ),
+              ],
+            ),
           ),
-          child: Row(
-            children: <Widget>[
-              FloatingActionButton(
-                heroTag: Text("prev"),
-                backgroundColor:
-                    widget.page > 1 ? Colors.green : Colors.green.shade200,
-                mini: true,
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: widget.isHorizontal ? 30.r : 20.r,
-                ),
-                elevation: 0,
-                onPressed: widget.page > 1 ? loadPreviousPage : null,
-              ),
-              FloatingActionButton(
-                heroTag: Text("next"),
-                backgroundColor: widget.page < widget.totalPage!
-                    ? Colors.green
-                    : Colors.green.shade200,
-                mini: true,
-                child: Icon(
-                  Icons.arrow_forward_ios,
-                  size: widget.isHorizontal ? 30.r : 20.r,
-                ),
-                elevation: 0,
-                onPressed: widget.page < widget.totalPage! ? loadNextPage : null,
-              ),
-            ],
+          replacement: SizedBox(
+            height: 5.h,
           ),
         ),
       ],

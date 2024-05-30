@@ -23,6 +23,7 @@ class Posmaterial_Formposter extends StatefulWidget {
   String selectedDeliveryMethod = 'Kirim ke optik';
 
   bool isProspectCustomer = false;
+  bool isDesignOnly = false;
   bool validateProductWidth = false;
   bool validateProductHeight = false;
   bool validateQtyItem = false;
@@ -34,6 +35,7 @@ class Posmaterial_Formposter extends StatefulWidget {
     Key? key,
     required this.isHorizontal,
     required this.isProspectCustomer,
+    required this.isDesignOnly,
     required this.controllerProductWidth,
     required this.controllerProductHeight,
     required this.controllerProductQty,
@@ -618,6 +620,33 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
                       },
                     ),
                   ),
+                  Row(
+                    children: [
+                      Switch(
+                        value: widget.isDesignOnly,
+                        onChanged: (value) {
+                          setState(() {
+                            widget.isDesignOnly = value;
+                            widget.notifyParent('isDesignOnly', value);
+                          });
+                        },
+                        activeTrackColor: Colors.blue.shade400,
+                        activeColor: Colors.blue,
+                      ),
+                      Expanded(
+                        child: Text(
+                          'Hanya desain, biaya pencetakan ditanggung optik.',
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: widget.isHorizontal ? 14.sp : 12.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.justify,
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(
                     height: widget.isHorizontal ? 25.h : 15.h,
                   ),
@@ -672,7 +701,8 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
                       attachmentTitle: attachmentKtp,
                       notifyParent: updateSelectedAttachment,
                       flagParent: updateValidatedAttachment,
-                      validateAttachment: widget.validateLampiranKtp,
+                      // validateAttachment: widget.validateLampiranKtp,
+                      validateAttachment: true,
                       txtPathAttachment: txtAttachmentKtp,
                     ),
                   ),
@@ -723,7 +753,8 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
                         attachmentTitle: attachmentOmzet,
                         notifyParent: updateSelectedAttachment,
                         flagParent: updateValidatedAttachment,
-                        validateAttachment: widget.validateLampiranOmzet,
+                        // validateAttachment: widget.validateLampiranOmzet,
+                        validateAttachment: true,
                         txtPathAttachment: txtAttachmentOmzet,
                       ),
                     ),

@@ -11,7 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:sample/src/app/pages/customer/customer_view.dart';
+// import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
@@ -149,7 +149,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
       if (imgFile != null) {
         tmpFile = File(imgFile.path);
         tmpName = tmpFile.path.split('/').last;
-        base64ImageKtp = base64Encode(Io.File(imgFile.path).readAsBytesSync());
+        compressImage(File(imgFile.path)).then((value) {
+          setState(() {
+            base64ImageKtp =
+                base64Encode(Io.File(value!.path).readAsBytesSync());
+          });
+        });
 
         print(imgFile.path);
         print(base64ImageKtp);
@@ -166,7 +171,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
       if (imgFile != null) {
         tmpSiupFile = File(imgFile.path);
         tmpNameSiup = tmpSiupFile.path.split('/').last;
-        base64ImageSiup = base64Encode(Io.File(imgFile.path).readAsBytesSync());
+        compressImage(File(imgFile.path)).then((value) {
+          setState(() {
+            base64ImageSiup =
+                base64Encode(Io.File(value!.path).readAsBytesSync());
+          });
+        });
+
+        // base64ImageSiup = base64Encode(Io.File(imgFile.path).readAsBytesSync());
 
         print(imgFile.path);
         print(base64ImageSiup);
@@ -183,9 +195,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
       if (imgFile != null) {
         tmpKartuFile = File(imgFile.path);
         tmpKartuNama = tmpKartuFile.path.split('/').last;
-        base64ImageKartuNama =
-            base64Encode(Io.File(imgFile.path).readAsBytesSync());
+        compressImage(File(imgFile.path)).then((value) {
+          setState(() {
+            base64ImageKartuNama =
+                base64Encode(Io.File(value!.path).readAsBytesSync());
+          });
+        });
 
+        // base64ImageKartuNama =
+        //     base64Encode(Io.File(imgFile.path).readAsBytesSync());
         print(imgFile.path);
         print(base64ImageKartuNama);
       }
@@ -201,8 +219,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
       if (imgFile != null) {
         tmpPendukungFile = File(imgFile.path);
         tmpPendukung = tmpPendukungFile.path.split('/').last;
-        base64ImagePendukung =
-            base64Encode(Io.File(imgFile.path).readAsBytesSync());
+        compressImage(File(imgFile.path)).then((value) {
+          setState(() {
+            base64ImagePendukung =
+                base64Encode(Io.File(value!.path).readAsBytesSync());
+          });
+        });
+
+        // base64ImagePendukung =
+        //     base64Encode(Io.File(imgFile.path).readAsBytesSync());
 
         print(imgFile.path);
         print(base64ImagePendukung);

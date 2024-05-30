@@ -3,11 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/pages/activity/daily_activity.dart';
 import 'package:sample/src/app/pages/attendance/attendance.dart';
+// import 'package:sample/src/app/pages/cashback/cashback_screen.dart';
 import 'package:sample/src/app/pages/eform/eform.dart';
 import 'package:sample/src/app/pages/inkaro/list_customer.dart';
 import 'package:sample/src/app/pages/inkaro_approval/complete_inkaro_approval.dart';
 import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_approval.dart';
-import 'package:sample/src/app/pages/news/product_corner.dart';
+// import 'package:sample/src/app/pages/news/product_corner.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_screen.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -2822,7 +2823,7 @@ SliverToBoxAdapter areaMenu(
                                                     //   child: Column(
                                                     //     children: [
                                                     //       Image.asset(
-                                                    //         'assets/images/mon_contract.png',
+                                                    //         'assets/images/cashback.png',
                                                     //         width: isHorizontal ? 55.r : 45.r,
                                                     //         height: isHorizontal ? 55.r : 45.r,
                                                     //       ),
@@ -2830,7 +2831,7 @@ SliverToBoxAdapter areaMenu(
                                                     //         height: screenHeight * 0.015,
                                                     //       ),
                                                     //       Text(
-                                                    //         'Monitoring',
+                                                    //         'Cashback',
                                                     //         style: TextStyle(
                                                     //             fontSize: isHorizontal ? 17.sp : 13.sp,
                                                     //             fontWeight: FontWeight.w600,
@@ -2845,7 +2846,7 @@ SliverToBoxAdapter areaMenu(
                                                   onTap: () {
                                                     // Navigator.of(context).push(
                                                     //   MaterialPageRoute(
-                                                    //     builder: (context) => SearchContract(),
+                                                    //     builder: (context) => CashbackScreen(),
                                                     //   ),
                                                     // );
                                                   },

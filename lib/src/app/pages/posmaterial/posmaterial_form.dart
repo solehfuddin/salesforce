@@ -68,6 +68,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
   String base64Omzet = '';
   String base64Rencana = '';
 
+  bool _isDesignOnly = false;
   bool _isProspectCustomer = false;
   bool _validateOpticName = false;
   bool _validateOpticAddress = false;
@@ -300,6 +301,9 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         case 'selectedDeliveryMethod':
           selectedDeliveryMethod = returVal;
           break;
+        case 'isDesignOnly' :
+          _isDesignOnly = returVal;
+          break;
         case 'selectedProductKit':
           selectedProductKit = returVal;
           break;
@@ -444,6 +448,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         widget = Posmaterial_Formposter(
           isHorizontal: isHorizontal,
           isProspectCustomer: _isProspectCustomer,
+          isDesignOnly: _isDesignOnly,
           controllerProductWidth: controllerProductWidth,
           controllerProductHeight: controllerProductHeight,
           controllerProductQty: controllerProductQty,
@@ -508,10 +513,14 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           }
         });
 
-        if (_validateOpticName && _validateOpticAddress && _validateQtyItem && _validateEstimatePrice) {
+        if (_validateOpticName &&
+            _validateOpticAddress &&
+            _validateQtyItem &&
+            _validateEstimatePrice) {
           if (productId == 'PRDID-002' || productId == 'PRDID-003') {
-            if (int.parse(controllerProductQty.text.replaceAll('.', '').toString()) < 1000) 
-            {
+            if (int.parse(
+                    controllerProductQty.text.replaceAll('.', '').toString()) <
+                1000) {
               handleStatus(
                 context,
                 'Qty min : 1000 (pcs)',
@@ -526,7 +535,13 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           }
 
           if (accountNo.isEmpty) {
-            if (_validateLampiranParaf && _validateLampiranKtp) {
+            // if (_validateLampiranParaf && _validateLampiranKtp) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // }
+            if (_validateLampiranParaf) {
               processInsert(
                 stop,
                 isHorizontal: isHorizontal,
@@ -543,7 +558,13 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
               stop();
             }
           } else {
-            if (_validateLampiranParaf &&_validateLampiranKtp && _validateLampiranOmzet) {
+            // if (_validateLampiranParaf &&_validateLampiranKtp && _validateLampiranOmzet) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // }
+            if (_validateLampiranParaf) {
               processInsert(
                 stop,
                 isHorizontal: isHorizontal,
@@ -592,10 +613,8 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         });
 
         if (_validateOpticName && _validateOpticAddress) {
-          if (accountNo.isEmpty)
-          {
-            if (_validateLampiranKtp)
-            {
+          if (accountNo.isEmpty) {
+            if (_validateLampiranKtp) {
               processInsert(
                 stop,
                 isHorizontal: isHorizontal,
@@ -611,25 +630,27 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
               stop();
             }
-          }
-          else
-          {
-            if (_validateLampiranKtp && _validateLampiranOmzet) {
-              processInsert(
-                stop,
-                isHorizontal: isHorizontal,
-              );
-            } else {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
+          } else {
+            // if (_validateLampiranKtp && _validateLampiranOmzet) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // } else {
+            //   handleStatus(
+            //     context,
+            //     'Harap lengkapi lampiran',
+            //     false,
+            //     isHorizontal: isHorizontal,
+            //     isLogout: false,
+            //   );
 
-              stop();
-            }
+            //   stop();
+            // }
+            processInsert(
+              stop,
+              isHorizontal: isHorizontal,
+            );
           }
         } else {
           handleStatus(
@@ -667,46 +688,51 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         });
 
         if (_validateOpticName && _validateOpticAddress && _validateQtyItem) {
-          if (accountNo.isEmpty)
-          {
-            if (_validateLampiranKtp)
-            {
-              processInsert(
-                stop,
-                isHorizontal: isHorizontal,
-              );
-            }
-            else
-            {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
+          if (accountNo.isEmpty) {
+            // if (_validateLampiranKtp)
+            // {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // }
+            // else
+            // {
+            //   handleStatus(
+            //     context,
+            //     'Harap lengkapi lampiran',
+            //     false,
+            //     isHorizontal: isHorizontal,
+            //     isLogout: false,
+            //   );
 
-              stop();
-            }
-          }
-          else
-          {
-            if (_validateLampiranKtp && _validateLampiranOmzet) {
-              processInsert(
-                stop,
-                isHorizontal: isHorizontal,
-              );
-            } else {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
+            //   stop();
+            // }
+            processInsert(
+              stop,
+              isHorizontal: isHorizontal,
+            );
+          } else {
+            // if (_validateLampiranKtp && _validateLampiranOmzet) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // } else {
+            //   handleStatus(
+            //     context,
+            //     'Harap lengkapi lampiran',
+            //     false,
+            //     isHorizontal: isHorizontal,
+            //     isLogout: false,
+            //   );
 
-              stop();
-            }
+            //   stop();
+            // }
+            processInsert(
+              stop,
+              isHorizontal: isHorizontal,
+            );
           }
         } else {
           handleStatus(
@@ -755,9 +781,12 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           }
         });
 
-        if (_validateOpticName && _validateOpticAddress && _validateProductWidth && _validateProductHeight && _validateQtyItem) {
-          if (accountNo.isEmpty)
-          {
+        if (_validateOpticName &&
+            _validateOpticAddress &&
+            _validateProductWidth &&
+            _validateProductHeight &&
+            _validateQtyItem) {
+          if (accountNo.isEmpty) {
             if (selectedMaterial == 'Duratrans') {
               int width = int.parse(
                   controllerProductWidth.text.replaceAll('.', '').toString());
@@ -775,17 +804,21 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
                 stop();
                 return false;
-              } 
+              }
             }
 
-            if (_validateLampiranKtp && _validateLampiranRencana) {
+            // if (_validateLampiranKtp && _validateLampiranRencana) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // }
+            if (_validateLampiranRencana) {
               processInsert(
                 stop,
                 isHorizontal: isHorizontal,
               );
-            }
-            else
-            {
+            } else {
               handleStatus(
                 context,
                 'Harap lengkapi lampiran',
@@ -796,9 +829,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
               stop();
             }
-          }
-          else
-          {
+          } else {
             if (selectedMaterial == 'Duratrans') {
               int width = int.parse(
                   controllerProductWidth.text.replaceAll('.', '').toString());
@@ -816,10 +847,16 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
                 stop();
                 return false;
-              } 
+              }
             }
 
-            if (_validateLampiranKtp && _validateLampiranOmzet && _validateLampiranRencana) {
+            // if (_validateLampiranKtp && _validateLampiranOmzet && _validateLampiranRencana) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // }
+            if (_validateLampiranRencana) {
               processInsert(
                 stop,
                 isHorizontal: isHorizontal,
@@ -867,43 +904,48 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         });
 
         if (_validateProductName && _validateQtyItem) {
-          if (accountNo.isEmpty)
-          {
-            if (_validateLampiranKtp) {
-              processInsert(
-                stop,
-                isHorizontal: isHorizontal,
-              );
-            } else {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
+          if (accountNo.isEmpty) {
+            // if (_validateLampiranKtp) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // } else {
+            //   handleStatus(
+            //     context,
+            //     'Harap lengkapi lampiran',
+            //     false,
+            //     isHorizontal: isHorizontal,
+            //     isLogout: false,
+            //   );
 
-              stop();
-            }
-          }
-          else
-          {
-            if (_validateLampiranKtp && _validateLampiranOmzet) {
-              processInsert(
-                stop,
-                isHorizontal: isHorizontal,
-              );
-            } else {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
+            //   stop();
+            // }
+            processInsert(
+              stop,
+              isHorizontal: isHorizontal,
+            );
+          } else {
+            // if (_validateLampiranKtp && _validateLampiranOmzet) {
+            //   processInsert(
+            //     stop,
+            //     isHorizontal: isHorizontal,
+            //   );
+            // } else {
+            //   handleStatus(
+            //     context,
+            //     'Harap lengkapi lampiran',
+            //     false,
+            //     isHorizontal: isHorizontal,
+            //     isLogout: false,
+            //   );
 
-              stop();
-            }
+            //   stop();
+            // }
+            processInsert(
+              stop,
+              isHorizontal: isHorizontal,
+            );
           }
         } else {
           handleStatus(
@@ -934,16 +976,17 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         : selectedTypePos == 'MATERIAL_KIT'
             ? kitId
             : selectedTypePos == 'KEMEJA_LEINZ_HIJAU'
-             ? kemejaId : '';
+                ? kemejaId
+                : '';
     objectInsert.setProductName = selectedTypePos == 'CUSTOM'
         ? selectedProductCustom
         : selectedTypePos == 'MATERIAL_KIT'
             ? selectedProductKit
             : selectedTypePos == 'KEMEJA_LEINZ_HIJAU'
-            ? selectedProductKemeja
-            : selectedTypePos == 'OTHER'
-                ? controllerProductName.text.toString()
-                : '';
+                ? selectedProductKemeja
+                : selectedTypePos == 'OTHER'
+                    ? controllerProductName.text.toString()
+                    : '';
     objectInsert.setProductQty = controllerProductQty.text;
     objectInsert.setPriceEstimate = controllerProductEstimate.text.isEmpty
         ? '0'
@@ -963,6 +1006,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
     objectInsert.setProductSizeXXXL = controllerProductSizeXXXL.text.isEmpty
         ? '0'
         : controllerProductSizeXXXL.text;
+    objectInsert.setPosterDesignOnly = _isDesignOnly ? '1' : '0';
     objectInsert.setPosterMaterialId =
         selectedTypePos == 'POSTER' ? selectedMaterialId : '';
     objectInsert.setPosterMaterial =

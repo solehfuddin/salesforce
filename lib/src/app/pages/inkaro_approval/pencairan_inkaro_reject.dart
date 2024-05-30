@@ -7,12 +7,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/inkaro_approval/detail_pencairan_inkaro_approval.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/list_inkaro_header.dart';
+// import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:sample/src/domain/entities/list_pencairan_inkaro_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-import 'detail_inkaro_approval.dart';
+// import 'detail_inkaro_approval.dart';
 
 class RejectPencairanInkaro extends StatefulWidget {
   const RejectPencairanInkaro({Key? key}) : super(key: key);

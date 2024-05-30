@@ -362,16 +362,16 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           listNotifLocal = value;
 
-          for (int i = 0; i < listNotifLocal.length; i++) {
-            print('Id Notif : ${listNotifLocal[i].idNotif}');
-            print('Id User : ${listNotifLocal[i].idUser}');
-            print('Type Template : ${listNotifLocal[i].typeTemplate}');
-            print('Type Notif : ${listNotifLocal[i].typeNotif}');
-            print('Judul : ${listNotifLocal[i].judul}');
-            print('Isi : ${listNotifLocal[i].isi}');
-            print('Tanggal : ${listNotifLocal[i].tanggal}');
-            print('Is Read : ${listNotifLocal[i].isRead}');
-          }
+          // for (int i = 0; i < listNotifLocal.length; i++) {
+          //   print('Id Notif : ${listNotifLocal[i].idNotif}');
+          //   print('Id User : ${listNotifLocal[i].idUser}');
+          //   print('Type Template : ${listNotifLocal[i].typeTemplate}');
+          //   print('Type Notif : ${listNotifLocal[i].typeNotif}');
+          //   print('Judul : ${listNotifLocal[i].judul}');
+          //   print('Isi : ${listNotifLocal[i].isi}');
+          //   print('Tanggal : ${listNotifLocal[i].tanggal}');
+          //   print('Is Read : ${listNotifLocal[i].isRead}');
+          // }
 
           role == "ADMIN"
               ? getNotifikasiRemote(
@@ -406,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (sts) {
           var rest = data['data'];
-          print(rest);
+          // print(rest);
           list = rest
               .map<Notifikasi>((json) => Notifikasi.fromJson(json))
               .toList();

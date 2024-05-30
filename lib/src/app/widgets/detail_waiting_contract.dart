@@ -565,7 +565,7 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                             username!,
                             true,
                             isContract: true,
-                            isAdminRenewal: true,
+                            isAdminRenewal: role == 'ADMIN' ? true : false,
                             isNewCust: false,
                           ),
                         ),

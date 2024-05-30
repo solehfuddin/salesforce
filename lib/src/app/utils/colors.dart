@@ -8,4 +8,6 @@ class MyColors {
   static const textColor = Color(0xff242020);
   static const bgColor = Color(0xff64c856);
   static const darkColor = Color(0xff3b4461);
+  static const greenAccent = Color(0xff43A047);
+  static const purpleColor = Color(0xff512DA8);
 }

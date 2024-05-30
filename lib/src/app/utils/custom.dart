@@ -1,20 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+// import 'package:android_path_provider/android_path_provider.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:http/http.dart' as http;
+// import 'package:image_picker/image_picker.dart';
 import 'package:in_app_update/in_app_update.dart';
+import 'package:path_provider/path_provider.dart';
 // import 'package:in_app_update/in_app_update.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/login/login_view.dart';
-import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
+// import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/pages/staff/staff_view.dart';
 // import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
@@ -32,6 +37,7 @@ import 'package:sample/src/app/widgets/dialogsigned.dart';
 import 'package:sample/src/app/widgets/dialogstatus.dart';
 import 'package:sample/src/app/widgets/dialogverifieditheaderinkaro.dart';
 import 'package:sample/src/app/widgets/dialogverifupdateinkaroitem.dart';
+import 'package:sample/src/domain/entities/account_session.dart';
 import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/customer_inkaro.dart';
@@ -52,8 +58,23 @@ late Contract itemContract;
 String capitalize(String s) =>
     s.isNotEmpty ? s[0].toUpperCase() + s.substring(1).toLowerCase() : s;
 
+int getMonthBetweenTwoDates(DateTime initialDate, DateTime endDate) {
+  return calculateMonthSize(endDate) - calculateMonthSize(initialDate) + 1;
+}
+
+int calculateMonthSize(DateTime dateTime) {
+  return dateTime.year * 12 + dateTime.month;
+}
+
 waitingLoad() async {
   await Future.delayed(Duration(seconds: 2));
+}
+
+extension stringExtension on String {
+  String get hideFrontChar => this.replaceRange(0, 12, "************");
+  String get hideLastChar =>
+      this.replaceRange(this.length - 5, this.length, "*");
+  String get hideMiddleChar => this.replaceRange(5, this.length - 5, "*");
 }
 
 dialogLogin(BuildContext context) {
@@ -326,12 +347,14 @@ pushNotif(
       break;
     case 17:
       title = 'Ada Pengajuan POS';
-      body = '$salesName mengajukan POS Material untuk $opticName. Mohon segera proses POS tersebut';
+      body =
+          '$salesName mengajukan POS Material untuk $opticName. Mohon segera proses POS tersebut';
       tmplate = '17';
       break;
     case 18:
       title = 'Pengajuan POS Disetujui';
-      body = 'Hai, pengajuan POS $opticName telah disetujui oleh $admName. Selalu periksa status pengajuan POS anda';
+      body =
+          'Hai, pengajuan POS $opticName telah disetujui oleh $admName. Selalu periksa status pengajuan POS anda';
       tmplate = '18';
       break;
     case 19:
@@ -339,6 +362,24 @@ pushNotif(
       body =
           'Maaf, pengajuan POS $opticName ditolak oleh $admName. Segera cek data pengajuan POS anda';
       tmplate = '19';
+      break;
+    case 20:
+      title = 'Ada Pengajuan Cashback';
+      body =
+          '$salesName mengajukan kontrak cashback untuk $opticName. Mohon segera diproses';
+      tmplate = '20';
+      break;
+    case 21:
+      title = 'Pengajuan Cashback Disetujui';
+      body =
+          'Hai, pengajuan kontrak cashback $opticName telah disetujui oleh $admName. Selalu periksa status kontrak cashback';
+      tmplate = '21';
+      break;
+    case 22:
+      title = 'Pengajuan Cashback Ditolak';
+      body =
+          'Maaf, pengajuan kontrak cashback $opticName ditolak oleh $admName. Segera cek data cashback anda';
+      tmplate = '22';
       break;
   }
 
@@ -419,20 +460,37 @@ pushNotif(
   }
 }
 
-paginatePref(int page, int startAt) async
-{
+paginatePref(int page, int startAt) async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   await pref.setInt('paginatePage', page);
   await pref.setInt('paginateStartAt', startAt);
 }
 
-paginateClear() async 
-{
+paginateClear() async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   await pref.setInt('paginatePage', 1);
   await pref.setInt('paginateStartAt', 0);
+}
+
+Future<AccountSession> getAccountSession() async {
+  AccountSession account = new AccountSession();
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  account.setId = pref.getString("id") ?? '';
+  account.setUsername = pref.getString("username") ?? '';
+  account.setFullname = pref.getString("name") ?? '';
+  account.setRole = pref.getString("role") ?? '';
+  account.setDivisi = pref.getString("divisi") ?? '';
+
+  print("""
+      session id : ${account.id}
+      session username : ${account.username}
+      session role : ${account.role}
+      session divisi : ${account.divisi}
+      """);
+  return account;
 }
 
 savePref(
@@ -513,7 +571,7 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
       child: Text(
         "Coming Soon",
         style: TextStyle(
-          fontSize: isHorizontal ? 30.sp : 20.sp,
+          fontSize: isHorizontal ? 24.sp : 20.sp,
           fontFamily: 'Segoe ui',
           fontWeight: FontWeight.w600,
         ),
@@ -522,8 +580,8 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
     content: Container(
       child: Image.asset(
         'assets/images/coming_soon.png',
-        width: isHorizontal ? 110.sp : 80.r,
-        height: isHorizontal ? 110.sp : 80.r,
+        width: isHorizontal ? 85.sp : 80.r,
+        height: isHorizontal ? 85.sp : 80.r,
       ),
     ),
     actions: [
@@ -533,14 +591,14 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
             shape: StadiumBorder(),
             primary: Colors.indigo[600],
             padding: EdgeInsets.symmetric(
-                horizontal: isHorizontal ? 30.r : 20.r,
-                vertical: isHorizontal ? 20.r : 10.r),
+                horizontal: isHorizontal ? 22.r : 20.r,
+                vertical: isHorizontal ? 12.r : 10.r),
           ),
           child: Text(
             'Ok',
             style: TextStyle(
               color: Colors.white,
-              fontSize: isHorizontal ? 24.sp : 14.sp,
+              fontSize: isHorizontal ? 16.sp : 14.sp,
               fontWeight: FontWeight.bold,
               fontFamily: 'Segoe ui',
             ),
@@ -619,6 +677,7 @@ handleStatus(
   bool isHorizontal = false,
   bool isLogout = false,
   bool isNewCust = false,
+  bool isBack = false,
 }) {
   showDialog(
     context: context,
@@ -626,7 +685,8 @@ handleStatus(
       msg: msg,
       status: status,
       isLogout: isLogout,
-      isNewCust:  isNewCust,
+      isNewCust: isNewCust,
+      isBack: isBack,
     ),
   );
 }
@@ -846,17 +906,18 @@ handleStatusChangeContract(
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop(context);
                 if (status) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => HistoryContract(
-                        item: item,
-                        cust: customer,
-                        keyword: keyword,
-                        isAdmin: false,
-                        isNewCust: isNewCust,
-                      ),
-                    ),
-                  );
+                  Navigator.of(context).pop();
+                  // Navigator.of(context).pushReplacement(
+                  //   MaterialPageRoute(
+                  //     builder: (context) => HistoryContract(
+                  //       item: item,
+                  //       cust: customer,
+                  //       keyword: keyword,
+                  //       isAdmin: false,
+                  //       isNewCust: isNewCust,
+                  //     ),
+                  //   ),
+                  // );
                 }
               },
             ),
@@ -1637,4 +1698,39 @@ void handleSocket(BuildContext context) {
     false,
     isLogout: false,
   );
+}
+
+Future<Uint8List?> compressImageUint8List(Uint8List uint8list) async {
+  var result = await FlutterImageCompress.compressWithList(
+    uint8list,
+    quality: 30,
+  );
+
+  print(uint8list.length);
+  print(result.length);
+
+  return result;
+}
+
+Future<File?> compressImage(File file) async {
+  print('testCompressAndGetFile');
+  final dir = await getTemporaryDirectory();
+  final targetPath =
+      dir.absolute.path + '/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+  final result = await FlutterImageCompress.compressAndGetFile(
+    file.absolute.path,
+    targetPath,
+    quality: 30,
+  );
+
+  if (result == null) return null;
+
+  final bytes = await result.readAsBytes();
+
+  print(
+    'The src file size: ${file.lengthSync()}, '
+    'the result bytes length: ${bytes.length}',
+  );
+  return result;
 }

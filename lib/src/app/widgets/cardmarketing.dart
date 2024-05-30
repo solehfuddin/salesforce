@@ -60,8 +60,8 @@ class _CardMarketingState extends State<CardMarketing> {
   Widget build(BuildContext context) {
     return Material(
       child: Ink(
-        width: 140.w,
-        height: 140.h,
+        width: 145.w,
+        height: 145.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(
@@ -89,8 +89,8 @@ class _CardMarketingState extends State<CardMarketing> {
           },
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: widget.isHorizontal ? 15.r : 10.r,
-              vertical: widget.isHorizontal ? 15.r : 10.r,
+              horizontal: widget.isHorizontal ? 13.r : 10.r,
+              vertical: widget.isHorizontal ? 13.r : 10.r,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,8 +101,8 @@ class _CardMarketingState extends State<CardMarketing> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      width: 40.w,
-                      height: 40.w,
+                      width: 35.w,
+                      height: 35.w,
                       padding: EdgeInsets.all(
                         5.r,
                       ),
@@ -115,8 +115,8 @@ class _CardMarketingState extends State<CardMarketing> {
                       child: Center(
                         child: Image.asset(
                           widget.cardIcon,
-                          width: 25.w,
-                          height: 25.h,
+                          width: 24.w,
+                          height: 24.h,
                         ),
                       ),
                     ),
@@ -124,8 +124,8 @@ class _CardMarketingState extends State<CardMarketing> {
                         ? Visibility(
                             visible: widget.totalPos > 0 ? true : false,
                             child: SizedBox(
-                              height: 20,
-                              width: 20,
+                              height: 15,
+                              width: 15,
                               child: Icon(
                                 Icons.notifications_on,
                                 color: Colors.red.shade500,
@@ -140,8 +140,8 @@ class _CardMarketingState extends State<CardMarketing> {
                                 visible:
                                     widget.totalCashback > 0 ? true : false,
                                 child: SizedBox(
-                                  height: 20,
-                                  width: 20,
+                                  height: 15,
+                                  width: 15,
                                   child: Icon(
                                     Icons.notifications_on,
                                     color: Colors.red.shade500,
@@ -154,8 +154,8 @@ class _CardMarketingState extends State<CardMarketing> {
                             : Visibility(
                                 visible: widget.totalExpense > 0 ? true : false,
                                 child: SizedBox(
-                                  height: 20,
-                                  width: 20,
+                                  height: 15,
+                                  width: 15,
                                   child: Icon(
                                     Icons.notifications_on,
                                     color: Colors.red.shade500,
@@ -178,21 +178,22 @@ class _CardMarketingState extends State<CardMarketing> {
                       style: TextStyle(
                         fontFamily: 'Segoe Ui',
                         fontWeight: FontWeight.w600,
-                        fontSize: widget.isHorizontal ? 20.sp : 15.sp,
+                        fontSize: widget.isHorizontal ? 14.sp : 11.sp,
                         color: Colors.black87,
                       ),
                     ),
                     SizedBox(
-                      height: widget.isHorizontal ? 10.h : 5.h,
+                      height: widget.isHorizontal ? 5.h : 5.h,
                     ),
                     Text(
                       widget.cardSubtitle,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
-                        fontSize: widget.isHorizontal ? 14.sp : 11.sp,
+                        fontSize: widget.isHorizontal ? 12.sp : 11.sp,
                         color: Colors.grey.shade500,
                       ),
+                      textAlign: TextAlign.justify,
                     ),
                   ],
                 ),

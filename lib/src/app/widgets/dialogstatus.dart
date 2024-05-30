@@ -11,13 +11,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DialogStatus extends StatefulWidget {
   dynamic msg;
   bool status;
-  bool isLogout, isNewCust;
+  bool isLogout, isNewCust, isBack;
 
   DialogStatus({
     this.msg,
     this.status = false,
     this.isLogout = false,
     this.isNewCust = false,
+    this.isBack = false,
   });
 
   @override
@@ -138,38 +139,43 @@ class _DialogStatusState extends State<DialogStatus> {
                         ),
                       ),
                       onPressed: () {
-                        if (widget.status) {
-                          Navigator.pop(context);
-                          if (role == "ADMIN") {
-                            Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) => AdminScreen()),
-                                (route) => false);
-                          } else if (role == "STAFF") {
-                            Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) => StaffScreen()),
-                                (route) => false);
-                          } else {
-                            Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) => HomeScreen()),
-                                (route) => false);
-                          }
-
-                          if (widget.isNewCust)
-                          {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CustomerScreen(
-                                  int.parse(id!),
-                                ),
-                              ),
-                            );
-                          }
-                        } else {
+                        if (widget.isBack) {
                           Navigator.of(context, rootNavigator: true)
                               .pop(context);
+                        } else {
+                          if (widget.status) {
+                            Navigator.pop(context);
+
+                            if (role == "ADMIN") {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (context) => AdminScreen()),
+                                  (route) => false);
+                            } else if (role == "STAFF") {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (context) => StaffScreen()),
+                                  (route) => false);
+                            } else {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()),
+                                  (route) => false);
+                            }
+
+                            if (widget.isNewCust) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CustomerScreen(
+                                    int.parse(id!),
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            Navigator.of(context, rootNavigator: true)
+                                .pop(context);
+                          }
                         }
                       },
                     ),

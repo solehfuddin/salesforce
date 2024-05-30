@@ -7,8 +7,8 @@ class Proddiv {
   Proddiv(this.alias, this.proddiv, this.diskon);
 
   Proddiv.fromJson(Map json): 
-    proddiv = json['prod_div'],
-    alias = json['alias'];
+    proddiv = json['prod_div'] ?? '',
+    alias = json['alias'] ?? '';
 
   Map toJson() {
     return {

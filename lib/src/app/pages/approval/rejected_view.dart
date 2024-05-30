@@ -13,8 +13,13 @@ import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class RejectedScreen extends StatefulWidget {
-  const RejectedScreen({Key? key}) : super(key: key);
+  bool isHideAppbar;
+  RejectedScreen({
+    Key? key,
+    this.isHideAppbar = false,
+  }) : super(key: key);
 
   @override
   State<RejectedScreen> createState() => _RejectedScreenState();
@@ -97,9 +102,11 @@ class _RejectedScreenState extends State<RejectedScreen> {
   }
 
   Future<List<Customer>> getCustomerData(bool isAr) async {
-    setState(() {
-      isDataFound = true;
-    });
+    if (mounted) {
+      setState(() {
+        isDataFound = true;
+      });
+    }
 
     List<Customer> list = List.empty(growable: true);
     const timeout = 15;
@@ -124,8 +131,10 @@ class _RejectedScreenState extends State<RejectedScreen> {
           print("List Size: ${list.length}");
 
           setState(() {
-            initalizePage(data['total']);
-            tmpList = list;
+            if (mounted) {
+              initalizePage(data['total']);
+              tmpList = list;
+            }
           });
         }
       } on FormatException catch (e) {
@@ -139,19 +148,22 @@ class _RejectedScreenState extends State<RejectedScreen> {
       print('General Error : $e');
     }
 
-    setState(() {
-      isDataFound = false;
-    });
+    if (mounted) {
+      setState(() {
+        isDataFound = false;
+      });
+    }
 
     return list;
   }
 
-   getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
+  getCustomerContract(List<Customer> listCust, int pos, int idCust) async {
     var url = '$API_URL/contract?id_customer=$idCust';
     const timeout = 15;
 
     try {
-      var response = await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status: ${response.statusCode}');
 
       try {
@@ -226,39 +238,44 @@ class _RejectedScreenState extends State<RejectedScreen> {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white70,
-          title: Text(
-            'Reject Customer',
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: isHorizontal ? 28.sp : 18.sp,
-              fontFamily: 'Segoe ui',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          elevation: 0.0,
-          centerTitle: true,
-          leading: IconButton(
-            onPressed: () {
-              if (role == 'ADMIN') {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => AdminScreen()));
-              } else if (role == 'SALES') {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => HomeScreen()));
-              }
-            },
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.black54,
-              size: isHorizontal ? 28.sp : 18.r,
-            ),
-          ),
-        ),
+        appBar: widget.isHideAppbar
+            ? null
+            : AppBar(
+                backgroundColor: Colors.white70,
+                title: Text(
+                  'Reject Customer',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: isHorizontal ? 28.sp : 18.sp,
+                    fontFamily: 'Segoe ui',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                elevation: 0.0,
+                centerTitle: true,
+                leading: IconButton(
+                  onPressed: () {
+                    if (role == 'ADMIN') {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => AdminScreen()));
+                    } else if (role == 'SALES') {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => HomeScreen()));
+                    }
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.black54,
+                    size: isHorizontal ? 28.sp : 18.r,
+                  ),
+                ),
+              ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            SizedBox(
+              height: 8.h,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

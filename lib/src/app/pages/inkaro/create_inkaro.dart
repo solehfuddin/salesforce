@@ -76,7 +76,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   String notesContract = '', allValueManual = '';
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
-      _emptyNpwp = false,
+      // _emptyNpwp = false,
       _emptyNomorRekening = false,
       _emptyMulaiPeriode = false,
       _emptySelesaiPeriode = false,
