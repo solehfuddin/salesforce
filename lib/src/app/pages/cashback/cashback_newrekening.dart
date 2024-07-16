@@ -69,7 +69,9 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
     item.setShipNumber = widget.shipNumber;
 
     if (validateName && validateNomor) {
-      serviceCashback.insertRekening(stop, context: context, item: item).then((value) {
+      serviceCashback
+          .insertRekening(stop, context: context, item: item)
+          .then((value) {
         print("Id Rekening : $value");
         item.setIdRekening = value;
         widget.updateParent("updateNewRekening", item);
@@ -98,6 +100,9 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
           margin: EdgeInsets.symmetric(
             vertical: widget.isHorizontal ? 15.h : 10.h,
             horizontal: widget.isHorizontal ? 20.h : 15.h,
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,12 +292,9 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
                       ),
                       controller: controllerNomor,
                       onChanged: (value) {
-                        if (value.length > 5)
-                        {
+                        if (value.length > 5) {
                           validateNomor = true;
-                        }
-                        else
-                        {
+                        } else {
                           validateNomor = false;
                         }
                       },

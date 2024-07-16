@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:sample/src/app/controllers/my_controller.dart';
 import 'package:sample/src/app/pages/activity/daily_activity.dart';
 import 'package:sample/src/app/pages/admin/admin_content.dart';
 import 'package:sample/src/app/utils/config.dart';
@@ -22,6 +24,7 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  MyController myController = Get.find<MyController>();
   DbHelper dbHelper = DbHelper.instance;
   List<Notifikasi> listNotifLocal = List.empty(growable: true);
   String? id = '';
@@ -39,6 +42,8 @@ class _AdminScreenState extends State<AdminScreen> {
   void initState() {
     super.initState();
     getRole();
+    myController.getRole();
+    print(myController.sessionId);
   }
 
   void _onItemTapped(int index) {

@@ -70,8 +70,22 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   Future getLocation() async {
-    _locationData = await _myLocation.getLocation();
-    setState(() {
+    // _locationData = await _myLocation.getLocation();
+    // setState(() {
+    //   print(
+    //       "Location : ${_locationData?.latitude}, ${_locationData?.longitude} - ${_locationData?.isMock}");
+
+    //   lattitude = _locationData?.latitude.toString();
+    //   longitude = _locationData?.longitude.toString();
+    //   isMocking = _locationData?.isMock ?? false;
+
+    //   if (lattitude != null && longitude != null) {
+    //     getAddress(_locationData?.latitude, _locationData?.longitude);
+    //   }
+    // });
+    await _myLocation.getLocation().then((value) {
+      _locationData = value;
+      
       print(
           "Location : ${_locationData?.latitude}, ${_locationData?.longitude} - ${_locationData?.isMock}");
 
@@ -86,13 +100,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   Future getAddress(double? latt, double? long) async {
-    var address = await _myAddrees.getAddress(latt, long);
-    setState(() {
+    await _myAddrees.getAddress(latt, long).then((value) {
       print(
-          "Address : ${address[0].street} ${address[0].subLocality}, ${address[0].subAdministrativeArea} - ${address[0].country}");
+          "Address : ${value[0].street} ${value[0].subLocality}, ${value[0].subAdministrativeArea} - ${value[0].country}");
 
       locationAdress =
-          "${address[0].street} ${address[0].subLocality}, ${address[0].subAdministrativeArea} - ${address[0].country}";
+          "${value[0].street} ${value[0].subLocality}, ${value[0].subAdministrativeArea} - ${value[0].country}";
     });
   }
 

@@ -104,6 +104,7 @@ class _ChangeContractState extends State<ChangeContract> {
   TextEditingController textTanggalSt = new TextEditingController();
   TextEditingController textTanggalEd = new TextEditingController();
   TextEditingController textCatatan = new TextEditingController();
+  TextEditingController textOngkir = new TextEditingController();
   var _now = new DateTime.now();
   var _formatter = new DateFormat('yyyy-MM-dd');
   // bool _isValNikon = false;
@@ -113,6 +114,9 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isConnected = false;
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
+  bool _isOngkirContract = false;
+  bool _isFixedOngkir = false;
+  bool _isFacetContract = false;
   bool _isPrestigeContract = false;
   bool _isCashbackWithDiscContract = false;
   bool _isChildContract = false;
@@ -346,7 +350,9 @@ class _ChangeContractState extends State<ChangeContract> {
       mounted,
       context,
       shipNumber: widget.isNewCust!
-          ? widget.customer!.noAccount.isNotEmpty ? widget.customer?.noAccount ?? '' : widget.customer?.id ?? ''
+          ? widget.customer!.noAccount.isNotEmpty
+              ? widget.customer?.noAccount ?? ''
+              : widget.customer?.id ?? ''
           : widget.oldCustomer?.customerShipNumber ?? '',
       limit: 1,
     )
@@ -365,6 +371,30 @@ class _ChangeContractState extends State<ChangeContract> {
         }
       });
     });
+
+    if (widget.actContract.length > 0) {
+      widget.actContract[0].isFrame == "1"
+          ? _isFrameContract = true
+          : _isFrameContract = false;
+      widget.actContract[0].isPartai == "1"
+          ? _isPartaiContract = true
+          : _isPartaiContract = false;
+      widget.actContract[0].isOngkir == "1"
+          ? _isOngkirContract = true
+          : widget.actContract[0].isOngkir == "2"
+              ? _isFixedOngkir = true
+              : _isOngkirContract = false;
+      textOngkir.value = TextEditingValue(
+        text: convertThousand(int.parse(widget.actContract[0].ongkir), 0),
+      );
+      widget.actContract[0].isFacet == "1"
+          ? _isFacetContract = true
+          : _isFacetContract = false;
+      widget.actContract[0].catatan.contains(
+              "KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1")
+          ? _isPrestigeContract = true
+          : _isPrestigeContract = false;
+    }
   }
 
   void getTargetProddiv(String proddiv) {
@@ -421,8 +451,10 @@ class _ChangeContractState extends State<ChangeContract> {
         mounted,
         context,
         shipNumber: widget.isNewCust!
-          ? widget.customer!.noAccount.isNotEmpty ? widget.customer?.noAccount ?? '' : widget.customer?.id ?? ''
-          : widget.oldCustomer?.customerShipNumber ?? '',
+            ? widget.customer!.noAccount.isNotEmpty
+                ? widget.customer?.noAccount ?? ''
+                : widget.customer?.id ?? ''
+            : widget.oldCustomer?.customerShipNumber ?? '',
         limit: 1,
       )
           .then((value) {
@@ -1050,6 +1082,9 @@ class _ChangeContractState extends State<ChangeContract> {
         'type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : ${_isFrameContract ? '1' : '0'}');
     print('is_partai : ${_isPartaiContract ? '1' : '0'}');
+    print('is_ongkir : ${_isOngkirContract ? '1' : '0'}');
+    print('is fixed ongkir : $_isFixedOngkir');
+    print('is_facet : ${_isFacetContract ? '1' : '0'}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
     print(
@@ -1173,6 +1208,9 @@ class _ChangeContractState extends State<ChangeContract> {
           'type_contract: ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
       print('is_frame: ${_isFrameContract ? '1' : '0'}');
       print('is_partai: ${_isPartaiContract ? '1' : '0'}');
+      print('is_ongkir : ${_isOngkirContract ? '1' : '0'}');
+      print('is fixed ongkir : $_isFixedOngkir');
+      print('is_facet : ${_isFacetContract ? '1' : '0'}');
       print(
           'catatan: ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
       print('no_account: ');
@@ -1227,6 +1265,13 @@ class _ChangeContractState extends State<ChangeContract> {
                     : 'LENSA',
             'is_frame': _isFrameContract ? '1' : '0',
             'is_partai': _isPartaiContract ? '1' : '0',
+            'is_ongkir': _isOngkirContract
+                ? '1'
+                : _isFixedOngkir
+                    ? '2'
+                    : '0',
+            'ongkir': _isFixedOngkir ? textOngkir.text.replaceAll('.', '') : '',
+            'is_facet': _isFacetContract ? '1' : '0',
             'catatan':
                 "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
             'no_account': itemActiveContract.length < 1
@@ -2724,6 +2769,161 @@ class _ChangeContractState extends State<ChangeContract> {
                                     this._isPartaiContract = value!;
                                   },
                                 );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Visibility(
+                        visible: !_isFixedOngkir,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isHorizontal ? 10.r : 8.r,
+                                  vertical: isHorizontal ? 5.r : 2.r,
+                                ),
+                                child: Text(
+                                  'Kontrak Free Ongkir',
+                                  style: TextStyle(
+                                    fontSize: isHorizontal ? 18.sp : 14.sp,
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Checkbox(
+                                value: this._isOngkirContract,
+                                onChanged: (bool? value) {
+                                  setState(
+                                    () {
+                                      this._isOngkirContract = value!;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        replacement: SizedBox(
+                          width: 5.w,
+                        ),
+                      ),
+                      Visibility(
+                        visible: !_isOngkirContract,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isHorizontal ? 10.r : 8.r,
+                                  vertical: isHorizontal ? 5.r : 2.r,
+                                ),
+                                child: Text(
+                                  'Kontrak Fixed Ongkir',
+                                  style: TextStyle(
+                                    fontSize: isHorizontal ? 18.sp : 14.sp,
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Checkbox(
+                                value: this._isFixedOngkir,
+                                onChanged: (bool? value) {
+                                  setState(
+                                    () {
+                                      this._isFixedOngkir = value!;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        replacement: SizedBox(
+                          width: 5.w,
+                        ),
+                      ),
+                      Visibility(
+                        visible: _isFixedOngkir,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isHorizontal ? 10.r : 5.r,
+                          ),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: 'Masukkan ongkir',
+                              labelText: 'Ongkos kirim (Fixed)',
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 3.r,
+                                horizontal: 15.r,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.r),
+                              ),
+                            ),
+                            inputFormatters: [
+                              ThousandsSeparatorInputFormatter()
+                            ],
+                            controller: textOngkir,
+                            maxLength: 9,
+                            style: TextStyle(
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
+                              fontFamily: 'Segoe Ui',
+                            ),
+                          ),
+                        ),
+                        replacement: SizedBox(
+                          width: 5.w,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 13.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Free Facet',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 24.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 13.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isFacetContract,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  this._isFacetContract = value!;
+                                });
                               },
                             ),
                           ),

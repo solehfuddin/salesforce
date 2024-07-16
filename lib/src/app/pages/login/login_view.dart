@@ -2,16 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 // import 'package:device_info_plus/device_info_plus.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:sample/src/app/pages/maintenance/maintenance_view.dart';
+// import 'package:sample/src/app/pages/maintenance/maintenance_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/admin/admin_view.dart';
-import 'package:sample/src/app/pages/home/home_view.dart';
-import 'package:sample/src/app/pages/staff/staff_view.dart';
+// import 'package:sample/src/app/pages/admin/admin_view.dart';
+// import 'package:sample/src/app/pages/home/home_view.dart';
+// import 'package:sample/src/app/pages/staff/staff_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/domain/entities/app_config.dart';
@@ -130,26 +131,11 @@ class _LoginState extends State<Login> {
 
     if (listAppconfig[0].status == "0") {
     if (role == 'ADMIN') {
-        Navigator.pop(context);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => AdminScreen(),
-          ),
-        );
+        Get.offAllNamed('/admin');
     } else if (role == 'SALES') {
-        Navigator.pop(context);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(),
-          ),
-        );
+        Get.offAllNamed('/home');
     } else if (role == 'STAFF') {
-        Navigator.pop(context);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => StaffScreen(),
-          ),
-        );
+        Get.offAllNamed('/staff');
     } else {
       await Future.delayed(
         Duration(seconds: 1),
@@ -158,12 +144,7 @@ class _LoginState extends State<Login> {
       Navigator.pop(dialogContext);
     }
     } else {
-      Navigator.pop(context);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MaintenanceScreen(),
-        ),
-      );
+      Get.offAllNamed('/maintenance');
     }
   }
 

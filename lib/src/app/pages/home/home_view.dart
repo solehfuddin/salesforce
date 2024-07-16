@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:sample/src/app/controllers/my_controller.dart';
 import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
 import 'package:sample/src/app/pages/attendance/attendance_service.dart';
 import 'package:sample/src/app/utils/config.dart';
@@ -35,6 +37,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  MyController myController = Get.find<MyController>();
   DbHelper dbHelper = DbHelper.instance;
   MyLocation _myLocation = MyLocation();
   late SharedPreferences preferences;
@@ -65,6 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getRole() async {
     preferences = await SharedPreferences.getInstance();
+    myController.getRole();
+    print(myController.sessionId);
     setState(() {
       id = preferences.getString("id");
       role = preferences.getString("role");

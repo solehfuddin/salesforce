@@ -173,10 +173,10 @@ class _DetailContractState extends State<DetailContract> {
 
   static void downloadCallback(
       String id, DownloadTaskStatus status, int progress) {
-    final SendPort? send = IsolateNameServer.lookupPortByName('downloader_send_port');
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
 
-    if (send != null)
-    {
+    if (send != null) {
       send.send([id, status, progress]);
     }
   }
@@ -230,7 +230,8 @@ class _DetailContractState extends State<DetailContract> {
       if (androidInfo.version.sdkInt! < 33) {
         statusess = await [Permission.storage].request();
       } else {
-        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+        statusess =
+            await [Permission.notification, Permission.mediaLibrary].request();
       }
 
       var allAccepted = true;
@@ -2056,7 +2057,10 @@ class _DetailContractState extends State<DetailContract> {
                                 width: 5.w,
                               ),
                         widget.item.isFrame == "1" ||
-                                widget.item.isPartai == "1"
+                                widget.item.isPartai == "1" ||
+                                widget.item.isOngkir == "1" ||
+                                widget.item.isOngkir == "2" ||
+                                widget.item.isFrame == "1"
                             ? Container(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2077,39 +2081,147 @@ class _DetailContractState extends State<DetailContract> {
                                       height: isHor ? 15.h : 10.h,
                                     ),
                                     widget.item.isFrame.contains('1')
-                                        ? Text(
-                                            'Diskon khusus pada kontrak frame disesuakan dengan surat pesanan (SP) .',
-                                            style: TextStyle(
-                                              fontFamily: 'Montserrat',
-                                              fontSize: isHor ? 14.sp : 12.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
-                                            ),
-                                            textAlign: TextAlign.justify,
+                                        ? Column(
+                                            children: [
+                                              Text(
+                                                'Diskon khusus pada kontrak frame disesuakan dengan surat pesanan (SP) .',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize:
+                                                      isHor ? 14.sp : 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black87,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                              SizedBox(
+                                                height: isHor ? 15.h : 10.h,
+                                              ),
+                                            ],
                                           )
                                         : SizedBox(
                                             width: 10.h,
                                           ),
-                                    SizedBox(
-                                      height: isHor ? 15.h : 10.h,
-                                    ),
                                     widget.item.isPartai.contains('1')
-                                        ? Text(
-                                            'Diskon khusus pada kontrak partai disesuakan dengan surat pesanan (SP) .',
-                                            style: TextStyle(
-                                              fontFamily: 'Montserrat',
-                                              fontSize: isHor ? 14.sp : 12.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
-                                            ),
-                                            textAlign: TextAlign.justify,
+                                        ? Column(
+                                            children: [
+                                              Text(
+                                                'Diskon khusus pada kontrak partai disesuakan dengan surat pesanan (SP) .',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize:
+                                                      isHor ? 14.sp : 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black87,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                              SizedBox(
+                                                height: isHor ? 15.h : 10.h,
+                                              ),
+                                            ],
                                           )
                                         : SizedBox(
                                             width: 10.h,
                                           ),
-                                    SizedBox(
-                                      height: isHor ? 15.h : 10.h,
-                                    ),
+                                    widget.item.isOngkir.contains('1')
+                                        ? Column(
+                                            children: [
+                                              Text(
+                                                'Free ongkir berlaku pada kontrak customer ini sesuai dengan kesepakatan sales.',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize:
+                                                      isHor ? 14.sp : 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black87,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                              SizedBox(
+                                                height: isHor ? 15.h : 10.h,
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox(
+                                            width: 10.h,
+                                          ),
+                                    widget.item.isOngkir.contains('2')
+                                        ? Column(
+                                            children: [
+                                              // Text(
+                                              //   'Ongkir sebesar ${convertToIdr(int.parse(widget.item.ongkir), 0)} berlaku pada kontrak customer ini sesuai dengan kesepakatan sales.',
+                                              //   style: TextStyle(
+                                              //     fontFamily: 'Montserrat',
+                                              //     fontSize:
+                                              //         isHor ? 14.sp : 12.sp,
+                                              //     fontWeight: FontWeight.w500,
+                                              //     color: Colors.black87,
+                                              //   ),
+                                              //   textAlign: TextAlign.justify,
+                                              // ),
+                                              RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                    fontFamily: 'Montserrat',
+                                                    fontSize:
+                                                        isHor ? 14.sp : 12.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black87,
+                                                  ),
+                                                  children: [
+                                                    TextSpan(
+                                                      text: 'Ongkir sebesar ',
+                                                    ),
+                                                    TextSpan(
+                                                      text: convertToIdr(
+                                                          int.parse(widget
+                                                              .item.ongkir),
+                                                          0),
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 11.sp,
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text:
+                                                          ' berlaku pada kontrak customer ini sesuai dengan kesepakatan sales.',
+                                                    ),
+                                                  ],
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                              SizedBox(
+                                                height: isHor ? 15.h : 10.h,
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox(
+                                            width: 10.h,
+                                          ),
+                                    widget.item.isFacet.contains('1')
+                                        ? Column(
+                                            children: [
+                                              Text(
+                                                'Free facet berlaku pada kontrak customer ini sesuai dengan kesepakatan sales.',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize:
+                                                      isHor ? 14.sp : 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black87,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                              SizedBox(
+                                                height: isHor ? 15.h : 10.h,
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox(
+                                            width: 10.h,
+                                          ),
                                     widget.item.catatan.contains(
                                             'KONTRAK KHUSUS LEINZ PRESTIGE (JAPAN) - BELI 3 GRATIS 1')
                                         ? Text(

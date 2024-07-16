@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sample/src/app/controllers/my_controller.dart';
 import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
 import 'package:sample/src/app/pages/attendance/attendance_service.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -18,6 +20,7 @@ class StaffScreen extends StatefulWidget {
 }
 
 class _StaffScreenState extends State<StaffScreen> {
+  MyController myController = Get.find<MyController>();
   MyLocation _myLocation = MyLocation();
   late SharedPreferences preferences;
   String? id = '';
@@ -32,6 +35,8 @@ class _StaffScreenState extends State<StaffScreen> {
   bool isPermissionService = false;
 
   getRole() async {
+    myController.getRole();
+    print(myController.sessionId);
     preferences = await SharedPreferences.getInstance();
     setState(() {
       id = preferences.getString("id");

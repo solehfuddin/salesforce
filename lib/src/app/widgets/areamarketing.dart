@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/marketingexpense/marketingexpense_approval.dart';
 // import 'package:sample/src/app/pages/cashback/cashback_approval.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_approval.dart';
 import 'package:sample/src/app/utils/settings_posmaterial.dart';
@@ -9,7 +10,7 @@ SliverPadding areaMarketing(
   bool isHorizontal,
   BuildContext context,
   int totalPosMaterial,
-  int totalCashback,
+  int totalMarketingExpense,
   bool isVisible,
   String divisi,
 ) {
@@ -77,13 +78,13 @@ SliverPadding areaMarketing(
                     width: 12.w,
                   ),
                   CardMarketing(
-                    totalExpense: 0,
+                    totalExpense: totalMarketingExpense,
                     isHorizontal: isHorizontal,
-                    cardIcon: 'assets/images/pos_material.png',
+                    cardIcon: 'assets/images/marketing_expense.png',
                     cardTitle:
                         setMarketingFeature(MarketingFeature.MARKETING_EXPENSE),
                     cardSubtitle: '5% dari penjualan',
-                    navigateTo: null,
+                    navigateTo: Marketingexpense_Approval(),
                   ),
                 ],
               ),

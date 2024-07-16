@@ -381,6 +381,24 @@ pushNotif(
           'Maaf, pengajuan kontrak cashback $opticName ditolak oleh $admName. Segera cek data cashback anda';
       tmplate = '22';
       break;
+    case 23:
+      title = 'Ada Pengajuan Marketing Expense';
+      body =
+          '$salesName mengajukan Marketing Expense untuk $opticName. Mohon segera proses permintaan tersebut';
+      tmplate = '23';
+      break;
+    case 24:
+      title = 'Pengajuan Marketing Expense Disetujui';
+      body =
+          'Hai, pengajuan Marketing Expense $opticName telah disetujui oleh $admName. Selalu periksa status terbarunya';
+      tmplate = '24';
+      break;
+    case 25:
+      title = 'Pengajuan Marketing Expense Ditolak';
+      body =
+          'Maaf, pengajuan Marketing Expense $opticName ditolak oleh $admName. Segera cek data status terbarunya';
+      tmplate = '25';
+      break;
   }
 
   switch (type) {
@@ -1394,6 +1412,8 @@ String convertThousand(dynamic number, int decimalDigit) {
   );
   return currencyFormatter.format(number);
 }
+
+String convertPercent(dynamic number) => "$number %";
 
 int counterTwoDays(DateTime from, DateTime to) {
   Duration diff = to.difference(from);

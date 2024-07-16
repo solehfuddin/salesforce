@@ -5,11 +5,13 @@ import 'dart:io';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/admin/admin_view.dart';
+import 'package:get/get.dart';
+// import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/cashback/cashback_form.dart';
+import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
-import 'package:sample/src/app/pages/customer/customer_view.dart';
+// import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
@@ -111,8 +113,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
   TextEditingController textValOrientalSt = new TextEditingController();
   // TextEditingController textValMoe = new TextEditingController();
   TextEditingController textCatatan = new TextEditingController();
+  TextEditingController textOngkir = new TextEditingController();
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
+  bool _isOngkirContract = false;
+  bool _isFixedOngkir = false;
+  bool _isFacetContract = false;
   bool _isPrestigeContract = false;
   bool _isCashbackWithDiscContract = false;
   bool _isChildContract = false;
@@ -335,6 +341,14 @@ class _EcontractScreenState extends State<EcontractScreen> {
     _contract[0].isFrame == "1"
         ? _isFrameContract = true
         : _isFrameContract = false;
+    _contract[0].isOngkir == "1"
+        ? _isOngkirContract = true
+        : _contract[0].isOngkir == "2"
+            ? _isFixedOngkir = true
+            : _isOngkirContract = false;
+    _contract[0].isFacet == "1"
+        ? _isFacetContract = true
+        : _isFacetContract = false;
     _contract[0].typeContract == "CASHBACK"
         ? _isCashbackContrack = true
         : _isCashbackContrack = false;
@@ -959,8 +973,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
       mounted,
       context,
       shipNumber: widget.customerList[widget.position].noAccount.length > 0
-            ? widget.customerList[widget.position].noAccount
-            : widget.customerList[widget.position].id,
+          ? widget.customerList[widget.position].noAccount
+          : widget.customerList[widget.position].id,
       limit: 1,
     )
         .then((value) {
@@ -1205,7 +1219,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //     outMoe,
     var outLeinz, outLeinzSt, outOrientalSt, startContract;
     // var valNikon, valOriental, valMoe;
-    var valLeinz, valLeinzSt, valOrientalSt;
+    var valLeinz, valLeinzSt, valOrientalSt, valOngkir;
 
     startContract = _formatter.format(_now);
 
@@ -1260,6 +1274,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     valOrientalSt = textValOrientalSt.text.length > 0
         ? '${textValOrientalSt.text}.000.000'
         : '0';
+    valOngkir = textOngkir.text.length > 0 ? textOngkir.text : '0';
     // valOriental = textValOriental.text.length > 0
     //     ? '${textValOriental.text}.000.000'
     //     : '0';
@@ -1285,6 +1300,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
         'type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : $_isFrameContract');
     print('is_partai : $_isPartaiContract');
+    print('is_ongkir : $_isOngkirContract');
+    print('is fixed ongkir : $_isFixedOngkir');
+    print('is_facet : $_isFacetContract');
     print('updated_by : $id');
     print('has_parent : ${_isContractActive ? '1' : '0'}');
     print(
@@ -1394,6 +1412,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   : 'LENSA',
           'is_frame': _isFrameContract ? '1' : '0',
           'is_partai': _isPartaiContract ? '1' : '0',
+          'is_ongkir': _isOngkirContract
+              ? '1'
+              : _isFixedOngkir
+                  ? '2'
+                  : '0',
+          'ongkir': valOngkir.replaceAll('.', ''),
+          'is_facet': _isFacetContract ? '1' : '0',
           'catatan':
               "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'updated_by': id,
@@ -1419,6 +1444,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           textValLeinz.clear();
           textValLeinzSt.clear();
           textValOrientalSt.clear();
+          textOngkir.clear();
           // textValMoe.clear();
           // textValNikon.clear();
           // textValOriental.clear();
@@ -1530,7 +1556,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //     outMoe,
     var outLeinz, outLeinzSt, outOrientalSt, startContract;
     // var valNikon, valOriental, valMoe;
-    var valLeinz, valLeinzSt, valOrientalSt;
+    var valLeinz, valLeinzSt, valOrientalSt, valOngkir;
 
     // if (_chosenNikon == "KREDIT") {
     //   outNikon = _chosenNikon + '-' + _durasiNikon;
@@ -1584,6 +1610,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
     valOrientalSt = textValOrientalSt.text.length > 0
         ? '${textValOrientalSt.text}.000.000'
         : '0';
+    valOngkir = textOngkir.text.length > 0 ? textOngkir.text : '0';
     // valOriental = textValOriental.text.length > 0
     //     ? '${textValOriental.text}.000.000'
     //     : '0';
@@ -1611,6 +1638,9 @@ class _EcontractScreenState extends State<EcontractScreen> {
         'type_contract : ${_isCashbackContrack ? 'CASHBACK' : _isCashbackWithDiscContract ? 'CASHBACK DENGAN DISKON' : 'LENSA'}');
     print('is_frame : ${_isFrameContract ? '1' : '0'}');
     print('is_partai : ${_isPartaiContract ? '1' : '0'}');
+    print(
+        'is_ongkir : ${_isOngkirContract ? '1' : _isFixedOngkir ? '2' : '0'}');
+    print('is_facet : ${_isFacetContract ? '1' : '0'}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
     print(
@@ -1731,6 +1761,13 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   : 'LENSA',
           'is_frame': _isFrameContract ? '1' : '0',
           'is_partai': _isPartaiContract ? '1' : '0',
+          'is_ongkir': _isOngkirContract
+              ? '1'
+              : _isFixedOngkir
+                  ? '2'
+                  : '0',
+          'ongkir': valOngkir.replaceAll('.', ''),
+          'is_facet': _isFacetContract ? '1' : '0',
           'catatan':
               "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'ttd_pertama': ttdPertama,
@@ -1761,6 +1798,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
           // textValNikon.clear();
           // textValOriental.clear();
           textValOrientalSt.clear();
+          textOngkir.clear();
 
           if (_isContractActive) {
             print('Ini child');
@@ -2050,11 +2088,12 @@ class _EcontractScreenState extends State<EcontractScreen> {
         leading: IconButton(
           onPressed: () {
             if (widget.isAdmin!) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => AdminScreen(),
-                ),
-              );
+              // Navigator.of(context).pushReplacement(
+              //   MaterialPageRoute(
+              //     builder: (context) => AdminScreen(),
+              //   ),
+              // );
+              Get.offAllNamed('/admin');
             } else {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
@@ -2063,6 +2102,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   ),
                 ),
               );
+              // Get.offAllNamed('/customer/$id');
             }
           },
           icon: Icon(
@@ -4432,6 +4472,163 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                 setState(
                                   () {
                                     this._isPartaiContract = value!;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Visibility(
+                        visible: !_isFixedOngkir,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isHorizontal ? 10.r : 8.r,
+                                  vertical: isHorizontal ? 5.r : 2.r,
+                                ),
+                                child: Text(
+                                  'Kontrak Free Ongkir',
+                                  style: TextStyle(
+                                    fontSize: isHorizontal ? 18.sp : 14.sp,
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Checkbox(
+                                value: this._isOngkirContract,
+                                onChanged: (bool? value) {
+                                  setState(
+                                    () {
+                                      this._isOngkirContract = value!;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        replacement: SizedBox(
+                          width: 5.w,
+                        ),
+                      ),
+                      Visibility(
+                        visible: !_isOngkirContract,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isHorizontal ? 10.r : 8.r,
+                                  vertical: isHorizontal ? 5.r : 2.r,
+                                ),
+                                child: Text(
+                                  'Kontrak Fixed Ongkir',
+                                  style: TextStyle(
+                                    fontSize: isHorizontal ? 18.sp : 14.sp,
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Checkbox(
+                                value: this._isFixedOngkir,
+                                onChanged: (bool? value) {
+                                  setState(
+                                    () {
+                                      this._isFixedOngkir = value!;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        replacement: SizedBox(
+                          width: 5.w,
+                        ),
+                      ),
+                      Visibility(
+                        visible: _isFixedOngkir,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isHorizontal ? 10.r : 5.r,
+                          ),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: 'Masukkan ongkir',
+                              labelText: 'Ongkos kirim (Fixed)',
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 3.r,
+                                horizontal: 15.r,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.r),
+                              ),
+                            ),
+                            inputFormatters: [
+                              ThousandsSeparatorInputFormatter()
+                            ],
+                            controller: textOngkir,
+                            maxLength: 9,
+                            style: TextStyle(
+                              fontSize: isHorizontal ? 18.sp : 14.sp,
+                              fontFamily: 'Segoe Ui',
+                            ),
+                          ),
+                        ),
+                        replacement: SizedBox(
+                          width: 5.w,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Free Facet',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isFacetContract,
+                              onChanged: (bool? value) {
+                                setState(
+                                  () {
+                                    this._isFacetContract = value!;
                                   },
                                 );
                               },
