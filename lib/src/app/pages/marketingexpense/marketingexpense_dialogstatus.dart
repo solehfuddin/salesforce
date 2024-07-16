@@ -1,52 +1,54 @@
-import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:sample/src/app/pages/posmaterial/posmaterial_detail.dart';
+import 'package:get/get.dart';
+import 'package:sample/src/app/controllers/marketingexpense_controller.dart';
+import 'package:sample/src/app/pages/marketingexpense/marketingexpense_detail.dart';
 import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/app/utils/settings_posmaterial.dart';
-import 'package:sample/src/domain/entities/posmaterial_header.dart';
+import 'package:sample/src/app/utils/settings_marketingexpense.dart';
+import 'package:sample/src/domain/entities/marketingexpense_header.dart';
 
-// ignore: must_be_immutable
-class PosMaterialDialogStatus extends StatefulWidget {
-  PosMaterialHeader item;
-  PosMaterialDialogStatus({
+// ignore: camel_case_types, must_be_immutable
+class Marketingexpense_Dialogstatus extends StatefulWidget {
+  MarketingExpenseHeader item;
+  Marketingexpense_Dialogstatus({
     Key? key,
     required this.item,
   }) : super(key: key);
 
   @override
-  State<PosMaterialDialogStatus> createState() =>
-      _PosMaterialDialogStatusState();
+  State<Marketingexpense_Dialogstatus> createState() =>
+      _Marketingexpense_DialogstatusState();
 }
 
-class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
-  bool _permissionReady = false;
-  late String _localPath;
+// ignore: camel_case_types
+class _Marketingexpense_DialogstatusState
+    extends State<Marketingexpense_Dialogstatus> {
+  MarketingExpenseController meController =
+      Get.find<MarketingExpenseController>();
+
   final ReceivePort _port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
-    _retryRequestPermission();
+    meController.retryRequestPermission();
 
     IsolateNameServer.registerPortWithName(
       _port.sendPort,
-      'downloader_posmaterial',
+      'downloader_marketingexpense',
     );
+
     _port.listen((dynamic data) {
       String id = data[0];
       DownloadTaskStatus status = data[1];
       int progress = data[2];
+
       setState(() {
         print("Id : $id");
         print("Status : $status");
@@ -71,78 +73,6 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
     if (send != null) {
       send.send([id, status, progress]);
     }
-  }
-
-  Future<void> _retryRequestPermission() async {
-    final hasGranted = await _checkPermission();
-    if (hasGranted) {
-      await _prepareSaveDir();
-    }
-
-    setState(() {
-      _permissionReady = hasGranted;
-    });
-  }
-
-  Future<bool> _checkPermission() async {
-    if (Platform.isIOS) {
-      return true;
-    }
-
-    bool isPermit = false;
-
-    if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      late final Map<Permission, PermissionStatus> statusess;
-
-      if (androidInfo.version.sdkInt! < 33) {
-        statusess = await [Permission.storage].request();
-      } else {
-        statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
-      }
-
-      var allAccepted = true;
-      statusess.forEach((permission, status) {
-        if (status != PermissionStatus.granted) {
-          allAccepted = false;
-        }
-      });
-
-      if (allAccepted) {
-        setState(() {
-          isPermit = true;
-        });
-      } else {
-        await openAppSettings();
-      }
-    }
-    return isPermit;
-  }
-
-  Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath())!;
-    final savedDir = Directory(_localPath);
-    final hasExisted = savedDir.existsSync();
-    if (!hasExisted) {
-      await savedDir.create();
-    }
-  }
-
-  Future<String?> _findLocalPath() async {
-    String? externalStorageDirPath;
-    if (Platform.isAndroid) {
-      try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
-      } catch (e) {
-        final directory = await getExternalStorageDirectory();
-        externalStorageDirPath = directory?.path;
-      }
-    } else if (Platform.isIOS) {
-      externalStorageDirPath =
-          (await getApplicationDocumentsDirectory()).absolute.path;
-    }
-    return externalStorageDirPath;
   }
 
   @override
@@ -207,7 +137,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
             height: 8.h,
           ),
           Text(
-            setPosStatus(
+            setMEStatus(
               widget.item.status ?? 'PENDING',
             ),
             style: TextStyle(
@@ -234,7 +164,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
               ),
               InkWell(
                 child: Text(
-                  'Detail POS',
+                  'Detail ME',
                   style: TextStyle(
                     fontSize: isHorizontal ? 15.sp : 12.sp,
                     fontFamily: 'Segoe ui',
@@ -246,7 +176,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => PosMaterialDetail(
+                      builder: (context) => Marketingexpense_Detail(
                         item: widget.item,
                         isAdmin: false,
                       ),
@@ -278,7 +208,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
             height: isHorizontal ? 10.h : 10.h,
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               getDetailStatus(
                 isHorizontal,
@@ -286,22 +216,10 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                 pic: 'Sales Manager',
                 picAlias: 'SM',
                 picName: widget.item.smName!,
-                picReason: widget.item.reasonSm!,
-                approvalStatus: widget.item.approvalSm!,
+                picReason: widget.item.reasonSM!,
+                approvalStatus: widget.item.approvalSM!,
                 dateApproved: convertDateWithMonthHour(
-                  widget.item.dateApprovelSm!,
-                ),
-              ),
-              getDetailStatus(
-                isHorizontal,
-                context,
-                pic: 'Brand Manager',
-                picAlias: 'BM',
-                picName: widget.item.admName!,
-                picReason: widget.item.reasonAdm!,
-                approvalStatus: widget.item.approvalAdm!,
-                dateApproved: convertDateWithMonthHour(
-                  widget.item.dateApprovelAdm!,
+                  widget.item.dateApprovalSM!,
                 ),
               ),
               getDetailStatus(
@@ -310,10 +228,10 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                 pic: 'General Manager',
                 picAlias: 'GM',
                 picName: widget.item.gmName!,
-                picReason: widget.item.reasonGm!,
-                approvalStatus: widget.item.approvalGm!,
+                picReason: widget.item.reasonGM!,
+                approvalStatus: widget.item.approvalGM!,
                 dateApproved: convertDateWithMonthHour(
-                  widget.item.dateApprovelGm!,
+                  widget.item.dateApprovalGM!,
                 ),
               ),
             ],
@@ -339,9 +257,9 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                   height: 5.h,
                 ),
                 Visibility(
-                  visible: widget.item.reasonSm!.length > 0 ? true : false,
+                  visible: widget.item.reasonSM!.length > 0 ? true : false,
                   child: Text(
-                    'Catatan SM : ${widget.item.reasonSm!}',
+                    'Catatan SM : ${widget.item.reasonSM!}',
                     style: TextStyle(
                       fontSize: isHorizontal ? 15.sp : 12.sp,
                       fontFamily: 'Segoe ui',
@@ -353,23 +271,9 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                   ),
                 ),
                 Visibility(
-                  visible: widget.item.reasonAdm!.length > 0 ? true : false,
+                  visible: widget.item.reasonGM!.length > 0 ? true : false,
                   child: Text(
-                    'Catatan BM : ${widget.item.reasonAdm!}',
-                    style: TextStyle(
-                      fontSize: isHorizontal ? 15.sp : 12.sp,
-                      fontFamily: 'Segoe ui',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  replacement: SizedBox(
-                    width: 5.w,
-                  ),
-                ),
-                Visibility(
-                  visible: widget.item.reasonGm!.length > 0 ? true : false,
-                  child: Text(
-                    'Catatan GM : ${widget.item.reasonGm!}',
+                    'Catatan GM : ${widget.item.reasonGM!}',
                     style: TextStyle(
                       fontSize: isHorizontal ? 15.sp : 12.sp,
                       fontFamily: 'Segoe ui',
@@ -413,11 +317,11 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
               ),
               onTap: (startLoading, stopLoading, btnState) {
                 if (btnState == ButtonState.Idle) {
-                  if (_permissionReady) {
-                    donwloadPdfPOS(
+                  if (meController.permissionReady.value) {
+                    donwloadPdfME(
                       widget.item.id ?? '',
                       widget.item.opticName ?? 'Optik',
-                      _localPath,
+                      meController.localPath.value,
                     );
 
                     showStyledToast(

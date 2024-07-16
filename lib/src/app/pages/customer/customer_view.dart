@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/app/pages/econtract/econtract_view.dart';
@@ -20,6 +21,7 @@ class CustomerScreen extends StatefulWidget {
   _CustomerScreenState createState() => _CustomerScreenState();
 
   CustomerScreen(this.idOuter);
+  // CustomerScreen();
 }
 
 class _CustomerScreenState extends State<CustomerScreen> {
@@ -28,6 +30,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
   String? username = '';
   String? divisi = '';
   String search = '';
+  // int idOuter = Get.parameters['idOuter'] != null ? int.parse(Get.parameters['idOuter'].toString()) : 0;
   var thisYear, nextYear;
   bool isDataFound = true;
   List<CustomerNoImage> currList = List.empty(growable: true);
@@ -53,6 +56,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
 
       _listFuture = search.isNotEmpty
           ? getCustomerBySeach(search)
+          // : getCustomerByIdOld(idOuter);
           : getCustomerByIdOld(widget.idOuter);
 
       print('This Year : $thisYear');
@@ -84,6 +88,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
             page == totalPages ? endAt - currList.length : endAt - pageCount;
         _listFuture = search.isNotEmpty
             ? getCustomerBySeach(search)
+            // : getCustomerByIdOld(idOuter);
             : getCustomerByIdOld(widget.idOuter);
         page = page - 1;
 
@@ -107,6 +112,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
             : currList.length;
         _listFuture = search.isNotEmpty
             ? getCustomerBySeach(search)
+            // : getCustomerByIdOld(idOuter);
             : getCustomerByIdOld(widget.idOuter);
         page = page + 1;
 
@@ -241,6 +247,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
     setState(() {
       _listFuture = search.isNotEmpty
           ? getCustomerBySeach(search)
+          // : getCustomerByIdOld(idOuter);
           : getCustomerByIdOld(widget.idOuter);
     });
   }
@@ -361,6 +368,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
 
                   _listFuture = search.isNotEmpty
                       ? getCustomerBySeach(search)
+                      // : getCustomerByIdOld(idOuter);
                       : getCustomerByIdOld(widget.idOuter);
                 });
               },

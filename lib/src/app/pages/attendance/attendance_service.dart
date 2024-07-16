@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:location/location.dart';
 
 class AttendanceService extends StatefulWidget {
@@ -90,7 +91,8 @@ class _AttendanceServiceState extends State<AttendanceService> {
                   setState(() {
                     if (isEnabled)
                     {
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
+                      Get.back();
                     }
                   });
                 }

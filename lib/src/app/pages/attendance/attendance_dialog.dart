@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
@@ -285,24 +286,33 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
                 ),
                 onTap: (startLoading, stopLoading, btnState) async {
                   if (btnState == ButtonState.Idle) {
-                    screenshoot = await screenshotController.capture();
+                    screenshoot = await screenshotController.capture().then((value) {
+                      setState(() {
+                        startLoading();
+                        waitingLoad();
 
-                    setState(() {
-                      startLoading();
-                      waitingLoad();
+                        compressImageUint8List(value!).then((value) {
+                          base64Imgprofile = base64Encode(value!);
 
-                      compressImageUint8List(screenshoot!).then((value) {
-                        base64Imgprofile = base64Encode(value!);
+                          print("Eksekusi db");
+                          print(base64Imgprofile);
+
+                          if (widget.isCekin!) {
+                            cekIn(stopLoading);
+                          } else {
+                            cekOut(stopLoading);
+                          }
+                        });
+
+                        // print("Eksekusi db");
+                        // print(base64Imgprofile);
+
+                        // if (widget.isCekin!) {
+                        //   cekIn(stopLoading);
+                        // } else {
+                        //   cekOut(stopLoading);
+                        // }
                       });
-
-                      print("Eksekusi db");
-                      print(base64Imgprofile);
-
-                      if (widget.isCekin!) {
-                        cekIn(stopLoading);
-                      } else {
-                        cekOut(stopLoading);
-                      }
                     });
                   }
                 },
@@ -323,7 +333,8 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
+                  Get.back();
                 },
               ),
             ],

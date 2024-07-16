@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:get/get.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
+// import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/staff/staff_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -171,6 +173,7 @@ class _DialogStatusState extends State<DialogStatus> {
                                   ),
                                 ),
                               );
+                              // Get.toNamed('/customer/$id');
                             }
                           } else {
                             Navigator.of(context, rootNavigator: true)

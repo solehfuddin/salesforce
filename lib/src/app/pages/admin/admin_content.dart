@@ -25,7 +25,7 @@ import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
 import 'package:sample/src/domain/entities/salesSize.dart';
-import 'package:sample/src/domain/service/service_cashback.dart';
+import 'package:sample/src/domain/service/service_marketingexpense.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,7 +38,7 @@ class AdminContent extends StatefulWidget {
 
 class _AdminContentState extends State<AdminContent> {
   ServicePosMaterial servicePosMaterial = new ServicePosMaterial();
-  ServiceCashback serviceCashback = new ServiceCashback();
+  ServiceMarketingExpense serviceME = new ServiceMarketingExpense();
   List<Contract> listContract = List.empty(growable: true);
   List<Contract> listNewContract = List.empty(growable: true);
   List<Monitoring> listMonitoring = List.empty(growable: true);
@@ -46,6 +46,7 @@ class _AdminContentState extends State<AdminContent> {
   List<SalesPerform> listPerform = List.empty(growable: true);
   MyLocation _myLocation = MyLocation();
   late SharedPreferences preferences;
+
 
   String? id = '';
   String? role = '';
@@ -77,7 +78,7 @@ class _AdminContentState extends State<AdminContent> {
   int totalNewCustomer = 0;
   int totalOldCustomer = 0;
   int totalPosMaterial = 0;
-  int totalCashback = 0;
+  int totalMarketingExpense = 0;
   int totalCashbackWaiting = 0;
   int totalCashbackApprove = 0;
   int totalCashbackReject = 0;
@@ -140,10 +141,10 @@ class _AdminContentState extends State<AdminContent> {
             )
             .then((value) => totalPosMaterial = value.total!);
 
-        serviceCashback
-            .getCashbackDashboard(mounted, context,
+        serviceME
+            .getMEDashboard(mounted, context,
                 idManager: int.parse(id!), status: 0)
-            .then((value) => totalCashback = value.total ?? 0);
+            .then((value) => totalMarketingExpense = value.total ?? 0);
       }
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
@@ -169,10 +170,10 @@ class _AdminContentState extends State<AdminContent> {
             )
             .then((value) => totalPosMaterial = value.total!);
 
-        serviceCashback
-            .getCashbackDashboard(mounted, context,
+        serviceME
+            .getMEDashboard(mounted, context,
                 idGeneral: int.parse(id!), status: 0)
-            .then((value) => totalCashback = value.total ?? 0);
+            .then((value) => totalMarketingExpense = value.total ?? 0);
       }
 
       switch (divisi) {
@@ -592,10 +593,10 @@ class _AdminContentState extends State<AdminContent> {
             )
             .then((value) => totalPosMaterial = value.total!);
 
-        serviceCashback
-            .getCashbackDashboard(mounted, context,
+        serviceME
+            .getMEDashboard(mounted, context,
                 idManager: int.parse(id!), status: 0)
-            .then((value) => totalCashback = value.total ?? 0);
+            .then((value) => totalMarketingExpense = value.total ?? 0);
       }
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
@@ -712,7 +713,7 @@ class _AdminContentState extends State<AdminContent> {
             true,
             context,
             totalPosMaterial,
-            totalCashback,
+            totalMarketingExpense,
             showAreaMarketing,
             divisi ?? '',
           ),
@@ -961,7 +962,7 @@ class _AdminContentState extends State<AdminContent> {
             true,
             context,
             totalPosMaterial,
-            totalCashback,
+            totalMarketingExpense,
             showAreaMarketing,
             divisi ?? '',
           ),

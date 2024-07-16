@@ -74,6 +74,7 @@ class _CustomPageSearchState extends State<CustomPageSearch> {
         widget.page = widget.page - 1;
 
         paginatePref(widget.page, startAt);
+
         widget.handleSearch(
           widget.txtSearch.text,
           limitVal: widget.limit!,

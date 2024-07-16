@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:sample/src/app/pages/approval/approval_view.dart';
 import 'package:sample/src/app/pages/approval/rejected_view.dart';
 // import 'package:sample/src/app/pages/approval/approval_view.dart';
@@ -8,8 +9,9 @@ import 'package:sample/src/app/pages/approval/tab_approval_approve.dart';
 import 'package:sample/src/app/pages/approval/tab_approval_rejected.dart';
 import 'package:sample/src/app/pages/approval/tab_approval_waiting.dart';
 import 'package:sample/src/app/pages/approval/waiting_view.dart';
-// import 'package:sample/src/app/pages/approval/waiting_view.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
+// import 'package:sample/src/app/pages/approval/waiting_view.dart';
+// import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/renewcontract/renewal_contract.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
@@ -103,9 +105,14 @@ SliverPadding areaCounter(
                       ],
                     ),
                   ),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          CustomerScreen(int.parse(idAdmin)))),
+                  // onTap: () => Get.toNamed('/customer/$idAdmin'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CustomerScreen(
+                        int.parse(idAdmin),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(
