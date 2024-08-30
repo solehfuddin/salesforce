@@ -178,7 +178,7 @@ class _CardMarketingState extends State<CardMarketing> {
                       style: TextStyle(
                         fontFamily: 'Segoe Ui',
                         fontWeight: FontWeight.w600,
-                        fontSize: widget.isHorizontal ? 14.sp : 11.sp,
+                        fontSize: widget.isHorizontal ? 13.sp : 11.sp,
                         color: Colors.black87,
                       ),
                     ),

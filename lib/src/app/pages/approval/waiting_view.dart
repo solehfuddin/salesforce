@@ -17,7 +17,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ignore: must_be_immutable
 class WaitingApprovalScreen extends StatefulWidget {
   bool isHideAppbar;
-  WaitingApprovalScreen({Key? key, this.isHideAppbar = false,}) : super(key: key);
+  WaitingApprovalScreen({
+    Key? key,
+    this.isHideAppbar = false,
+  }) : super(key: key);
 
   @override
   State<WaitingApprovalScreen> createState() => _WaitingApprovalScreenState();
@@ -240,40 +243,44 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
-        appBar: widget.isHideAppbar ? null : AppBar(
-          backgroundColor: Colors.white70,
-          title: Text(
-            'List Customer Baru',
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: isHorizontal ? 28.sp : 18.sp,
-              fontFamily: 'Segoe ui',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          elevation: 0.0,
-          centerTitle: true,
-          leading: IconButton(
-            onPressed: () {
-              if (role == 'ADMIN') {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => AdminScreen()));
-              } else if (role == 'SALES') {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => HomeScreen()));
-              }
-            },
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.black54,
-              size: isHorizontal ? 28.sp : 18.r,
-            ),
-          ),
-        ),
+        appBar: widget.isHideAppbar
+            ? null
+            : AppBar(
+                backgroundColor: Colors.white70,
+                title: Text(
+                  'List Customer Baru',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: isHorizontal ? 28.sp : 18.sp,
+                    fontFamily: 'Segoe ui',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                elevation: 0.0,
+                centerTitle: true,
+                leading: IconButton(
+                  onPressed: () {
+                    if (role == 'ADMIN') {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => AdminScreen()));
+                    } else if (role == 'SALES') {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => HomeScreen()));
+                    }
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.black54,
+                    size: isHorizontal ? 28.sp : 18.r,
+                  ),
+                ),
+              ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(height: 8.h,),
+            SizedBox(
+              height: 8.h,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -321,67 +328,67 @@ class _WaitingApprovalScreenState extends State<WaitingApprovalScreen> {
                     child: CircularProgressIndicator(),
                   )
                 : tmpList.length > 0
-                    ? Expanded(
-                        child: SizedBox(
-                          height: 100.h,
-                          child: FutureBuilder(
-                              future: _listFuture,
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<List<Customer>> snapshot) {
-                                switch (snapshot.connectionState) {
-                                  case ConnectionState.waiting:
-                                    return Center(
-                                        child: CircularProgressIndicator());
-                                  default:
-                                    return snapshot.data != null
-                                        ? listViewWidget(
-                                            snapshot.data!,
-                                            snapshot.data!.length,
-                                            isHorizontal: isHorizontal,
-                                          )
-                                        : Column(
-                                            children: [
-                                              Center(
-                                                child: Image.asset(
-                                                  'assets/images/not_found.png',
-                                                  width: isHorizontal
-                                                      ? 150.w
-                                                      : 230.w,
-                                                  height: isHorizontal
-                                                      ? 150.h
-                                                      : 230.h,
-                                                ),
+                    ? Flexible(
+                        child: FutureBuilder(
+                            future: _listFuture,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<Customer>> snapshot) {
+                              switch (snapshot.connectionState) {
+                                case ConnectionState.waiting:
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                default:
+                                  return snapshot.data != null
+                                      ? listViewWidget(
+                                          snapshot.data!,
+                                          snapshot.data!.length,
+                                          isHorizontal: isHorizontal,
+                                        )
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Center(
+                                              child: Image.asset(
+                                                'assets/images/not_found.png',
+                                                width: isHorizontal
+                                                    ? 150.w
+                                                    : 200.w,
+                                                height: isHorizontal
+                                                    ? 150.h
+                                                    : 200.h,
                                               ),
-                                              Text(
-                                                'Data tidak ditemukan',
-                                                style: TextStyle(
-                                                  fontSize: isHorizontal
-                                                      ? 16.sp
-                                                      : 18.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.red[600],
-                                                  fontFamily: 'Montserrat',
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                }
-                              }),
-                        ),
+                                            ),
+                                            Text(
+                                              'Data tidak ditemukan',
+                                              style: TextStyle(
+                                                fontSize: isHorizontal
+                                                    ? 14.sp
+                                                    : 16.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.red[600],
+                                                fontFamily: 'Montserrat',
+                                              ),
+                                            )
+                                          ],
+                                        );
+                              }
+                            }),
                       )
                     : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Center(
                             child: Image.asset(
                               'assets/images/not_found.png',
-                              width: isHorizontal ? 150.w : 230.w,
-                              height: isHorizontal ? 150.h : 230.h,
+                              width: isHorizontal ? 150.w : 200.w,
+                              height: isHorizontal ? 150.h : 200.h,
                             ),
                           ),
                           Text(
                             'Data tidak ditemukan',
                             style: TextStyle(
-                              fontSize: isHorizontal ? 16.sp : 18.sp,
+                              fontSize: isHorizontal ? 14.sp : 16.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.red[600],
                               fontFamily: 'Montserrat',

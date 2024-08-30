@@ -117,8 +117,8 @@ class _SyaratKetentuanState extends State<SyaratKetentuan> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
-                  primary: Colors.blue[800],
+                  shape: StadiumBorder(), 
+                  backgroundColor: Colors.blue[800],
                   padding: EdgeInsets.symmetric(
                     horizontal: isHorizontal ? 25.r : 15.r,
                     vertical: isHorizontal ? 10.r : 7.r,

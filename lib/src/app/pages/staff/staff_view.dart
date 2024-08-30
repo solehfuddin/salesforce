@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/controllers/my_controller.dart';
 import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
 import 'package:sample/src/app/pages/attendance/attendance_service.dart';
@@ -75,9 +79,7 @@ class _StaffScreenState extends State<StaffScreen> {
     setState(() {
       if (!isProminentAccess!) {
         dialogProminentService(context);
-      }
-      else
-      {
+      } else {
         checkService();
       }
     });
@@ -135,9 +137,28 @@ class _StaffScreenState extends State<StaffScreen> {
         return AttendanceProminent();
       },
     ).whenComplete(
-      () {
+      () async {
         preferences.setBool("check_prominent", true);
-        checkService();
+
+        if (Platform.isAndroid) {
+          final androidInfo = await DeviceInfoPlugin().androidInfo;
+
+          if (androidInfo.version.sdkInt < 33) {
+            await [
+              Permission.camera,
+              Permission.microphone,
+              Permission.storage,
+              Permission.notification,
+            ].request();
+          } else {
+            await [
+              Permission.camera,
+              Permission.microphone,
+              Permission.mediaLibrary
+            ].request().then((value) => openAppSettings());
+          }
+        }
+        // checkService();
       },
     );
   }

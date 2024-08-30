@@ -46,7 +46,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: StadiumBorder(),
-                primary: Colors.green[500],
+                backgroundColor: Colors.green[500],
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: Text(

@@ -404,7 +404,7 @@ class _Marketingexpense_FormheaderState
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red.shade700,
+                        backgroundColor: Colors.red.shade700,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -415,7 +415,7 @@ class _Marketingexpense_FormheaderState
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                       onPressed: () {
                         controllerOpticName.text =

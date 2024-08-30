@@ -2,9 +2,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -63,8 +62,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
     super.dispose();
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
 
@@ -95,7 +93,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
@@ -133,7 +131,8 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -143,6 +142,34 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
           (await getApplicationDocumentsDirectory()).absolute.path;
     }
     return externalStorageDirPath;
+  }
+
+  onButtonPressed() async {
+    if (_permissionReady) {
+      donwloadPdfPOS(
+        widget.item.id ?? '',
+        widget.item.opticName ?? 'Optik',
+        _localPath,
+      );
+
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child: Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
   }
 
   @override
@@ -393,51 +420,29 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
             height: 7.h,
           ),
           Center(
-            child: ArgonButton(
-              height: isHorizontal ? 40.h : 40.h,
-              width: isHorizontal ? 90.w : 120.w,
-              borderRadius: isHorizontal ? 50.r : 30.r,
-              color: Colors.blue[700],
-              child: Text(
+            child: EasyButton(
+              idleStateWidget: Text(
                 "Unduh Pdf",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: isHorizontal ? 16.sp : 14.sp,
                     fontWeight: FontWeight.w700),
               ),
-              loader: Container(
-                padding: EdgeInsets.all(8.r),
-                child: CircularProgressIndicator(
-                  color: Colors.white,
+              loadingStateWidget: CircularProgressIndicator(
+                strokeWidth: 3.0,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.white,
                 ),
               ),
-              onTap: (startLoading, stopLoading, btnState) {
-                if (btnState == ButtonState.Idle) {
-                  if (_permissionReady) {
-                    donwloadPdfPOS(
-                      widget.item.id ?? '',
-                      widget.item.opticName ?? 'Optik',
-                      _localPath,
-                    );
-
-                    showStyledToast(
-                      child: Text('Sedang mengunduh file'),
-                      context: context,
-                      backgroundColor: Colors.blue,
-                      borderRadius: BorderRadius.circular(15.r),
-                      duration: Duration(seconds: 2),
-                    );
-                  } else {
-                    showStyledToast(
-                      child: Text('Tidak mendapat izin penyimpanan'),
-                      context: context,
-                      backgroundColor: Colors.red,
-                      borderRadius: BorderRadius.circular(15.r),
-                      duration: Duration(seconds: 2),
-                    );
-                  }
-                }
-              },
+              useEqualLoadingStateWidgetDimension: true,
+              useWidthAnimation: true,
+              height: isHorizontal ? 40.h : 40.h,
+              width: isHorizontal ? 90.w : 120.w,
+              borderRadius: isHorizontal ? 50.r : 30.r,
+              buttonColor: Colors.blue.shade700,
+              elevation: 2.0,
+              contentGap: 6.0,
+              onPressed: onButtonPressed,
             ),
           ),
         ],

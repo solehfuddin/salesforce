@@ -2,9 +2,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -14,7 +13,6 @@ import 'package:sample/src/app/pages/econtract/detail_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-// import 'package:sample/src/domain/entities/customer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,13 +85,11 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
-    
-    if (send != null)
-    {
+
+    if (send != null) {
       send.send([id, status, progress]);
     }
   }
@@ -121,10 +117,11 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
-        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+        statusess =
+            await [Permission.notification, Permission.mediaLibrary].request();
       }
 
       var allAccepted = true;
@@ -158,7 +155,8 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -187,6 +185,30 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
       showNotification: true,
       openFileFromNotification: true,
     );
+  }
+
+  onButtonPressed() async {
+    if (_permissionReady) {
+      donwloadContract(widget.item[widget.position].idCustomer,
+          widget.customer!.namaUsaha, _localPath);
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child: Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
   }
 
   @override
@@ -540,7 +562,7 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: StadiumBorder(),
-                      primary: Colors.orange[800],
+                      backgroundColor: Colors.orange[800],
                       padding: EdgeInsets.symmetric(
                           horizontal: isHorizontal ? 40.r : 20.r,
                           vertical: 10.r),
@@ -576,54 +598,34 @@ class _DetailWaitingContractState extends State<DetailWaitingContract> {
               : Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ArgonButton(
-                      height: 40,
-                      width: 120,
-                      borderRadius: 30.0,
-                      color: Colors.blue[700],
-                      child: Text(
+                    EasyButton(
+                      idleStateWidget: Text(
                         "Unduh Kontrak",
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w700),
                       ),
-                      loader: Container(
-                        padding: EdgeInsets.all(8),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                      loadingStateWidget: CircularProgressIndicator(
+                        strokeWidth: 3.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
                       ),
-                      onTap: (startLoading, stopLoading, btnState) {
-                        if (btnState == ButtonState.Idle) {
-                          if (_permissionReady) {
-                            donwloadContract(
-                                widget.item[widget.position].idCustomer,
-                                widget.customer!.namaUsaha,
-                                _localPath);
-                            showStyledToast(
-                              child: Text('Sedang mengunduh file'),
-                              context: context,
-                              backgroundColor: Colors.blue,
-                              borderRadius: BorderRadius.circular(15.r),
-                              duration: Duration(seconds: 2),
-                            );
-                          } else {
-                            showStyledToast(
-                              child: Text('Tidak mendapat izin penyimpanan'),
-                              context: context,
-                              backgroundColor: Colors.red,
-                              borderRadius: BorderRadius.circular(15.r),
-                              duration: Duration(seconds: 2),
-                            );
-                          }
-                        }
-                      },
+                      useEqualLoadingStateWidgetDimension: true,
+                      useWidthAnimation: true,
+                      height: 40.h,
+                      width: 120.w,
+                      borderRadius: 35.r,
+                      buttonColor: Colors.blue.shade700,
+                      elevation: 2.0,
+                      contentGap: 6.0,
+                      onPressed: onButtonPressed,
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: StadiumBorder(),
-                        primary: Colors.red[800],
+                        backgroundColor: Colors.red[800],
                         padding:
                             EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/cashback/cashback_formattachment.dart';
@@ -135,6 +135,7 @@ class _CashbackFormState extends State<CashbackForm> {
   bool _validateCashbackValue = false;
   bool _validateTargetValue = false;
   bool _validateLampiranSign = false;
+  bool _isHorizontal = false;
   String _selectedWithdrawProcess = 'TAGIHAN LUNAS';
   String _selectedPaymentTermint = '7 hari';
   String base64Sign = '';
@@ -236,7 +237,8 @@ class _CashbackFormState extends State<CashbackForm> {
       setState(() {
         selectedTargetProdDiv.clear();
         selectedTargetProdDiv.addAll(widget.listTargetProddiv);
-        _targetProduct = selectedTargetProdDiv.map((i) => i.alias).toList().join(',');
+        _targetProduct =
+            selectedTargetProdDiv.map((i) => i.alias).toList().join(',');
       });
     }
 
@@ -428,7 +430,16 @@ class _CashbackFormState extends State<CashbackForm> {
     });
   }
 
-  handleValidationForm(Function stop, {bool isHorizontal = false}) {
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => handleValidationForm(isHorizontal: _isHorizontal),
+    );
+
+    return () {};
+  }
+
+  handleValidationForm({bool isHorizontal = false}) {
     if (!_isActiveRekening) {
       handleStatus(
         context,
@@ -437,7 +448,6 @@ class _CashbackFormState extends State<CashbackForm> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     } else if (!_validateOwnerName && !_validateKtp) {
       handleStatus(
         context,
@@ -446,7 +456,6 @@ class _CashbackFormState extends State<CashbackForm> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     } else if (!_validateStartDate &&
         !_validateEndDate &&
         !_validateWithdrawDuration) {
@@ -457,7 +466,6 @@ class _CashbackFormState extends State<CashbackForm> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     } else if (!_validateLampiranSign) {
       handleStatus(
         context,
@@ -466,7 +474,6 @@ class _CashbackFormState extends State<CashbackForm> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     } else if (_cashbackType == CashbackType.BY_TARGET) {
       if (!_validateTargetValue && !_validateCashbackValue) {
         handleStatus(
@@ -476,7 +483,6 @@ class _CashbackFormState extends State<CashbackForm> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else if (_targetProduct.isEmpty) {
         handleStatus(
           context,
@@ -485,11 +491,12 @@ class _CashbackFormState extends State<CashbackForm> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else {
         widget.isUpdateForm
-            ? updateToDb(stop, isHorizontal: isHorizontal, idCashback: widget.constructIdCashback)
-            : saveToDb(stop, isHorizontal: isHorizontal);
+            ? updateToDb(
+                isHorizontal: isHorizontal,
+                idCashback: widget.constructIdCashback)
+            : saveToDb(isHorizontal: isHorizontal);
       }
     } else if (_cashbackType == CashbackType.BY_PRODUCT) {
       if (selectedItemProdDiv.isEmpty && selectedItemProduct.isEmpty) {
@@ -500,11 +507,12 @@ class _CashbackFormState extends State<CashbackForm> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else {
         widget.isUpdateForm
-            ? updateToDb(stop, isHorizontal: isHorizontal, idCashback: widget.constructIdCashback)
-            : saveToDb(stop, isHorizontal: isHorizontal);
+            ? updateToDb(
+                isHorizontal: isHorizontal,
+                idCashback: widget.constructIdCashback)
+            : saveToDb(isHorizontal: isHorizontal);
       }
     } else if (_cashbackType == CashbackType.COMBINE) {
       if (!_validateTargetValue && !_validateCashbackValue) {
@@ -515,7 +523,6 @@ class _CashbackFormState extends State<CashbackForm> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else if (_targetProduct.isEmpty) {
         handleStatus(
           context,
@@ -524,7 +531,6 @@ class _CashbackFormState extends State<CashbackForm> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else if (selectedItemProdDiv.isEmpty && selectedItemProduct.isEmpty) {
         handleStatus(
           context,
@@ -533,20 +539,23 @@ class _CashbackFormState extends State<CashbackForm> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else {
         widget.isUpdateForm
-            ? updateToDb(stop, isHorizontal: isHorizontal, idCashback: widget.constructIdCashback)
-            : saveToDb(stop, isHorizontal: isHorizontal);
+            ? updateToDb(
+                isHorizontal: isHorizontal,
+                idCashback: widget.constructIdCashback)
+            : saveToDb(isHorizontal: isHorizontal);
       }
     } else {
       widget.isUpdateForm
-            ? updateToDb(stop, isHorizontal: isHorizontal, idCashback: widget.constructIdCashback)
-            : saveToDb(stop, isHorizontal: isHorizontal);
+          ? updateToDb(
+              isHorizontal: isHorizontal,
+              idCashback: widget.constructIdCashback)
+          : saveToDb(isHorizontal: isHorizontal);
     }
   }
 
-  void saveToDb(Function stop, {bool isHorizontal = false}) {
+  void saveToDb({bool isHorizontal = false}) {
     if (_cashbackType == CashbackType.BY_PRODUCT) {
       controllerTargetValue.text = '';
       controllerCashbackPercent.text = '';
@@ -629,7 +638,6 @@ class _CashbackFormState extends State<CashbackForm> {
 
     serviceCashback
         .insertHeader(
-      stop,
       isHorizontal: isHorizontal,
       mounted: mounted,
       context: context,
@@ -650,7 +658,9 @@ class _CashbackFormState extends State<CashbackForm> {
               prodDiv: item.proddiv,
               prodCat: '',
               prodCatDescription: item.alias,
-              cashback: item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon.replaceAll('.', ''),
+              cashback: item.diskon.contains(',')
+                  ? item.diskon.replaceAll(',', '.')
+                  : item.diskon.replaceAll('.', ''),
               status: 'ACTIVE',
             ),
           );
@@ -666,7 +676,9 @@ class _CashbackFormState extends State<CashbackForm> {
               prodDiv: item.proddiv,
               prodCat: item.prodcat,
               prodCatDescription: item.proddesc,
-              cashback: item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon.replaceAll('.', ''),
+              cashback: item.diskon.contains(',')
+                  ? item.diskon.replaceAll(',', '.')
+                  : item.diskon.replaceAll('.', ''),
               status: 'ACTIVE',
             ),
           );
@@ -675,12 +687,12 @@ class _CashbackFormState extends State<CashbackForm> {
         if (listLineCashback.isNotEmpty) {
           serviceCashback
               .insertLine(
-            stop,
             isHorizontal: isHorizontal,
             mounted: mounted,
             context: context,
             line: listLineCashback,
-          ).then((value) {
+          )
+              .then((value) {
             if (value) {
               handleStatus(
                 context,
@@ -695,7 +707,6 @@ class _CashbackFormState extends State<CashbackForm> {
             }
           });
         } else {
-          stop();
           handleStatus(
             context,
             'New cashback has been created',
@@ -710,7 +721,7 @@ class _CashbackFormState extends State<CashbackForm> {
     );
   }
 
-   void updateToDb(Function stop, {bool isHorizontal = false, required String idCashback}) {
+  void updateToDb({bool isHorizontal = false, required String idCashback}) {
     if (_cashbackType == CashbackType.BY_PRODUCT) {
       controllerTargetValue.text = '';
       controllerCashbackPercent.text = '';
@@ -722,15 +733,13 @@ class _CashbackFormState extends State<CashbackForm> {
       selectedItemProduct.clear();
     }
 
-    if (!controllerStartDate.text.contains("-"))
-    {
+    if (!controllerStartDate.text.contains("-")) {
       controllerStartDate.text = convertDateSql(controllerStartDate.text);
     }
 
-    if (!controllerEndDate.text.contains("-"))
-    {
+    if (!controllerEndDate.text.contains("-")) {
       controllerEndDate.text = convertDateSql(controllerEndDate.text);
-    }    
+    }
 
     print("""
           Optic name : ${controllerOpticName.text}
@@ -766,7 +775,7 @@ class _CashbackFormState extends State<CashbackForm> {
           Target cashback : ${controllerCashbackValue.text.isNotEmpty ? controllerCashbackValue.text : controllerCashbackPercent.text}
           Target produk : ${_targetProduct.toString()}
           """);
-    
+
     print("""
           Base 64 sign : $base64Sign
           """);
@@ -808,7 +817,6 @@ class _CashbackFormState extends State<CashbackForm> {
 
     serviceCashback
         .updateHeader(
-      stop,
       isHorizontal: isHorizontal,
       mounted: mounted,
       context: context,
@@ -831,7 +839,9 @@ class _CashbackFormState extends State<CashbackForm> {
               prodCat: '',
               prodCatDescription: item.alias,
               // cashback:  item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon.replaceAll('.', ''),
-              cashback:  item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon,
+              cashback: item.diskon.contains(',')
+                  ? item.diskon.replaceAll(',', '.')
+                  : item.diskon,
               status: 'ACTIVE',
             ),
           );
@@ -848,7 +858,9 @@ class _CashbackFormState extends State<CashbackForm> {
               prodCat: item.prodcat,
               prodCatDescription: item.proddesc,
               // cashback:  item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon.replaceAll('.', ''),
-              cashback:  item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon,
+              cashback: item.diskon.contains(',')
+                  ? item.diskon.replaceAll(',', '.')
+                  : item.diskon,
               status: 'ACTIVE',
             ),
           );
@@ -860,7 +872,6 @@ class _CashbackFormState extends State<CashbackForm> {
 
           serviceCashback
               .updateLine(
-            stop,
             isHorizontal: isHorizontal,
             mounted: mounted,
             context: context,
@@ -880,8 +891,6 @@ class _CashbackFormState extends State<CashbackForm> {
             }
           });
         } else {
-          stop();
-
           handleStatus(
             context,
             'Cashback has been updated',
@@ -909,6 +918,7 @@ class _CashbackFormState extends State<CashbackForm> {
   }
 
   Widget childWidget({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MyColors.greenAccent,
@@ -1041,39 +1051,31 @@ class _CashbackFormState extends State<CashbackForm> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ArgonButton(
+                  EasyButton(
+                    idleStateWidget: Text(
+                      widget.isUpdateForm ? "Perbarui" : "Simpan",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    loadingStateWidget: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                    useEqualLoadingStateWidgetDimension: true,
+                    useWidthAnimation: true,
                     height: isHorizontal ? 50.h : 40.h,
                     width: isHorizontal ? 90.w : 100.w,
                     borderRadius: isHorizontal ? 60.r : 30.r,
-                    color: widget.isUpdateForm
-                        ? Colors.amber[700]
-                        : Colors.blue[700],
-                    child: Text(
-                      widget.isUpdateForm ? "Perbarui" : "Simpan",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8.r),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        setState(() {
-                          startLoading();
-                          waitingLoad();
-                          handleValidationForm(
-                            stopLoading,
-                            isHorizontal: isHorizontal,
-                          );
-                        });
-                      }
-                    },
+                    buttonColor: widget.isUpdateForm
+                        ? Colors.amber.shade700
+                        : Colors.blue.shade700,
+                    elevation: 2.0,
+                    contentGap: 6.0,
+                    onPressed: onButtonPressed,
                   ),
                 ],
               ),

@@ -575,8 +575,7 @@ class ServicePosMaterial {
     return posMaterialReview;
   }
 
-  insertPostMaterial(
-    Function stop, {
+  insertPostMaterial({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -710,12 +709,9 @@ class ServicePosMaterial {
         );
       }
     }
-
-    stop();
   }
 
-  approvePos(
-    Function stop, {
+  approvePos({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -799,12 +795,9 @@ class ServicePosMaterial {
         );
       }
     }
-
-    stop();
   }
 
-  rejectPos(
-    Function stop, {
+  rejectPos({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -887,7 +880,5 @@ class ServicePosMaterial {
         );
       }
     }
-
-    stop();
   }
 }

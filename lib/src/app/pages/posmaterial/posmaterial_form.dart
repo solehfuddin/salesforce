@@ -1,4 +1,4 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_formcustom.dart';
@@ -68,6 +68,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
   String base64Omzet = '';
   String base64Rencana = '';
 
+  bool _isHorizontal = false;
   bool _isDesignOnly = false;
   bool _isProspectCustomer = false;
   bool _validateOpticName = false;
@@ -101,6 +102,17 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
       nameSm = value.name;
       tokenSm = value.token;
     });
+  }
+
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => handleValidationForm(
+        isHorizontal: _isHorizontal,
+      ),
+    );
+
+    return () {};
   }
 
   @override
@@ -177,37 +189,29 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ArgonButton(
+                  EasyButton(
+                    idleStateWidget: Text(
+                      "Simpan",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    loadingStateWidget: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                    useEqualLoadingStateWidgetDimension: true,
+                    useWidthAnimation: true,
                     height: isHorizontal ? 50.h : 40.h,
                     width: isHorizontal ? 90.w : 100.w,
                     borderRadius: isHorizontal ? 60.r : 30.r,
-                    color: Colors.blue[700],
-                    child: Text(
-                      "Simpan",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8.r),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        setState(() {
-                          startLoading();
-                          waitingLoad();
-                          handleValidationForm(
-                            stopLoading,
-                            isHorizontal: isHorizontal,
-                          );
-                        });
-                      }
-                    },
+                    buttonColor: Colors.blue.shade700,
+                    elevation: 2.0,
+                    contentGap: 6.0,
+                    onPressed: onButtonPressed,
                   ),
                 ],
               ),
@@ -301,7 +305,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         case 'selectedDeliveryMethod':
           selectedDeliveryMethod = returVal;
           break;
-        case 'isDesignOnly' :
+        case 'isDesignOnly':
           _isDesignOnly = returVal;
           break;
         case 'selectedProductKit':
@@ -484,7 +488,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
     return widget;
   }
 
-  handleValidationForm(Function stop, {bool isHorizontal = false}) {
+  handleValidationForm({bool isHorizontal = false}) {
     switch (selectedTypePos) {
       case 'CUSTOM':
         setState(() {
@@ -529,21 +533,13 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                 isLogout: false,
               );
 
-              stop();
               return false;
             }
           }
 
           if (accountNo.isEmpty) {
-            // if (_validateLampiranParaf && _validateLampiranKtp) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // }
             if (_validateLampiranParaf) {
               processInsert(
-                stop,
                 isHorizontal: isHorizontal,
               );
             } else {
@@ -554,19 +550,10 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                 isHorizontal: isHorizontal,
                 isLogout: false,
               );
-
-              stop();
             }
           } else {
-            // if (_validateLampiranParaf &&_validateLampiranKtp && _validateLampiranOmzet) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // }
             if (_validateLampiranParaf) {
               processInsert(
-                stop,
                 isHorizontal: isHorizontal,
               );
             } else {
@@ -577,8 +564,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                 isHorizontal: isHorizontal,
                 isLogout: false,
               );
-
-              stop();
             }
           }
         } else {
@@ -589,8 +574,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-
-          stop();
         }
         break;
       case 'KEMEJA_LEINZ_HIJAU':
@@ -616,7 +599,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           if (accountNo.isEmpty) {
             if (_validateLampiranKtp) {
               processInsert(
-                stop,
                 isHorizontal: isHorizontal,
               );
             } else {
@@ -627,28 +609,9 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                 isHorizontal: isHorizontal,
                 isLogout: false,
               );
-
-              stop();
             }
           } else {
-            // if (_validateLampiranKtp && _validateLampiranOmzet) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // } else {
-            //   handleStatus(
-            //     context,
-            //     'Harap lengkapi lampiran',
-            //     false,
-            //     isHorizontal: isHorizontal,
-            //     isLogout: false,
-            //   );
-
-            //   stop();
-            // }
             processInsert(
-              stop,
               isHorizontal: isHorizontal,
             );
           }
@@ -660,7 +623,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-          stop();
         }
         break;
 
@@ -689,48 +651,11 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
         if (_validateOpticName && _validateOpticAddress && _validateQtyItem) {
           if (accountNo.isEmpty) {
-            // if (_validateLampiranKtp)
-            // {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // }
-            // else
-            // {
-            //   handleStatus(
-            //     context,
-            //     'Harap lengkapi lampiran',
-            //     false,
-            //     isHorizontal: isHorizontal,
-            //     isLogout: false,
-            //   );
-
-            //   stop();
-            // }
             processInsert(
-              stop,
               isHorizontal: isHorizontal,
             );
           } else {
-            // if (_validateLampiranKtp && _validateLampiranOmzet) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // } else {
-            //   handleStatus(
-            //     context,
-            //     'Harap lengkapi lampiran',
-            //     false,
-            //     isHorizontal: isHorizontal,
-            //     isLogout: false,
-            //   );
-
-            //   stop();
-            // }
             processInsert(
-              stop,
               isHorizontal: isHorizontal,
             );
           }
@@ -742,7 +667,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-          stop();
         }
         break;
 
@@ -802,20 +726,12 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                   isLogout: false,
                 );
 
-                stop();
                 return false;
               }
             }
 
-            // if (_validateLampiranKtp && _validateLampiranRencana) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // }
             if (_validateLampiranRencana) {
               processInsert(
-                stop,
                 isHorizontal: isHorizontal,
               );
             } else {
@@ -826,8 +742,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                 isHorizontal: isHorizontal,
                 isLogout: false,
               );
-
-              stop();
             }
           } else {
             if (selectedMaterial == 'Duratrans') {
@@ -845,20 +759,12 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                   isLogout: false,
                 );
 
-                stop();
                 return false;
               }
             }
 
-            // if (_validateLampiranKtp && _validateLampiranOmzet && _validateLampiranRencana) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // }
             if (_validateLampiranRencana) {
               processInsert(
-                stop,
                 isHorizontal: isHorizontal,
               );
             } else {
@@ -869,8 +775,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
                 isHorizontal: isHorizontal,
                 isLogout: false,
               );
-
-              stop();
             }
           }
         } else {
@@ -881,7 +785,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-          stop();
         }
         break;
       default:
@@ -905,45 +808,11 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
         if (_validateProductName && _validateQtyItem) {
           if (accountNo.isEmpty) {
-            // if (_validateLampiranKtp) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // } else {
-            //   handleStatus(
-            //     context,
-            //     'Harap lengkapi lampiran',
-            //     false,
-            //     isHorizontal: isHorizontal,
-            //     isLogout: false,
-            //   );
-
-            //   stop();
-            // }
             processInsert(
-              stop,
               isHorizontal: isHorizontal,
             );
           } else {
-            // if (_validateLampiranKtp && _validateLampiranOmzet) {
-            //   processInsert(
-            //     stop,
-            //     isHorizontal: isHorizontal,
-            //   );
-            // } else {
-            //   handleStatus(
-            //     context,
-            //     'Harap lengkapi lampiran',
-            //     false,
-            //     isHorizontal: isHorizontal,
-            //     isLogout: false,
-            //   );
-
-            //   stop();
-            // }
             processInsert(
-              stop,
               isHorizontal: isHorizontal,
             );
           }
@@ -955,14 +824,13 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-          stop();
         }
 
         break;
     }
   }
 
-  void processInsert(Function stop, {bool isHorizontal = false}) {
+  void processInsert({bool isHorizontal = false}) {
     PosMaterialInsert objectInsert = new PosMaterialInsert();
 
     objectInsert.setSalesName = username ?? '';
@@ -1033,7 +901,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
     //eksekusi service post
     service.insertPostMaterial(
-      stop,
       isHorizontal: isHorizontal,
       mounted: mounted,
       context: context,

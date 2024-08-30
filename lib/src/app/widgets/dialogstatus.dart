@@ -102,7 +102,7 @@ class _DialogStatusState extends State<DialogStatus> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: StadiumBorder(),
-                        primary: Colors.indigo[600],
+                        backgroundColor: Colors.indigo[600],
                         padding: EdgeInsets.symmetric(
                             horizontal: 20.r, vertical: 10.r),
                       ),
@@ -126,8 +126,8 @@ class _DialogStatusState extends State<DialogStatus> {
                 : Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(),
-                        primary: Colors.indigo[600],
+                        shape: StadiumBorder(), 
+                        backgroundColor: Colors.indigo[600],
                         padding: EdgeInsets.symmetric(
                             horizontal: 20.r, vertical: 10.r),
                       ),

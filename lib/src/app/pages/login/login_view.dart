@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-// import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-// import 'package:sample/src/app/pages/maintenance/maintenance_view.dart';
 import 'package:sample/src/app/utils/config.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -47,13 +45,10 @@ class _LoginState extends State<Login> {
     // token = await FirebaseMessaging.instance.getToken();
     // print('Akses token : $token');
     FirebaseMessaging.instance.getToken().then((value) {
-      if (value != null)
-      {
+      if (value != null) {
         token = value;
         print('Akses token : $token');
-      }
-      else
-      {
+      } else {
         print('Google play service not support');
       }
     });
@@ -65,7 +60,7 @@ class _LoginState extends State<Login> {
 
     try {
       var response = await http.get(Uri.parse(url));
-          //await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout))
+      //await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout))
       print('Response status: ${response.statusCode}');
 
       try {
@@ -116,13 +111,13 @@ class _LoginState extends State<Login> {
     await Future.delayed(Duration.zero);
     // if (mounted)
     // {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          dialogContext = context;
-          return DialogLogin();
-        },
-      );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        dialogContext = context;
+        return DialogLogin();
+      },
+    );
     // }
 
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -130,19 +125,31 @@ class _LoginState extends State<Login> {
     print('Akses role : $role');
 
     if (listAppconfig[0].status == "0") {
-    if (role == 'ADMIN') {
-        Get.offAllNamed('/admin');
-    } else if (role == 'SALES') {
-        Get.offAllNamed('/home');
-    } else if (role == 'STAFF') {
-        Get.offAllNamed('/staff');
-    } else {
-      await Future.delayed(
-        Duration(seconds: 1),
-      );
-      print('Belum Login');
-      Navigator.pop(dialogContext);
-    }
+      if (role != null) {
+        if (role == 'ADMIN') {
+          Get.offAllNamed('/admin');
+        } else if (role == 'SALES') {
+          Get.offAllNamed('/home');
+        } else if (role == 'STAFF') {
+          Get.offAllNamed('/staff');
+        } else {
+          if (dialogContext.mounted) {
+            await Future.delayed(
+              Duration(seconds: 1),
+            ).then((value) => Navigator.pop(dialogContext));
+          }
+
+          print('Belum Login');
+        }
+      } else {
+        if (dialogContext.mounted) {
+          await Future.delayed(
+            Duration(seconds: 1),
+          ).then((value) => Navigator.pop(dialogContext));
+        }
+
+        print('Belum pernah login');
+      }
     } else {
       Get.offAllNamed('/maintenance');
     }
@@ -309,7 +316,7 @@ class _LoginState extends State<Login> {
                                   padding: EdgeInsets.only(right: 20.r),
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: Colors.grey.shade100,
+                                      backgroundColor: Colors.grey.shade100,
                                     ),
                                     onPressed: () {
                                       check(
@@ -480,7 +487,7 @@ class _LoginState extends State<Login> {
                       padding: EdgeInsets.only(right: 20.r),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.grey.shade100,
+                          backgroundColor: Colors.grey.shade100,
                         ),
                         onPressed: () {
                           check(

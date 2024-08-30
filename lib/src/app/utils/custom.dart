@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 // import 'package:android_path_provider/android_path_provider.dart';
 import 'package:fl_toast/fl_toast.dart';
@@ -606,8 +605,8 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
       Center(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            shape: StadiumBorder(),
-            primary: Colors.indigo[600],
+            shape: StadiumBorder(), 
+            backgroundColor: Colors.indigo[600],
             padding: EdgeInsets.symmetric(
                 horizontal: isHorizontal ? 22.r : 20.r,
                 vertical: isHorizontal ? 12.r : 10.r),
@@ -829,8 +828,8 @@ handleCustomStatus(BuildContext context, String msg, bool status,
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                primary: Colors.indigo[600],
+                shape: StadiumBorder(), 
+                backgroundColor: Colors.indigo[600],
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: Text(
@@ -908,8 +907,8 @@ handleStatusChangeContract(
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                primary: Colors.indigo[600],
+                shape: StadiumBorder(), 
+                backgroundColor: Colors.indigo[600],
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: Text(
@@ -1447,6 +1446,7 @@ Future<void> checkUpdate(BuildContext context) async {
       print('Info : $_updateInfo');
       print('Update please');
 
+      // ignore: body_might_complete_normally_catch_error
       InAppUpdate.performImmediateUpdate().catchError((e) {
         showStyledToast(
           child: Text(

@@ -536,7 +536,7 @@ class _CustomerAdminState extends State<CustomerAdmin> {
                                   Text(
                                     customer[position].namaUsaha,
                                     style: TextStyle(
-                                      fontSize: isHorizontal ? 20.sp : 15.sp,
+                                      fontSize: isHorizontal ? 18.sp : 14.sp,
                                       fontFamily: 'Segoe ui',
                                       fontWeight: FontWeight.w600,
                                     ),

@@ -2,9 +2,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -41,6 +40,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
   Future<PosMaterialReview>? review;
 
   bool _permissionReady = false;
+  bool _isHorizontal = false;
   late String _localPath;
   final ReceivePort _port = ReceivePort();
   String? id, name, username, role, divisi;
@@ -82,8 +82,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
     super.dispose();
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
 
@@ -114,7 +113,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
@@ -152,7 +151,8 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -205,10 +205,9 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
     );
   }
 
-  void callApprove(Function stop, BuildContext context, String _idPos) {
+  void callApprove(BuildContext context, String _idPos) {
     if (role == 'ADMIN' && divisi == 'SALES') {
       service.approvePos(
-        stop,
         context: context,
         isHorizontal: false,
         mounted: mounted,
@@ -224,7 +223,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
 
     if (role == 'ADMIN' && divisi == 'MARKETING') {
       service.approvePos(
-        stop,
         context: context,
         isHorizontal: false,
         mounted: mounted,
@@ -240,7 +238,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
 
     if (role == 'ADMIN' && divisi == 'GM') {
       service.approvePos(
-        stop,
         context: context,
         isHorizontal: false,
         mounted: mounted,
@@ -256,7 +253,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
   }
 
   void callReject(
-    Function stop,
     BuildContext context,
     bool isHorizontal,
     String _idPos,
@@ -264,7 +260,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
     if (txtReason.text.isNotEmpty) {
       if (role == 'ADMIN' && divisi == 'SALES') {
         service.rejectPos(
-          stop,
           context: context,
           isHorizontal: false,
           mounted: mounted,
@@ -281,7 +276,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
         service.rejectPos(
-          stop,
           context: context,
           isHorizontal: false,
           mounted: mounted,
@@ -298,7 +292,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
 
       if (role == 'ADMIN' && divisi == 'GM') {
         service.rejectPos(
-          stop,
           context: context,
           isHorizontal: false,
           mounted: mounted,
@@ -321,6 +314,56 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
         isLogout: false,
       );
     }
+  }
+
+  onButtonPressed() async {
+    if (_permissionReady) {
+      donwloadPdfPOS(
+        widget.item.id ?? '',
+        widget.item.opticName ?? 'Optik',
+        _localPath,
+      );
+
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child: Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
+  }
+
+  onPressedReject() async {
+    handleRejection(
+      context,
+      isHorizontal: _isHorizontal,
+      idPos: widget.item.id!,
+    );
+
+    return () {};
+  }
+
+  onPressedApprove() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => callApprove(
+        context,
+        widget.item.id!,
+      ),
+    );
+
+    return () {};
   }
 
   @override
@@ -704,51 +747,29 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
                     visible: widget.isAdmin!,
                     child: handleAction(),
                     replacement: Center(
-                      child: ArgonButton(
-                        height: isHorizontal ? 50.h : 40.h,
-                        width: isHorizontal ? 90.w : 150.w,
-                        borderRadius: 30.0.r,
-                        color: Colors.blue[700],
-                        child: Text(
+                      child: EasyButton(
+                        idleStateWidget: Text(
                           "Unduh Pdf",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: isHorizontal ? 16.sp : 14.sp,
                               fontWeight: FontWeight.w700),
                         ),
-                        loader: Container(
-                          padding: EdgeInsets.all(8.r),
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
+                        loadingStateWidget: CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
-                        onTap: (startLoading, stopLoading, btnState) {
-                          if (btnState == ButtonState.Idle) {
-                            if (_permissionReady) {
-                              donwloadPdfPOS(
-                                widget.item.id ?? '',
-                                widget.item.opticName ?? 'Optik',
-                                _localPath,
-                              );
-
-                              showStyledToast(
-                                child: Text('Sedang mengunduh file'),
-                                context: context,
-                                backgroundColor: Colors.blue,
-                                borderRadius: BorderRadius.circular(15.r),
-                                duration: Duration(seconds: 2),
-                              );
-                            } else {
-                              showStyledToast(
-                                child: Text('Tidak mendapat izin penyimpanan'),
-                                context: context,
-                                backgroundColor: Colors.red,
-                                borderRadius: BorderRadius.circular(15.r),
-                                duration: Duration(seconds: 2),
-                              );
-                            }
-                          }
-                        },
+                        useEqualLoadingStateWidgetDimension: true,
+                        useWidthAnimation: true,
+                        height: isHorizontal ? 50.h : 40.h,
+                        width: isHorizontal ? 90.w : 150.w,
+                        borderRadius: 30.r,
+                        buttonColor: Colors.blue.shade700,
+                        elevation: 2.0,
+                        contentGap: 6.0,
+                        onPressed: onButtonPressed,
                       ),
                     ),
                   ),
@@ -765,6 +786,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
   }
 
   Widget handleAction({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -775,38 +797,29 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
             vertical: 5.r,
           ),
           alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: isHorizontal ? 60.h : 40.h,
-            width: isHorizontal ? 80.w : 100.w,
-            borderRadius: isHorizontal ? 60.r : 30.r,
-            color: Colors.red[700],
-            child: Text(
+          child: EasyButton(
+            idleStateWidget: Text(
               "Reject",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: isHorizontal ? 24.sp : 14.sp,
                   fontWeight: FontWeight.w700),
             ),
-            loader: Container(
-              padding: EdgeInsets.all(8.r),
-              child: CircularProgressIndicator(
-                color: Colors.white,
+            loadingStateWidget: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.white,
               ),
             ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  handleRejection(
-                    context,
-                    stopLoading,
-                    isHorizontal: isHorizontal,
-                    idPos: widget.item.id!,
-                  );
-                });
-              }
-            },
+            useEqualLoadingStateWidgetDimension: true,
+            useWidthAnimation: true,
+            height: isHorizontal ? 60.h : 40.h,
+            width: isHorizontal ? 80.w : 100.w,
+            borderRadius: isHorizontal ? 60.r : 30.r,
+            buttonColor: Colors.red.shade700,
+            elevation: 2.0,
+            contentGap: 6.0,
+            onPressed: onPressedReject,
           ),
         ),
         Container(
@@ -815,44 +828,36 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
             vertical: 5.r,
           ),
           alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: isHorizontal ? 60.h : 40.h,
-            width: isHorizontal ? 80.w : 100.w,
-            borderRadius: isHorizontal ? 60.r : 30.r,
-            color: Colors.blue[600],
-            child: Text(
+          child: EasyButton(
+            idleStateWidget: Text(
               "Approve",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: isHorizontal ? 24.sp : 14.sp,
                   fontWeight: FontWeight.w700),
             ),
-            loader: Container(
-              padding: EdgeInsets.all(8.r),
-              child: CircularProgressIndicator(
-                color: Colors.white,
+            loadingStateWidget: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.white,
               ),
             ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  callApprove(
-                    stopLoading,
-                    context,
-                    widget.item.id!,
-                  );
-                });
-              }
-            },
+            useEqualLoadingStateWidgetDimension: true,
+            useWidthAnimation: true,
+            height: isHorizontal ? 60.h : 40.h,
+            width: isHorizontal ? 80.w : 100.w,
+            borderRadius: isHorizontal ? 60.r : 30.r,
+            buttonColor: Colors.blue.shade700,
+            elevation: 2.0,
+            contentGap: 6.0,
+            onPressed: onPressedApprove,
           ),
         ),
       ],
     );
   }
 
-  handleRejection(BuildContext context, Function stop,
+  handleRejection(BuildContext context,
       {bool isHorizontal = false, String idPos = ''}) {
     AlertDialog alert = AlertDialog(
       scrollable: true,
@@ -898,9 +903,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
             ),
           ),
           onPressed: () {
-            stop();
             callReject(
-              stop,
               context,
               isHorizontal,
               idPos,
@@ -915,7 +918,6 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
             ),
           ),
           onPressed: () {
-            stop();
             Navigator.of(context, rootNavigator: true).pop();
           },
         ),

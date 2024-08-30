@@ -600,8 +600,7 @@ class ServiceCashback {
     return managerToken;
   }
 
-  Future<String> insertRekening(
-    Function stop, {
+  Future<String> insertRekening({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -656,8 +655,7 @@ class ServiceCashback {
     return idRekening;
   }
 
-  Future<String> insertHeader(
-    Function stop, {
+  Future<String> insertHeader({
     bool isHorizontal = false,
     bool mounted = false,
     required String tokenSm,
@@ -738,12 +736,10 @@ class ServiceCashback {
       }
     }
 
-    // stop();
     return idCashback;
   }
 
-  Future<String> updateHeader(
-    Function stop, {
+  Future<String> updateHeader({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -824,12 +820,10 @@ class ServiceCashback {
       }
     }
 
-    // stop();
     return idCashback;
   }
 
-  Future<bool> insertLine(
-    Function stop, {
+  Future<bool> insertLine({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -879,12 +873,10 @@ class ServiceCashback {
       }
     }
 
-    stop();
     return output;
   }
 
-  Future<bool> updateLine(
-    Function stop, {
+  Future<bool> updateLine({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -934,12 +926,10 @@ class ServiceCashback {
       }
     }
 
-    stop();
     return output;
   }
 
-  approveCashback(
-    Function stop, {
+  approveCashback({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -1019,12 +1009,9 @@ class ServiceCashback {
         );
       }
     }
-
-    stop();
   }
 
-  rejectCashback(
-    Function stop, {
+  rejectCashback({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -1103,7 +1090,5 @@ class ServiceCashback {
         );
       }
     }
-
-    stop();
   }
 }

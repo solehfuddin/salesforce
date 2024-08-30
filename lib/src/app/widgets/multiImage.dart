@@ -64,7 +64,7 @@ class _MultiImageState extends State<MultiImage> {
                   ElevatedButton(
                     onPressed: () => chooseImageMulti(),
                     style: ElevatedButton.styleFrom(
-                      primary: widget.buttonBackgroundColor,
+                      backgroundColor: widget.buttonBackgroundColor,
                     ),
                     child: Text(
                       'Upload Image',
@@ -118,7 +118,7 @@ class _MultiImageState extends State<MultiImage> {
     )
         .then((value) {
       setState(() {
-        if (value != null) {
+        if (value.isNotEmpty) {
           listImage?.addAll(value);
           widget.listAttachment.value = listImage!;
         }

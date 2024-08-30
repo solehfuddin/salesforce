@@ -344,7 +344,7 @@ class _CashbackFormCustomerState extends State<CashbackFormCustomer> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red.shade700,
+                        backgroundColor: Colors.red.shade700,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -355,7 +355,7 @@ class _CashbackFormCustomerState extends State<CashbackFormCustomer> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                       onPressed: () {
                         widget.controllerOpticName.text =

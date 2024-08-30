@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
 
-import 'package:android_path_provider/android_path_provider.dart';
 import 'package:camera/camera.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
@@ -161,8 +160,7 @@ class MarketingExpenseController extends GetxController {
   }
 
   void handleValidation(
-    bool isHorizontal,
-    Function stop, {
+    bool isHorizontal, {
     String salesName = '',
     String salesId = '',
     dynamic idSm,
@@ -176,8 +174,6 @@ class MarketingExpenseController extends GetxController {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-
-      stop();
     } else if (!validateDataName.value || !validateDataNik.value) {
       handleStatus(
         Get.context!,
@@ -186,8 +182,6 @@ class MarketingExpenseController extends GetxController {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-
-      stop();
     } else if (payDate.value.isEmpty) {
       handleStatus(
         Get.context!,
@@ -196,8 +190,6 @@ class MarketingExpenseController extends GetxController {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-
-      stop();
     } else {
       print('Prepare insert ME');
 
@@ -213,8 +205,6 @@ class MarketingExpenseController extends GetxController {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-
-          stop();
         } else {
           handleIsSp = true;
         }
@@ -227,8 +217,6 @@ class MarketingExpenseController extends GetxController {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-
-          stop();
         } else {
           handleIsSp = true;
         }
@@ -245,7 +233,6 @@ class MarketingExpenseController extends GetxController {
               isLogout: false,
             );
 
-            stop();
           } else {
             handleIsPersen = true;
           }
@@ -258,8 +245,6 @@ class MarketingExpenseController extends GetxController {
               isHorizontal: isHorizontal,
               isLogout: false,
             );
-
-            stop();
           } else {
             handleIsPersen = true;
           }
@@ -300,7 +285,6 @@ class MarketingExpenseController extends GetxController {
 
         serviceMe
             .insertME(
-          stop,
           context: Get.context!,
           item: header,
           salesname: salesName,
@@ -327,14 +311,13 @@ class MarketingExpenseController extends GetxController {
               });
 
               serviceMe
-                  .insertLine(stop, context: Get.context!, line: listMELine)
+                  .insertLine(context: Get.context!, line: listMELine)
                   .then((_) {
                 print('Eksekusi attachment');
 
                 listMEAttachment.forEach((element) {
                   compressImage(File(element.path)).then((output) {
                     serviceMe.insertAttachment(
-                      stop,
                       context: Get.context!,
                       attachment: MarketingExpenseAttachment(
                         id: value,
@@ -345,8 +328,6 @@ class MarketingExpenseController extends GetxController {
                     );
                   });
                 });
-
-                stop();
 
                 clearState();
                 Get.toNamed('/marketingexpense');
@@ -361,8 +342,6 @@ class MarketingExpenseController extends GetxController {
                 );
               });
             } else {
-              stop();
-
               handleStatus(
                 Get.context!,
                 'Harap lengkapi data entertaint',
@@ -375,7 +354,6 @@ class MarketingExpenseController extends GetxController {
             listMEAttachment.forEach((element) {
               compressImage(File(element.path)).then((output) {
                 serviceMe.insertAttachment(
-                  stop,
                   context: Get.context!,
                   attachment: MarketingExpenseAttachment(
                     id: value,
@@ -386,8 +364,6 @@ class MarketingExpenseController extends GetxController {
                 );
               });
             });
-
-            stop();
 
             clearState();
             Get.toNamed('/marketingexpense');
@@ -406,14 +382,12 @@ class MarketingExpenseController extends GetxController {
     }
   }
 
-  void handleApprove(
-    Function stop, {
+  void handleApprove({
     bool isHorizontal = false,
     bool isMounted = false,
     required MarketingExpenseParamApprove param,
   }) {
     serviceMe.approveME(
-      stop,
       context: Get.context!,
       isHorizontal: isHorizontal,
       mounted: isMounted,
@@ -421,14 +395,12 @@ class MarketingExpenseController extends GetxController {
     );
   }
 
-  void handleReject(
-    Function stop, {
+  void handleReject({
     bool isHorizontal = false,
     bool isMounted = false,
     required MarketingExpenseParamApprove param,
   }) {
     serviceMe.rejectME(
-      stop,
       context: Get.context!,
       isHorizontal: isHorizontal,
       mounted: isMounted,
@@ -440,7 +412,9 @@ class MarketingExpenseController extends GetxController {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        // externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -472,7 +446,7 @@ class MarketingExpenseController extends GetxController {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
         statusess =

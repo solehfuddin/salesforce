@@ -454,185 +454,208 @@ class _CashbackManagementState extends State<CashbackManagement> {
                                 fontWeight: FontWeight.w600),
                           ),
                         ),
-                        Visibility(
-                          visible: isCashbackExpired,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isHorizontal ? 15.r : 0.r,
-                            ),
-                            child: Ink(
-                              decoration: const ShapeDecoration(
-                                color: Colors.lightBlue,
-                                shape: CircleBorder(),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    constraints: BoxConstraints(
-                                      maxHeight: isHorizontal ? 40.r : 30.r,
-                                      maxWidth: isHorizontal ? 40.r : 30.r,
-                                    ),
-                                    icon: const Icon(Icons.add),
-                                    iconSize: isHorizontal ? 20.r : 15.r,
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CashbackForm(
-                                                isUpdateForm: false,
-                                                listRekening: listRekening,
-                                                listTargetProddiv: [],
-                                                listProductProddiv: [],
-                                                listProductKhusus: [],
-                                                constructOpticName:
-                                                    widget.optic.namaUsaha ??
-                                                        '',
-                                                constructOpticAddress:
-                                                    widget.optic.alamatUsaha ??
-                                                        '',
-                                                constructShipNumber:
-                                                    widget.optic.noAccount ??
-                                                        '',
-                                                constructBillNumber:
-                                                    widget.optic.billNumber ??
-                                                        '',
-                                                constructTypeAccount:
-                                                    widget.optic.typeAccount ??
-                                                        '',
-                                                constructOwnerName: widget
-                                                        .optic.contactPerson ??
-                                                    '',
-                                                constructOwnerNik: noKtp ?? '',
-                                                constructOwnerNpwp:
-                                                    noNpwp ?? '',
-                                              ),
-                                            ),
-                                          )
-                                          .then((value) => setState(() {
-                                                _refreshData();
-                                              }));
-                                    },
+                        isCashbackExpired
+                            ? Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isHorizontal ? 15.r : 0.r,
+                                ),
+                                child: Ink(
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.lightBlue,
+                                    shape: CircleBorder(),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          replacement: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isHorizontal ? 15.r : 0.r,
-                            ),
-                            child: Ink(
-                              decoration: const ShapeDecoration(
-                                color: Colors.orange,
-                                shape: CircleBorder(),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    constraints: BoxConstraints(
-                                      maxHeight: isHorizontal ? 40.r : 30.r,
-                                      maxWidth: isHorizontal ? 40.r : 30.r,
-                                    ),
-                                    icon: const Icon(Icons.edit_sharp),
-                                    iconSize: isHorizontal ? 20.r : 15.r,
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => CashbackForm(
-                                            isUpdateForm: true,
-                                            listRekening: listRekening,
-                                            listTargetProddiv:
-                                                listTargetProddiv,
-                                            listProductProddiv:
-                                                listProductProddiv,
-                                            listProductKhusus:
-                                                listProductKhusus,
-                                            constructIdCashback:
-                                                otherHeader!.cashback[0].id ??
-                                                    '',
-                                            constructOpticName:
-                                                widget.optic.namaUsaha ?? '',
-                                            constructOpticAddress:
-                                                widget.optic.alamatUsaha ?? '',
-                                            constructShipNumber:
-                                                widget.optic.noAccount ?? '',
-                                            constructBillNumber:
-                                                widget.optic.billNumber ?? '',
-                                            constructTypeAccount:
-                                                widget.optic.typeAccount ?? '',
-                                            constructOwnerName:
-                                                widget.optic.contactPerson ??
-                                                    '',
-                                            // constructOwnerNik:
-                                            //     widget.optic.typeAccount ==
-                                            //             "NEW"
-                                            //         ? noKtp ?? ''
-                                            //         : otherHeader!
-                                            //             .cashback[0].dataNik!,
-                                            constructOwnerNik:
-                                                otherHeader!
-                                                        .cashback[0].dataNik!,
-                                            // constructOwnerNpwp:
-                                            //     widget.optic.typeAccount ==
-                                            //             "NEW"
-                                            //         ? noNpwp ?? ''
-                                            //         : otherHeader!
-                                            //             .cashback[0].dataNpwp!,
-                                            constructOwnerNpwp: otherHeader!
-                                                        .cashback[0].dataNpwp!,
-                                            constructIdCashbackRekening:
-                                                otherHeader!.cashback[0]
-                                                    .idCashbackRekening!,
-                                            constructStartDate: otherHeader!
-                                                .cashback[0].startPeriode!,
-                                            constructEndDate: otherHeader!
-                                                .cashback[0].endPeriode!,
-                                            constructWithdrawProcess:
-                                                otherHeader!.cashback[0]
-                                                    .withdrawProcess!,
-                                            constructWithdrawDuration:
-                                                otherHeader!.cashback[0]
-                                                    .withdrawDuration!,
-                                            constructPaymentDuration:
-                                                otherHeader!.cashback[0]
-                                                    .paymentDuration!,
-                                            constructTypeCashback: otherHeader!
-                                                .cashback[0].cashbackType!,
-                                            constructTargetValue: int.parse(
-                                                otherHeader!
-                                                    .cashback[0].targetValue!),
-                                            constructCashbackValue: int.parse(
-                                                otherHeader!.cashback[0]
-                                                    .cashbackValue!),
-                                            constructCashbackPercent:
-                                                double.parse(otherHeader!
-                                                    .cashback[0]
-                                                    .cashbackPercentage!),
-                                            constructTargetProduct: otherHeader!
-                                                .cashback[0].targetProduct!,
-                                            constructAttachmentSign:
-                                                attachmentSign ?? '',
-                                            constructAttachmentOther:
-                                                attachmentOther ?? '',
-                                          ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        constraints: BoxConstraints(
+                                          maxHeight: isHorizontal ? 40.r : 30.r,
+                                          maxWidth: isHorizontal ? 40.r : 30.r,
                                         ),
-                                      ).then((value) => setState(() {
-                                        _refreshData();
-                                      }));
-                                    },
+                                        icon: const Icon(Icons.add),
+                                        iconSize: isHorizontal ? 20.r : 15.r,
+                                        color: Colors.white,
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CashbackForm(
+                                                    isUpdateForm: false,
+                                                    listRekening: listRekening,
+                                                    listTargetProddiv: [],
+                                                    listProductProddiv: [],
+                                                    listProductKhusus: [],
+                                                    constructOpticName: widget
+                                                            .optic.namaUsaha ??
+                                                        '',
+                                                    constructOpticAddress:
+                                                        widget.optic
+                                                                .alamatUsaha ??
+                                                            '',
+                                                    constructShipNumber: widget
+                                                            .optic.noAccount ??
+                                                        '',
+                                                    constructBillNumber: widget
+                                                            .optic.billNumber ??
+                                                        '',
+                                                    constructTypeAccount: widget
+                                                            .optic
+                                                            .typeAccount ??
+                                                        '',
+                                                    constructOwnerName: widget
+                                                            .optic
+                                                            .contactPerson ??
+                                                        '',
+                                                    constructOwnerNik:
+                                                        noKtp ?? '',
+                                                    constructOwnerNpwp:
+                                                        noNpwp ?? '',
+                                                  ),
+                                                ),
+                                              )
+                                              .then((value) => setState(() {
+                                                    _refreshData();
+                                                  }));
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
+                              )
+                            : Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isHorizontal ? 15.r : 0.r,
+                                ),
+                                child: Ink(
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.orange,
+                                    shape: CircleBorder(),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        constraints: BoxConstraints(
+                                          maxHeight: isHorizontal ? 40.r : 30.r,
+                                          maxWidth: isHorizontal ? 40.r : 30.r,
+                                        ),
+                                        icon: const Icon(Icons.edit_sharp),
+                                        iconSize: isHorizontal ? 20.r : 15.r,
+                                        color: Colors.white,
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CashbackForm(
+                                                    isUpdateForm: true,
+                                                    listRekening: listRekening,
+                                                    listTargetProddiv:
+                                                        listTargetProddiv,
+                                                    listProductProddiv:
+                                                        listProductProddiv,
+                                                    listProductKhusus:
+                                                        listProductKhusus,
+                                                    constructIdCashback:
+                                                        otherHeader!.cashback[0]
+                                                                .id ??
+                                                            '',
+                                                    constructOpticName: widget
+                                                            .optic.namaUsaha ??
+                                                        '',
+                                                    constructOpticAddress:
+                                                        widget.optic
+                                                                .alamatUsaha ??
+                                                            '',
+                                                    constructShipNumber: widget
+                                                            .optic.noAccount ??
+                                                        '',
+                                                    constructBillNumber: widget
+                                                            .optic.billNumber ??
+                                                        '',
+                                                    constructTypeAccount: widget
+                                                            .optic
+                                                            .typeAccount ??
+                                                        '',
+                                                    constructOwnerName: widget
+                                                            .optic
+                                                            .contactPerson ??
+                                                        '',
+                                                    // constructOwnerNik:
+                                                    //     widget.optic.typeAccount ==
+                                                    //             "NEW"
+                                                    //         ? noKtp ?? ''
+                                                    //         : otherHeader!
+                                                    //             .cashback[0].dataNik!,
+                                                    constructOwnerNik:
+                                                        otherHeader!.cashback[0]
+                                                            .dataNik!,
+                                                    // constructOwnerNpwp:
+                                                    //     widget.optic.typeAccount ==
+                                                    //             "NEW"
+                                                    //         ? noNpwp ?? ''
+                                                    //         : otherHeader!
+                                                    //             .cashback[0].dataNpwp!,
+                                                    constructOwnerNpwp:
+                                                        otherHeader!.cashback[0]
+                                                            .dataNpwp!,
+                                                    constructIdCashbackRekening:
+                                                        otherHeader!.cashback[0]
+                                                            .idCashbackRekening!,
+                                                    constructStartDate:
+                                                        otherHeader!.cashback[0]
+                                                            .startPeriode!,
+                                                    constructEndDate:
+                                                        otherHeader!.cashback[0]
+                                                            .endPeriode!,
+                                                    constructWithdrawProcess:
+                                                        otherHeader!.cashback[0]
+                                                            .withdrawProcess!,
+                                                    constructWithdrawDuration:
+                                                        otherHeader!.cashback[0]
+                                                            .withdrawDuration!,
+                                                    constructPaymentDuration:
+                                                        otherHeader!.cashback[0]
+                                                            .paymentDuration!,
+                                                    constructTypeCashback:
+                                                        otherHeader!.cashback[0]
+                                                            .cashbackType!,
+                                                    constructTargetValue:
+                                                        int.parse(otherHeader!
+                                                            .cashback[0]
+                                                            .targetValue!),
+                                                    constructCashbackValue:
+                                                        int.parse(otherHeader!
+                                                            .cashback[0]
+                                                            .cashbackValue!),
+                                                    constructCashbackPercent:
+                                                        double.parse(otherHeader!
+                                                            .cashback[0]
+                                                            .cashbackPercentage!),
+                                                    constructTargetProduct:
+                                                        otherHeader!.cashback[0]
+                                                            .targetProduct!,
+                                                    constructAttachmentSign:
+                                                        attachmentSign ?? '',
+                                                    constructAttachmentOther:
+                                                        attachmentOther ?? '',
+                                                  ),
+                                                ),
+                                              )
+                                              .then((value) => setState(() {
+                                                    _refreshData();
+                                                  }));
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ],
@@ -683,7 +706,7 @@ class _CashbackManagementState extends State<CashbackManagement> {
                           ),
                           LimitedBox(
                             maxWidth: 360.w,
-                            maxHeight: 245.h,
+                            maxHeight: 260.h,
                             child: CashbackItemList(
                               isHorizontal: isHorizontal,
                               isSales: true,

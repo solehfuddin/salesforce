@@ -1,8 +1,8 @@
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:fl_toast/fl_toast.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -86,6 +86,35 @@ class _Marketingexpense_DetailState extends State<Marketingexpense_Detail> {
     FlutterDownloader.registerCallback(donwloadCallback);
   }
 
+  onButtonPressed() async {
+    if (meController.permissionReady.value) {
+      donwloadPdfME(
+        widget.item.id ?? '',
+        widget.item.opticName ?? 'Optik',
+        meController.localPath.value,
+      );
+
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child:
+            Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
+  }
+
   @override
   void dispose() {
     IsolateNameServer.registerPortWithName(
@@ -93,8 +122,7 @@ class _Marketingexpense_DetailState extends State<Marketingexpense_Detail> {
     super.dispose();
   }
 
-  static void donwloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void donwloadCallback(String id, int status, int progress) {
     final SendPort? sendPort =
         IsolateNameServer.lookupPortByName('downloader_send_port');
 
@@ -618,7 +646,8 @@ class _Marketingexpense_DetailState extends State<Marketingexpense_Detail> {
                                       ? true
                                       : false,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       SizedBox(
                                         height: 8.h,
@@ -773,52 +802,29 @@ class _Marketingexpense_DetailState extends State<Marketingexpense_Detail> {
                         header: widget.item,
                       ),
                       child: Center(
-                        child: ArgonButton(
-                          height: isHorizontal ? 50.h : 40.h,
-                          width: isHorizontal ? 90.w : 150.w,
-                          borderRadius: 30.0.r,
-                          color: Colors.blue[700],
-                          child: Text(
+                        child: EasyButton(
+                          idleStateWidget: Text(
                             "Unduh Pdf",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: isHorizontal ? 16.sp : 14.sp,
                                 fontWeight: FontWeight.w700),
                           ),
-                          loader: Container(
-                            padding: EdgeInsets.all(8.r),
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
+                          loadingStateWidget: CircularProgressIndicator(
+                            strokeWidth: 3.0,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
                             ),
                           ),
-                          onTap: (startLoading, stopLoading, btnState) {
-                            if (btnState == ButtonState.Idle) {
-                              if (meController.permissionReady.value) {
-                                donwloadPdfME(
-                                  widget.item.id ?? '',
-                                  widget.item.opticName ?? 'Optik',
-                                  meController.localPath.value,
-                                );
-
-                                showStyledToast(
-                                  child: Text('Sedang mengunduh file'),
-                                  context: context,
-                                  backgroundColor: Colors.blue,
-                                  borderRadius: BorderRadius.circular(15.r),
-                                  duration: Duration(seconds: 2),
-                                );
-                              } else {
-                                showStyledToast(
-                                  child:
-                                      Text('Tidak mendapat izin penyimpanan'),
-                                  context: context,
-                                  backgroundColor: Colors.red,
-                                  borderRadius: BorderRadius.circular(15.r),
-                                  duration: Duration(seconds: 2),
-                                );
-                              }
-                            }
-                          },
+                          useEqualLoadingStateWidgetDimension: true,
+                          useWidthAnimation: true,
+                          height: isHorizontal ? 50.h : 40.h,
+                          width: isHorizontal ? 90.w : 150.w,
+                          borderRadius: 30.r,
+                          buttonColor: Colors.blue.shade700,
+                          elevation: 2.0,
+                          contentGap: 6.0,
+                          onPressed: onButtonPressed,
                         ),
                       ),
                     ),

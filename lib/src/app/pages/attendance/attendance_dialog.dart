@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,7 +39,7 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
   Uint8List? screenshoot;
   String base64Imgprofile = '';
 
-  cekIn(Function stop) async {
+  cekIn() async {
     const timeout = 60;
     var url = '$API_URL/absensi';
 
@@ -106,11 +105,9 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
     } on Error catch (e) {
       print('Error : $e');
     }
-
-    stop();
   }
 
-  cekOut(Function stop) async {
+  cekOut() async {
     const timeout = 60;
     var url = '$API_URL/absensi/checkout';
 
@@ -176,8 +173,32 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
     } on Error catch (e) {
       print('Error : $e');
     }
+  }
 
-    stop();
+  onButtonPressed() async {
+    await Future.delayed(const Duration(milliseconds: 1500), () async {
+      screenshoot = await screenshotController.capture(pixelRatio: 1.0).then((value) {
+        setState(() {
+          waitingLoad();
+
+          compressImageUint8List(value!).then((output) {
+            base64Imgprofile = base64Encode(output as List<int>);
+
+            print("Eksekusi db");
+            print(base64Imgprofile);
+
+            if (widget.isCekin!) {
+              cekIn();
+            } else {
+              cekOut();
+            }
+          });
+        });
+        return null;
+      });
+
+      return () {};
+    });
   }
 
   @override
@@ -266,61 +287,34 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ArgonButton(
-                height: 40,
-                width: 120,
-                borderRadius: 30.0,
-                color: Colors.blue[700],
-                child: Text(
+              EasyButton(
+                idleStateWidget: Text(
                   "Selesaikan",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
-                loader: Container(
-                  padding: EdgeInsets.all(8),
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
+                loadingStateWidget: CircularProgressIndicator(
+                  strokeWidth: 3.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.white,
                   ),
                 ),
-                onTap: (startLoading, stopLoading, btnState) async {
-                  if (btnState == ButtonState.Idle) {
-                    screenshoot = await screenshotController.capture().then((value) {
-                      setState(() {
-                        startLoading();
-                        waitingLoad();
-
-                        compressImageUint8List(value!).then((value) {
-                          base64Imgprofile = base64Encode(value!);
-
-                          print("Eksekusi db");
-                          print(base64Imgprofile);
-
-                          if (widget.isCekin!) {
-                            cekIn(stopLoading);
-                          } else {
-                            cekOut(stopLoading);
-                          }
-                        });
-
-                        // print("Eksekusi db");
-                        // print(base64Imgprofile);
-
-                        // if (widget.isCekin!) {
-                        //   cekIn(stopLoading);
-                        // } else {
-                        //   cekOut(stopLoading);
-                        // }
-                      });
-                    });
-                  }
-                },
+                useEqualLoadingStateWidgetDimension: true,
+                useWidthAnimation: true,
+                height: 40.h,
+                width: 120.w,
+                borderRadius: 30.r,
+                buttonColor: Colors.blue.shade700,
+                elevation: 2.0,
+                contentGap: 6.0,
+                onPressed: onButtonPressed,
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(),
-                  primary: Colors.red[800],
+                  backgroundColor: Colors.red[800],
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
                 child: Text(

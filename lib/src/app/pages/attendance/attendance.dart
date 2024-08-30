@@ -58,34 +58,21 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   void initState() {
     super.initState();
-    loadCamera();
     getRole();
+    loadCamera();
     getLocation();
   }
 
   @override
   void dispose() {
-    cameraController?.dispose();
+    cameraController!.dispose();
     super.dispose();
   }
 
   Future getLocation() async {
-    // _locationData = await _myLocation.getLocation();
-    // setState(() {
-    //   print(
-    //       "Location : ${_locationData?.latitude}, ${_locationData?.longitude} - ${_locationData?.isMock}");
-
-    //   lattitude = _locationData?.latitude.toString();
-    //   longitude = _locationData?.longitude.toString();
-    //   isMocking = _locationData?.isMock ?? false;
-
-    //   if (lattitude != null && longitude != null) {
-    //     getAddress(_locationData?.latitude, _locationData?.longitude);
-    //   }
-    // });
     await _myLocation.getLocation().then((value) {
       _locationData = value;
-      
+
       print(
           "Location : ${_locationData?.latitude}, ${_locationData?.longitude} - ${_locationData?.isMock}");
 
@@ -115,9 +102,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       if (cameras!.length > 0) {
         if (isFrontCamera) {
           enableCamera(cameras![1]);
-        }
-        else
-        {
+        } else {
           enableCamera(cameras![0]);
         }
       }
@@ -220,6 +205,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 width: MediaQuery.of(context).size.width - 70,
                 child: cameraController == null
                     ? Center(child: Text("Loading Camera..."))
+                    // : CameraPreview(cameraController!),
                     : !cameraController!.value.isInitialized
                         ? Center(
                             child: CircularProgressIndicator(),

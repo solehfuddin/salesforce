@@ -379,7 +379,7 @@ class _ApprovedScreenState extends State<ApprovedScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: isHorizontal ? 120.h : 90.h,
+                      height: isHorizontal ? 120.h : 95.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(

@@ -174,8 +174,8 @@ class _SignedScreenState extends State<SignedScreen> {
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            shape: StadiumBorder(),
-                            primary: Colors.orange[800],
+                            shape: StadiumBorder(), 
+                            backgroundColor: Colors.orange[800],
                             padding: EdgeInsets.symmetric(
                                 horizontal: 30.r, vertical: 10.r),
                           ),
@@ -194,8 +194,8 @@ class _SignedScreenState extends State<SignedScreen> {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            shape: StadiumBorder(),
-                            primary: Colors.blue[700],
+                            shape: StadiumBorder(), 
+                            backgroundColor: Colors.blue[700],
                             padding: EdgeInsets.symmetric(
                                 horizontal: 30.r, vertical: 10.r),
                           ),
@@ -313,8 +313,8 @@ class _SignedScreenState extends State<SignedScreen> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          shape: StadiumBorder(),
-                          primary: Colors.orange[800],
+                          shape: StadiumBorder(), 
+                          backgroundColor: Colors.orange[800],
                           padding: EdgeInsets.symmetric(
                               horizontal: 20.r, vertical: 10.r),
                         ),
@@ -333,8 +333,8 @@ class _SignedScreenState extends State<SignedScreen> {
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          shape: StadiumBorder(),
-                          primary: Colors.blue[700],
+                          shape: StadiumBorder(), 
+                          backgroundColor: Colors.blue[700],
                           padding: EdgeInsets.symmetric(
                               horizontal: 20.r, vertical: 10.r),
                         ),
