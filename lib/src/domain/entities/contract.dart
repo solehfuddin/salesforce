@@ -2,10 +2,10 @@ class Contract {
   String idContract, idCustomer, namaPertama, jabatanPertama, alamatPertama, telpPertama, faxPertama,
   namaKedua, jabatanKedua, alamatKedua, telpKedua, faxKedua, tpNikon, tpNikonSt, tpLeinz, tpLeinzSt,
   tpOriental, tpOrientalSt, tpMoe, pembNikon, pembLeinz, pembOriental, pembMoe, pembNikonSt, pembLeinzSt, 
-  pembOrientalSt, startContract, endContract, typeContract, isFrame, isPartai, isOngkir, ongkir, isFacet, status, 
-  catatan, customerShipName, customerShipNumber, dateAdded, approvalSm, reasonSm, approvalAm, reasonAm,
-  dateApprovalSm, dateApprovalAm, hasParent, idParent, idContractParent, createdBy, namaUsaha, 
-  salesManager, arManager, ktpNpwp;
+  pembOrientalSt, startContract, endContract, typeContract, isFrame, isPartai, isOngkir, ongkir, isFacet,
+  idContractPromo, status, catatan, customerShipName, customerShipNumber, dateAdded, approvalSm, reasonSm, 
+  approvalAm, reasonAm, dateApprovalSm, dateApprovalAm, hasParent, idParent, idContractParent, createdBy, 
+  namaUsaha, salesManager, arManager, ktpNpwp;
 
   Contract.fromJson(Map json):
     idContract = json['id'] ?? '',
@@ -42,6 +42,7 @@ class Contract {
     isOngkir = json['is_ongkir'] ?? '0',
     ongkir = json['ongkir'] ?? '0',
     isFacet = json['is_facet'] ?? '0',
+    idContractPromo = json['id_contract_promo'] ?? '',
     status = json['status'],
     catatan = json['catatan'] ?? '',
     customerShipName = json['customer_ship_name'] ?? '',
@@ -97,6 +98,7 @@ class Contract {
     this.isOngkir,
     this.ongkir,
     this.isFacet,
+    this.idContractPromo,
     this.status,
     this.catatan,
     this.customerShipName,
@@ -154,6 +156,7 @@ class Contract {
       json['is_ongkir'] as String,
       json['ongkir'] as String,
       json['is_facet'] as String,
+      json['id_contract_promo'] as String,
       json['status'] as String,
       json['catatan'] as String,
       json['customer_ship_name'] as String,

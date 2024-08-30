@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:http/http.dart' as http;
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -70,6 +70,7 @@ class _DetailActivityState extends State<DetailActivity> {
   String searchSpFrame = '';
   bool _isNamaOptik = false;
   bool _isJam = false;
+  bool _isHorizontal = false;
   late DateTime selDateTime;
   String? selectedTime;
 
@@ -447,7 +448,14 @@ class _DetailActivityState extends State<DetailActivity> {
     }
   }
 
-  checkInput(Function stop, {bool isHorizontal = false}) async {
+  onButtonPressed() async {
+    await Future.delayed(const Duration(milliseconds: 1500),
+        () => checkInput(isHorizontal: _isHorizontal));
+
+    return () {};
+  }
+
+  checkInput({bool isHorizontal = false}) async {
     List<String> outputOther = List.empty(growable: true);
     var valSpFrame, valSpLensaStock;
     valSpFrame =
@@ -555,7 +563,6 @@ class _DetailActivityState extends State<DetailActivity> {
 
     if (!_isNamaOptik && !_isJam) {
       simpanData(
-        stop,
         isHorizontal: isHorizontal,
         spFrame: valSpFrame.replaceAll('.', ''),
         spLensStock: valSpLensaStock.replaceAll('.', ''),
@@ -572,12 +579,9 @@ class _DetailActivityState extends State<DetailActivity> {
         isLogout: false,
       );
     }
-
-    stop();
   }
 
-  simpanData(
-    Function stop, {
+  simpanData({
     bool isHorizontal = false,
     dynamic spFrame,
     dynamic spLensStock,
@@ -675,8 +679,6 @@ class _DetailActivityState extends State<DetailActivity> {
         );
       }
     }
-
-    stop();
   }
 
   multipleInputSP({bool isHorizontal = false}) async {
@@ -789,9 +791,11 @@ class _DetailActivityState extends State<DetailActivity> {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > 600 ||
           MediaQuery.of(context).orientation == Orientation.landscape) {
+        _isHorizontal = true;
         return detailActivity(isHorizontal: true);
       }
 
+      _isHorizontal = false;
       return detailActivity(isHorizontal: false);
     });
   }
@@ -1137,37 +1141,30 @@ class _DetailActivityState extends State<DetailActivity> {
                       vertical: isHorizontal ? 10.r : 5.r,
                     ),
                     alignment: Alignment.centerRight,
-                    child: ArgonButton(
+                    child: EasyButton(
+                      idleStateWidget: Text(
+                        "Simpan",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isHorizontal ? 24.sp : 14.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      loadingStateWidget: CircularProgressIndicator(
+                        strokeWidth: 3.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                      useEqualLoadingStateWidgetDimension: true,
+                      useWidthAnimation: true,
                       height: isHorizontal ? 60.h : 40.h,
                       width: isHorizontal ? 80.w : 100.w,
                       borderRadius: isHorizontal ? 60.r : 30.r,
-                      color: Colors.blue[700],
-                      child: Text(
-                        "Simpan",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: isHorizontal ? 24.sp : 14.sp,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      loader: Container(
-                        padding: EdgeInsets.all(8.r),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                      ),
-                      onTap: (startLoading, stopLoading, btnState) {
-                        if (btnState == ButtonState.Idle) {
-                          setState(() {
-                            startLoading();
-                            waitingLoad();
-                            checkInput(
-                              stopLoading,
-                              isHorizontal: isHorizontal,
-                            );
-                            stopLoading();
-                          });
-                        }
-                      },
+                      buttonColor: Colors.blue.shade600,
+                      elevation: 2.0,
+                      contentGap: 6.0,
+                      onPressed: onButtonPressed,
                     ),
                   ),
                 ],
@@ -1256,7 +1253,7 @@ class _DetailActivityState extends State<DetailActivity> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red.shade700,
+                        backgroundColor: Colors.red.shade700,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -1268,7 +1265,7 @@ class _DetailActivityState extends State<DetailActivity> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                       child: Text("Pilih"),
                     ),

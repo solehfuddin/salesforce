@@ -1,4 +1,4 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/contract_newcust.dart';
@@ -88,10 +88,7 @@ Widget itemNewcustRenewal(List<Contract> item, int index, BuildContext context,
     {bool isHorizontal = false}) {
   return InkWell(
     child: Container(
-      margin: EdgeInsets.only(
-        bottom: 5.r,
-        top: 5.r
-      ),
+      margin: EdgeInsets.only(bottom: 5.r, top: 5.r),
       padding: EdgeInsets.all(
         isHorizontal ? 15.r : 10.r,
       ),
@@ -195,6 +192,18 @@ SliverPadding areaNewcustRenewalNotFound(
   bool isHorizontal = false,
   List<Contract>? item,
 }) {
+  onButtonPressed() async {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ContractNewcust(
+          len: 0,
+        ),
+      ),
+    );
+
+    return () {};
+  }
+
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: 15.r,
@@ -223,38 +232,29 @@ SliverPadding areaNewcustRenewalNotFound(
             height: isHorizontal ? 35.h : 25.h,
           ),
           Center(
-            child: ArgonButton(
-              height: isHorizontal ? 40.h : 35.h,
-              width: isHorizontal ? 80.w : 120.w,
-              borderRadius: 30.0.r,
-              color: Colors.blue[600],
-              child: Text(
+            child: EasyButton(
+              idleStateWidget: Text(
                 "Search Contract",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: isHorizontal ? 14.sp : 12.sp,
                     fontWeight: FontWeight.w700),
               ),
-              loader: Container(
-                padding: EdgeInsets.all(8.r),
-                child: CircularProgressIndicator(
-                  color: Colors.white,
+              loadingStateWidget: CircularProgressIndicator(
+                strokeWidth: 3.0,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.white,
                 ),
               ),
-              onTap: (startLoading, stopLoading, btnState) {
-                if (btnState == ButtonState.Idle) {
-                  startLoading();
-                  waitingLoad();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ContractNewcust(
-                        len: 0,
-                      ),
-                    ),
-                  );
-                  stopLoading();
-                }
-              },
+              useEqualLoadingStateWidgetDimension: true,
+              useWidthAnimation: true,
+              height: isHorizontal ? 40.h : 35.h,
+              width: isHorizontal ? 80.w : 120.w,
+              borderRadius: 30.r,
+              buttonColor: Colors.blue.shade600,
+              elevation: 2.0,
+              contentGap: 6.0,
+              onPressed: onButtonPressed,
             ),
           ),
         ],
@@ -269,6 +269,18 @@ SliverPadding areaButtonNewcustRenewal(
   bool isHorizontal = false,
   List<Contract>? item,
 }) {
+  onButtonPressed() async {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ContractNewcust(
+          len: item!.length,
+        ),
+      ),
+    );
+
+    return () {};
+  }
+
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: isHorizontal ? 25.r : 15.r,
@@ -277,38 +289,29 @@ SliverPadding areaButtonNewcustRenewal(
     sliver: SliverToBoxAdapter(
       child: isShow
           ? Center(
-              child: ArgonButton(
-                height: isHorizontal ? 50.h : 40.h,
-                width: isHorizontal ? 100.w : 130.w,
-                borderRadius: 30.0.r,
-                color: Colors.blue[600],
-                child: Text(
+              child: EasyButton(
+                idleStateWidget: Text(
                   "Selengkapnya",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: isHorizontal ? 18.sp : 14.sp,
                       fontWeight: FontWeight.w700),
                 ),
-                loader: Container(
-                  padding: EdgeInsets.all(8.r),
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
+                loadingStateWidget: CircularProgressIndicator(
+                  strokeWidth: 3.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.white,
                   ),
                 ),
-                onTap: (startLoading, stopLoading, btnState) {
-                  if (btnState == ButtonState.Idle) {
-                    startLoading();
-                    waitingLoad();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ContractNewcust(
-                          len: item!.length,
-                        ),
-                      ),
-                    );
-                    stopLoading();
-                  }
-                },
+                useEqualLoadingStateWidgetDimension: true,
+                useWidthAnimation: true,
+                height: isHorizontal ? 50.h : 40.h,
+                width: isHorizontal ? 100.w : 130.w,
+                borderRadius: 30.r,
+                buttonColor: Colors.blue.shade600,
+                elevation: 2.0,
+                contentGap: 6.0,
+                onPressed: onButtonPressed,
               ),
             )
           : SizedBox(

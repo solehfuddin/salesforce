@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+// import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:sample/src/app/pages/cashback/cashback_form.dart';
 import 'package:sample/src/app/pages/econtract/form_disc.dart';
 import 'package:sample/src/app/pages/econtract/form_product.dart';
@@ -28,6 +30,12 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:signature/signature.dart';
 
+import '../../../domain/entities/contract_promo.dart';
+import '../../../domain/service/service_promo.dart';
+import '../../controllers/contractpromo_controller.dart';
+import '../econtract/econtract_promo.dart';
+import '../econtract/econtract_promo_avail.dart';
+
 // ignore: must_be_immutable
 class ChangeContract extends StatefulWidget {
   final OldCustomer? oldCustomer;
@@ -50,7 +58,9 @@ class ChangeContract extends StatefulWidget {
 
 class _ChangeContractState extends State<ChangeContract> {
   final globalKey = GlobalKey();
+  ContractPromoController controllerPromo = Get.find<ContractPromoController>();
   ServiceCashback serviceCashback = new ServiceCashback();
+  ServicePromo servicePromo = new ServicePromo();
   CashbackResHeader? otherHeader;
   List<FormItemDisc> formDisc = List.empty(growable: true);
   List<FormItemDisc> defaultDisc = List.empty(growable: true);
@@ -108,6 +118,7 @@ class _ChangeContractState extends State<ChangeContract> {
   var _now = new DateTime.now();
   var _formatter = new DateFormat('yyyy-MM-dd');
   // bool _isValNikon = false;
+  bool _isHorizontal = false;
   bool _isValLeinz = false;
   bool _isValOriental = false;
   bool _isValMoe = false;
@@ -115,6 +126,7 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isFrameContract = false;
   bool _isPartaiContract = false;
   bool _isOngkirContract = false;
+  bool _isPromoContract = false;
   bool _isFixedOngkir = false;
   bool _isFacetContract = false;
   bool _isPrestigeContract = false;
@@ -122,7 +134,9 @@ class _ChangeContractState extends State<ChangeContract> {
   bool _isChildContract = false;
   bool _isCashbackContrack = false;
   bool _isContractActive = false;
+  bool _isContractHasDisc = false;
   bool isCashbackExpired = true;
+  bool _isEmpty = false;
   var thisYear, nextYear;
   int formLen = 0;
 
@@ -306,6 +320,10 @@ class _ChangeContractState extends State<ChangeContract> {
           await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
       print('Response status : ${response.statusCode}');
 
+      if (response.statusCode == 400) {
+        _isEmpty = true;
+      }
+
       try {
         var data = json.decode(response.body);
         final bool sts = data['status'];
@@ -321,6 +339,7 @@ class _ChangeContractState extends State<ChangeContract> {
               .toList();
           print("List Size: ${list.length}");
           print("Product Size: ${itemStbCust.length}");
+          _isEmpty = false;
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -384,6 +403,12 @@ class _ChangeContractState extends State<ChangeContract> {
           : widget.actContract[0].isOngkir == "2"
               ? _isFixedOngkir = true
               : _isOngkirContract = false;
+      widget.actContract[0].idContractPromo.isNotEmpty
+          ? _isPromoContract = true
+          : _isPromoContract = false;
+      servicePromo
+          .getContractPromo(keyword: widget.actContract[0].idContractPromo)
+          .then((value) => controllerPromo.selectedPromo.value = value[0]);
       textOngkir.value = TextEditingValue(
         text: convertThousand(int.parse(widget.actContract[0].ongkir), 0),
       );
@@ -711,6 +736,9 @@ class _ChangeContractState extends State<ChangeContract> {
               .map<ActContract>((json) => ActContract.fromJson(json))
               .toList();
           print('List Size : ${itemActiveContract.length}');
+          // print('Id Contract : ${itemActiveContract.first.idContract}');
+
+          getDisc(itemActiveContract.first.idContract);
         } else {
           this._isContractActive = false;
         }
@@ -728,6 +756,45 @@ class _ChangeContractState extends State<ChangeContract> {
     }
 
     print('Is disabled : $_isContractActive');
+  }
+
+  getDisc(dynamic idContract) async {
+    const timeout = 15;
+    var url = '$API_URL/discount/getByIdContract?id_contract=$idContract';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          _isContractHasDisc = true;
+          // discList =
+          //     rest.map<Discount>((json) => Discount.fromJson(json)).toList();
+          // print("List Size: ${discList.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        _isContractHasDisc = false;
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+      _isContractHasDisc = false;
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleConnectionAdmin(context);
+      _isContractHasDisc = false;
+    } on Error catch (e) {
+      print('General Error : $e');
+      _isContractHasDisc = false;
+    }
   }
 
   getSelectedItem() {
@@ -962,7 +1029,7 @@ class _ChangeContractState extends State<ChangeContract> {
     bool isHorizontal = false,
     BuildContext? context,
   }) {
-    _isContractActive
+    _isContractActive && _isContractHasDisc
         ? Navigator.pop(context!)
         : handleStatus(
             context!,
@@ -973,7 +1040,18 @@ class _ChangeContractState extends State<ChangeContract> {
           );
   }
 
-  checkInput(Function stop, {bool isHorizontal = false}) async {
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => checkInput(
+        isHorizontal: _isHorizontal,
+      ),
+    );
+
+    return () {};
+  }
+
+  checkInput({bool isHorizontal = false}) async {
     fixedDisc.clear();
     fixedProduct.clear();
     tmpDivInput.clear();
@@ -1085,6 +1163,7 @@ class _ChangeContractState extends State<ChangeContract> {
     print('is_ongkir : ${_isOngkirContract ? '1' : '0'}');
     print('is fixed ongkir : $_isFixedOngkir');
     print('is_facet : ${_isFacetContract ? '1' : '0'}');
+    print('id_promo : ${_isPromoContract ? controllerPromo.selectedPromo.value.id : ''}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
     print(
@@ -1211,6 +1290,7 @@ class _ChangeContractState extends State<ChangeContract> {
       print('is_ongkir : ${_isOngkirContract ? '1' : '0'}');
       print('is fixed ongkir : $_isFixedOngkir');
       print('is_facet : ${_isFacetContract ? '1' : '0'}');
+      print('id_promo : ${_isPromoContract ? controllerPromo.selectedPromo.value.id : ''}');
       print(
           'catatan: ${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}');
       print('no_account: ');
@@ -1272,6 +1352,7 @@ class _ChangeContractState extends State<ChangeContract> {
                     : '0',
             'ongkir': _isFixedOngkir ? textOngkir.text.replaceAll('.', '') : '',
             'is_facet': _isFacetContract ? '1' : '0',
+            'id_promo' : _isPromoContract ? controllerPromo.selectedPromo.value.id : '',
             'catatan':
                 "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
             'no_account': itemActiveContract.length < 1
@@ -1376,8 +1457,6 @@ class _ChangeContractState extends State<ChangeContract> {
         print('General Error : $e');
       }
     }
-
-    stop();
   }
 
   @override
@@ -1393,6 +1472,7 @@ class _ChangeContractState extends State<ChangeContract> {
   }
 
   Widget childChangeContract({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -1408,7 +1488,10 @@ class _ChangeContractState extends State<ChangeContract> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            controllerPromo.selectedPromo.value = ContractPromo();
+            Navigator.pop(context);
+          },
           icon: Icon(
             Icons.arrow_back_ios_new,
             size: isHorizontal ? 28.sp : 18.r,
@@ -2609,7 +2692,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: StadiumBorder(),
-                      primary: Colors.orange[800],
+                      backgroundColor: Colors.orange[800],
                       padding: EdgeInsets.symmetric(
                         horizontal: isHorizontal ? 40.r : 20.r,
                         vertical: isHorizontal ? 20.r : 10.r,
@@ -2634,36 +2717,29 @@ class _ChangeContractState extends State<ChangeContract> {
                       vertical: isHorizontal ? 10.r : 5.r,
                     ),
                     alignment: Alignment.centerRight,
-                    child: ArgonButton(
-                      height: isHorizontal ? 60.h : 40.h,
-                      width: isHorizontal ? 80.w : 100.w,
-                      borderRadius: isHorizontal ? 60.r : 30.r,
-                      color: Colors.blue[700],
-                      child: Text(
+                    child: EasyButton(
+                      idleStateWidget: Text(
                         "Simpan",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: isHorizontal ? 24.sp : 14.sp,
                             fontWeight: FontWeight.w700),
                       ),
-                      loader: Container(
-                        padding: EdgeInsets.all(8.r),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                      loadingStateWidget: CircularProgressIndicator(
+                        strokeWidth: 3.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
                       ),
-                      onTap: (startLoading, stopLoading, btnState) {
-                        if (btnState == ButtonState.Idle) {
-                          setState(() {
-                            startLoading();
-                            waitingLoad();
-                            checkInput(
-                              stopLoading,
-                              isHorizontal: isHorizontal,
-                            );
-                          });
-                        }
-                      },
+                      useEqualLoadingStateWidgetDimension: true,
+                      useWidthAnimation: true,
+                      height: isHorizontal ? 60.h : 40.h,
+                      width: isHorizontal ? 80.w : 100.w,
+                      borderRadius: isHorizontal ? 60.r : 30.r,
+                      buttonColor: Colors.blue.shade700,
+                      elevation: 2.0,
+                      contentGap: 6.0,
+                      onPressed: onButtonPressed,
                     ),
                   ),
                 ],
@@ -2773,6 +2849,276 @@ class _ChangeContractState extends State<ChangeContract> {
                             ),
                           ),
                         ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isHorizontal ? 10.r : 8.r,
+                                vertical: isHorizontal ? 5.r : 2.r,
+                              ),
+                              child: Text(
+                                'Kontrak Program Promo',
+                                style: TextStyle(
+                                  fontSize: isHorizontal ? 18.sp : 14.sp,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                              vertical: isHorizontal ? 5.r : 2.r,
+                            ),
+                            child: Checkbox(
+                              value: this._isPromoContract,
+                              onChanged: (bool? value) {
+                                setState(
+                                  () {
+                                    this._isPromoContract = value!;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Obx(
+                        () => Visibility(
+                          visible: _isPromoContract,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: isHorizontal ? 10.r : 8.r,
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 5,
+                                      child: OutlinedButton.icon(
+                                        onPressed: () {
+                                          showDialog(
+                                            barrierDismissible: false,
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return StatefulBuilder(
+                                                  builder: (context, state) {
+                                                return AlertDialog(
+                                                  scrollable: true,
+                                                  title: Center(
+                                                    child:
+                                                        Text('Promo Tersedia'),
+                                                  ),
+                                                  content: EcontractPromoAvail(
+                                                    isHorizontal: isHorizontal,
+                                                  ),
+                                                );
+                                              });
+                                            },
+                                          );
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor:
+                                              Colors.orange.shade300,
+                                          side: BorderSide(
+                                            color: Colors.orange.shade400,
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.orange.shade400,
+                                        ),
+                                        label: Text(
+                                          'Tersedia',
+                                          style: TextStyle(
+                                            color: Colors.orange.shade400,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Expanded(
+                                      flex: 6,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            elevation: 2,
+                                            backgroundColor: Colors.white,
+                                            isDismissible: true,
+                                            enableDrag: false,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(15),
+                                                topRight: Radius.circular(15),
+                                              ),
+                                            ),
+                                            context: context,
+                                            builder: (context) {
+                                              return EcontractPromo(
+                                                isHorizontal: isHorizontal,
+                                              );
+                                            },
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue.shade400,
+                                        ),
+                                        icon: Icon(
+                                          Icons.add_circle_rounded,
+                                        ),
+                                        label: Text(
+                                          'Manual Promo',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                controllerPromo.selectedPromo.value.promoName !=
+                                        null
+                                    ? Card(
+                                        elevation: 3,
+                                        child: Container(
+                                          height: isHorizontal ? 115.h : 65.h,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal:
+                                                isHorizontal ? 25.r : 15.r,
+                                            vertical:
+                                                isHorizontal ? 20.r : 10.r,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Promo yang dipilih',
+                                                      style: TextStyle(
+                                                        fontSize: isHorizontal
+                                                            ? 24.sp
+                                                            : 14.sp,
+                                                        fontFamily:
+                                                            'Montserrat',
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors
+                                                            .blue.shade700,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      controllerPromo
+                                                              .selectedPromo
+                                                              .value
+                                                              .promoName?.toUpperCase() ??
+                                                          '',
+                                                      style: TextStyle(
+                                                        fontSize: isHorizontal
+                                                            ? 24.sp
+                                                            : 14.sp,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontFamily: 'Segoe ui',
+                                                        color: Colors.black45,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Image.asset(
+                                                'assets/images/success.png',
+                                                width:
+                                                    isHorizontal ? 45.r : 25.r,
+                                                height:
+                                                    isHorizontal ? 45.r : 25.r,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    : Card(
+                                        elevation: 3,
+                                        child: Container(
+                                          height: isHorizontal ? 115.h : 65.h,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal:
+                                                isHorizontal ? 25.r : 15.r,
+                                            vertical:
+                                                isHorizontal ? 20.r : 10.r,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Tidak ada informasi promo',
+                                                      style: TextStyle(
+                                                        fontSize: isHorizontal
+                                                            ? 24.sp
+                                                            : 14.sp,
+                                                        fontFamily:
+                                                            'Montserrat',
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color:
+                                                            Colors.red.shade700,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Pilih tersedia atau buat manual',
+                                                      style: TextStyle(
+                                                        fontSize: isHorizontal
+                                                            ? 24.sp
+                                                            : 14.sp,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontFamily: 'Segoe ui',
+                                                        color: Colors.black45,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Image.asset(
+                                                'assets/images/failure.png',
+                                                width:
+                                                    isHorizontal ? 45.r : 25.r,
+                                                height:
+                                                    isHorizontal ? 45.r : 25.r,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                              ],
+                            ),
+                          ),
+                          replacement: SizedBox(
+                            width: 5.w,
+                          ),
+                        ),
                       ),
                       Visibility(
                         visible: !_isFixedOngkir,
@@ -3069,13 +3415,13 @@ class _ChangeContractState extends State<ChangeContract> {
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: isHorizontal ? 13.r : 8.r,
+                        horizontal: isHorizontal ? 10.r : 8.r,
                         vertical: isHorizontal ? 5.r : 2.r,
                       ),
                       child: Text(
                         'Kontrak Sebagai Child',
                         style: TextStyle(
-                          fontSize: isHorizontal ? 24.sp : 14.sp,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w500,
                         ),
@@ -3084,7 +3430,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 13.r : 8.r,
+                      horizontal: isHorizontal ? 10.r : 8.r,
                       vertical: isHorizontal ? 5.r : 2.r,
                     ),
                     child: Checkbox(
@@ -3119,7 +3465,7 @@ class _ChangeContractState extends State<ChangeContract> {
         itemActiveContract.isNotEmpty
             ? Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 17.r,
+                  horizontal: 12.r,
                   vertical: 10.r,
                 ),
                 child: Card(
@@ -3256,7 +3602,7 @@ class _ChangeContractState extends State<ChangeContract> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red.shade700,
+                        backgroundColor: Colors.red.shade700,
                       ),
                       onPressed: () {
                         this._isChildContract = false;
@@ -3272,7 +3618,7 @@ class _ChangeContractState extends State<ChangeContract> {
                         context: context,
                       ),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                       child: Text("Pilih"),
                     ),
@@ -3288,28 +3634,32 @@ class _ChangeContractState extends State<ChangeContract> {
 
   Widget listParentWidget(List<StbCustomer> item) {
     return StatefulBuilder(builder: (context, setState) {
-      return Container(
-          width: double.minPositive.w,
-          height: 350.h,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: item.length,
-            itemBuilder: (BuildContext context, int index) {
-              String _key = item[index].customerBillName;
-              return CheckboxListTile(
-                value: item[index].ischecked,
-                title: Text(_key),
-                onChanged: (bool? val) {
-                  setState(() {
-                    item[index].ischecked = val!;
-                    item[index].ischecked
-                        ? getActiveContract(item[index].customerBillNumber)
-                        : print('Disable');
-                  });
+      return _isEmpty
+          ? Center(
+              child: Text("Masukkan pencarian data"),
+            )
+          : Container(
+              width: double.minPositive.w,
+              height: 350.h,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: item.length,
+                itemBuilder: (BuildContext context, int index) {
+                  String _key = item[index].customerBillName;
+                  return CheckboxListTile(
+                    value: item[index].ischecked,
+                    title: Text(_key),
+                    onChanged: (bool? val) {
+                      setState(() {
+                        item[index].ischecked = val!;
+                        item[index].ischecked
+                            ? getActiveContract(item[index].customerBillNumber)
+                            : print('Disable');
+                      });
+                    },
+                  );
                 },
-              );
-            },
-          ));
+              ));
     });
   }
 

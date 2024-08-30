@@ -1,4 +1,4 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -50,7 +50,18 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
     });
   }
 
-  handleValidationForm(Function stop, {bool isHorizontal = false}) {
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => handleValidationForm(
+        isHorizontal: widget.isHorizontal,
+      ),
+    );
+
+    return () {};
+  }
+
+  handleValidationForm({bool isHorizontal = false}) {
     print("""
     Bank id : $selectedIdBank,
     Bank name : $selectedBank,
@@ -70,7 +81,7 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
 
     if (validateName && validateNomor) {
       serviceCashback
-          .insertRekening(stop, context: context, item: item)
+          .insertRekening(context: context, item: item)
           .then((value) {
         print("Id Rekening : $value");
         item.setIdRekening = value;
@@ -87,8 +98,6 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
         isLogout: false,
       );
     }
-
-    stop();
   }
 
   @override
@@ -306,37 +315,29 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
                 height: 40.h,
               ),
               Center(
-                child: ArgonButton(
+                child: EasyButton(
+                  idleStateWidget: Text(
+                    "Simpan",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: widget.isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  loadingStateWidget: CircularProgressIndicator(
+                    strokeWidth: 3.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.white,
+                    ),
+                  ),
+                  useEqualLoadingStateWidgetDimension: true,
+                  useWidthAnimation: true,
                   height: widget.isHorizontal ? 50.h : 40.h,
                   width: widget.isHorizontal ? 90.w : 100.w,
                   borderRadius: widget.isHorizontal ? 60.r : 30.r,
-                  color: Colors.blue[700],
-                  child: Text(
-                    "Simpan",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: widget.isHorizontal ? 18.sp : 14.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  loader: Container(
-                    padding: EdgeInsets.all(8.r),
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onTap: (startLoading, stopLoading, btnState) {
-                    if (btnState == ButtonState.Idle) {
-                      setState(() {
-                        startLoading();
-                        waitingLoad();
-                        handleValidationForm(
-                          stopLoading,
-                          isHorizontal: widget.isHorizontal,
-                        );
-                      });
-                    }
-                  },
+                  buttonColor: Colors.blue.shade700,
+                  elevation: 2.0,
+                  contentGap: 6.0,
+                  onPressed: onButtonPressed,
                 ),
               ),
             ],

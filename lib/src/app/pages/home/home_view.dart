@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/controllers/my_controller.dart';
 import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
 import 'package:sample/src/app/pages/attendance/attendance_service.dart';
@@ -122,9 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (!isProminentAccess!) {
         dialogProminentService(context);
-      }
-      else
-      {
+      } else {
         checkService();
       }
     });
@@ -135,6 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (isPermissionService && isLocationService) {
         print('Granted');
+        // Permission.camera.request();
       } else {
         dialogLocationService(context);
       }
@@ -229,9 +230,28 @@ class _HomeScreenState extends State<HomeScreen> {
         return AttendanceProminent();
       },
     ).whenComplete(
-      () {
+      () async {
         preferences.setBool("check_prominent", true);
-        checkService();
+
+        if (Platform.isAndroid) {
+          final androidInfo = await DeviceInfoPlugin().androidInfo;
+
+          if (androidInfo.version.sdkInt < 33) {
+            await [
+              Permission.camera,
+              Permission.microphone,
+              Permission.storage,
+              Permission.notification,
+            ].request();
+          } else {
+            await [
+              Permission.camera,
+              Permission.microphone,
+              Permission.mediaLibrary
+            ].request().then((value) => openAppSettings());
+          }
+        }
+        // checkService();
       },
     );
   }
@@ -426,11 +446,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           }
 
-          Future.delayed(Duration(seconds: 3), () {
-            setState(() {
-              isReadLocal();
-            });
-          });
+          Future.delayed(Duration(seconds: 3)).then((_) => isReadLocal());
           print("List Size: ${list.length}");
         }
       } on FormatException catch (e) {
@@ -560,27 +576,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               )
                             : SliverPadding(
-                          padding: EdgeInsets.only(
-                            left: 18.r,
-                            right: 18.r,
-                            top: 5.r,
-                            bottom: 15.r,
-                          ),
-                          sliver: SliverToBoxAdapter(
-                            child: StatefulBuilder(
-                              builder:
-                                  (BuildContext context, StateSetter state) {
-                                return Text(
-                                  'Penjualan',
-                                  style: TextStyle(
-                                    fontSize: 21.sp,
-                                    fontWeight: FontWeight.bold,
+                                padding: EdgeInsets.only(
+                                  left: 18.r,
+                                  right: 18.r,
+                                  top: 5.r,
+                                  bottom: 15.r,
+                                ),
+                                sliver: SliverToBoxAdapter(
+                                  child: StatefulBuilder(
+                                    builder: (BuildContext context,
+                                        StateSetter state) {
+                                      return Text(
+                                        'Penjualan',
+                                        style: TextStyle(
+                                          fontSize: 21.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
+                                ),
+                              ),
                         _hidePerform
                             ? SliverPadding(
                                 padding: EdgeInsets.only(
@@ -674,26 +690,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           )
                         : SliverPadding(
-                      padding: EdgeInsets.only(
-                        left: 20.r,
-                        right: 20.r,
-                        top: 5.r,
-                        bottom: 10.r,
-                      ),
-                      sliver: SliverToBoxAdapter(
-                        child: StatefulBuilder(
-                          builder: (BuildContext context, StateSetter state) {
-                            return Text(
-                              'Penjualan',
-                              style: TextStyle(
-                                fontSize: 21.sp,
-                                fontWeight: FontWeight.bold,
+                            padding: EdgeInsets.only(
+                              left: 20.r,
+                              right: 20.r,
+                              top: 5.r,
+                              bottom: 10.r,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: StatefulBuilder(
+                                builder:
+                                    (BuildContext context, StateSetter state) {
+                                  return Text(
+                                    'Penjualan',
+                                    style: TextStyle(
+                                      fontSize: 21.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+                            ),
+                          ),
                     _hidePerform
                         ? SliverPadding(
                             padding: EdgeInsets.only(

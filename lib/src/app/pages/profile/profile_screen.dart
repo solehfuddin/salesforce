@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? divisi = '';
   String? status = '';
   bool _isLoading = true;
+  bool _isHorizontal = false;
   TextEditingController textPassword = new TextEditingController();
   TextEditingController textRePassword = new TextEditingController();
   TextEditingController textNamaLengkap = new TextEditingController();
@@ -116,7 +117,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     getRole();
   }
 
-  checkEntry(Function stop, {bool isHorizontal = false}) async {
+  onButtonPressed() async {
+    await Future.delayed(const Duration(milliseconds: 1500),
+        () => checkEntry(isHorizontal: _isHorizontal));
+
+    return () {};
+  }
+
+  checkEntry({bool isHorizontal = false}) async {
     textNamaLengkap.text.isEmpty
         ? _isNamaLengkap = true
         : _isNamaLengkap = false;
@@ -129,7 +137,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!_isPassword || !_isRePassword) {
         if (textPassword.text == textRePassword.text) {
           perbaruiData(
-            stop,
             isChangePassword: true,
             isHorizontal: isHorizontal,
           );
@@ -143,11 +150,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-          stop();
         }
       } else {
         perbaruiData(
-          stop,
           isChangePassword: false,
           isHorizontal: isHorizontal,
         );
@@ -162,7 +167,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     }
   }
 
@@ -189,8 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   perbaruiProfil() async {
     const timeout = 15;
-    var url =
-        '$API_URL/users/changeImageProfile';
+    var url = '$API_URL/users/changeImageProfile';
 
     try {
       var response = await http.post(
@@ -229,8 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  perbaruiData(
-    Function stop, {
+  perbaruiData({
     bool isChangePassword = false,
     bool isHorizontal = false,
   }) async {
@@ -291,8 +293,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } on Error catch (e) {
       print('General Error : $e');
     }
-
-    stop();
   }
 
   @override
@@ -300,6 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > 600 ||
           MediaQuery.of(context).orientation == Orientation.landscape) {
+        _isHorizontal = true;
         return Scaffold(
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
@@ -356,21 +357,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                           Positioned(
-                              bottom: 1,
-                              right: 5,
-                              child: Container(
-                                height: 40.h,
-                                width: 25.w,
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.white,
-                                  size: 22.r,
+                            bottom: 1,
+                            right: 5,
+                            child: Container(
+                              height: 40.h,
+                              width: 25.w,
+                              child: Icon(
+                                Icons.add_a_photo,
+                                color: Colors.white,
+                                size: 22.r,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade500,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(22.r),
                                 ),
-                                decoration: BoxDecoration(
-                                    color: Colors.green.shade500,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(22.r),),),
-                              ),)
+                              ),
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -556,35 +560,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ArgonButton(
-                        height: 50.h,
-                        width: 70.w,
-                        borderRadius: 35.r,
-                        color: Colors.blue[600],
-                        child: Text(
+                      EasyButton(
+                        idleStateWidget: Text(
                           "Perbarui",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w700),
                         ),
-                        loader: Container(
-                          padding: EdgeInsets.all(8.r),
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
+                        loadingStateWidget: CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
-                        onTap: (startLoading, stopLoading, btnState) {
-                          if (btnState == ButtonState.Idle) {
-                            startLoading();
-                            waitingLoad();
-                            checkEntry(
-                              stopLoading,
-                              isHorizontal: true,
-                            );
-                            // stopLoading();
-                          }
-                        },
+                        useEqualLoadingStateWidgetDimension: true,
+                        useWidthAnimation: true,
+                        height: 50.h,
+                        width: 70.w,
+                        borderRadius: 35.r,
+                        buttonColor: Colors.blue.shade600,
+                        elevation: 2.0,
+                        contentGap: 6.0,
+                        onPressed: onButtonPressed,
                       ),
                     ],
                   ),
@@ -595,6 +593,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
 
+      _isHorizontal = false;
       return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -849,35 +848,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ArgonButton(
-                      height: 40.h,
-                      width: 100.w,
-                      borderRadius: 30.0.r,
-                      color: Colors.blue[600],
-                      child: Text(
+                    EasyButton(
+                      idleStateWidget: Text(
                         "Perbarui",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w700),
                       ),
-                      loader: Container(
-                        padding: EdgeInsets.all(8.r),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                      loadingStateWidget: CircularProgressIndicator(
+                        strokeWidth: 3.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
                       ),
-                      onTap: (startLoading, stopLoading, btnState) {
-                        if (btnState == ButtonState.Idle) {
-                          startLoading();
-                          waitingLoad();
-                          checkEntry(
-                            stopLoading,
-                            isHorizontal: false,
-                          );
-                          // stopLoading();
-                        }
-                      },
+                      useEqualLoadingStateWidgetDimension: true,
+                      useWidthAnimation: true,
+                      height: 40.h,
+                      width: 100.w,
+                      borderRadius: 35.r,
+                      buttonColor: Colors.blue.shade600,
+                      elevation: 2.0,
+                      contentGap: 6.0,
+                      onPressed: onButtonPressed,
                     ),
                   ],
                 ),

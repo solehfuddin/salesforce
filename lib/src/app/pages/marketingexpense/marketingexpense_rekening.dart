@@ -87,7 +87,7 @@ class _Marketingexpense_RekeningState extends State<Marketingexpense_Rekening> {
                               }
                             : null,
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.orange.shade400,
+                          backgroundColor: Colors.orange.shade400,
                         ),
                         icon: Icon(Icons.check_circle),
                         label: Text(
@@ -138,7 +138,7 @@ class _Marketingexpense_RekeningState extends State<Marketingexpense_Rekening> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.blue.shade400,
+                          backgroundColor: Colors.blue.shade400,
                         ),
                         icon: Icon(
                           Icons.add_circle_rounded,

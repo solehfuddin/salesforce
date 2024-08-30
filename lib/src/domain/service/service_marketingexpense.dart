@@ -238,8 +238,7 @@ class ServiceMarketingExpense {
     return list;
   }
 
-  Future<String> insertME(
-    Function stop, {
+  Future<String> insertME({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -360,8 +359,7 @@ class ServiceMarketingExpense {
     return idMarketingExpense;
   }
 
-  Future<bool> insertLine(
-    Function stop, {
+  Future<bool> insertLine({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -415,8 +413,7 @@ class ServiceMarketingExpense {
     return output;
   }
 
-  insertAttachment(
-    Function stop, {
+  insertAttachment({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -599,8 +596,7 @@ class ServiceMarketingExpense {
     return managerToken;
   }
 
-  approveME(
-    Function stop, {
+  approveME({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -683,12 +679,9 @@ class ServiceMarketingExpense {
         );
       }
     }
-
-    stop();
   }
 
-  rejectME(
-    Function stop, {
+  rejectME({
     bool isHorizontal = false,
     bool mounted = false,
     required BuildContext context,
@@ -758,7 +751,5 @@ class ServiceMarketingExpense {
         );
       }
     }
-
-    stop();
   }
 }

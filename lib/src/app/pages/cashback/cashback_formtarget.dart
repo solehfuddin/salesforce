@@ -165,11 +165,12 @@ class _CashbackFormTargetState extends State<CashbackFormTarget> {
                       Expanded(
                         flex: 1,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           mainAxisSize: MainAxisSize.max,
+                          // crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Cashback value',
+                              'Cashback',
                               style: TextStyle(
                                 color: Colors.black87,
                                 fontSize: widget.isHorizontal ? 24.sp : 14.sp,

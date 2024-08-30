@@ -69,8 +69,8 @@ class _DialogSignedState extends State<DialogSigned> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    shape: StadiumBorder(),
-                    primary: Colors.orange[800],
+                    shape: StadiumBorder(), 
+                    backgroundColor: Colors.orange[800],
                     padding:
                         EdgeInsets.symmetric(horizontal: 15.r, vertical: 10.r),
                   ),
@@ -89,8 +89,8 @@ class _DialogSignedState extends State<DialogSigned> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    shape: StadiumBorder(),
-                    primary: Colors.indigo[600],
+                    shape: StadiumBorder(), 
+                    backgroundColor: Colors.indigo[600],
                     padding:
                         EdgeInsets.symmetric(horizontal: 15.r, vertical: 10.r),
                   ),

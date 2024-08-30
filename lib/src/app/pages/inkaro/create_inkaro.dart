@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:date_field/date_field.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
@@ -49,6 +49,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   String searchInkaroProgram = '';
   String searchInkaroManual = '';
   final format = DateFormat("dd MMM yyyy");
+  bool _isHorizontal = false;
   bool _isLoadingInkaroManualSelected = false,
       isSwitchedCopyTemplateContract = false,
       isSwitchedHouseBrandProgram = false,
@@ -84,7 +85,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       _emptyTelpKonfirmasi = false,
       _emptyNotesContract = false;
 
-  checkEntry(Function stop, {bool isHorizontal = false}) {
+  checkEntry({bool isHorizontal = false}) {
     setState(() {
       textNamaStaff.text.isEmpty
           ? _emptyNamaStaff = true
@@ -120,7 +121,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       if (inkaroManualSelected[loopManual].inkaroValue == '0' ||
           inkaroManualSelected[loopManual].inkaroValue == '') {
         validationInkaroManual = true;
-        stop();
         break;
       }
     }
@@ -145,13 +145,11 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     } else {
       if (isSwitchedCopyTemplateContract &&
           _choosenCopyContract != null &&
           _choosenCopyContract != '') {
-        simpanData(stop, isHorizontal: isHorizontal);
-        stop();
+        simpanData(isHorizontal: isHorizontal);
       } else {
         if (!isSwitchedCopyTemplateContract) {
           if (inkaroRegSelected.isEmpty &&
@@ -164,7 +162,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
               isHorizontal: isHorizontal,
               isLogout: false,
             );
-            stop();
           } else {
             if (validationInkaroManual) {
               handleStatus(
@@ -174,12 +171,9 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                 isHorizontal: isHorizontal,
                 isLogout: false,
               );
-              stop();
             } else {
-              simpanData(stop, isHorizontal: isHorizontal);
+              simpanData(isHorizontal: isHorizontal);
             }
-
-            stop();
           }
         } else {
           handleStatus(
@@ -189,7 +183,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-          stop();
         }
       }
     }
@@ -228,7 +221,18 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
     }
   }
 
-  simpanData(Function stop, {bool isHorizontal = false}) async {
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => checkEntry(
+        isHorizontal: _isHorizontal,
+      ),
+    );
+
+    return () {};
+  }
+
+  simpanData({bool isHorizontal = false}) async {
     const timeout = 15;
     var url = '$API_URL/inkaro/';
 
@@ -349,8 +353,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         );
       }
     }
-
-    stop();
   }
 
   getKategoriInkaro() async {
@@ -855,6 +857,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   }
 
   Widget childCreateInkaro({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -1643,37 +1646,29 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
               ),
               child: Column(
                 children: [
-                  ArgonButton(
+                  EasyButton(
+                    idleStateWidget: Text(
+                      "Simpan",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    loadingStateWidget: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                    useEqualLoadingStateWidgetDimension: true,
+                    useWidthAnimation: true,
                     height: isHorizontal ? 50.h : 40.h,
                     width: isHorizontal ? 90.w : 100.w,
                     borderRadius: isHorizontal ? 60.r : 30.r,
-                    color: Colors.blue[700],
-                    child: Text(
-                      "Simpan",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8.r),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        setState(() {
-                          startLoading();
-                          waitingLoad();
-                          checkEntry(
-                            stopLoading,
-                            isHorizontal: isHorizontal,
-                          );
-                        });
-                      }
-                    },
+                    buttonColor: Colors.blue.shade700,
+                    elevation: 2.0,
+                    contentGap: 6.0,
+                    onPressed: onButtonPressed,
                   ),
                 ],
               ),

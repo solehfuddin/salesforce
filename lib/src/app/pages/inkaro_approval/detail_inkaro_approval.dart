@@ -4,9 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -41,12 +40,14 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
   String? role = '';
   String? username = '';
   String? name = '';
+  String? divisi = '';
 
   String namaUsaha = '';
   String namaPJ = '';
   String telpPJ = '';
   String alamatUsaha = '';
   bool _isLoading = true;
+  bool _isHorizontal = false;
   late String tokenSales;
 
   final format = DateFormat("dd MMM yyyy");
@@ -251,8 +252,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
     }
   }
 
-  handleRejection(BuildContext context, Function stop,
-      {bool isHorizontal = false}) {
+  handleRejection(BuildContext context, {bool isHorizontal = false}) {
     AlertDialog alert = AlertDialog(
       scrollable: true,
       title: Center(
@@ -297,7 +297,6 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
             ),
           ),
           onPressed: () {
-            stop();
             approvalInkaro(
               widget.inkaroHeader.inkaroContractId,
               "REJECT",
@@ -316,7 +315,6 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
             ),
           ),
           onPressed: () {
-            stop();
             Navigator.of(context, rootNavigator: true).pop();
           },
         ),
@@ -338,6 +336,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       role = preferences.getString("role");
       username = preferences.getString("username");
       name = preferences.getString("name");
+      divisi = preferences.getString("divisi");
 
       var formatter = new DateFormat('yyyy');
       thisYear = formatter.format(DateTime.now());
@@ -362,6 +361,59 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       getRole();
       getListInkaro();
     });
+  }
+
+  onPressedDownload() async {
+    if (_permissionReady) {
+      downloadContractInkaro(
+        int.parse(widget.inkaroHeader.inkaroContractId),
+        widget.inkaroHeader.customerShipName,
+        _localPath,
+      );
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child:
+            Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
+  }
+
+  onPressedReject() async {
+    handleRejection(
+      context,
+      isHorizontal: _isHorizontal,
+    );
+
+    return () {};
+  }
+
+  onPressedApprove() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => approvalInkaro(
+        widget.inkaroHeader.inkaroContractId,
+        "APPROVE",
+        "ACTIVE",
+        "",
+        id!,
+        isHorizontal: _isHorizontal,
+      ),
+    );
+
+    return () {};
   }
 
   @override
@@ -397,13 +449,11 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
     super.dispose();
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
-    
-    if (send != null)
-    {
+
+    if (send != null) {
       send.send([id, status, progress]);
     }
   }
@@ -419,7 +469,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       _permissionReady = hasGranted;
     });
   }
-  
+
   Future<bool> _checkPermission() async {
     if (Platform.isIOS) {
       return true;
@@ -431,10 +481,11 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
-        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+        statusess =
+            await [Permission.notification, Permission.mediaLibrary].request();
       }
 
       var allAccepted = true;
@@ -468,7 +519,8 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -514,6 +566,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
   }
 
   Widget masterChild({bool isHor = false}) {
+    _isHorizontal = isHor;
     return Scaffold(
       body: RefreshIndicator(
         child: SingleChildScrollView(
@@ -597,52 +650,29 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
                             vertical: 5.r,
                           ),
                           alignment: Alignment.centerRight,
-                          child: ArgonButton(
-                            height: 40.h,
-                            width: 100.w,
-                            borderRadius: 10.r,
-                            color: Colors.red[700],
-                            child: Text(
+                          child: EasyButton(
+                            idleStateWidget: Text(
                               "PDF Kontrak",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w700),
                             ),
-                            loader: Container(
-                              padding: EdgeInsets.all(8.r),
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
+                            loadingStateWidget: CircularProgressIndicator(
+                              strokeWidth: 3.0,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
                               ),
                             ),
-                            onTap: (startLoading, stopLoading, btnState) {
-                              if (btnState == ButtonState.Idle) {
-                                if (_permissionReady) {
-                                  downloadContractInkaro(
-                                    int.parse(
-                                        widget.inkaroHeader.inkaroContractId),
-                                    widget.inkaroHeader.customerShipName,
-                                    _localPath,
-                                  );
-                                  showStyledToast(
-                                    child: Text('Sedang mengunduh file'),
-                                    context: context,
-                                    backgroundColor: Colors.blue,
-                                    borderRadius: BorderRadius.circular(15.r),
-                                    duration: Duration(seconds: 2),
-                                  );
-                                } else {
-                                  showStyledToast(
-                                    child:
-                                        Text('Tidak mendapat izin penyimpanan'),
-                                    context: context,
-                                    backgroundColor: Colors.red,
-                                    borderRadius: BorderRadius.circular(15.r),
-                                    duration: Duration(seconds: 2),
-                                  );
-                                }
-                              }
-                            },
+                            useEqualLoadingStateWidgetDimension: true,
+                            useWidthAnimation: true,
+                            height: 40.h,
+                            width: 100.w,
+                            borderRadius: 10.r,
+                            buttonColor: Colors.red.shade700,
+                            elevation: 2.0,
+                            contentGap: 6.0,
+                            onPressed: onPressedDownload,
                           ),
                         ),
                       ],
@@ -1396,11 +1426,12 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
               SizedBox(
                 height: isHor ? 20.h : 10.h,
               ),
+              divisi == "SM" ? 
               widget.isPending!
                   ? handleAction(
                       isHorizontal: isHor,
                     )
-                  : SizedBox(),
+                  : SizedBox(): SizedBox(),
               SizedBox(
                 height: isHor ? 20.h : 10.h,
               ),
@@ -1423,37 +1454,29 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
             vertical: 5.r,
           ),
           alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: isHorizontal ? 60.h : 40.h,
-            width: isHorizontal ? 80.w : 100.w,
-            borderRadius: isHorizontal ? 60.r : 30.r,
-            color: Colors.red[700],
-            child: Text(
+          child: EasyButton(
+            idleStateWidget: Text(
               "Reject",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: isHorizontal ? 24.sp : 14.sp,
                   fontWeight: FontWeight.w700),
             ),
-            loader: Container(
-              padding: EdgeInsets.all(8.r),
-              child: CircularProgressIndicator(
-                color: Colors.white,
+            loadingStateWidget: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.white,
               ),
             ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  handleRejection(
-                    context,
-                    stopLoading,
-                    isHorizontal: isHorizontal,
-                  );
-                });
-              }
-            },
+            useEqualLoadingStateWidgetDimension: true,
+            useWidthAnimation: true,
+            height: isHorizontal ? 60.h : 40.h,
+            width: isHorizontal ? 80.w : 100.w,
+            borderRadius: isHorizontal ? 60.r : 30.r,
+            buttonColor: Colors.red.shade700,
+            elevation: 2.0,
+            contentGap: 6.0,
+            onPressed: onPressedReject,
           ),
         ),
         Container(
@@ -1462,89 +1485,32 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
             vertical: 5.r,
           ),
           alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: isHorizontal ? 60.h : 40.h,
-            width: isHorizontal ? 80.w : 100.w,
-            borderRadius: isHorizontal ? 60.r : 30.r,
-            color: Colors.blue[600],
-            child: Text(
+          child: EasyButton(
+            idleStateWidget: Text(
               "Approve",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: isHorizontal ? 24.sp : 14.sp,
                   fontWeight: FontWeight.w700),
             ),
-            loader: Container(
-              padding: EdgeInsets.all(8.r),
-              child: CircularProgressIndicator(
-                color: Colors.white,
+            loadingStateWidget: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.white,
               ),
             ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  approvalInkaro(
-                    widget.inkaroHeader.inkaroContractId,
-                    "APPROVE",
-                    "ACTIVE",
-                    "",
-                    id!,
-                    isHorizontal: isHorizontal,
-                  );
-                });
-              }
-            },
+            useEqualLoadingStateWidgetDimension: true,
+            useWidthAnimation: true,
+            height: isHorizontal ? 60.h : 40.h,
+            width: isHorizontal ? 80.w : 100.w,
+            borderRadius: isHorizontal ? 60.r : 30.r,
+            buttonColor: Colors.blue.shade700,
+            elevation: 2.0,
+            contentGap: 6.0,
+            onPressed: onPressedApprove,
           ),
         ),
       ],
-    );
-  }
-
-  Widget handleDownload({bool isHorizontal = false}) {
-    return Center(
-      child: ArgonButton(
-        height: isHorizontal ? 50.h : 40.h,
-        width: isHorizontal ? 90.w : 150.w,
-        borderRadius: 30.0.r,
-        color: Colors.blue[700],
-        child: Text(
-          "Unduh Kontrak",
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: isHorizontal ? 16.sp : 14.sp,
-              fontWeight: FontWeight.w700),
-        ),
-        loader: Container(
-          padding: EdgeInsets.all(8.r),
-          child: CircularProgressIndicator(
-            color: Colors.white,
-          ),
-        ),
-        onTap: (startLoading, stopLoading, btnState) {
-          if (btnState == ButtonState.Idle) {
-            // if (_permissionReady) {
-            //   donwloadContract(widget.item.idCustomer, opticName, _localPath);
-            //   showStyledToast(
-            //     child: Text('Sedang mengunduh file'),
-            //     context: context,
-            //     backgroundColor: Colors.blue,
-            //     borderRadius: BorderRadius.circular(15.r),
-            //     duration: Duration(seconds: 2),
-            //   );
-            // } else {
-            //   showStyledToast(
-            //     child: Text('Tidak mendapat izin penyimpanan'),
-            //     context: context,
-            //     backgroundColor: Colors.red,
-            //     borderRadius: BorderRadius.circular(15.r),
-            //     duration: Duration(seconds: 2),
-            //   );
-            // }
-          }
-        },
-      ),
     );
   }
 }

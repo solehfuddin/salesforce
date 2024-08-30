@@ -1,4 +1,4 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,7 +9,6 @@ import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formenter
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formheader.dart';
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formpemilik.dart';
 import 'package:sample/src/app/utils/colors.dart';
-import 'package:sample/src/app/utils/custom.dart';
 
 // ignore: camel_case_types
 class Marketingexpense_Form extends StatefulWidget {
@@ -22,7 +21,23 @@ class Marketingexpense_Form extends StatefulWidget {
 // ignore: camel_case_types
 class _Marketingexpense_FormState extends State<Marketingexpense_Form> {
   MyController myController = Get.find<MyController>();
-  MarketingExpenseController meController = Get.find<MarketingExpenseController>();
+  MarketingExpenseController meController =
+      Get.find<MarketingExpenseController>();
+
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 3000),
+      () => meController.handleValidation(
+        meController.isHorizontal.value,
+        salesId: myController.sessionId,
+        salesName: myController.sessionUsername,
+        idSm: myController.idSm,
+        tokenSm: myController.tokenSm,
+      ),
+    );
+
+    return () {};
+  }
 
   @override
   void initState() {
@@ -91,41 +106,29 @@ class _Marketingexpense_FormState extends State<Marketingexpense_Form> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ArgonButton(
+                  EasyButton(
+                    idleStateWidget: Text(
+                      "Simpan",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    loadingStateWidget: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                    useEqualLoadingStateWidgetDimension: true,
+                    useWidthAnimation: true,
                     height: isHorizontal ? 50.h : 40.h,
                     width: isHorizontal ? 90.w : 100.w,
                     borderRadius: isHorizontal ? 60.r : 30.r,
-                    color: Colors.blue[700],
-                    child: Text(
-                      "Simpan",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8.r),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        setState(() {
-                          startLoading();
-                          waitingLoad();
-                          meController.handleValidation(
-                            isHorizontal,
-                            stopLoading,
-                            salesId: myController.sessionId,
-                            salesName: myController.sessionUsername,
-                            idSm: myController.idSm,
-                            tokenSm: myController.tokenSm,
-                          );
-                        });
-                      }
-                    },
+                    buttonColor: Colors.blue.shade700,
+                    elevation: 2.0,
+                    contentGap: 6.0,
+                    onPressed: onButtonPressed,
                   ),
                 ],
               ),

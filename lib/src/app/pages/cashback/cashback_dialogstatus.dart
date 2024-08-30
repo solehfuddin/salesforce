@@ -1,4 +1,5 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+// import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/cashback/cashback_detail.dart';
@@ -261,29 +262,29 @@ class _CashbackDialogStatusState extends State<CashbackDialogStatus> {
             height: 7.h,
           ),
           Center(
-            child: ArgonButton(
-              height: isHorizontal ? 40.h : 40.h,
-              width: isHorizontal ? 90.w : 120.w,
-              borderRadius: isHorizontal ? 50.r : 30.r,
-              color: Colors.blue[700],
-              child: Text(
+            child: EasyButton(
+              idleStateWidget: Text(
                 "Tutup",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: isHorizontal ? 16.sp : 14.sp,
                     fontWeight: FontWeight.w700),
               ),
-              loader: Container(
-                padding: EdgeInsets.all(8.r),
-                child: CircularProgressIndicator(
-                  color: Colors.white,
+              loadingStateWidget: CircularProgressIndicator(
+                strokeWidth: 3.0,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.white,
                 ),
               ),
-              onTap: (startLoading, stopLoading, btnState) {
-                if (btnState == ButtonState.Idle) {
-                  Navigator.pop(context);
-                }
-              },
+              useEqualLoadingStateWidgetDimension: true,
+              useWidthAnimation: true,
+              height: isHorizontal ? 40.h : 40.h,
+              width: isHorizontal ? 90.w : 120.w,
+              borderRadius: isHorizontal ? 50.r : 30.r,
+              buttonColor: Colors.blue.shade700,
+              elevation: 2.0,
+              contentGap: 6.0,
+              onPressed: () => Navigator.pop(context),
             ),
           ),
         ],

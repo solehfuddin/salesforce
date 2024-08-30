@@ -568,7 +568,7 @@ class _ProductCornerScreenState extends State<ProductCornerScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.black87,
+                    backgroundColor: Colors.black87,
                   ),
                   onPressed: () {
                     Navigator.of(context).push(

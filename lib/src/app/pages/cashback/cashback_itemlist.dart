@@ -377,8 +377,8 @@ class CashbackItemList extends StatelessWidget {
                                   color: Colors.teal.shade600,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      shape: ContinuousRectangleBorder(),
-                                      primary: Colors.teal.shade600,
+                                      shape: ContinuousRectangleBorder(), 
+                                      backgroundColor: Colors.teal.shade600,
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 20, vertical: 10),
                                     ),
@@ -429,7 +429,7 @@ class CashbackItemList extends StatelessWidget {
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     shape: ContinuousRectangleBorder(),
-                                    primary: Colors.blueGrey.shade400,
+                                    backgroundColor: Colors.blueGrey.shade400,
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 20, vertical: 10),
                                   ),

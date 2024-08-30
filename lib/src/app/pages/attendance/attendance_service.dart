@@ -70,8 +70,8 @@ class _AttendanceServiceState extends State<AttendanceService> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                primary: Colors.blue[800],
+                shape: StadiumBorder(), 
+                backgroundColor: Colors.blue[800],
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: Text(

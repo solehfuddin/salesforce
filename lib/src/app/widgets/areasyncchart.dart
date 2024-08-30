@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/detail_sales.dart';
-import 'package:sample/src/domain/entities/piereport.dart';
+// import 'package:sample/src/domain/entities/piereport.dart';
 import 'package:sample/src/domain/entities/salesPerform.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
 
 // dynamic _startDate;
 // dynamic _endDate;
@@ -29,78 +29,78 @@ List<Color> bgList = [
   Colors.teal.shade400,
 ];
 
-SliverPadding areaDonutChartHor({
-  List<PieReport>? dataPie,
-  String startDate = '',
-  String endDate = '',
-  List<SalesPerform>? sales,
-  dynamic totalSales,
-  BuildContext? context,
-}) {
-  // _startDate = startDate;
-  // _endDate = endDate;
-  return SliverPadding(
-    padding: EdgeInsets.symmetric(
-      horizontal: 15.r,
-      vertical: 10.r,
-    ),
-    sliver: SliverToBoxAdapter(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(5.r),
-                  child: SfCircularChart(
-                    series: [
-                      DoughnutSeries<PieReport, String>(
-                        dataSource: dataPie,
-                        xValueMapper: (PieReport data, _) => data.salesName,
-                        yValueMapper: (PieReport data, _) => data.value,
-                        pointColorMapper: (PieReport data, _) => data.color,
-                        pointRadiusMapper: (PieReport data, _) => data.size,
-                        dataLabelMapper: (PieReport data, _) => data.perc,
-                        dataLabelSettings: DataLabelSettings(
-                          isVisible: true,
-                          textStyle: TextStyle(
-                            fontSize: 12.sp,
-                            fontFamily: 'Segoe Ui',
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          labelPosition: ChartDataLabelPosition.inside,
-                        ),
-                        animationDuration: 1000,
-                        innerRadius: '63%',
-                        radius: '75%',
-                        explode: true,
-                        strokeColor: Colors.white,
-                        strokeWidth: 2.5,
-                        explodeIndex: dataPie!.length == 5 ? 4 : 0,
-                      ),
-                    ],
-                    onChartTouchInteractionDown: (tapArgs) {
-                      print('Tapped ${tapArgs.position}');
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          infoSales(
-              sales: sales,
-              totalSales: totalSales,
-              context: context,
-              stDate: startDate,
-              edDate: endDate),
-        ],
-      ),
-    ),
-  );
-}
+// SliverPadding areaDonutChartHor({
+//   List<PieReport>? dataPie,
+//   String startDate = '',
+//   String endDate = '',
+//   List<SalesPerform>? sales,
+//   dynamic totalSales,
+//   BuildContext? context,
+// }) {
+//   // _startDate = startDate;
+//   // _endDate = endDate;
+//   return SliverPadding(
+//     padding: EdgeInsets.symmetric(
+//       horizontal: 15.r,
+//       vertical: 10.r,
+//     ),
+//     sliver: SliverToBoxAdapter(
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         children: [
+//           Expanded(
+//             flex: 5,
+//             child: Column(
+//               children: [
+//                 Container(
+//                   padding: EdgeInsets.all(5.r),
+//                   child: SfCircularChart(
+//                     series: [
+//                       DoughnutSeries<PieReport, String>(
+//                         dataSource: dataPie,
+//                         xValueMapper: (PieReport data, _) => data.salesName,
+//                         yValueMapper: (PieReport data, _) => data.value,
+//                         pointColorMapper: (PieReport data, _) => data.color,
+//                         pointRadiusMapper: (PieReport data, _) => data.size,
+//                         dataLabelMapper: (PieReport data, _) => data.perc,
+//                         dataLabelSettings: DataLabelSettings(
+//                           isVisible: true,
+//                           textStyle: TextStyle(
+//                             fontSize: 12.sp,
+//                             fontFamily: 'Segoe Ui',
+//                             color: Colors.white,
+//                             fontWeight: FontWeight.w600,
+//                           ),
+//                           labelPosition: ChartDataLabelPosition.inside,
+//                         ),
+//                         animationDuration: 1000,
+//                         innerRadius: '63%',
+//                         radius: '75%',
+//                         explode: true,
+//                         strokeColor: Colors.white,
+//                         strokeWidth: 2.5,
+//                         explodeIndex: dataPie!.length == 5 ? 4 : 0,
+//                       ),
+//                     ],
+//                     onChartTouchInteractionDown: (tapArgs) {
+//                       print('Tapped ${tapArgs.position}');
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           infoSales(
+//               sales: sales,
+//               totalSales: totalSales,
+//               context: context,
+//               stDate: startDate,
+//               edDate: endDate),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
 Widget infoSales({
   BuildContext? context,
@@ -129,59 +129,59 @@ Widget infoSales({
   );
 }
 
-SliverPadding areaDonutChart(
-    {List<PieReport>? dataPie, String startDate = '', String endDate = ''}) {
-  // _startDate = startDate;
-  // _endDate = endDate;
-  return SliverPadding(
-    padding: EdgeInsets.symmetric(
-      horizontal: 15.r,
-      vertical: 0.r,
-    ),
-    sliver: SliverToBoxAdapter(
-      child: Column(
-        children: [
-          Container(
-            height: 260.h,
-            padding: EdgeInsets.all(10.r),
-            child: SfCircularChart(
-              series: [
-                DoughnutSeries<PieReport, String>(
-                  dataSource: dataPie,
-                  xValueMapper: (PieReport data, _) => data.salesName,
-                  yValueMapper: (PieReport data, _) => data.value,
-                  pointColorMapper: (PieReport data, _) => data.color,
-                  pointRadiusMapper: (PieReport data, _) => data.size,
-                  dataLabelMapper: (PieReport data, _) => data.perc,
-                  dataLabelSettings: DataLabelSettings(
-                    isVisible: true,
-                    textStyle: TextStyle(
-                      fontSize: 13.sp,
-                      fontFamily: 'Segoe Ui',
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    labelPosition: ChartDataLabelPosition.inside,
-                  ),
-                  animationDuration: 1000,
-                  innerRadius: '63%',
-                  radius: '75%',
-                  explode: true,
-                  strokeColor: Colors.white,
-                  strokeWidth: 2.5,
-                  explodeIndex: dataPie!.length == 5 ? 4 : 0,
-                ),
-              ],
-              onChartTouchInteractionDown: (tapArgs) {
-                print('Tapped ${tapArgs.position}');
-              },
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+// SliverPadding areaDonutChart(
+//     {List<PieReport>? dataPie, String startDate = '', String endDate = ''}) {
+//   // _startDate = startDate;
+//   // _endDate = endDate;
+//   return SliverPadding(
+//     padding: EdgeInsets.symmetric(
+//       horizontal: 15.r,
+//       vertical: 0.r,
+//     ),
+//     sliver: SliverToBoxAdapter(
+//       child: Column(
+//         children: [
+//           Container(
+//             height: 260.h,
+//             padding: EdgeInsets.all(10.r),
+//             child: SfCircularChart(
+//               series: [
+//                 DoughnutSeries<PieReport, String>(
+//                   dataSource: dataPie,
+//                   xValueMapper: (PieReport data, _) => data.salesName,
+//                   yValueMapper: (PieReport data, _) => data.value,
+//                   pointColorMapper: (PieReport data, _) => data.color,
+//                   pointRadiusMapper: (PieReport data, _) => data.size,
+//                   dataLabelMapper: (PieReport data, _) => data.perc,
+//                   dataLabelSettings: DataLabelSettings(
+//                     isVisible: true,
+//                     textStyle: TextStyle(
+//                       fontSize: 13.sp,
+//                       fontFamily: 'Segoe Ui',
+//                       color: Colors.white,
+//                       fontWeight: FontWeight.w600,
+//                     ),
+//                     labelPosition: ChartDataLabelPosition.inside,
+//                   ),
+//                   animationDuration: 1000,
+//                   innerRadius: '63%',
+//                   radius: '75%',
+//                   explode: true,
+//                   strokeColor: Colors.white,
+//                   strokeWidth: 2.5,
+//                   explodeIndex: dataPie!.length == 5 ? 4 : 0,
+//                 ),
+//               ],
+//               onChartTouchInteractionDown: (tapArgs) {
+//                 print('Tapped ${tapArgs.position}');
+//               },
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
 SliverPadding areaInfoDonut(
     {List<SalesPerform>? sales,

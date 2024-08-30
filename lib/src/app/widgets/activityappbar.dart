@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ignore: must_be_immutable
-class ActivityAppbar extends StatefulWidget with PreferredSizeWidget {
+class ActivityAppbar extends StatefulWidget implements PreferredSizeWidget {
   bool? isHorizontal = false;
   Function(String)? onTitleChange;
 
@@ -241,7 +241,7 @@ class _ActivityAppbarState extends State<ActivityAppbar> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red.shade700,
+                        backgroundColor: Colors.red.shade700,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -253,7 +253,7 @@ class _ActivityAppbarState extends State<ActivityAppbar> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                       child: Text("Simpan"),
                     ),

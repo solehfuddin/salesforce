@@ -7,7 +7,7 @@ import 'package:sample/src/app/widgets/mybadge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
-class CustomAppBar extends StatefulWidget with PreferredSizeWidget {
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   bool isHorizontal;
   bool isBadge;
 

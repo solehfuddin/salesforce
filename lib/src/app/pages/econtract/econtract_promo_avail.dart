@@ -1,45 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/utils/custom.dart';
-import 'package:sample/src/domain/entities/cashback_rekening.dart';
-import 'package:sample/src/domain/service/service_cashback.dart';
+import 'package:get/get.dart';
+import 'package:sample/src/domain/entities/contract_promo.dart';
+import 'package:sample/src/domain/service/service_promo.dart';
+
+import '../../controllers/contractpromo_controller.dart';
+import '../../utils/custom.dart';
 
 // ignore: must_be_immutable
-class CashbackOldRekening extends StatefulWidget {
-  final Function(String? varName, dynamic input) updateParent;
-  bool isHorizontal = false;
-  String noAccount = '';
-  CashbackOldRekening({
+class EcontractPromoAvail extends StatefulWidget {
+  bool isHorizontal;
+  EcontractPromoAvail({
     Key? key,
-    required this.updateParent,
-    required this.isHorizontal,
-    required this.noAccount,
+    this.isHorizontal = false,
   }) : super(key: key);
 
   @override
-  State<CashbackOldRekening> createState() => _CashbackOldRekeningState();
+  State<EcontractPromoAvail> createState() => _EcontractPromoAvailState();
 }
 
-class _CashbackOldRekeningState extends State<CashbackOldRekening> {
-  ServiceCashback serviceCashback = new ServiceCashback();
-  Future<List<CashbackRekening>>? _listRekening;
-  CashbackRekening selectedRekening = new CashbackRekening();
+class _EcontractPromoAvailState extends State<EcontractPromoAvail> {
+  ContractPromoController controllerPromo = Get.find<ContractPromoController>();
+  ServicePromo servicePromo = new ServicePromo();
   String search = "";
-
-  @override
-  void initState() {
-    super.initState();
-    getOldRekening(noAccount: widget.noAccount, search: search);
-  }
-
-  getOldRekening({required String noAccount, required String search}) {
-    _listRekening = serviceCashback.getRekening(
-      context,
-      isMounted: mounted,
-      noAccount: noAccount,
-      search: search,
-    );
-  }
+  ContractPromo _selectedPromo = ContractPromo();
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +78,9 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                 ),
               ),
               onSubmitted: (value) {
-                search = value;
+                setState(() {
+                  search = value;
+                });
               },
             ),
           ),
@@ -102,9 +88,11 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
             child: SizedBox(
               height: 100.h,
               child: FutureBuilder(
-                future: _listRekening,
+                future: servicePromo.getContractPromo(
+                  keyword: search,
+                ),
                 builder:
-                    (context, AsyncSnapshot<List<CashbackRekening>> snapshot) {
+                    (context, AsyncSnapshot<List<ContractPromo>> snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                       return Center(
@@ -125,7 +113,8 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                                 Text(
                                   'Data tidak ditemukan',
                                   style: TextStyle(
-                                    fontSize: widget.isHorizontal ? 15.sp : 16.sp,
+                                    fontSize:
+                                        widget.isHorizontal ? 15.sp : 16.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.red[600],
                                     fontFamily: 'Montserrat',
@@ -133,7 +122,7 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                                 ),
                               ],
                             )
-                          : itemOldRekening(snapshot.data!);
+                          : itemPromoActive(snapshot.data!);
                   }
                 },
               ),
@@ -163,7 +152,8 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                     backgroundColor: Colors.blue,
                   ),
                   onPressed: () {
-                    widget.updateParent("updateNewRekening", selectedRekening);
+                    // widget.updateParent("updateNewRekening", selectedRekening);
+                    controllerPromo.selectedPromo.value = _selectedPromo;
                     Navigator.pop(context);
                   },
                   child: Text(
@@ -178,7 +168,7 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
     );
   }
 
-  Widget itemOldRekening(List<CashbackRekening> item) {
+  Widget itemPromoActive(List<ContractPromo> item) {
     return StatefulBuilder(builder: (context, setState) {
       return Container(
         width: double.minPositive.w,
@@ -187,8 +177,9 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
           shrinkWrap: true,
           itemCount: item.length,
           itemBuilder: (BuildContext context, int index) {
-            String _key = "${capitalize(item[index].namaRekening!)} (${capitalize(item[index].bankName!)})";
-            String _type = "No Rek : ${item[index].nomorRekening!}";
+            String _key = "${capitalize(item[index].promoName!)}";
+            String _type =
+                "Hingga : ${convertDateWithMonth(item[index].promoUntil!)}";
             return InkWell(
               onTap: () {
                 setState(() {
@@ -196,15 +187,25 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                     element.isChecked = false;
                   });
                   item[index].isChecked = true;
-                  selectedRekening = item[index];
+                  _selectedPromo = item[index];
                 });
               },
               child: ListTile(
-                title: Text(_key),
+                title: Text(
+                  _key,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: widget.isHorizontal ? 16.sp : 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
+                ),
                 subtitle: Text(
                   _type,
                   style: TextStyle(
-                    color:Colors.blue,
+                    color: Colors.blue,
+                    fontSize: widget.isHorizontal ? 13.sp : 12.sp,
+                    fontFamily: 'Segoe ui',
                   ),
                 ),
                 trailing: Visibility(

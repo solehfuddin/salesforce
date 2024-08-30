@@ -17,6 +17,7 @@ import 'package:sample/src/domain/entities/list_inkaro_header.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class DialogVerifUpdateInkaroItem extends StatefulWidget {
   final List<ListInkaroHeader> inkaroHeaderList;
   final int positionInkaroHeader;
@@ -81,7 +82,7 @@ class _DialogVerifUpdateInkaroItemState
       var res = json.decode(response.body);
       final bool sts = res['status'];
       statusCreate = res['status'];
-      final String msg = res['message'].toString();
+      // final String msg = res['message'].toString();
 
       if (sts) {
         Navigator.of(context, rootNavigator: true)..pop('dialog');
@@ -186,7 +187,7 @@ class _DialogVerifUpdateInkaroItemState
 
       final bool sts = res['status'];
       statusCreate = res['status'];
-      final String msg = res['message'].toString();
+      // final String msg = res['message'].toString();
 
       if (sts) {
         await getListInkaro();
@@ -395,8 +396,8 @@ class _DialogVerifUpdateInkaroItemState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      primary: Colors.indigo[600],
+                          borderRadius: BorderRadius.circular(10.0)), 
+                          backgroundColor: Colors.indigo[600],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),
@@ -426,8 +427,8 @@ class _DialogVerifUpdateInkaroItemState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      primary: Colors.orange[800],
+                          borderRadius: BorderRadius.circular(10.0)), 
+                          backgroundColor: Colors.orange[800],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),
@@ -489,8 +490,8 @@ class _DialogVerifUpdateInkaroItemState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      primary: Colors.indigo[600],
+                          borderRadius: BorderRadius.circular(10.0)), 
+                          backgroundColor: Colors.indigo[600],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),
@@ -552,8 +553,8 @@ class _DialogVerifUpdateInkaroItemState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      primary: Colors.indigo[600],
+                          borderRadius: BorderRadius.circular(10.0)), 
+                          backgroundColor: Colors.indigo[600],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),

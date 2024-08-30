@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+// import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/cashback/cashback_management.dart';
@@ -46,6 +47,7 @@ class _HistoryContractState extends State<HistoryContract> {
   String? ttdPertama = '';
   String? noAccount = '';
   bool isDataFound = true;
+  bool _isHorizontal = false;
   List<Contract> activeContract = List.empty(growable: true);
   Future<List<Contract>>? historyContract;
   List<Contract> tmpList = List.empty(growable: true);
@@ -175,6 +177,71 @@ class _HistoryContractState extends State<HistoryContract> {
     });
   }
 
+  onPressedCashback() async {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CashbackManagement(
+          isHorizontal: _isHorizontal,
+          optic: OpticWithAddress(
+            alamatUsaha: widget.isNewCust!
+                ? widget.cust?.alamat ?? ''
+                : widget.item?.address2 ?? '',
+            noAccount: widget.isNewCust!
+                ? widget.cust!.noAccount.isNotEmpty
+                    ? widget.cust?.noAccount
+                    : widget.cust?.id
+                : widget.item?.customerShipNumber,
+            namaUsaha: widget.isNewCust!
+                ? widget.cust?.namaUsaha ?? ''
+                : widget.item?.customerShipName ?? '',
+            phone: widget.isNewCust!
+                ? widget.cust?.noTlp
+                : widget.item?.phone ?? '',
+            contactPerson: widget.isNewCust!
+                ? widget.cust?.namaPj ?? ''
+                : widget.item?.contactPerson ?? '',
+            typeAccount: widget.isNewCust! ? 'NEW' : 'OLD',
+            billNumber: widget.isNewCust!
+                ? widget.cust?.noAccount ?? null
+                : widget.item?.customerBillNumber ?? '',
+          ),
+        ),
+      ),
+    );
+
+    return () {};
+  }
+
+  onPressedContract() {
+    widget.isNewCust!
+        ? Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => ChangeContract(
+                  activeContract,
+                  customer: widget.cust!,
+                  isNewCust: true,
+                  keyword: widget.keyword,
+                ),
+              ),
+            )
+            .then((value) => _refreshData())
+        : Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => ChangeContract(
+                  activeContract,
+                  oldCustomer: widget.item!,
+                  keyword: widget.keyword,
+                  isNewCust: false,
+                ),
+              ),
+            )
+            .then((value) => _refreshData());
+
+    return () {};
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -188,6 +255,8 @@ class _HistoryContractState extends State<HistoryContract> {
   }
 
   Widget childHistoryContract({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
+
     return Scaffold(
       body: Column(
         children: [
@@ -469,21 +538,13 @@ class _HistoryContractState extends State<HistoryContract> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            divisi != "SALES"
-                                ? SizedBox(
-                                    width: 5.w,
-                                  )
-                                : Row(
+                            divisi == "SALES"
+                                ? Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      ArgonButton(
-                                        height: isHorizontal ? 45.h : 30.h,
-                                        width: isHorizontal ? 90.w : 100.w,
-                                        borderRadius:
-                                            isHorizontal ? 60.r : 30.0.r,
-                                        color: Colors.green[600],
-                                        child: Text(
+                                      EasyButton(
+                                        idleStateWidget: Text(
                                           "Detail cashback",
                                           style: TextStyle(
                                               color: Colors.white,
@@ -491,83 +552,28 @@ class _HistoryContractState extends State<HistoryContract> {
                                                   isHorizontal ? 16.sp : 12.sp,
                                               fontWeight: FontWeight.w700),
                                         ),
-                                        loader: Container(
-                                          padding: EdgeInsets.all(8.r),
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
+                                        loadingStateWidget:
+                                            CircularProgressIndicator(
+                                          strokeWidth: 3.0,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
                                           ),
                                         ),
-                                        onTap: (startLoading, stopLoading,
-                                            btnState) {
-                                          if (btnState == ButtonState.Idle) {
-                                            startLoading();
-                                            waitingLoad();
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CashbackManagement(
-                                                  isHorizontal: isHorizontal,
-                                                  optic: OpticWithAddress(
-                                                    alamatUsaha: widget
-                                                            .isNewCust!
-                                                        ? widget.cust?.alamat ??
-                                                            ''
-                                                        : widget.item
-                                                                ?.address2 ??
-                                                            '',
-                                                    noAccount: widget.isNewCust!
-                                                        ? widget.cust!.noAccount
-                                                                .isNotEmpty
-                                                            ? widget
-                                                                .cust?.noAccount
-                                                            : widget.cust?.id
-                                                        : widget.item
-                                                            ?.customerShipNumber,
-                                                    namaUsaha: widget.isNewCust!
-                                                        ? widget.cust
-                                                                ?.namaUsaha ??
-                                                            ''
-                                                        : widget.item
-                                                                ?.customerShipName ??
-                                                            '',
-                                                    phone: widget.isNewCust!
-                                                        ? widget.cust?.noTlp
-                                                        : widget.item?.phone ??
-                                                            '',
-                                                    contactPerson: widget
-                                                            .isNewCust!
-                                                        ? widget.cust?.namaPj ??
-                                                            ''
-                                                        : widget.item
-                                                                ?.contactPerson ??
-                                                            '',
-                                                    typeAccount:
-                                                        widget.isNewCust!
-                                                            ? 'NEW'
-                                                            : 'OLD',
-                                                    billNumber: widget
-                                                            .isNewCust!
-                                                        ? widget.cust
-                                                                ?.noAccount ??
-                                                            null
-                                                        : widget.item
-                                                                ?.customerBillNumber ??
-                                                            '',
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                            stopLoading();
-                                          }
-                                        },
-                                      ),
-                                      ArgonButton(
+                                        useEqualLoadingStateWidgetDimension:
+                                            true,
+                                        useWidthAnimation: true,
                                         height: isHorizontal ? 45.h : 30.h,
                                         width: isHorizontal ? 90.w : 100.w,
                                         borderRadius:
                                             isHorizontal ? 60.r : 30.0.r,
-                                        color: Colors.blue[600],
-                                        child: Text(
+                                        buttonColor: Colors.green.shade600,
+                                        elevation: 2.0,
+                                        contentGap: 6.0,
+                                        onPressed: onPressedCashback,
+                                      ),
+                                      EasyButton(
+                                        idleStateWidget: Text(
                                           "Ubah kontrak",
                                           style: TextStyle(
                                               color: Colors.white,
@@ -575,71 +581,30 @@ class _HistoryContractState extends State<HistoryContract> {
                                                   isHorizontal ? 16.sp : 12.sp,
                                               fontWeight: FontWeight.w700),
                                         ),
-                                        loader: Container(
-                                          padding: EdgeInsets.all(8.r),
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
+                                        loadingStateWidget:
+                                            CircularProgressIndicator(
+                                          strokeWidth: 3.0,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
                                           ),
                                         ),
-                                        onTap: (startLoading, stopLoading,
-                                            btnState) {
-                                          if (btnState == ButtonState.Idle) {
-                                            startLoading();
-                                            waitingLoad();
-                                            widget.isNewCust!
-                                                ? Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ChangeContract(
-                                                        activeContract,
-                                                        customer: widget.cust!,
-                                                        isNewCust: true,
-                                                        keyword: widget.keyword,
-                                                      ),
-                                                    ),
-                                                  ).then((value) => _refreshData())
-                                                : Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ChangeContract(
-                                                        activeContract,
-                                                        oldCustomer:
-                                                            widget.item!,
-                                                        keyword: widget.keyword,
-                                                        isNewCust: false,
-                                                      ),
-                                                    ),
-                                                  ).then((value) => _refreshData());
-                                            // ? Navigator.of(context)
-                                            //     .pushReplacement(
-                                            //     MaterialPageRoute(
-                                            //       builder: (context) =>
-                                            //           ChangeContract(
-                                            //         activeContract,
-                                            //         customer: widget.cust!,
-                                            //         isNewCust: true,
-                                            //         keyword: widget.keyword,
-                                            //       ),
-                                            //     ),
-                                            //   )
-                                            // : Navigator.of(context)
-                                            //     .pushReplacement(
-                                            //     MaterialPageRoute(
-                                            //       builder: (context) =>
-                                            //     ChangeContract(
-                                            //   activeContract,
-                                            //   oldCustomer:
-                                            //       widget.item!,
-                                            //   keyword: widget.keyword,
-                                            //   isNewCust: false,
-                                            // ),
-                                            //     ),
-                                            //   );
-                                            stopLoading();
-                                          }
-                                        },
+                                        useEqualLoadingStateWidgetDimension:
+                                            true,
+                                        useWidthAnimation: true,
+                                        height: isHorizontal ? 45.h : 30.h,
+                                        width: isHorizontal ? 90.w : 100.w,
+                                        borderRadius:
+                                            isHorizontal ? 60.r : 30.0.r,
+                                        buttonColor: Colors.blue.shade600,
+                                        elevation: 2.0,
+                                        contentGap: 6.0,
+                                        onPressed: onPressedContract,
                                       ),
                                     ],
+                                  )
+                                : SizedBox(
+                                    width: 5.w,
                                   ),
                             SizedBox(
                               height: isHorizontal ? 30.h : 15.h,

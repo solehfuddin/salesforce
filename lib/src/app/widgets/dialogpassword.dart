@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -43,7 +43,18 @@ class _DialogPasswordState extends State<DialogPassword> {
     });
   }
 
-  checkEntry(Function stop, {bool isHorizontal = false}) async {
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => checkEntry(
+        isHorizontal: true,
+      ),
+    );
+
+    return () {};
+  }
+
+  checkEntry({bool isHorizontal = false}) async {
     setState(() {
       textPassword.text.isNotEmpty ? _isPassword = true : _isPassword = false;
       textRePassword.text.isNotEmpty
@@ -57,7 +68,6 @@ class _DialogPasswordState extends State<DialogPassword> {
           print('Password : ${textPassword.text}');
 
           perbaruiData(
-            stop,
             isHorizontal: isHorizontal,
             idUser: widget.id,
             namaUser: widget.nama,
@@ -67,13 +77,10 @@ class _DialogPasswordState extends State<DialogPassword> {
           _isNotSame = false;
         }
       }
-
-      stop();
     });
   }
 
-  perbaruiData(
-    Function stop, {
+  perbaruiData({
     bool isHorizontal = false,
     dynamic idUser,
     dynamic namaUser,
@@ -124,8 +131,6 @@ class _DialogPasswordState extends State<DialogPassword> {
     } on Error catch (e) {
       print('General Error : $e');
     }
-
-    stop();
   }
 
   @override
@@ -283,33 +288,29 @@ class _DialogPasswordState extends State<DialogPassword> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ArgonButton(
-                    height: isHor ? 35.h : 40.h,
-                    width: isHor ? 60.w : 80.w,
-                    borderRadius: 35.r,
-                    color: Colors.blue[600],
-                    child: Text(
+                  EasyButton(
+                    idleStateWidget: Text(
                       "Perbarui",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: isHor ? 16.sp : 14.sp,
                           fontWeight: FontWeight.w700),
                     ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8.r),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
+                    loadingStateWidget: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
                       ),
                     ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        startLoading();
-                        checkEntry(
-                          stopLoading,
-                          isHorizontal: true,
-                        );
-                      }
-                    },
+                    useEqualLoadingStateWidgetDimension: true,
+                    useWidthAnimation: true,
+                    height: isHor ? 35.h : 40.h,
+                    width: isHor ? 60.w : 80.w,
+                    borderRadius: 35.r,
+                    buttonColor: Colors.blue.shade600,
+                    elevation: 2.0,
+                    contentGap: 6.0,
+                    onPressed: onButtonPressed,
                   ),
                 ],
               ),

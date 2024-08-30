@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:fl_toast/fl_toast.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -368,6 +368,44 @@ Widget handleAction({
       Get.find<MarketingExpenseController>();
   MyController myController = Get.find<MyController>();
 
+  onPressedReject() async {
+    handleRejection(
+      context!,
+      isHorizontal: isHorizontal,
+      header: header,
+    );
+
+    return () {};
+  }
+
+  onPressedApprove() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => meController.handleApprove(
+        isHorizontal: isHorizontal,
+        isMounted: false,
+        param: MarketingExpenseParamApprove(
+          idMe: header?.id,
+          idSales: header?.createdBy,
+          nameSales: myController.nameSales,
+          opticName: header?.opticName,
+          managerName: myController.sessionName,
+          tokenSales: myController.tokenSales,
+          approverGm: myController.sessionDivisi == "GM"
+              ? myController.sessionUsername
+              : '',
+          approverSm: myController.sessionDivisi == "SALES"
+              ? myController.sessionUsername
+              : '',
+          reasonGm: '',
+          reasonSm: '',
+        ),
+      ),
+    );
+
+    return () {};
+  }
+
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,38 +416,29 @@ Widget handleAction({
           vertical: 5.r,
         ),
         alignment: Alignment.centerRight,
-        child: ArgonButton(
-          height: isHorizontal ? 60.h : 40.h,
-          width: isHorizontal ? 80.w : 100.w,
-          borderRadius: isHorizontal ? 60.r : 30.r,
-          color: Colors.red[700],
-          child: Text(
+        child: EasyButton(
+          idleStateWidget: Text(
             "Reject",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: isHorizontal ? 24.sp : 14.sp,
                 fontWeight: FontWeight.w700),
           ),
-          loader: Container(
-            padding: EdgeInsets.all(8.r),
-            child: CircularProgressIndicator(
-              color: Colors.white,
+          loadingStateWidget: CircularProgressIndicator(
+            strokeWidth: 3.0,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Colors.white,
             ),
           ),
-          onTap: (startLoading, stopLoading, btnState) {
-            if (btnState == ButtonState.Idle) {
-              // setState(() {
-              startLoading();
-              waitingLoad();
-              handleRejection(
-                context!,
-                stopLoading,
-                isHorizontal: isHorizontal,
-                header: header,
-              );
-              // });
-            }
-          },
+          useEqualLoadingStateWidgetDimension: true,
+          useWidthAnimation: true,
+          height: isHorizontal ? 60.h : 40.h,
+          width: isHorizontal ? 80.w : 100.w,
+          borderRadius: isHorizontal ? 60.r : 30.r,
+          buttonColor: Colors.red.shade700,
+          elevation: 2.0,
+          contentGap: 6.0,
+          onPressed: onPressedReject,
         ),
       ),
       Container(
@@ -418,53 +447,29 @@ Widget handleAction({
           vertical: 5.r,
         ),
         alignment: Alignment.centerRight,
-        child: ArgonButton(
-          height: isHorizontal ? 60.h : 40.h,
-          width: isHorizontal ? 80.w : 100.w,
-          borderRadius: isHorizontal ? 60.r : 30.r,
-          color: Colors.blue[600],
-          child: Text(
+        child: EasyButton(
+          idleStateWidget: Text(
             "Approve",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: isHorizontal ? 24.sp : 14.sp,
                 fontWeight: FontWeight.w700),
           ),
-          loader: Container(
-            padding: EdgeInsets.all(8.r),
-            child: CircularProgressIndicator(
-              color: Colors.white,
+          loadingStateWidget: CircularProgressIndicator(
+            strokeWidth: 3.0,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Colors.white,
             ),
           ),
-          onTap: (startLoading, stopLoading, btnState) {
-            if (btnState == ButtonState.Idle) {
-              // setState(() {
-              startLoading();
-              waitingLoad();
-
-              meController.handleApprove(
-                stopLoading,
-                isHorizontal: isHorizontal,
-                isMounted: false,
-                param: MarketingExpenseParamApprove(
-                  idMe: header?.id,
-                  idSales: header?.createdBy,
-                  nameSales: myController.nameSales,
-                  opticName: header?.opticName,
-                  managerName: myController.sessionName,
-                  tokenSales: myController.tokenSales,
-                  approverGm: myController.sessionDivisi == "GM"
-                      ? myController.sessionUsername
-                      : '',
-                  approverSm: myController.sessionDivisi == "SALES"
-                      ? myController.sessionUsername
-                      : '',
-                  reasonGm: '',
-                  reasonSm: '',
-                ),
-              );
-            }
-          },
+          useEqualLoadingStateWidgetDimension: true,
+          useWidthAnimation: true,
+          height: isHorizontal ? 60.h : 40.h,
+          width: isHorizontal ? 80.w : 100.w,
+          borderRadius: isHorizontal ? 60.r : 30.r,
+          buttonColor: Colors.blue.shade600,
+          elevation: 2.0,
+          contentGap: 6.0,
+          onPressed: onPressedApprove,
         ),
       ),
     ],
@@ -472,8 +477,7 @@ Widget handleAction({
 }
 
 handleRejection(
-  BuildContext context,
-  Function stop, {
+  BuildContext context, {
   bool isHorizontal = false,
   MarketingExpenseHeader? header,
 }) {
@@ -527,7 +531,6 @@ handleRejection(
         ),
         onPressed: () {
           meController.handleReject(
-            stop,
             isHorizontal: isHorizontal,
             isMounted: false,
             param: MarketingExpenseParamApprove(
@@ -559,7 +562,6 @@ handleRejection(
           ),
         ),
         onPressed: () {
-          stop();
           Navigator.of(context, rootNavigator: true).pop();
         },
       ),

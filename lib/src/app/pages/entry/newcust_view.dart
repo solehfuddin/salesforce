@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+// import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:date_field/date_field.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -112,6 +113,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isFotoKtp = false;
   bool _isFotoPendukung = false;
   bool _isChecked = false;
+  bool _isHorizontal = false;
   late Map<String, TextEditingController> myMap;
 
   final SignatureController _signController = SignatureController(
@@ -335,7 +337,18 @@ class _NewcustScreenState extends State<NewcustScreen> {
     );
   }
 
-  checkEntry(Function stop, {bool isHorizontal = false}) async {
+  onButtonPressed() async {
+    if (_isChecked) {
+      await Future.delayed(
+        const Duration(milliseconds: 3000),
+        () => checkEntry(isHorizontal: _isHorizontal),
+      );
+
+      return () {};
+    }
+  }
+
+  checkEntry({bool isHorizontal = false}) async {
     textNamaUser.text.isEmpty ? _isNamaUser = true : _isNamaUser = false;
     textKreditLimit.text.isEmpty
         ? _isPlafonValid = true
@@ -473,7 +486,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else if (_isFotoPendukung) {
         handleStatus(
           context,
@@ -482,7 +494,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else if (_signController.isEmpty) {
         handleStatus(
           context,
@@ -491,7 +502,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
           isHorizontal: isHorizontal,
           isLogout: false,
         );
-        stop();
       } else {
         var data = await _signController.toPngBytes();
         signedImage = base64Encode(data!);
@@ -502,7 +512,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
         }
 
         if (_isChecked) {
-          simpanData(stop, isHorizontal: isHorizontal);
+          simpanData(isHorizontal: isHorizontal);
         } else {
           handleStatus(
             context,
@@ -511,8 +521,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
             isHorizontal: isHorizontal,
             isLogout: false,
           );
-
-          stop();
         }
       }
     } else {
@@ -523,11 +531,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     }
   }
 
-  simpanData(Function stop, {bool isHorizontal = false}) async {
+  simpanData({bool isHorizontal = false}) async {
     const timeout = 15;
     var url = '$API_URL/customers';
 
@@ -616,8 +623,6 @@ class _NewcustScreenState extends State<NewcustScreen> {
         );
       }
     }
-
-    stop();
   }
 
   @override
@@ -2025,6 +2030,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
   }
 
   Widget _areaSignSubmit({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 30.r : 15.r,
@@ -2124,7 +2130,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(),
-                  primary: Colors.orange[800],
+                  backgroundColor: Colors.orange[800],
                   padding: EdgeInsets.symmetric(
                     horizontal: isHorizontal ? 30.r : 20.r,
                     vertical: isHorizontal ? 15.r : 10.r,
@@ -2143,12 +2149,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   _signController.clear();
                 },
               ),
-              ArgonButton(
-                height: isHorizontal ? 50.h : 40.h,
-                width: isHorizontal ? 90.w : 100.w,
-                borderRadius: isHorizontal ? 60.r : 30.r,
-                color: _isChecked ? Colors.blue[700] : Colors.blue[200],
-                child: Text(
+              EasyButton(
+                idleStateWidget: Text(
                   "Simpan",
                   style: TextStyle(
                     color: Colors.white,
@@ -2156,26 +2158,22 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                loader: Container(
-                  padding: EdgeInsets.all(8.r),
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
+                loadingStateWidget: CircularProgressIndicator(
+                  strokeWidth: 3.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.white,
                   ),
                 ),
-                onTap: (startLoading, stopLoading, btnState) {
-                  if (_isChecked) {
-                    if (btnState == ButtonState.Idle) {
-                      setState(() {
-                        startLoading();
-                        waitingLoad();
-                        checkEntry(
-                          stopLoading,
-                          isHorizontal: isHorizontal,
-                        );
-                      });
-                    }
-                  }
-                },
+                useEqualLoadingStateWidgetDimension: true,
+                useWidthAnimation: true,
+                height: isHorizontal ? 50.h : 40.h,
+                width: isHorizontal ? 90.w : 100.w,
+                borderRadius: isHorizontal ? 60.r : 30.r,
+                buttonColor:
+                    _isChecked ? Colors.blue.shade600 : Colors.blue.shade200,
+                elevation: 2.0,
+                contentGap: 6.0,
+                onPressed: onButtonPressed,
               ),
             ],
           ),

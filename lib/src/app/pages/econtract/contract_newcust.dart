@@ -308,7 +308,7 @@ class _ContractNewcustState extends State<ContractNewcust> {
                     bottom: 10.r,
                   ),
                   padding: EdgeInsets.all(isHorizontal ? 20.r : 15.r),
-                  height: isHorizontal ? 90.h : 70.h,
+                  height: isHorizontal ? 90.h : 75.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
                       Radius.circular(15.r),

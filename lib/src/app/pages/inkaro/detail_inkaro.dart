@@ -6,9 +6,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -400,6 +399,37 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
     });
   }
 
+  onButtonPressed() async {
+    if (_permissionReady) {
+      downloadContractInkaro(
+        int.parse(
+            widget.listInkaroHeader[widget.positionInkaro].inkaroContractId),
+        widget.listInkaroHeader[widget.positionInkaro].customerShipName,
+        _localPath,
+      );
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius:
+            BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child: Text(
+            'Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius:
+            BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
+  }
+
   @override
   void initState() {
     super.initState();
@@ -434,8 +464,7 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
     super.dispose();
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
     // send.send([id, status, progress]);
@@ -468,10 +497,11 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
-        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+        statusess =
+            await [Permission.notification, Permission.mediaLibrary].request();
       }
 
       var allAccepted = true;
@@ -505,7 +535,8 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -646,59 +677,29 @@ class _DetailInkaroScreenState extends State<DetailInkaroScreen> {
                                 vertical: 5.r,
                               ),
                               alignment: Alignment.centerRight,
-                              child: ArgonButton(
-                                height: 40.h,
-                                width: 100.w,
-                                borderRadius: 10.r,
-                                color: Colors.red[700],
-                                child: Text(
+                              child: EasyButton(
+                                idleStateWidget: Text(
                                   "PDF Kontrak",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w700),
                                 ),
-                                loader: Container(
-                                  padding: EdgeInsets.all(8.r),
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
+                                loadingStateWidget: CircularProgressIndicator(
+                                  strokeWidth: 3.0,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
                                   ),
                                 ),
-                                onTap: (startLoading, stopLoading, btnState) {
-                                  if (btnState == ButtonState.Idle) {
-                                    if (_permissionReady) {
-                                      downloadContractInkaro(
-                                        int.parse(widget
-                                            .listInkaroHeader[
-                                                widget.positionInkaro]
-                                            .inkaroContractId),
-                                        widget
-                                            .listInkaroHeader[
-                                                widget.positionInkaro]
-                                            .customerShipName,
-                                        _localPath,
-                                      );
-                                      showStyledToast(
-                                        child: Text('Sedang mengunduh file'),
-                                        context: context,
-                                        backgroundColor: Colors.blue,
-                                        borderRadius:
-                                            BorderRadius.circular(15.r),
-                                        duration: Duration(seconds: 2),
-                                      );
-                                    } else {
-                                      showStyledToast(
-                                        child: Text(
-                                            'Tidak mendapat izin penyimpanan'),
-                                        context: context,
-                                        backgroundColor: Colors.red,
-                                        borderRadius:
-                                            BorderRadius.circular(15.r),
-                                        duration: Duration(seconds: 2),
-                                      );
-                                    }
-                                  }
-                                },
+                                useEqualLoadingStateWidgetDimension: true,
+                                useWidthAnimation: true,
+                                height: 40.h,
+                                width: 100.w,
+                                borderRadius: 10.r,
+                                buttonColor: Colors.red.shade700,
+                                elevation: 2.0,
+                                contentGap: 6.0,
+                                onPressed: onButtonPressed,
                               ),
                             ),
                           ],

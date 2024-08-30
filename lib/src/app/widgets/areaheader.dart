@@ -43,7 +43,7 @@ SliverToBoxAdapter areaHeader(
                 icon: Icon(Icons.account_circle),
                 label: Text('Profil'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blueGrey[600],
+                  backgroundColor: Colors.blueGrey[600],
                   padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 10.r : 10.r,
                       vertical: isHorizontal ? 5.r : 4.r),

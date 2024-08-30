@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:fl_toast/fl_toast.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:sample/src/app/utils/config.dart';
@@ -41,6 +41,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
   TextEditingController textReason = new TextEditingController();
   String reasonVal = '';
   bool _isLoadingTitle = true;
+  bool _isHorizontal = false;
   Customer? cust;
   bool _isReason = false;
 
@@ -662,8 +663,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
           );
   }
 
-  handleRejection(BuildContext context, Function stop,
-      {bool isHorizontal = false}) {
+  handleRejection(BuildContext context, {bool isHorizontal = false}) {
     AlertDialog alert = AlertDialog(
       scrollable: true,
       title: Center(
@@ -708,7 +708,6 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
             ),
           ),
           onPressed: () {
-            stop();
             checkEntry(
               isHorizontal: isHorizontal,
             );
@@ -722,7 +721,6 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
             ),
           ),
           onPressed: () {
-            stop();
             Navigator.of(context, rootNavigator: true).pop();
           },
         ),
@@ -734,6 +732,30 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
       builder: (context) => alert,
       barrierDismissible: false,
     );
+  }
+
+  onPressedReject() async {
+    handleRejection(
+      context,
+      isHorizontal: _isHorizontal,
+    );
+
+    return () {};
+  }
+
+  onPressedApprove() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => widget.isNewCust!
+          ? handleCustomer(
+              isHorizontal: _isHorizontal,
+            )
+          : handleContract(
+              isHorizontal: _isHorizontal,
+            ),
+    );
+
+    return () {};
   }
 
   @override
@@ -749,6 +771,8 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
   }
 
   Widget childDetailContractRejected({bool isHor = false}) {
+    _isHorizontal = isHor;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -1774,70 +1798,53 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ArgonButton(
-                        height: isHor ? 60.h : 40.h,
-                        width: isHor ? 80.w : 100.w,
-                        borderRadius: isHor ? 60.r : 30.r,
-                        color: Colors.red[700],
-                        child: Text(
+                      EasyButton(
+                        idleStateWidget: Text(
                           "Reject",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: isHor ? 24.sp : 14.sp,
                               fontWeight: FontWeight.w700),
                         ),
-                        loader: Container(
-                          padding: EdgeInsets.all(8.r),
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
+                        loadingStateWidget: CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
-                        onTap: (startLoading, stopLoading, btnState) {
-                          if (btnState == ButtonState.Idle) {
-                            setState(() {
-                              startLoading();
-                              waitingLoad();
-                              handleRejection(
-                                context,
-                                stopLoading,
-                                isHorizontal: isHor,
-                              );
-                            });
-                          }
-                        },
-                      ),
-                      ArgonButton(
-                        height: isHor ? 70.h : 40.h,
+                        useEqualLoadingStateWidgetDimension: true,
+                        useWidthAnimation: true,
+                        height: isHor ? 60.h : 40.h,
                         width: isHor ? 80.w : 100.w,
                         borderRadius: isHor ? 60.r : 30.r,
-                        color: Colors.blue[700],
-                        child: Text(
+                        buttonColor: Colors.red.shade700,
+                        elevation: 2.0,
+                        contentGap: 6.0,
+                        onPressed: onPressedReject,
+                      ),
+                      EasyButton(
+                        idleStateWidget: Text(
                           "Approve",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: isHor ? 24.sp : 14.sp,
                               fontWeight: FontWeight.w700),
                         ),
-                        loader: Container(
-                          padding: EdgeInsets.all(8.r),
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
+                        loadingStateWidget: CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
-                        onTap: (startLoading, stopLoading, btnState) {
-                          if (btnState == ButtonState.Idle) {
-                            startLoading();
-                            waitingLoad();
-                            widget.isNewCust!
-                                ? handleCustomer(
-                                    isHorizontal: isHor,
-                                  )
-                                : handleContract(
-                                    isHorizontal: isHor,
-                                  );
-                            stopLoading();
-                          }
-                        },
+                        useEqualLoadingStateWidgetDimension: true,
+                        useWidthAnimation: true,
+                        height: isHor ? 70.h : 40.h,
+                        width: isHor ? 80.w : 100.w,
+                        borderRadius: isHor ? 60.r : 30.r,
+                        buttonColor: Colors.blue.shade700,
+                        elevation: 2.0,
+                        contentGap: 6.0,
+                        onPressed: onPressedApprove,
                       ),
                     ],
                   ),

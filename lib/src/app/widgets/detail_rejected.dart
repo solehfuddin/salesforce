@@ -1,4 +1,4 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/econtract/detail_contract_rejected.dart';
@@ -30,6 +30,34 @@ class DetailRejected extends StatefulWidget {
 }
 
 class _DetailRejectedState extends State<DetailRejected> {
+  bool _isHorizontal = false;
+
+  onButtonPressed() async {
+    if (widget.customer![widget.position!].isRevisi != "0") {
+      widget.idCust != null
+          ? Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => DetailContractRejected(
+                  item: widget.contract,
+                  div: widget.div,
+                  ttd: widget.ttd,
+                  username: widget.username,
+                  isNewCust: true,
+                ),
+              ),
+            )
+          : handleStatus(
+              context,
+              'Id customer tidak ditemukan',
+              false,
+              isHorizontal: _isHorizontal,
+              isLogout: false,
+            );
+    }
+
+    return () {};
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -43,6 +71,7 @@ class _DetailRejectedState extends State<DetailRejected> {
   }
 
   Widget childDetailRejected({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Container(
       padding: EdgeInsets.all(isHorizontal ? 25.r : 15.r),
       child: Column(
@@ -361,54 +390,31 @@ class _DetailRejectedState extends State<DetailRejected> {
             height: 20.h,
           ),
           Center(
-            child: ArgonButton(
-              height: isHorizontal ? 70.h : 40.h,
-              width: isHorizontal ? 80.w : 110.w,
-              borderRadius: isHorizontal ? 60.r : 30.0.r,
-              color: widget.customer![widget.position!].isRevisi != "1"
-                  ? Colors.blue[300]
-                  : Colors.blue[700],
-              child: Text(
+            child: EasyButton(
+              idleStateWidget: Text(
                 "Lebih Lengkap",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: isHorizontal ? 24.sp : 14.sp,
                     fontWeight: FontWeight.w700),
               ),
-              loader: Container(
-                padding: EdgeInsets.all(8.r),
-                child: CircularProgressIndicator(
-                  color: Colors.white,
+              loadingStateWidget: CircularProgressIndicator(
+                strokeWidth: 3.0,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.white,
                 ),
               ),
-              onTap: (startLoading, stopLoading, btnState) {
-                if (btnState == ButtonState.Idle) {
-                  if (widget.customer![widget.position!].isRevisi != "0") {
-                    startLoading();
-                    waitingLoad();
-                    widget.idCust != null
-                        ? Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => DetailContractRejected(
-                                item: widget.contract,
-                                div: widget.div,
-                                ttd: widget.ttd,
-                                username: widget.username,
-                                isNewCust: true,
-                              ),
-                            ),
-                          )
-                        : handleStatus(
-                            context,
-                            'Id customer tidak ditemukan',
-                            false,
-                            isHorizontal: isHorizontal,
-                            isLogout: false,
-                          );
-                    stopLoading();
-                  }
-                }
-              },
+              useEqualLoadingStateWidgetDimension: true,
+              useWidthAnimation: true,
+              height: isHorizontal ? 70.h : 40.h,
+              width: isHorizontal ? 80.w : 110.w,
+              borderRadius: isHorizontal ? 60.r : 30.0.r,
+              buttonColor: widget.customer![widget.position!].isRevisi != "1"
+                  ? Colors.blue.shade300
+                  : Colors.blue.shade700,
+              elevation: 2.0,
+              contentGap: 6.0,
+              onPressed: onButtonPressed,
             ),
           ),
           SizedBox(

@@ -70,8 +70,8 @@ class _DialogVerifEditHeaderInkaroState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      primary: Colors.indigo[600],
+                          borderRadius: BorderRadius.circular(10.0),), 
+                          backgroundColor: Colors.indigo[600],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),
@@ -103,8 +103,8 @@ class _DialogVerifEditHeaderInkaroState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      primary: Colors.orange[800],
+                          borderRadius: BorderRadius.circular(10.0),), 
+                          backgroundColor: Colors.orange[800],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),

@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/pages/attendance/attendance_prominent.dart';
 import 'package:sample/src/app/pages/attendance/attendance_service.dart';
 import 'package:sample/src/app/pages/customer/customer_admin.dart';
@@ -47,7 +49,6 @@ class _AdminContentState extends State<AdminContent> {
   MyLocation _myLocation = MyLocation();
   late SharedPreferences preferences;
 
-
   String? id = '';
   String? role = '';
   String? name = '';
@@ -64,7 +65,7 @@ class _AdminContentState extends State<AdminContent> {
   bool isLocationService = false;
   bool isPermissionService = false;
   bool _hidePerform = false;
-  bool _isPerform = true;
+  // bool _isPerform = true;
 
   String stDate = "01/04/2022";
   String edDate = "30/04/2022";
@@ -248,9 +249,28 @@ class _AdminContentState extends State<AdminContent> {
         return AttendanceProminent();
       },
     ).whenComplete(
-      () {
+      () async {
         preferences.setBool("check_prominent", true);
-        checkService();
+
+        if (Platform.isAndroid) {
+          final androidInfo = await DeviceInfoPlugin().androidInfo;
+
+          if (androidInfo.version.sdkInt < 33) {
+            await [
+              Permission.camera,
+              Permission.microphone,
+              Permission.storage,
+              Permission.notification,
+            ].request();
+          } else {
+            await [
+              Permission.camera,
+              Permission.microphone,
+              Permission.mediaLibrary
+            ].request().then((value) => openAppSettings());
+          }
+        }
+        // checkService();
       },
     );
   }
@@ -456,7 +476,7 @@ class _AdminContentState extends State<AdminContent> {
   getPerformSales(String stDate, String edDate) async {
     _samplePie.clear();
     listPerform.clear();
-    _isPerform = true;
+    // _isPerform = true;
 
     const timeout = 15;
     var url = '$API_URL/performance?from=$stDate&to=$edDate';
@@ -493,7 +513,7 @@ class _AdminContentState extends State<AdminContent> {
         Future.delayed(Duration(seconds: 1), () {
           if (mounted) {
             setState(() {
-              _isPerform = false;
+              // _isPerform = false;
             });
           }
         });
@@ -843,25 +863,25 @@ class _AdminContentState extends State<AdminContent> {
                     ),
                   ),
                 ),
-          _hidePerform
-              ? SliverPadding(
-                  padding: EdgeInsets.only(
-                    left: 35.r,
-                    right: 35.r,
-                    top: 0.r,
-                  ),
-                )
-              : _isPerform
-                  ? areaLoadingRenewal(
-                      isHorizontal: true,
-                    )
-                  : areaDonutChartHor(
-                      dataPie: _samplePie,
-                      startDate: stDate,
-                      endDate: edDate,
-                      sales: listPerform,
-                      totalSales: _totalSales,
-                      context: context),
+          // _hidePerform
+          //     ? SliverPadding(
+          //         padding: EdgeInsets.only(
+          //           left: 35.r,
+          //           right: 35.r,
+          //           top: 0.r,
+          //         ),
+          //       )
+          //     : _isPerform
+          //         ? areaLoadingRenewal(
+          //             isHorizontal: true,
+          //           )
+          //         : areaDonutChartHor(
+          //             dataPie: _samplePie,
+          //             startDate: stDate,
+          //             endDate: edDate,
+          //             sales: listPerform,
+          //             totalSales: _totalSales,
+          //             context: context),
           areaHeaderRenewal(isHorizontal: true),
           _isLoadRenewal
               ? areaLoadingRenewal(
@@ -1092,20 +1112,20 @@ class _AdminContentState extends State<AdminContent> {
                     ),
                   ),
                 ),
-          _hidePerform
-              ? SliverPadding(
-                  padding: EdgeInsets.only(
-                    left: 35.r,
-                    right: 35.r,
-                    top: 0.r,
-                  ),
-                )
-              : _isPerform
-                  ? areaLoadingRenewal(
-                      isHorizontal: false,
-                    )
-                  : areaDonutChart(
-                      dataPie: _samplePie, startDate: stDate, endDate: edDate),
+          // _hidePerform
+          //     ? SliverPadding(
+          //         padding: EdgeInsets.only(
+          //           left: 35.r,
+          //           right: 35.r,
+          //           top: 0.r,
+          //         ),
+          //       )
+          //     : _isPerform
+          //         ? areaLoadingRenewal(
+          //             isHorizontal: false,
+          //           )
+          //         : areaDonutChart(
+          //             dataPie: _samplePie, startDate: stDate, endDate: edDate),
           _hidePerform
               ? SliverPadding(
                   padding: EdgeInsets.only(

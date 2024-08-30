@@ -491,7 +491,7 @@ class _Posmaterial_FormoptikState extends State<Posmaterial_Formoptik> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red.shade700,
+                        backgroundColor: Colors.red.shade700,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -502,7 +502,7 @@ class _Posmaterial_FormoptikState extends State<Posmaterial_Formoptik> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
+                        backgroundColor: Colors.blue,
                       ),
                       onPressed: () {
                         widget.controllerOptikName.text =

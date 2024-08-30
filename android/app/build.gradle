@@ -26,6 +26,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
@@ -34,23 +35,16 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     // compileSdkVersion 28
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-    lintOptions {
-        disable 'InvalidPackage'
-        disable "Instantiatable"
-        checkReleaseBuilds false
-        abortOnError false
-    }
-
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.sofudev.salesengagement"
-        multiDexEnabled true
+        // multiDexEnabled true
         // minSdkVersion 19
         minSdkVersion 21
         // targetSdkVersion 33
@@ -67,11 +61,14 @@ android {
            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
            storePassword keystoreProperties['storePassword']
        }
-   }
+    }
 
     buildTypes {
         debug {
             buildConfigField 'boolean', 'UPDATE_ENABLED', 'false'
+            
+            minifyEnabled true
+            signingConfig signingConfigs.debug
         }
 
         release {
@@ -82,9 +79,10 @@ android {
             signingConfig signingConfigs.release
 
             minifyEnabled true
-            useProguard true
+            // useProguard true
+            shrinkResources true
 
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -96,9 +94,13 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.material:material:1.1.0'
-    // implementation 'com.google.android.play:core:1.10.3'
+    //implementation 'com.google.android.play:core:1.10.3'
+    implementation 'com.google.android.play:app-update:2.1.0'
+
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+    implementation 'com.google.firebase:firebase-analytics'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'

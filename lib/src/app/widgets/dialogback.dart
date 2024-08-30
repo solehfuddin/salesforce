@@ -97,8 +97,8 @@ class _DialogBackState extends State<DialogBack> {
                 ? Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(),
-                        primary: Colors.indigo[600],
+                        shape: StadiumBorder(), 
+                        backgroundColor: Colors.indigo[600],
                         padding: EdgeInsets.symmetric(
                             horizontal: 20.r, vertical: 10.r),
                       ),
@@ -122,8 +122,8 @@ class _DialogBackState extends State<DialogBack> {
                 : Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(),
-                        primary: Colors.indigo[600],
+                        shape: StadiumBorder(), 
+                        backgroundColor: Colors.indigo[600],
                         padding: EdgeInsets.symmetric(
                             horizontal: 20.r, vertical: 10.r),
                       ),

@@ -2,9 +2,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,7 +15,6 @@ import 'package:sample/src/app/pages/renewcontract/history_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/contract.dart';
-// import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/customer_noimage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -87,13 +85,11 @@ class _DetailWaitingAdminState extends State<DetailWaitingAdmin> {
     super.dispose();
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
-    
-    if (send != null)
-    {
+
+    if (send != null) {
       send.send([id, status, progress]);
     }
   }
@@ -121,10 +117,11 @@ class _DetailWaitingAdminState extends State<DetailWaitingAdmin> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
-        statusess = await [Permission.notification, Permission.mediaLibrary].request();
+        statusess =
+            await [Permission.notification, Permission.mediaLibrary].request();
       }
 
       var allAccepted = true;
@@ -158,7 +155,8 @@ class _DetailWaitingAdminState extends State<DetailWaitingAdmin> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -185,6 +183,51 @@ class _DetailWaitingAdminState extends State<DetailWaitingAdmin> {
       showNotification: true,
       openFileFromNotification: true,
     );
+  }
+
+  onPressedRevisi() async {
+    if (widget.customer![widget.position!].isRevisi == "1") {
+      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EcontractScreen(
+            widget.customer!,
+            widget.position!,
+            isRevisi: true,
+            isAdmin: role == "ADMIN" ? true : false,
+          ),
+        ),
+      );
+    }
+
+    return () {};
+  }
+
+  onPressedDownload() async {
+    if (_permissionReady) {
+      donwloadCustomer(
+        int.parse(widget.customer![widget.position!].id),
+        widget.customer![widget.position!].namaUsaha,
+        _localPath,
+      );
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child: Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
   }
 
   @override
@@ -577,96 +620,61 @@ class _DetailWaitingAdminState extends State<DetailWaitingAdmin> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               widget.customer![widget.position!].status == "REJECTED"
-                  ? ArgonButton(
-                      height: isHorizontal ? 50.h : 40.h,
-                      width: isHorizontal ? 90.w : 120.w,
-                      borderRadius: isHorizontal ? 60.r : 30.r,
-                      color: widget.customer![widget.position!].isRevisi == "0"
-                          ? Colors.orange[700]
-                          : Colors.orange[300],
-                      child: Text(
+                  ? EasyButton(
+                      idleStateWidget: Text(
                         "Revisi Data",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: isHorizontal ? 16.sp : 14.sp,
                             fontWeight: FontWeight.w700),
                       ),
-                      loader: Container(
-                        padding: EdgeInsets.all(8.r),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                      loadingStateWidget: CircularProgressIndicator(
+                        strokeWidth: 3.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
                       ),
-                      onTap: (startLoading, stopLoading, btnState) {
-                        if (btnState == ButtonState.Idle) {
-                          if (widget.customer![widget.position!].isRevisi ==
-                              "0") {
-                            startLoading();
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => EcontractScreen(
-                                  widget.customer!,
-                                  widget.position!,
-                                  isRevisi: true,
-                                  isAdmin: role == "ADMIN" ? true : false,
-                                ),
-                              ),
-                            );
-                            stopLoading();
-                          }
-                        }
-                      },
-                    )
-                  : ArgonButton(
-                      height: isHorizontal ? 40.h : 40.h,
+                      useEqualLoadingStateWidgetDimension: true,
+                      useWidthAnimation: true,
+                      height: isHorizontal ? 50.h : 40.h,
                       width: isHorizontal ? 90.w : 120.w,
-                      borderRadius: isHorizontal ? 50.r : 30.r,
-                      color: Colors.blue[700],
-                      child: Text(
+                      borderRadius: isHorizontal ? 60.r : 30.r,
+                      buttonColor:
+                          widget.customer![widget.position!].isRevisi == "0"
+                              ? Colors.orange.shade700
+                              : Colors.orange.shade300,
+                      elevation: 2.0,
+                      contentGap: 6.0,
+                      onPressed: onPressedRevisi,
+                    )
+                  : EasyButton(
+                      idleStateWidget: Text(
                         "Unduh Data",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: isHorizontal ? 16.sp : 14.sp,
                             fontWeight: FontWeight.w700),
                       ),
-                      loader: Container(
-                        padding: EdgeInsets.all(8.r),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                      loadingStateWidget: CircularProgressIndicator(
+                        strokeWidth: 3.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
                       ),
-                      onTap: (startLoading, stopLoading, btnState) {
-                        if (btnState == ButtonState.Idle) {
-                          if (_permissionReady) {
-                            donwloadCustomer(
-                              int.parse(widget.customer![widget.position!].id),
-                              widget.customer![widget.position!].namaUsaha,
-                              _localPath,
-                            );
-                            showStyledToast(
-                              child: Text('Sedang mengunduh file'),
-                              context: context,
-                              backgroundColor: Colors.blue,
-                              borderRadius: BorderRadius.circular(15.r),
-                              duration: Duration(seconds: 2),
-                            );
-                          } else {
-                            showStyledToast(
-                              child: Text('Tidak mendapat izin penyimpanan'),
-                              context: context,
-                              backgroundColor: Colors.red,
-                              borderRadius: BorderRadius.circular(15.r),
-                              duration: Duration(seconds: 2),
-                            );
-                          }
-                        }
-                      },
+                      useEqualLoadingStateWidgetDimension: true,
+                      useWidthAnimation: true,
+                      height: isHorizontal ? 40.h : 40.h,
+                      width: isHorizontal ? 90.w : 120.w,
+                      borderRadius: isHorizontal ? 50.r : 30.r,
+                      buttonColor: Colors.blue.shade700,
+                      elevation: 2.0,
+                      contentGap: 6.0,
+                      onPressed: onPressedDownload,
                     ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(),
-                  primary: Colors.red[800],
+                  backgroundColor: Colors.red[800],
                   padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 30.r : 20.r, vertical: 10.r),
                 ),

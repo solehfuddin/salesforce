@@ -4,9 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_path_provider/android_path_provider.dart';
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -22,7 +21,10 @@ import 'package:sample/src/domain/entities/contract.dart';
 import 'package:sample/src/domain/entities/customer.dart';
 import 'package:sample/src/domain/entities/discount.dart';
 import 'package:http/http.dart' as http;
+import 'package:sample/src/domain/service/service_promo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../domain/entities/contract_promo.dart';
 
 // ignore: must_be_immutable
 class DetailContract extends StatefulWidget {
@@ -53,6 +55,7 @@ class DetailContract extends StatefulWidget {
 }
 
 class _DetailContractState extends State<DetailContract> {
+  ServicePromo servicePromo = new ServicePromo();
   String? id = '';
   String? role = '';
   String? divisi = '';
@@ -62,9 +65,11 @@ class _DetailContractState extends State<DetailContract> {
   bool _isLoadingTitle = true;
   List<Discount> discList = List.empty(growable: true);
   List<ActContract> itemActiveContract = List.empty(growable: true);
+  List<ContractPromo> itemPromo = List.empty(growable: true);
   TextEditingController textReason = new TextEditingController();
   String reasonVal = '';
   bool _isReason = false;
+  bool _isHorizontal = false;
   Customer? cust;
 
   late bool _permissionReady;
@@ -171,8 +176,7 @@ class _DetailContractState extends State<DetailContract> {
     }
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort? send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
 
@@ -227,7 +231,7 @@ class _DetailContractState extends State<DetailContract> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       late final Map<Permission, PermissionStatus> statusess;
 
-      if (androidInfo.version.sdkInt! < 33) {
+      if (androidInfo.version.sdkInt < 33) {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
@@ -265,7 +269,8 @@ class _DetailContractState extends State<DetailContract> {
     String? externalStorageDirPath;
     if (Platform.isAndroid) {
       try {
-        externalStorageDirPath = await AndroidPathProvider.downloadsPath;
+        final directory = Directory('/storage/emulated/0/Download');
+        externalStorageDirPath = directory.path;
       } catch (e) {
         final directory = await getExternalStorageDirectory();
         externalStorageDirPath = directory?.path;
@@ -396,6 +401,11 @@ class _DetailContractState extends State<DetailContract> {
     widget.item.hasParent == '1'
         ? getActiveContract(widget.item.idParent)
         : print('Bukan child');
+    widget.item.idContractPromo.isNotEmpty
+        ? servicePromo
+            .getContractPromo(keyword: widget.item.idContractPromo)
+            .then((value) => itemPromo = value)
+        : print('Tidak mengikuti program promo');
   }
 
   getActiveContract(dynamic input) async {
@@ -915,8 +925,7 @@ class _DetailContractState extends State<DetailContract> {
     }
   }
 
-  handleRejection(BuildContext context, Function stop,
-      {bool isHorizontal = false}) {
+  handleRejection(BuildContext context, {bool isHorizontal = false}) {
     AlertDialog alert = AlertDialog(
       scrollable: true,
       title: Center(
@@ -961,7 +970,6 @@ class _DetailContractState extends State<DetailContract> {
             ),
           ),
           onPressed: () {
-            stop();
             checkEntry(
               isHorizontal: isHorizontal,
             );
@@ -975,7 +983,6 @@ class _DetailContractState extends State<DetailContract> {
             ),
           ),
           onPressed: () {
-            stop();
             Navigator.of(context, rootNavigator: true).pop();
           },
         ),
@@ -987,6 +994,53 @@ class _DetailContractState extends State<DetailContract> {
       builder: (context) => alert,
       barrierDismissible: false,
     );
+  }
+
+  onPressedDownload() async {
+    if (_permissionReady) {
+      donwloadContract(widget.item.idCustomer, opticName, _localPath);
+      showStyledToast(
+        child: Text('Sedang mengunduh file'),
+        context: context,
+        backgroundColor: Colors.blue,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      showStyledToast(
+        child: Text('Tidak mendapat izin penyimpanan'),
+        context: context,
+        backgroundColor: Colors.red,
+        borderRadius: BorderRadius.circular(15.r),
+        duration: Duration(seconds: 2),
+      );
+    }
+
+    return () {};
+  }
+
+  onPressedReject() async {
+    handleRejection(
+      context,
+      isHorizontal: _isHorizontal,
+    );
+
+    return () {};
+  }
+
+  onPressedApprove() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => widget.isContract == false
+          ? approveOldCustomer(
+              isHorizontal: _isHorizontal,
+            )
+          : approveNewCustomer(
+              isHorizontal: _isHorizontal,
+            ),
+    );
+
+    return () {};
   }
 
   @override
@@ -1002,6 +1056,8 @@ class _DetailContractState extends State<DetailContract> {
   }
 
   Widget masterChild({bool isHor = false}) {
+    _isHorizontal = isHor;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -2060,7 +2116,8 @@ class _DetailContractState extends State<DetailContract> {
                                 widget.item.isPartai == "1" ||
                                 widget.item.isOngkir == "1" ||
                                 widget.item.isOngkir == "2" ||
-                                widget.item.isFrame == "1"
+                                widget.item.isFrame == "1" ||
+                                widget.item.idContractPromo.isNotEmpty
                             ? Container(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2149,17 +2206,6 @@ class _DetailContractState extends State<DetailContract> {
                                     widget.item.isOngkir.contains('2')
                                         ? Column(
                                             children: [
-                                              // Text(
-                                              //   'Ongkir sebesar ${convertToIdr(int.parse(widget.item.ongkir), 0)} berlaku pada kontrak customer ini sesuai dengan kesepakatan sales.',
-                                              //   style: TextStyle(
-                                              //     fontFamily: 'Montserrat',
-                                              //     fontSize:
-                                              //         isHor ? 14.sp : 12.sp,
-                                              //     fontWeight: FontWeight.w500,
-                                              //     color: Colors.black87,
-                                              //   ),
-                                              //   textAlign: TextAlign.justify,
-                                              // ),
                                               RichText(
                                                 text: TextSpan(
                                                   style: TextStyle(
@@ -2237,6 +2283,84 @@ class _DetailContractState extends State<DetailContract> {
                                         : SizedBox(
                                             width: 10.h,
                                           ),
+                                    widget.item.idContractPromo.isNotEmpty
+                                        ? Card(
+                                            elevation: 3,
+                                            child: Container(
+                                              height:
+                                                  _isHorizontal ? 115.h : 65.h,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal:
+                                                    _isHorizontal ? 25.r : 15.r,
+                                                vertical:
+                                                    _isHorizontal ? 20.r : 10.r,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          'Promo yang dipilih',
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                _isHorizontal
+                                                                    ? 24.sp
+                                                                    : 14.sp,
+                                                            fontFamily:
+                                                                'Montserrat',
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors
+                                                                .blue.shade700,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          itemPromo[0]
+                                                                  .promoName?.toUpperCase() ??
+                                                              '',
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                _isHorizontal
+                                                                    ? 24.sp
+                                                                    : 14.sp,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontFamily:
+                                                                'Segoe ui',
+                                                            color:
+                                                                Colors.black45,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Image.asset(
+                                                    'assets/images/success.png',
+                                                    width: _isHorizontal
+                                                        ? 45.r
+                                                        : 25.r,
+                                                    height: _isHorizontal
+                                                        ? 45.r
+                                                        : 25.r,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        : SizedBox(
+                                            width: 10.h,
+                                          ),
                                   ],
                                 ),
                               )
@@ -2248,50 +2372,29 @@ class _DetailContractState extends State<DetailContract> {
                         ),
                         widget.isMonitoring
                             ? Center(
-                                child: ArgonButton(
-                                  height: isHor ? 50.h : 40.h,
-                                  width: isHor ? 90.w : 150.w,
-                                  borderRadius: 30.0.r,
-                                  color: Colors.blue[700],
-                                  child: Text(
+                                child: EasyButton(
+                                  idleStateWidget: Text(
                                     "Unduh Kontrak",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: isHor ? 16.sp : 14.sp,
                                         fontWeight: FontWeight.w700),
                                   ),
-                                  loader: Container(
-                                    padding: EdgeInsets.all(8.r),
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                  loadingStateWidget: CircularProgressIndicator(
+                                    strokeWidth: 3.0,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
                                     ),
                                   ),
-                                  onTap: (startLoading, stopLoading, btnState) {
-                                    if (btnState == ButtonState.Idle) {
-                                      if (_permissionReady) {
-                                        donwloadContract(widget.item.idCustomer,
-                                            opticName, _localPath);
-                                        showStyledToast(
-                                          child: Text('Sedang mengunduh file'),
-                                          context: context,
-                                          backgroundColor: Colors.blue,
-                                          borderRadius:
-                                              BorderRadius.circular(15.r),
-                                          duration: Duration(seconds: 2),
-                                        );
-                                      } else {
-                                        showStyledToast(
-                                          child: Text(
-                                              'Tidak mendapat izin penyimpanan'),
-                                          context: context,
-                                          backgroundColor: Colors.red,
-                                          borderRadius:
-                                              BorderRadius.circular(15.r),
-                                          duration: Duration(seconds: 2),
-                                        );
-                                      }
-                                    }
-                                  },
+                                  useEqualLoadingStateWidgetDimension: true,
+                                  useWidthAnimation: true,
+                                  height: isHor ? 50.h : 40.h,
+                                  width: isHor ? 90.w : 150.w,
+                                  borderRadius: 30.r,
+                                  buttonColor: Colors.blue.shade700,
+                                  elevation: 2.0,
+                                  contentGap: 6.0,
+                                  onPressed: onPressedDownload,
                                 ),
                               )
                             : SizedBox(
@@ -2570,37 +2673,29 @@ class _DetailContractState extends State<DetailContract> {
             vertical: 5.r,
           ),
           alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: isHorizontal ? 60.h : 40.h,
-            width: isHorizontal ? 80.w : 100.w,
-            borderRadius: isHorizontal ? 60.r : 30.r,
-            color: Colors.red[700],
-            child: Text(
+          child: EasyButton(
+            idleStateWidget: Text(
               "Reject",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: isHorizontal ? 24.sp : 14.sp,
                   fontWeight: FontWeight.w700),
             ),
-            loader: Container(
-              padding: EdgeInsets.all(8.r),
-              child: CircularProgressIndicator(
-                color: Colors.white,
+            loadingStateWidget: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.white,
               ),
             ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  handleRejection(
-                    context,
-                    stopLoading,
-                    isHorizontal: isHorizontal,
-                  );
-                });
-              }
-            },
+            useEqualLoadingStateWidgetDimension: true,
+            useWidthAnimation: true,
+            height: isHorizontal ? 60.h : 40.h,
+            width: isHorizontal ? 80.w : 100.w,
+            borderRadius: isHorizontal ? 60.r : 30.r,
+            buttonColor: Colors.red.shade700,
+            elevation: 2.0,
+            contentGap: 6.0,
+            onPressed: onPressedReject,
           ),
         ),
         Container(
@@ -2609,39 +2704,29 @@ class _DetailContractState extends State<DetailContract> {
             vertical: 5.r,
           ),
           alignment: Alignment.centerRight,
-          child: ArgonButton(
-            height: isHorizontal ? 60.h : 40.h,
-            width: isHorizontal ? 80.w : 100.w,
-            borderRadius: isHorizontal ? 60.r : 30.r,
-            color: Colors.blue[600],
-            child: Text(
+          child: EasyButton(
+            idleStateWidget: Text(
               "Approve",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: isHorizontal ? 24.sp : 14.sp,
                   fontWeight: FontWeight.w700),
             ),
-            loader: Container(
-              padding: EdgeInsets.all(8.r),
-              child: CircularProgressIndicator(
-                color: Colors.white,
+            loadingStateWidget: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.white,
               ),
             ),
-            onTap: (startLoading, stopLoading, btnState) {
-              if (btnState == ButtonState.Idle) {
-                setState(() {
-                  startLoading();
-                  waitingLoad();
-                  widget.isContract == false
-                      ? approveOldCustomer(
-                          isHorizontal: isHorizontal,
-                        )
-                      : approveNewCustomer(
-                          isHorizontal: isHorizontal,
-                        );
-                });
-              }
-            },
+            useEqualLoadingStateWidgetDimension: true,
+            useWidthAnimation: true,
+            height: isHorizontal ? 60.h : 40.h,
+            width: isHorizontal ? 80.w : 100.w,
+            borderRadius: isHorizontal ? 60.r : 30.r,
+            buttonColor: Colors.blue.shade600,
+            elevation: 2.0,
+            contentGap: 6.0,
+            onPressed: onPressedApprove,
           ),
         ),
       ],

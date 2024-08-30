@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:date_field/date_field.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
@@ -63,6 +63,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       _choosenBank,
       _choosenJabatan,
       _choosenIntervalPembayaran;
+  bool _isHorizontal = false;
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
       // _emptyNpwp = false,
@@ -73,7 +74,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
       _emptyTelpKonfirmasi = false,
       _emptyNotesContract = false;
 
-  checkEntry(Function stop, {bool isHorizontal = false}) {
+  checkEntry({bool isHorizontal = false}) {
     setState(() {
       textNamaStaff.text.isEmpty
           ? _emptyNamaStaff = true
@@ -118,14 +119,12 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-      stop();
     } else {
-      updateData(stop, isHorizontal: isHorizontal);
-      stop();
+      updateData(isHorizontal: isHorizontal);
     }
   }
 
-  updateData(Function stop, {bool isHorizontal = false}) async {
+  updateData({bool isHorizontal = false}) async {
     const timeout = 15;
     var url = '$API_URL/inkaro/updateInkaroHeader/';
 
@@ -217,8 +216,6 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
         );
       }
     }
-
-    stop();
   }
 
   List<ListMasterBank> _dataBank = List.empty(growable: true);
@@ -407,6 +404,17 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
     });
   }
 
+  onButtonPressed() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+      () => checkEntry(
+        isHorizontal: _isHorizontal,
+      ),
+    );
+
+    return () {};
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -420,6 +428,7 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
   }
 
   Widget childCreateInkaro({bool isHorizontal = false}) {
+    _isHorizontal = isHorizontal;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -1143,37 +1152,29 @@ class _EditInkaroHeaderState extends State<EditInkaroHeaderScreen> {
               ),
               child: Column(
                 children: [
-                  ArgonButton(
+                  EasyButton(
+                    idleStateWidget: Text(
+                      "Simpan",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isHorizontal ? 18.sp : 14.sp,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    loadingStateWidget: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                    useEqualLoadingStateWidgetDimension: true,
+                    useWidthAnimation: true,
                     height: isHorizontal ? 50.h : 40.h,
                     width: isHorizontal ? 90.w : 100.w,
                     borderRadius: isHorizontal ? 60.r : 30.r,
-                    color: Colors.blue[700],
-                    child: Text(
-                      "Simpan",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    loader: Container(
-                      padding: EdgeInsets.all(8.r),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (startLoading, stopLoading, btnState) {
-                      if (btnState == ButtonState.Idle) {
-                        setState(() {
-                          startLoading();
-                          waitingLoad();
-                          checkEntry(
-                            stopLoading,
-                            isHorizontal: isHorizontal,
-                          );
-                        });
-                      }
-                    },
+                    buttonColor: Colors.blue.shade700,
+                    elevation: 2.0,
+                    contentGap: 6.0,
+                    onPressed: onButtonPressed,
                   ),
                 ],
               ),

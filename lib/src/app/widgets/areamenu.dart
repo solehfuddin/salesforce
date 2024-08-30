@@ -97,7 +97,7 @@ SliverToBoxAdapter areaMenu(
                           ),
                         ),
                         onTap: () async {
-                          await Permission.camera.request();
+                          // await Permission.camera.request();
                           if (await Permission.camera.isGranted) {
                             Get.find<MyController>().isCekIn = true;
 
@@ -142,7 +142,7 @@ SliverToBoxAdapter areaMenu(
                           ),
                         ),
                         onTap: () async {
-                          await Permission.camera.request();
+                          // await Permission.camera.request();
                           if (await Permission.camera.isGranted) {
                             Get.find<MyController>().isCekIn = false;
 
@@ -285,7 +285,7 @@ SliverToBoxAdapter areaMenu(
                               ),
                             ),
                             onTap: () async {
-                              await Permission.camera.request();
+                              // await Permission.camera.request();
                               if (await Permission.camera.isGranted) {
                                 Get.find<MyController>().isCekIn = true;
 
@@ -331,7 +331,7 @@ SliverToBoxAdapter areaMenu(
                               ),
                             ),
                             onTap: () async {
-                              await Permission.camera.request();
+                              // await Permission.camera.request();
                               if (await Permission.camera.isGranted) {
                                 Get.find<MyController>().isCekIn = false;
 
@@ -436,52 +436,59 @@ SliverToBoxAdapter areaMenu(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
-                                        Expanded(
-                                          flex: 1,
-                                          child: Padding(
-                                            padding: EdgeInsets.only(
-                                                left: 10.0.sp, right: 5.0.sp),
-                                            child: TextButton.icon(
-                                              style: TextButton.styleFrom(
-                                                textStyle: TextStyle(
-                                                    color: Colors.white),
-                                                backgroundColor: Colors.green,
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 10.sp),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0.sp),
+                                        divisi == 'SM'
+                                            ? Expanded(
+                                                flex: 1,
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 10.0.sp,
+                                                      right: 5.0.sp),
+                                                  child: TextButton.icon(
+                                                    style: TextButton.styleFrom(
+                                                      textStyle: TextStyle(
+                                                          color: Colors.white),
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 10.sp),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    10.0.sp),
+                                                      ),
+                                                    ),
+                                                    onPressed: () => {
+                                                      // Navigator.of(context).push(
+                                                      //   MaterialPageRoute(
+                                                      //     builder: (context) =>
+                                                      //         CompleteInkaroApproval(),
+                                                      //   ),
+                                                      // )
+                                                      Get.to(
+                                                        () =>
+                                                            CompleteInkaroApproval(),
+                                                      )
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.text_snippet,
+                                                      color: Colors.white,
+                                                      size: 20.0.sp,
+                                                    ),
+                                                    label: Text(
+                                                      'Kontrak Inkaro',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 13.0.sp,
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                              onPressed: () => {
-                                                // Navigator.of(context).push(
-                                                //   MaterialPageRoute(
-                                                //     builder: (context) =>
-                                                //         CompleteInkaroApproval(),
-                                                //   ),
-                                                // )
-                                                Get.to(
-                                                  () =>
-                                                      CompleteInkaroApproval(),
-                                                )
-                                              },
-                                              icon: Icon(
-                                                Icons.text_snippet,
-                                                color: Colors.white,
-                                                size: 20.0.sp,
-                                              ),
-                                              label: Text(
-                                                'Kontrak Inkaro',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 13.0.sp,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                              )
+                                            : SizedBox(),
                                         Expanded(
                                           flex: 1,
                                           child: Padding(
@@ -755,7 +762,7 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  await Permission.camera.request();
+                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = true;
 
@@ -802,7 +809,7 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  await Permission.camera.request();
+                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = false;
 
@@ -909,54 +916,160 @@ SliverToBoxAdapter areaMenu(
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
-                                            Expanded(
-                                              flex: 1,
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 10.0.sp,
-                                                    right: 5.0.sp),
-                                                child: TextButton.icon(
-                                                  style: TextButton.styleFrom(
-                                                    textStyle: TextStyle(
-                                                        color: Colors.white),
-                                                    backgroundColor:
-                                                        Colors.green,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 10.sp),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10.0.sp),
+                                            // Expanded(
+                                            //   flex: 1,
+                                            //   child: Padding(
+                                            //     padding: EdgeInsets.only(
+                                            //         left: 10.0.sp,
+                                            //         right: 5.0.sp),
+                                            //     child: TextButton.icon(
+                                            //       style: TextButton.styleFrom(
+                                            //         textStyle: TextStyle(
+                                            //             color: Colors.white),
+                                            //         backgroundColor:
+                                            //             Colors.green,
+                                            //         padding:
+                                            //             EdgeInsets.symmetric(
+                                            //                 vertical: 10.sp),
+                                            //         shape:
+                                            //             RoundedRectangleBorder(
+                                            //           borderRadius:
+                                            //               BorderRadius.circular(
+                                            //                   10.0.sp),
+                                            //         ),
+                                            //       ),
+                                            //       onPressed: () => {
+                                            //         // Navigator.of(context).push(
+                                            //         //   MaterialPageRoute(
+                                            //         //     builder: (context) =>
+                                            //         //         CompleteInkaroApproval(),
+                                            //         //   ),
+                                            //         // )
+                                            //         Get.to(() =>
+                                            //             CompleteInkaroApproval())
+                                            //       },
+                                            //       icon: Icon(
+                                            //         Icons.text_snippet,
+                                            //         color: Colors.white,
+                                            //         size: 20.0.sp,
+                                            //       ),
+                                            //       label: Text(
+                                            //         'Kontrak Inkaro',
+                                            //         style: TextStyle(
+                                            //             color: Colors.white,
+                                            //             fontSize: 13.0.sp,
+                                            //             fontWeight:
+                                            //                 FontWeight.w500),
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            // Expanded(
+                                            //   flex: 1,
+                                            //   child: Padding(
+                                            //     padding: EdgeInsets.only(
+                                            //         left: 5.0.sp,
+                                            //         right: 10.0.sp),
+                                            //     child: TextButton.icon(
+                                            //       style: TextButton.styleFrom(
+                                            //         textStyle: TextStyle(
+                                            //             color: Colors.white),
+                                            //         backgroundColor:
+                                            //             Colors.green,
+                                            //         padding:
+                                            //             EdgeInsets.symmetric(
+                                            //                 vertical: 10.sp),
+                                            //         shape:
+                                            //             RoundedRectangleBorder(
+                                            //           borderRadius:
+                                            //               BorderRadius.circular(
+                                            //                   10.0.sp),
+                                            //         ),
+                                            //       ),
+                                            //       onPressed: () => {
+                                            //         // Navigator.of(context).push(
+                                            //         //   MaterialPageRoute(
+                                            //         //     builder: (context) =>
+                                            //         //         PencairanInkaroApproval(),
+                                            //         //   ),
+                                            //         // )
+                                            //         Get.to(() =>
+                                            //             PencairanInkaroApproval())
+                                            //       },
+                                            //       icon: Icon(
+                                            //         Icons.card_giftcard_sharp,
+                                            //         color: Colors.white,
+                                            //         size: 20.0.sp,
+                                            //       ),
+                                            //       label: Text(
+                                            //         'Pencairan Inkaro',
+                                            //         style: TextStyle(
+                                            //             color: Colors.white,
+                                            //             fontSize: 13.0.sp,
+                                            //             fontWeight:
+                                            //                 FontWeight.w500),
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            divisi == 'SM'
+                                                ? Expanded(
+                                                    flex: 1,
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 10.0.sp,
+                                                          right: 5.0.sp),
+                                                      child: TextButton.icon(
+                                                        style: TextButton
+                                                            .styleFrom(
+                                                          textStyle: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                          backgroundColor:
+                                                              Colors.green,
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical:
+                                                                      10.sp),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0.sp),
+                                                          ),
+                                                        ),
+                                                        onPressed: () => {
+                                                          // Navigator.of(context).push(
+                                                          //   MaterialPageRoute(
+                                                          //     builder: (context) =>
+                                                          //         CompleteInkaroApproval(),
+                                                          //   ),
+                                                          // )
+                                                          Get.to(
+                                                            () =>
+                                                                CompleteInkaroApproval(),
+                                                          )
+                                                        },
+                                                        icon: Icon(
+                                                          Icons.text_snippet,
+                                                          color: Colors.white,
+                                                          size: 20.0.sp,
+                                                        ),
+                                                        label: Text(
+                                                          'Kontrak Inkaro',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 13.0.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500),
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  onPressed: () => {
-                                                    // Navigator.of(context).push(
-                                                    //   MaterialPageRoute(
-                                                    //     builder: (context) =>
-                                                    //         CompleteInkaroApproval(),
-                                                    //   ),
-                                                    // )
-                                                    Get.to(() =>
-                                                        CompleteInkaroApproval())
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.text_snippet,
-                                                    color: Colors.white,
-                                                    size: 20.0.sp,
-                                                  ),
-                                                  label: Text(
-                                                    'Kontrak Inkaro',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 13.0.sp,
-                                                        fontWeight:
-                                                            FontWeight.w500),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                                  )
+                                                : SizedBox(),
                                             Expanded(
                                               flex: 1,
                                               child: Padding(
@@ -986,8 +1099,10 @@ SliverToBoxAdapter areaMenu(
                                                     //         PencairanInkaroApproval(),
                                                     //   ),
                                                     // )
-                                                    Get.to(() =>
-                                                        PencairanInkaroApproval())
+                                                    Get.to(
+                                                      () =>
+                                                          PencairanInkaroApproval(),
+                                                    )
                                                   },
                                                   icon: Icon(
                                                     Icons.card_giftcard_sharp,
@@ -1269,7 +1384,7 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  await Permission.camera.request();
+                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = true;
 
@@ -1316,7 +1431,7 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  await Permission.camera.request();
+                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = false;
 
