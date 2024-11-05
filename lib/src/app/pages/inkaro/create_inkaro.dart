@@ -39,7 +39,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   TextEditingController textSelesaiPeriode = new TextEditingController();
   TextEditingController textAtasNama = new TextEditingController();
   TextEditingController textTelpKonfirmasi = new TextEditingController();
-  TextEditingController textIntervalPembayaran = new TextEditingController();
   TextEditingController textNotesContract = new TextEditingController();
   final formKeyInkaroManual = GlobalKey<FormState>();
 
@@ -74,9 +73,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       _choosenFilterSubcatManual,
       _choosenCopyContract,
       _choosenJabatan,
-      _choosenSatuanIntervalPembayaran = "BULAN",
-      _intervalPembayaran = "",
-      fullIntervalPembayaran;
+      _choosenIntervalPembayaran;
   String notesContract = '', allValueManual = '';
   bool _emptyNamaStaff = false,
       _emptyNikKTP = false,
@@ -86,8 +83,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
       _emptySelesaiPeriode = false,
       _emptyAtasNama = false,
       _emptyTelpKonfirmasi = false,
-      _emptyNotesContract = false,
-      _emptyIntervalPembayaran = false;
+      _emptyNotesContract = false;
 
   checkEntry({bool isHorizontal = false}) {
     setState(() {
@@ -109,9 +105,6 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
           ? _emptySelesaiPeriode = true
           : _emptySelesaiPeriode = false;
       textAtasNama.text.isEmpty
-          ? _emptyAtasNama = true
-          : _emptyAtasNama = false;
-      textIntervalPembayaran.text.isEmpty
           ? _emptyAtasNama = true
           : _emptyAtasNama = false;
       (mulaiPeriode != '' && mulaiPeriode != null)
@@ -139,11 +132,12 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         _emptySelesaiPeriode ||
         _emptyAtasNama ||
         _emptyTelpKonfirmasi ||
-        _emptyIntervalPembayaran ||
         _choosenBank == '' ||
         _choosenBank == null ||
         _choosenJabatan == '' ||
-        _choosenJabatan == null) {
+        _choosenJabatan == null ||
+        _choosenIntervalPembayaran == '' ||
+        _choosenIntervalPembayaran == null) {
       handleStatus(
         context,
         'Harap lengkapi isian yang telah disediakan.',
@@ -294,9 +288,7 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
         'nomor_rekening': nomorRekening,
         'an_rekening': atasNama,
         'telp_konfirmasi': telpKonfirmasi,
-        'interval_pembayaran': _intervalPembayaran.toString() +
-            " " +
-            _choosenSatuanIntervalPembayaran.toString(),
+        'interval_pembayaran': _choosenIntervalPembayaran,
         'created_by': id,
         'detail_inkaro': json.encode(finalListInkaro),
         'notes': notesContract,
@@ -629,11 +621,11 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
   List _dataJabatan = [
     {'label': 'Karyawan Optik', 'value_jabatan': 'KARYAWAN OPTIK'},
     {'label': 'Manager Optik', 'value_jabatan': 'MANAGER OPTIK'},
-    {'label': 'Owner Optik', 'value_jabatan': 'OWNER OPTIK'},
   ];
-  List _dataSatuanIntervalPembayaran = [
-    {'label': 'Bulan', 'value_satuan': 'BULAN'},
-    {'label': 'Tahun', 'value_satuan': 'TAHUN'},
+  List _dataIntervalPembayaran = [
+    {'label': '1 Bulan', 'value_interval': '1 BULAN'},
+    {'label': '3 Bulan', 'value_interval': '3 BULAN'},
+    {'label': '6 Bulan', 'value_interval': '6 BULAN'},
   ];
   List<InkaroReguler> _dataFilterSubcat = List.empty(growable: true);
 
@@ -1487,83 +1479,43 @@ class _CreateInkaroState extends State<CreateInkaroScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(top: 15.0, right: 10.0),
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5.r),
-                              ),
-                              errorText: _emptyIntervalPembayaran
-                                  ? 'Wajib diisi'
-                                  : null,
-                            ),
-                            maxLength: 50,
-                            controller: textIntervalPembayaran,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontFamily: 'Segoe Ui',
-                            ),
-                            onChanged: (String? value) {
-                              setState(() {
-                                _intervalPembayaran = value!;
-                                if (value == '') {
-                                  _emptyIntervalPembayaran = true;
-                                } else {
-                                  _emptyIntervalPembayaran = false;
-                                }
-                              });
-                            },
-                          ),
-                        ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        border: Border.all(color: Colors.black54),
+                        borderRadius: BorderRadius.circular(5.r)),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      value: _choosenIntervalPembayaran,
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontFamily: 'Segoe Ui',
+                        fontSize: isHorizontal ? 18.sp : 14.sp,
+                        fontWeight: FontWeight.w600,
                       ),
-                      Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(left: 5.0),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10.r, vertical: 7.r),
-                          decoration: BoxDecoration(
-                              color: Colors.white70,
-                              border: Border.all(color: Colors.black54),
-                              borderRadius: BorderRadius.circular(5.r)),
-                          child: DropdownButton(
-                            underline: SizedBox(),
-                            isExpanded: true,
-                            value: _choosenSatuanIntervalPembayaran,
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontFamily: 'Segoe Ui',
-                              fontSize: isHorizontal ? 18.sp : 14.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            items: _dataSatuanIntervalPembayaran
-                                .map((val) => DropdownMenuItem(
-                                      value: val["value_satuan"],
-                                      child: Text(val["label"]),
-                                    ))
-                                .toList(),
-                            hint: Text(
-                              "Pilih Interval Pembayaran",
-                              style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: isHorizontal ? 18.sp : 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Segoe Ui'),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                _choosenSatuanIntervalPembayaran =
-                                    value.toString();
-                              });
-                            },
-                          ),
-                        ),
-                      )
-                    ],
+                      items: _dataIntervalPembayaran
+                          .map((val) => DropdownMenuItem(
+                                value: val["value_interval"],
+                                child: Text(val["label"]),
+                              ))
+                          .toList(),
+                      hint: Text(
+                        "Pilih Interval Pembayaran",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Segoe Ui'),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _choosenIntervalPembayaran = value.toString();
+                        });
+                      },
+                    ),
                   ),
                   SizedBox(
                     height: isHorizontal ? 22.sp : 12.h,
