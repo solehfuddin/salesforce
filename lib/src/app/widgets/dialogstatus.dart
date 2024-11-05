@@ -64,12 +64,18 @@ class _DialogStatusState extends State<DialogStatus> {
 
   Widget childDialogStatus({bool isHorizontal = false}) {
     return AlertDialog(
+      contentPadding: EdgeInsets.all(0.0),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(32.0))),
       content: Container(
         padding: EdgeInsets.only(
           top: 20.r,
         ),
-        height: isHorizontal ? 290.h : 225.h,
+        // height: isHorizontal ? 290.h : 225.h,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Center(
               child: Image.asset(
@@ -83,7 +89,8 @@ class _DialogStatusState extends State<DialogStatus> {
             SizedBox(
               height: isHorizontal ? 20.h : 20.h,
             ),
-            Center(
+            Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20.0),
               child: Text(
                 widget.msg,
                 style: TextStyle(
@@ -98,89 +105,176 @@ class _DialogStatusState extends State<DialogStatus> {
               height: isHorizontal ? 20.h : 20.h,
             ),
             widget.isLogout
-                ? Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(),
-                        backgroundColor: Colors.indigo[600],
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20.r, vertical: 10.r),
+                ? InkWell(
+                    onTap: () {
+                      signOut(
+                        isChangePassword: true,
+                        context: context,
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.indigo[600],
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(32.0),
+                            bottomRight: Radius.circular(32.0)),
                       ),
                       child: Text(
                         'Tutup Aplikasi',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: isHorizontal ? 20.sp : 14.sp,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Segoe ui',
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      onPressed: () {
-                        signOut(
-                          isChangePassword: true,
-                          context: context,
-                        );
-                      },
                     ),
                   )
-                : Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(), 
-                        backgroundColor: Colors.indigo[600],
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20.r, vertical: 10.r),
+                // Center(
+                //     child: ElevatedButton(
+                //       style: ElevatedButton.styleFrom(
+                //         shape: StadiumBorder(),
+                //         backgroundColor: Colors.indigo[600],
+                //         padding: EdgeInsets.symmetric(
+                //             horizontal: 20.r, vertical: 10.r),
+                //       ),
+                //       child: Text(
+                //         'Tutup Aplikasi',
+                //         style: TextStyle(
+                //           color: Colors.white,
+                //           fontSize: isHorizontal ? 20.sp : 14.sp,
+                //           fontWeight: FontWeight.bold,
+                //           fontFamily: 'Segoe ui',
+                //         ),
+                //       ),
+                //       onPressed: () {
+                //         signOut(
+                //           isChangePassword: true,
+                //           context: context,
+                //         );
+                //       },
+                //     ),
+                //   )
+                :
+                // Center(
+                //     child: ElevatedButton(
+                //       style: ElevatedButton.styleFrom(
+                //         shape: StadiumBorder(),
+                //         backgroundColor: Colors.indigo[600],
+                //         padding: EdgeInsets.symmetric(
+                //             horizontal: 20.r, vertical: 10.r),
+                //       ),
+                //       child: Text(
+                //         'Ok',
+                //         style: TextStyle(
+                //           color: Colors.white,
+                //           fontSize: isHorizontal ? 20.sp : 14.sp,
+                //           fontWeight: FontWeight.bold,
+                //           fontFamily: 'Segoe ui',
+                //         ),
+                //       ),
+                //       onPressed: () {
+                //         if (widget.isBack) {
+                //           Navigator.of(context, rootNavigator: true)
+                //               .pop(context);
+                //         } else {
+                //           if (widget.status) {
+                //             Navigator.pop(context);
+
+                //             if (role == "ADMIN") {
+                //               Navigator.of(context).pushAndRemoveUntil(
+                //                   MaterialPageRoute(
+                //                       builder: (context) => AdminScreen()),
+                //                   (route) => false);
+                //             } else if (role == "STAFF") {
+                //               Navigator.of(context).pushAndRemoveUntil(
+                //                   MaterialPageRoute(
+                //                       builder: (context) => StaffScreen()),
+                //                   (route) => false);
+                //             } else {
+                //               Navigator.of(context).pushAndRemoveUntil(
+                //                   MaterialPageRoute(
+                //                       builder: (context) => HomeScreen()),
+                //                   (route) => false);
+                //             }
+
+                //             if (widget.isNewCust) {
+                //               Navigator.of(context).push(
+                //                 MaterialPageRoute(
+                //                   builder: (context) => CustomerScreen(
+                //                     int.parse(id!),
+                //                   ),
+                //                 ),
+                //               );
+                //               // Get.toNamed('/customer/$id');
+                //             }
+                //           } else {
+                //             Navigator.of(context, rootNavigator: true)
+                //                 .pop(context);
+                //           }
+                //         }
+                //       },
+                //     ),
+                //   ),
+                InkWell(
+                    onTap: () {
+                      if (widget.isBack) {
+                        Navigator.of(context, rootNavigator: true).pop(context);
+                      } else {
+                        if (widget.status) {
+                          Navigator.pop(context);
+
+                          if (role == "ADMIN") {
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => AdminScreen()),
+                                (route) => false);
+                          } else if (role == "STAFF") {
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => StaffScreen()),
+                                (route) => false);
+                          } else {
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => HomeScreen()),
+                                (route) => false);
+                          }
+
+                          if (widget.isNewCust) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => CustomerScreen(
+                                  int.parse(id!),
+                                ),
+                              ),
+                            );
+                            // Get.toNamed('/customer/$id');
+                          }
+                        } else {
+                          Navigator.of(context, rootNavigator: true)
+                              .pop(context);
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.indigo[600],
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(32.0),
+                            bottomRight: Radius.circular(32.0)),
                       ),
                       child: Text(
-                        'Ok',
+                        "OK",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: isHorizontal ? 20.sp : 14.sp,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Segoe ui',
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      onPressed: () {
-                        if (widget.isBack) {
-                          Navigator.of(context, rootNavigator: true)
-                              .pop(context);
-                        } else {
-                          if (widget.status) {
-                            Navigator.pop(context);
-
-                            if (role == "ADMIN") {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                      builder: (context) => AdminScreen()),
-                                  (route) => false);
-                            } else if (role == "STAFF") {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                      builder: (context) => StaffScreen()),
-                                  (route) => false);
-                            } else {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                      builder: (context) => HomeScreen()),
-                                  (route) => false);
-                            }
-
-                            if (widget.isNewCust) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => CustomerScreen(
-                                    int.parse(id!),
-                                  ),
-                                ),
-                              );
-                              // Get.toNamed('/customer/$id');
-                            }
-                          } else {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(context);
-                          }
-                        }
-                      },
                     ),
                   ),
           ],
