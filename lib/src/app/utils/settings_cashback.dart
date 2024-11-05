@@ -12,7 +12,8 @@ import 'package:sample/src/domain/entities/cashback_line.dart';
 import 'custom.dart';
 
 enum CashbackStatus { PENDING, ACCEPTED, REJECT, ACTIVE, INACTIVE }
-enum CashbackType { BY_PRODUCT, BY_TARGET, COMBINE }
+
+enum CashbackType { BY_PRODUCT, BY_TARGET, COMBINE, BY_SP }
 
 String getCashbackType(CashbackType cashbackType) {
   String output = "";
@@ -24,8 +25,11 @@ String getCashbackType(CashbackType cashbackType) {
     case CashbackType.BY_TARGET:
       output = "BY TARGET";
       break;
-    default:
+    case CashbackType.COMBINE:
       output = "COMBINE";
+      break;
+    default:
+      output = "BY SP";
   }
 
   return output;
@@ -508,17 +512,31 @@ Widget cashbackDetailKontrakWidget({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Pencairan cashback',
-                        style: TextStyle(
-                          fontFamily: 'Segoe ui',
-                          fontSize: isHorizontal ? 15.sp : 14.sp,
-                          color: Colors.black45,
-                          fontWeight: FontWeight.w600,
+                      Visibility(
+                        visible: itemHeader?.cashbackType != "BY SP",
+                        child: Text(
+                          'Pencairan cashback',
+                          style: TextStyle(
+                            fontFamily: 'Segoe ui',
+                            fontSize: isHorizontal ? 15.sp : 14.sp,
+                            color: Colors.black45,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        replacement: Text(
+                          'Tipe Sp Cashback',
+                          style: TextStyle(
+                            fontFamily: 'Segoe ui',
+                            fontSize: isHorizontal ? 15.sp : 14.sp,
+                            color: Colors.black45,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       Text(
-                        'Durasi pencairan',
+                        itemHeader?.cashbackType == "BY SP"
+                            ? 'Mekanisme pencairan'
+                            : 'Durasi pencairan',
                         style: TextStyle(
                           fontFamily: 'Segoe ui',
                           fontSize: isHorizontal ? 15.sp : 14.sp,
@@ -531,17 +549,31 @@ Widget cashbackDetailKontrakWidget({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        itemHeader?.withdrawProcess ?? '-',
-                        style: TextStyle(
-                          fontFamily: 'Segoe ui',
-                          fontSize: isHorizontal ? 15.sp : 14.sp,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w600,
+                      Visibility(
+                        visible: itemHeader?.cashbackType != "BY SP",
+                        child: Text(
+                          itemHeader?.withdrawProcess ?? '-',
+                          style: TextStyle(
+                            fontFamily: 'Segoe ui',
+                            fontSize: isHorizontal ? 15.sp : 14.sp,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        replacement: Text(
+                          itemHeader?.isSpSatuan == "YES" ? "SATUAN" : 'PERIODE SP',
+                          style: TextStyle(
+                            fontFamily: 'Segoe ui',
+                            fontSize: isHorizontal ? 15.sp : 14.sp,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       Text(
-                        '${itemHeader?.withdrawDuration} hari',
+                        itemHeader?.cashbackType == "BY SP"
+                            ? '${itemHeader?.paymentMechanism}'
+                            : '${itemHeader?.withdrawDuration} hari',
                         style: TextStyle(
                           fontFamily: 'Segoe ui',
                           fontSize: isHorizontal ? 15.sp : 14.sp,
@@ -555,7 +587,9 @@ Widget cashbackDetailKontrakWidget({
                     height: 8.h,
                   ),
                   Text(
-                    'Termin pembayaran',
+                    itemHeader?.cashbackType == "BY SP"
+                        ? 'Tanggal pembayaran'
+                        : 'Termin pembayaran',
                     style: TextStyle(
                       fontFamily: 'Segoe ui',
                       fontSize: isHorizontal ? 15.sp : 14.sp,
@@ -564,7 +598,9 @@ Widget cashbackDetailKontrakWidget({
                     ),
                   ),
                   Text(
-                    itemHeader?.paymentDuration ?? '-',
+                    itemHeader?.cashbackType == "BY SP"
+                        ? convertDateWithMonth(itemHeader?.paymentDate ?? '-')
+                        : itemHeader?.paymentDuration ?? '-',
                     style: TextStyle(
                       fontFamily: 'Segoe ui',
                       fontSize: isHorizontal ? 15.sp : 14.sp,
@@ -1075,20 +1111,39 @@ Widget cashbackLampiranWidget(
 }
 
 donwloadPdfCashback(
-    String idCashback,
-    String custName,
-    String locatedFile,
-  ) async {
-    var dt = DateTime.now();
-    var genTimer = dt.second;
-    var url = '$PDFURL/cashback_pdf/$idCashback';
+  String idCashback,
+  String custName,
+  String locatedFile,
+) async {
+  var dt = DateTime.now();
+  var genTimer = dt.second;
+  var url = '$PDFURL/cashback_pdf/$idCashback';
 
-    await FlutterDownloader.enqueue(
-      url: url,
-      fileName: "Cashback $custName $genTimer.pdf",
-      requiresStorageNotLow: true,
-      savedDir: locatedFile,
-      showNotification: true,
-      openFileFromNotification: true,
-    );
-  }
+  await FlutterDownloader.enqueue(
+    url: url,
+    fileName: "Cashback $custName $genTimer.pdf",
+    requiresStorageNotLow: true,
+    savedDir: locatedFile,
+    showNotification: true,
+    openFileFromNotification: true,
+  );
+}
+
+donwloadPdfCashbackSp(
+  String idCashback,
+  String custName,
+  String locatedFile,
+) async {
+  var dt = DateTime.now();
+  var genTimer = dt.second;
+  var url = '$PDFURL/cashback_pdf_sp/$idCashback';
+
+  await FlutterDownloader.enqueue(
+    url: url,
+    fileName: "Cashback $custName $genTimer.pdf",
+    requiresStorageNotLow: true,
+    savedDir: locatedFile,
+    showNotification: true,
+    openFileFromNotification: true,
+  );
+}

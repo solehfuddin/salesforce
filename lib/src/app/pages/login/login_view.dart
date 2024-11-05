@@ -8,9 +8,6 @@ import 'package:sample/src/app/utils/config.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:sample/src/app/pages/admin/admin_view.dart';
-// import 'package:sample/src/app/pages/home/home_view.dart';
-// import 'package:sample/src/app/pages/staff/staff_view.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/widgets/dialoglogin.dart';
 import 'package:sample/src/domain/entities/app_config.dart';
@@ -130,7 +127,7 @@ class _LoginState extends State<Login> {
           Get.offAllNamed('/admin');
         } else if (role == 'SALES') {
           Get.offAllNamed('/home');
-        } else if (role == 'STAFF') {
+        } else if (role == 'STAFF' || role == "USER") {
           Get.offAllNamed('/staff');
         } else {
           if (dialogContext.mounted) {
@@ -351,7 +348,7 @@ class _LoginState extends State<Login> {
                           vertical: 15.r,
                         ),
                         child: Text(
-                          'versi 1.3.8',
+                          'versi 1.4.7',
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
@@ -515,7 +512,7 @@ class _LoginState extends State<Login> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.r),
                       child: Text(
-                        'versi 1.3.8',
+                        'versi 1.4.7',
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,

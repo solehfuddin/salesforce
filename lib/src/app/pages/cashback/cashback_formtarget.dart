@@ -544,7 +544,7 @@ class _CashbackFormTargetState extends State<CashbackFormTarget> {
     return StatefulBuilder(builder: (context, setState) {
       return AlertDialog(
         title: Text(
-          'Pilih Produk Lensa',
+          'Pilih Produk',
           textAlign: TextAlign.center,
         ),
         actions: [

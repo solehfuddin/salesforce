@@ -33,6 +33,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 
+import '../../../domain/entities/app_config.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -44,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
   MyLocation _myLocation = MyLocation();
   late SharedPreferences preferences;
   List<Notifikasi> listNotifLocal = List.empty(growable: true);
+  List<AppConfig> listAppconfig = List.empty(growable: true);
+  
   String? id = '';
   String? role = '';
   String? name = '';
@@ -52,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? userUpper = '';
   String? ttdSales = '';
   String? changePass = '';
+  String? isTrainer = 'NO';
   bool? isProminentAccess = false;
   bool isPermissionCamera = false;
   bool isLocationService = false;
@@ -59,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _hidePerform = false;
   bool _isBadge = false;
+  int dailyInt = 0;
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<SalesPerform> listPerform = List.empty(growable: true);
   List<PieReport> _samplePie = List.empty(growable: true);
@@ -81,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       divisi = preferences.getString("divisi");
       ttdSales = preferences.getString("ttduser") ?? '';
       isProminentAccess = preferences.getBool("check_prominent") ?? false;
+      isTrainer = preferences.getString("isTrainer");
 
       print("Dashboard : $role");
       print("TTD Sales : $ttdSales");
@@ -103,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
     FirebaseMessaging.instance.unsubscribeFromTopic("alladmin");
     FirebaseMessaging.instance.unsubscribeFromTopic("allar");
     getRole();
+    getConfig();
 
     checkPermission();
 
@@ -128,6 +136,44 @@ class _HomeScreenState extends State<HomeScreen> {
         checkService();
       }
     });
+  }
+
+   getConfig() async {
+    // const timeout = 30;
+    var url = '$API_URL/config/';
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      //await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout))
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print("appconfig : $rest");
+
+          listAppconfig =
+              rest.map<AppConfig>((json) => AppConfig.fromJson(json)).toList();
+
+          if (listAppconfig.length > 1)
+          {
+            dailyInt = int.parse(listAppconfig[1].status ?? "0");
+            print("dailyInt : $dailyInt");
+          }
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
   }
 
   void checkService() async {
@@ -244,11 +290,9 @@ class _HomeScreenState extends State<HomeScreen> {
               Permission.notification,
             ].request();
           } else {
-            await [
-              Permission.camera,
-              Permission.microphone,
-              Permission.mediaLibrary
-            ].request().then((value) => openAppSettings());
+            await [Permission.camera, Permission.microphone, Permission.photos]
+                .request()
+                .then((value) => openAppSettings());
           }
         }
         // checkService();
@@ -294,16 +338,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshData() async {
-    setState(() {
-      getMonitoringSales(int.parse(id!));
-      getPerformSales(stDate, edDate);
+    // setState(() {
+    getMonitoringSales(int.parse(id!));
+    getPerformSales(stDate, edDate);
 
-      checkPassword(int.parse(id!));
-      if (ttdSales == '') {
-        handleSigned(context);
-      }
-      getLocalNotif();
-    });
+    checkPassword(int.parse(id!));
+    if (ttdSales == '') {
+      handleSigned(context);
+    }
+    getLocalNotif();
+    // });
   }
 
   Future<bool> _onBackPressed() async {
@@ -544,111 +588,136 @@ class _HomeScreenState extends State<HomeScreen> {
                   isBadge: _isBadge,
                 ),
                 body: RefreshIndicator(
-                    child: CustomScrollView(
-                      physics: ClampingScrollPhysics(),
-                      slivers: [
-                        areaHeader(
-                          screenHeight,
-                          userUpper,
-                          context,
-                          isHorizontal: true,
-                        ),
-                        areaPoint(
-                          screenHeight * 1.8,
-                          context,
-                          isHorizontal: true,
-                        ),
-                        areaMenu(
-                          screenHeight,
-                          context,
-                          id,
-                          role,
-                          divisi,
-                          isConnected: true,
-                          isHorizontal: true,
-                        ),
-                        _hidePerform
-                            ? SliverPadding(
-                                padding: EdgeInsets.only(
-                                  left: 35.r,
-                                  right: 35.r,
-                                  top: 0.r,
-                                ),
-                              )
-                            : SliverPadding(
-                                padding: EdgeInsets.only(
-                                  left: 18.r,
-                                  right: 18.r,
-                                  top: 5.r,
-                                  bottom: 15.r,
-                                ),
-                                sliver: SliverToBoxAdapter(
-                                  child: StatefulBuilder(
-                                    builder: (BuildContext context,
-                                        StateSetter state) {
-                                      return Text(
-                                        'Penjualan',
-                                        style: TextStyle(
-                                          fontSize: 21.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      );
-                                    },
-                                  ),
+                  child: CustomScrollView(
+                    physics: ClampingScrollPhysics(),
+                    slivers: [
+                      areaHeader(
+                        screenHeight,
+                        userUpper,
+                        context,
+                        isHorizontal: true,
+                      ),
+                      areaPoint(
+                        screenHeight * 1.8,
+                        context,
+                        isHorizontal: true,
+                      ),
+                      areaMenu(
+                        screenHeight,
+                        context,
+                        id,
+                        role,
+                        divisi,
+                        isConnected: true,
+                        isHorizontal: true,
+                        dailyInt: dailyInt,
+                      ),
+                      _hidePerform
+                          ? SliverPadding(
+                              padding: EdgeInsets.only(
+                                left: 35.r,
+                                right: 35.r,
+                                top: 0.r,
+                              ),
+                            )
+                          : SliverPadding(
+                              padding: EdgeInsets.only(
+                                left: 18.r,
+                                right: 18.r,
+                                top: 5.r,
+                                bottom: 15.r,
+                              ),
+                              sliver: SliverToBoxAdapter(
+                                child: StatefulBuilder(
+                                  builder: (BuildContext context,
+                                      StateSetter state) {
+                                    return Text(
+                                      'Penjualan',
+                                      style: TextStyle(
+                                        fontSize: 21.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                        _hidePerform
-                            ? SliverPadding(
-                                padding: EdgeInsets.only(
-                                  left: 18.r,
-                                  right: 18.r,
-                                  top: 0.r,
-                                ),
-                              )
-                            : areaInfoDonutUser(
-                                sales: listPerform,
-                                totalSales: _totalSales,
-                                context: context,
-                                stDate: stDate,
-                                edDate: edDate,
-                                isHorizontal: true,
+                            ),
+                      _hidePerform
+                          ? SliverPadding(
+                              padding: EdgeInsets.only(
+                                left: 18.r,
+                                right: 18.r,
+                                top: 0.r,
                               ),
-                        areaHeaderMonitoring(isHorizontal: true),
-                        _isLoading
-                            ? areaLoading(
-                                isHorizontal: true,
-                              )
-                            : listMonitoring.length > 0
-                                ? areaMonitoring(
-                                    listMonitoring,
-                                    context,
-                                    ttdSales!,
-                                    username!,
-                                    divisi!,
-                                    isHorizontal: true,
-                                  )
-                                : areaMonitoringNotFound(
-                                    context,
-                                    isHorizontal: true,
-                                  ),
-                        areaButtonMonitoring(
-                          context,
-                          listMonitoring.length > 0 ? true : false,
-                          isHorizontal: true,
-                        ),
-                        areaFeature(
-                          screenHeight,
-                          context,
-                          isHorizontal: true,
-                        ),
-                        areaBanner(
-                          screenHeight,
-                          context,
-                          isHorizontal: true,
-                        ),
-                      ],
+                            )
+                          : areaInfoDonutUser(
+                              sales: listPerform,
+                              totalSales: _totalSales,
+                              context: context,
+                              stDate: stDate,
+                              edDate: edDate,
+                              isHorizontal: true,
+                            ),
+                      areaHeaderMonitoring(isHorizontal: true),
+                      _isLoading
+                          ? areaLoading(
+                              isHorizontal: true,
+                            )
+                          : listMonitoring.length > 0
+                              ? areaMonitoring(
+                                  listMonitoring,
+                                  context,
+                                  ttdSales!,
+                                  username!,
+                                  divisi!,
+                                  isHorizontal: true,
+                                )
+                              : areaMonitoringNotFound(
+                                  context,
+                                  isHorizontal: true,
+                                ),
+                      areaButtonMonitoring(
+                        context,
+                        listMonitoring.length > 0 ? true : false,
+                        isHorizontal: true,
+                      ),
+                      areaFeature(
+                        screenHeight,
+                        context,
+                        isHorizontal: true,
+                      ),
+                      areaBanner(
+                        screenHeight,
+                        context,
+                        isHorizontal: true,
+                      ),
+                    ],
+                  ),
+                  onRefresh: _refreshData,
+                ),
+                floatingActionButton: Visibility(
+                  visible: isTrainer == "YES" ? true : false,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 12.h, right: 3.h),
+                    child: FloatingActionButton(
+                      backgroundColor: Colors.white,
+                      child: Image.asset(
+                        'assets/images/training.png',
+                        width: 34.w,
+                        height: 34.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      mini: false,
+                      onPressed: () {
+                        Get.toNamed("/trainerScreen");
+                      },
                     ),
-                    onRefresh: _refreshData),
+                  ),
+                ),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.endDocked,
               );
             }
 
@@ -680,6 +749,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       divisi,
                       isConnected: true,
                       isHorizontal: false,
+                      dailyInt: dailyInt,
                     ),
                     _hidePerform
                         ? SliverPadding(
@@ -766,6 +836,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 onRefresh: _refreshData,
               ),
+              floatingActionButton: Visibility(
+                  visible: isTrainer == "YES" ? true : false,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 12.h, right: 3.h),
+                    child: FloatingActionButton(
+                      backgroundColor: Colors.white,
+                      child: Image.asset(
+                        'assets/images/training.png',
+                        width: 34.w,
+                        height: 34.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      mini: false,
+                      onPressed: () {
+                        Get.toNamed("/trainerScreen");
+                      },
+                    ),
+                  ),
+                ),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.endDocked,
             );
           },
         ),

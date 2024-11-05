@@ -45,7 +45,11 @@ class PosMaterialHeader {
       createdBy,
       smName,
       admName,
-      gmName;
+      gmName,
+      isFinish,
+      finishDate,
+      fileTtb,
+      uploadTtbDate;
 
   PosMaterialHeader.fromJson(Map json)
       : id = json['id_pos_material'] ?? '',
@@ -94,7 +98,11 @@ class PosMaterialHeader {
       updateDate = json['update_date'] ?? '-',
       smName = json['sm_name'] ?? '',
       admName = json['adm_name'] ?? '',
-      gmName = json['gm_name'] ?? '';
+      gmName = json['gm_name'] ?? '',
+      isFinish = json['is_finish'] ?? "0",
+      finishDate = json['finish_date'] ?? "",
+      fileTtb = json['file_ttb'] ?? "",
+      uploadTtbDate = json['date_upload_ttb'] ?? "";
 
   Map toJson() {
     return {
@@ -145,6 +153,10 @@ class PosMaterialHeader {
       'sm_name' : smName,
       'adm_name' : admName,
       'gm_name' : gmName,
+      'is_finish' : isFinish,
+      'finish_date' : finishDate,
+      'file_ttb' : fileTtb,
+      'date_upload_ttb' : uploadTtbDate,
     };
   }
 }

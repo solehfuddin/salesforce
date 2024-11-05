@@ -7,6 +7,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:sample/src/app/controllers/contractpromo_controller.dart';
 import 'package:sample/src/app/controllers/marketingexpense_controller.dart';
 import 'package:sample/src/app/controllers/my_controller.dart';
+import 'package:sample/src/app/controllers/posmaterial_controller.dart';
+import 'package:sample/src/app/controllers/training_controller.dart';
 import 'package:sample/src/app/navigator/routing.dart';
 import 'package:sample/src/app/navigator/splash.dart';
 
@@ -15,6 +17,9 @@ void main() async {
   Get.put(MyController());
   Get.put(MarketingExpenseController());
   Get.put(ContractPromoController());
+  Get.put(TrainingController());
+  Get.put(PosmaterialController());
+
   await Firebase.initializeApp();
   await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
 

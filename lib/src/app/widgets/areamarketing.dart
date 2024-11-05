@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_approval.dart';
-// import 'package:sample/src/app/pages/cashback/cashback_approval.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_approval.dart';
+import 'package:sample/src/app/pages/training/training_approval.dart';
 import 'package:sample/src/app/utils/settings_posmaterial.dart';
 import 'package:sample/src/app/widgets/cardmarketing.dart';
 
@@ -11,9 +11,11 @@ SliverPadding areaMarketing(
   BuildContext context,
   int totalPosMaterial,
   int totalMarketingExpense,
+  int totalTraining,
   bool isVisible,
   String divisi,
 ) {
+  print("Total Me Card : $totalMarketingExpense");
   return SliverPadding(
     padding: EdgeInsets.symmetric(
       horizontal: isHorizontal ? 18.r : 18.r,
@@ -52,39 +54,52 @@ SliverPadding areaMarketing(
                     cardSubtitle: '3% dari penjualan',
                     navigateTo: PosMaterialApproval(),
                   ),
-                  // Visibility(
-                  //   visible: divisi == "GM" || divisi == "SALES",
-                  //   child: Row(
-                  //     children: [
-                  //       SizedBox(
-                  //         width: 12.w,
-                  //       ),
-                  //       CardMarketing(
-                  //         totalCashback: totalCashback,
-                  //         isHorizontal: isHorizontal,
-                  //         cardIcon: 'assets/images/cashback.png',
-                  //         cardTitle:
-                  //             setMarketingFeature(MarketingFeature.CASHBACK),
-                  //         cardSubtitle: '10% dari penjualan',
-                  //         navigateTo: CashbackApproval(),
-                  //       ),
-                  //     ],
-                  //   ),
-                  //   replacement: SizedBox(
-                  //     height: 10.h,
-                  //   ),
-                  // ),
                   SizedBox(
                     width: 12.w,
                   ),
-                  CardMarketing(
-                    totalExpense: totalMarketingExpense,
-                    isHorizontal: isHorizontal,
-                    cardIcon: 'assets/images/marketing_expense.png',
-                    cardTitle:
-                        setMarketingFeature(MarketingFeature.MARKETING_EXPENSE),
-                    cardSubtitle: '5% dari penjualan',
-                    navigateTo: Marketingexpense_Approval(),
+                  Visibility(
+                    visible: divisi == "GM" || divisi == "SALES",
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 12.w,
+                        ),
+                        CardMarketing(
+                          totalExpense: totalMarketingExpense,
+                          isHorizontal: isHorizontal,
+                          cardIcon: 'assets/images/marketing_expense.png',
+                          cardTitle: setMarketingFeature(
+                              MarketingFeature.MARKETING_EXPENSE),
+                          cardSubtitle: '5% dari penjualan',
+                          navigateTo: Marketingexpense_Approval(),
+                        ),
+                      ],
+                    ),
+                    replacement: SizedBox(
+                      height: 10.h,
+                    ),
+                  ),
+                  Visibility(
+                    visible: divisi == "MARKETING" || divisi == "SALES",
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 12.w,
+                        ),
+                        CardMarketing(
+                          totalTraining: totalTraining,
+                          isHorizontal: isHorizontal,
+                          cardIcon: 'assets/images/training.png',
+                          cardTitle:
+                              setMarketingFeature(MarketingFeature.TRAINING),
+                          cardSubtitle: 'Pengajuan training',
+                          navigateTo: TrainingAprroval(),
+                        ),
+                      ],
+                    ),
+                    replacement: SizedBox(
+                      height: 10.h,
+                    ),
                   ),
                 ],
               ),

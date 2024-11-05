@@ -17,6 +17,8 @@ class CustomPageSearch extends StatefulWidget {
   bool isHorizontal = false;
   bool showControl = true;
   Color setColor = MyColors.darkColor;
+  String? hintText = 'Cari berdasarkan nama optik';
+
   CustomPageSearch({
     Key? key,
     required this.isHorizontal,
@@ -24,6 +26,7 @@ class CustomPageSearch extends StatefulWidget {
     this.totalItem,
     this.totalPage,
     this.limit,
+    this.hintText,
     required this.page,
     required this.setColor,
     required this.txtSearch,
@@ -129,7 +132,7 @@ class _CustomPageSearchState extends State<CustomPageSearch> {
               autocorrect: true,
               controller: widget.txtSearch,
               decoration: InputDecoration(
-                hintText: 'Cari berdasarkan nama optik',
+                hintText: widget.hintText,
                 prefixIcon: Icon(Icons.search),
                 hintStyle: TextStyle(
                   color: Colors.grey,
@@ -216,8 +219,10 @@ class _CustomPageSearchState extends State<CustomPageSearch> {
               ],
             ),
           ),
-          replacement: SizedBox(
-            height: 5.h,
+          replacement: Padding(
+            padding: EdgeInsets.only(
+              right: 8.r,
+            ),
           ),
         ),
       ],

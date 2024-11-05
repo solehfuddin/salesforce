@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:sample/src/app/pages/cashback/cashback_formattachment.dart';
 import 'package:sample/src/app/pages/cashback/cashback_formcontract.dart';
 import 'package:sample/src/app/pages/cashback/cashback_formcustomer.dart';
@@ -20,6 +21,8 @@ import 'package:sample/src/domain/entities/product.dart';
 import 'package:sample/src/domain/service/service_cashback.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../controllers/marketingexpense_controller.dart';
 
 // ignore: must_be_immutable
 class CashbackForm extends StatefulWidget {
@@ -40,6 +43,8 @@ class CashbackForm extends StatefulWidget {
       constructIdCashbackRekening,
       constructStartDate,
       constructEndDate,
+      constructNomorSp,
+      constructPayDate,
       constructWithdrawProcess,
       constructWithdrawDuration,
       constructPaymentDuration,
@@ -48,8 +53,8 @@ class CashbackForm extends StatefulWidget {
       constructAttachmentSign,
       constructAttachmentOther;
 
-  int constructTargetValue, constructCashbackValue;
-  double constructCashbackPercent;
+  int constructTargetValue, constructCashbackValue, constructValues;
+  double constructCashbackPercent, constructPercent;
   bool isUpdateForm = false;
 
   CashbackForm(
@@ -71,6 +76,10 @@ class CashbackForm extends StatefulWidget {
       this.constructIdCashbackRekening = '',
       this.constructStartDate = '',
       this.constructEndDate = '',
+      this.constructNomorSp = '',
+      this.constructPercent = 0,
+      this.constructValues = 0,
+      this.constructPayDate = '',
       this.constructWithdrawProcess = '',
       this.constructWithdrawDuration = '',
       this.constructPaymentDuration = '',
@@ -88,6 +97,7 @@ class CashbackForm extends StatefulWidget {
 }
 
 class _CashbackFormState extends State<CashbackForm> {
+  MarketingExpenseController meController = Get.find<MarketingExpenseController>();
   ServicePosMaterial service = new ServicePosMaterial();
   ServiceCashback serviceCashback = new ServiceCashback();
   CashbackRekening cashbackRekening = new CashbackRekening();
@@ -106,6 +116,10 @@ class _CashbackFormState extends State<CashbackForm> {
   TextEditingController controllerTargetValue = new TextEditingController();
   TextEditingController txtAttachmentSign = new TextEditingController();
   TextEditingController txtAttachmentOther = new TextEditingController();
+  TextEditingController controllerNomorSp = TextEditingController();
+  TextEditingController controllerPercent = TextEditingController();
+  TextEditingController controllerValues = TextEditingController();
+  TextEditingController controllerPayDate = TextEditingController();
 
   List<Proddiv> selectedTargetProdDiv = List.empty(growable: true);
   List<Proddiv> selectedItemProdDiv = List.empty(growable: true);
@@ -124,7 +138,7 @@ class _CashbackFormState extends State<CashbackForm> {
   bool _isWalletAvail = false;
   bool _isCashbackValue = true;
   bool _isActiveRekening = false;
-  bool _enableRekening = false;
+  // bool _enableRekening = false;
   bool _validateOpticName = false;
   bool _validateOpticAddress = false;
   bool _validateOwnerName = false;
@@ -161,6 +175,10 @@ class _CashbackFormState extends State<CashbackForm> {
     controllerEndDate.text = widget.constructEndDate != ''
         ? convertDateWithMonth(widget.constructEndDate)
         : '';
+    controllerNomorSp.text = widget.constructNomorSp;
+    controllerPercent.text = widget.constructPercent.toString();
+    controllerValues.text = widget.constructValues.toString();
+    controllerPayDate.text = widget.constructPayDate != '' ? convertDateWithMonth(widget.constructPayDate) : '';
 
     if (widget.constructIdCashbackRekening.isNotEmpty) {
       _isActiveRekening = true;
@@ -209,8 +227,11 @@ class _CashbackFormState extends State<CashbackForm> {
           case 'BY PRODUCT':
             _cashbackType = CashbackType.BY_PRODUCT;
             break;
-          default:
+          case 'COMBINE' :
             _cashbackType = CashbackType.COMBINE;
+            break;
+          default :
+            _cashbackType = CashbackType.BY_SP;
         }
       });
     }
@@ -341,7 +362,7 @@ class _CashbackFormState extends State<CashbackForm> {
           _isCashbackValue = returVal;
           break;
         case 'setEnableRekening':
-          _enableRekening = returVal;
+          // _enableRekening = returVal;
           break;
         case 'setActiveRekening':
           _isActiveRekening = returVal;
@@ -388,7 +409,7 @@ class _CashbackFormState extends State<CashbackForm> {
           _cashbackType = returVal;
           break;
         case 'Lampiran Sign':
-          print(returVal);
+          print('Ttd owner $returVal');
           base64Sign = returVal;
           break;
         case 'Lampiran Tambahan':
@@ -585,8 +606,12 @@ class _CashbackFormState extends State<CashbackForm> {
           Nama tertera : ${cashbackRekening.getNamaRekening}
           Bill number : ${cashbackRekening.getBillNumber}
           Ship number : ${cashbackRekening.getShipNumber}
-          Periode start : ${controllerStartDate.text}
-          Periode end : ${controllerEndDate.text}
+          Periode start : ${meController.isSpSatuan.value ? meController.startDate : controllerStartDate.text}
+          Periode end : ${meController.isSpSatuan.value ? meController.endDate : controllerEndDate.text}
+          Nomor Sp : ${controllerNomorSp.text}
+          Cashback percent : ${controllerPercent.text}
+          Cashback value : ${controllerValues.text}
+          Max bayar : ${controllerPayDate.text}
           """);
 
     print("""
@@ -595,6 +620,8 @@ class _CashbackFormState extends State<CashbackForm> {
           Durasi pencarian : ${controllerWithdrawDuration.text} Hari
           Is cashback by value : $_isCashbackValue
           Cashback Type : $_cashbackType
+          Is Sp Satuan : ${meController.nomorSp.isNotEmpty ? true : meController.startDate.isNotEmpty && meController.endDate.isNotEmpty ? false : ''}
+          Is Sp Percent : ${controllerPercent.text.isNotEmpty ? true : controllerValues.text.isNotEmpty ? false : ''}
           Target pembelian : ${controllerTargetValue.text}
           Target duration : ${getMonthBetweenTwoDates(dateStart, dateEnd)} Bulan
           Target cashback : ${controllerCashbackValue.text.isNotEmpty ? controllerCashbackValue.text : controllerCashbackPercent.text}
@@ -603,7 +630,7 @@ class _CashbackFormState extends State<CashbackForm> {
 
     // stop();
 
-    CashbackHeader cashbackHeader = new CashbackHeader();
+    /*CashbackHeader cashbackHeader = new CashbackHeader();
     cashbackHeader.setSalesName = username ?? '';
     cashbackHeader.setShipNumber = cashbackRekening.getShipNumber;
     cashbackHeader.setOpticName = controllerOpticName.text;
@@ -718,7 +745,7 @@ class _CashbackFormState extends State<CashbackForm> {
           Navigator.of(context).pop();
         }
       },
-    );
+    );*/
   }
 
   void updateToDb({bool isHorizontal = false, required String idCashback}) {
@@ -752,28 +779,34 @@ class _CashbackFormState extends State<CashbackForm> {
           Owner npwp : ${controllerOwnerNpwp.text}
           Is wallet : $_isWalletAvail
           Has active wallet : $_isActiveRekening
-          Bank id : ${cashbackRekening.getIdBank}
-          Bank name : ${cashbackRekening.getBankName}
-          Id rekening : ${cashbackRekening.getIdRekening}
-          Nomor rekening : ${cashbackRekening.getNomorRekening}
-          Nama tertera : ${cashbackRekening.getNamaRekening}
+          Bank id : ${meController.selectedPayment.value == "TRANSFER BANK" ? cashbackRekening.getIdBank : ''}
+          Bank name : ${meController.selectedPayment.value == "TRANSFER BANK" ? cashbackRekening.getBankName : ''}
+          Id rekening : ${meController.selectedPayment.value == "TRANSFER BANK" ? cashbackRekening.getIdRekening : ''}
+          Nomor rekening : ${meController.selectedPayment.value == "TRANSFER BANK" ? cashbackRekening.getNomorRekening : ''}
+          Nama tertera : ${meController.selectedPayment.value == "TRANSFER BANK" ? cashbackRekening.getNamaRekening : ''}
           Bill number : ${cashbackRekening.getBillNumber}
           Ship number : ${cashbackRekening.getShipNumber}
-          Periode start : ${controllerStartDate.text}
-          Periode end : ${controllerEndDate.text}
+          Periode start : ${meController.isSpSatuan.value ? meController.startDate : controllerStartDate.text}
+          Periode end : ${meController.isSpSatuan.value ? meController.endDate : controllerEndDate.text}
+          Nomor sp : ${controllerNomorSp.text}
           """);
 
     print("""
           Id cashback : $idCashback
-          Termin pembayaran : $_selectedPaymentTermint
-          Pencarian diproses : $_selectedWithdrawProcess
-          Durasi pencarian : ${controllerWithdrawDuration.text} Hari
+          Termin pembayaran : ${_cashbackType == CashbackType.BY_SP ? '' : _selectedPaymentTermint}
+          Pencarian diproses : ${_cashbackType == CashbackType.BY_SP ? '' : _selectedWithdrawProcess}
+          Durasi pencarian : ${_cashbackType == CashbackType.BY_SP ? '' : controllerWithdrawDuration.text} Hari
+          Mekanisme Cashback : ${meController.selectedPayment}
+          Max Pembayaran : ${meController.payDate}
           Is cashback by value : $_isCashbackValue
+          Is Sp Satuan : ${meController.nomorSp.isNotEmpty ? true : meController.startDate.isNotEmpty && meController.endDate.isNotEmpty ? false : ''}
+          Is Sp Percent : ${controllerPercent.text.isNotEmpty ? true : controllerValues.text.isNotEmpty ? false : ''}
           Cashback Type : $_cashbackType
-          Target pembelian : ${controllerTargetValue.text}
+          Target pembelian : ${_cashbackType == CashbackType.BY_SP ? '' : controllerTargetValue.text}
           Target duration : ${getMonthBetweenTwoDates(dateStart, dateEnd)} Bulan
-          Target cashback : ${controllerCashbackValue.text.isNotEmpty ? controllerCashbackValue.text : controllerCashbackPercent.text}
-          Target produk : ${_targetProduct.toString()}
+          Cashback percent : ${_cashbackType == CashbackType.BY_SP ? controllerPercent.text : controllerCashbackPercent.text}
+          Cashback value : ${_cashbackType == CashbackType.BY_SP ? controllerValues.text : controllerCashbackValue.text}
+          Target produk : ${_cashbackType == CashbackType.BY_SP ? '' : _targetProduct.toString()}
           """);
 
     print("""
@@ -788,28 +821,30 @@ class _CashbackFormState extends State<CashbackForm> {
     cashbackHeader.setOpticName = controllerOpticName.text;
     cashbackHeader.setOpticAddress = controllerOptikAddress.text;
     cashbackHeader.setOpticType = _opticType;
-    cashbackHeader.setStartPeriode = controllerStartDate.text;
-    cashbackHeader.setEndPeriode = controllerEndDate.text;
+    cashbackHeader.setStartPeriode = meController.isSpSatuan.value ? meController.startDate.value : controllerStartDate.text;
+    cashbackHeader.setEndPeriode = meController.isSpSatuan.value ? meController.endDate.value : controllerEndDate.text;
     cashbackHeader.setDataNama = controllerOwnerName.text;
     cashbackHeader.setDataNik = controllerOwnerKtp.text;
     cashbackHeader.setDataNpwp = controllerOwnerNpwp.text;
-    cashbackHeader.setWithdrawDuration = controllerWithdrawDuration.text;
-    cashbackHeader.setWithdrawProcess = _selectedWithdrawProcess;
-    cashbackHeader.setIdCashbackRekening = cashbackRekening.getIdRekening;
+    cashbackHeader.isSpSatuan = meController.nomorSp.isNotEmpty ? "YES" : meController.startDate.isNotEmpty && meController.endDate.isNotEmpty ? "NO" : '';
+    cashbackHeader.spNumber = controllerNomorSp.text;
+    cashbackHeader.isSpPercent =controllerPercent.text.isNotEmpty ? "YES" : controllerValues.text.isNotEmpty ? "NO" : '';
+    cashbackHeader.setWithdrawDuration = _cashbackType == CashbackType.BY_SP ? '' : controllerWithdrawDuration.text;
+    cashbackHeader.setWithdrawProcess = _cashbackType == CashbackType.BY_SP ? '' : _selectedWithdrawProcess;
+    cashbackHeader.setIdCashbackRekening = meController.selectedPayment.value == "TRANSFER BANK" ? cashbackRekening.getIdRekening : '';
     cashbackHeader.setCashbackType = getCashbackType(_cashbackType);
-    cashbackHeader.setTargetValue =
+    cashbackHeader.setTargetValue = _cashbackType == CashbackType.BY_SP ? '' :
         controllerTargetValue.text.replaceAll('.', '');
     cashbackHeader.setTargetDuration =
         getMonthBetweenTwoDates(dateStart, dateEnd).toString();
-    cashbackHeader.setTargetProduct = _targetProduct.toString();
-    cashbackHeader.setCashbackValue = controllerCashbackValue.text.isNotEmpty
-        ? controllerCashbackValue.text.replaceAll('.', '')
-        : '';
-    cashbackHeader.setCashbackPercentage =
-        controllerCashbackPercent.text.isNotEmpty
-            ? controllerCashbackPercent.text
-            : '';
-    cashbackHeader.setPaymentDuration = _selectedPaymentTermint;
+    cashbackHeader.setTargetProduct = _cashbackType == CashbackType.BY_SP ? '' : _targetProduct.toString();
+    cashbackHeader.setCashbackValue = _cashbackType == CashbackType.BY_SP ? controllerValues.text.replaceAll('.', '') :
+        controllerCashbackValue.text.replaceAll('.', '');
+    cashbackHeader.setCashbackPercentage = _cashbackType == CashbackType.BY_SP ? controllerPercent.text
+            : controllerCashbackPercent.text;
+    cashbackHeader.setPaymentDuration = _cashbackType == CashbackType.BY_SP ? '' : _selectedPaymentTermint;
+    cashbackHeader.paymentMechanism = meController.selectedPayment.value;
+    cashbackHeader.paymentDate = meController.payDate.value;
     cashbackHeader.setCreatedBy = id ?? '0';
     cashbackHeader.setAttachmentSign = base64Sign;
     cashbackHeader.setAttachmentOther = base64Other;
@@ -838,7 +873,6 @@ class _CashbackFormState extends State<CashbackForm> {
               prodDiv: item.proddiv,
               prodCat: '',
               prodCatDescription: item.alias,
-              // cashback:  item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon.replaceAll('.', ''),
               cashback: item.diskon.contains(',')
                   ? item.diskon.replaceAll(',', '.')
                   : item.diskon,
@@ -857,7 +891,6 @@ class _CashbackFormState extends State<CashbackForm> {
               prodDiv: item.proddiv,
               prodCat: item.prodcat,
               prodCatDescription: item.proddesc,
-              // cashback:  item.diskon.contains(',') ? item.diskon.replaceAll(',', '.') : item.diskon.replaceAll('.', ''),
               cashback: item.diskon.contains(',')
                   ? item.diskon.replaceAll(',', '.')
                   : item.diskon,
@@ -959,24 +992,29 @@ class _CashbackFormState extends State<CashbackForm> {
             ),
             CashbackFormRekening(
               isHorizontal: isHorizontal,
-              cashbackRekening: cashbackRekening,
+              // cashbackRekening: cashbackRekening,
               isWalletAvail: _isWalletAvail,
-              isActiveRekening: _isActiveRekening,
-              enableRekening: _enableRekening,
+              // isActiveRekening: _isActiveRekening,
+              // enableRekening: _enableRekening,
               validateKtp: _validateKtp,
               validateName: _validateOwnerName,
               controllerNama: controllerOwnerName,
               controllerKtp: controllerOwnerKtp,
               controllerNpwp: controllerOwnerNpwp,
-              billNumber: _billNumber,
-              shipNumber: _shipNumber,
+              // billNumber: _billNumber,
+              // shipNumber: _shipNumber,
               updateParent: updateSelected,
             ),
             CashbackFormContract(
               cashbackType: _cashbackType,
               updateParent: updateSelected,
+              cashbackRekening: cashbackRekening,
               isHorizontal: isHorizontal,
+              isWalletAvail: _isWalletAvail,
+              isActiveRekening: _isActiveRekening,
               isCashbackValue: _isCashbackValue,
+              billNumber: _billNumber,
+              shipNumber: _shipNumber,
               validateStartDate: _validateStartDate,
               validateEndDate: _validateEndDate,
               validateWithdrawDuration: _validateWithdrawDuration,
@@ -985,11 +1023,15 @@ class _CashbackFormState extends State<CashbackForm> {
               controllerStartDate: controllerStartDate,
               controllerEndDate: controllerEndDate,
               controllerWithdrawDuration: controllerWithdrawDuration,
+              controllerNomorSp: controllerNomorSp,
+              controllerPercent: controllerPercent,
+              controllerValues: controllerValues,
+              controllerPayDate: controllerPayDate,
             ),
             Visibility(
               maintainAnimation: true,
               maintainState: true,
-              visible: _cashbackType != CashbackType.BY_PRODUCT ? true : false,
+              visible: _cashbackType != CashbackType.BY_PRODUCT && _cashbackType != CashbackType.BY_SP ? true : false,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 2000),
                 curve: Curves.fastOutSlowIn,
@@ -1015,7 +1057,7 @@ class _CashbackFormState extends State<CashbackForm> {
             Visibility(
               maintainAnimation: true,
               maintainState: true,
-              visible: _cashbackType != CashbackType.BY_TARGET ? true : false,
+              visible: _cashbackType != CashbackType.BY_TARGET && _cashbackType != CashbackType.BY_SP ? true : false,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 2000),
                 curve: Curves.fastOutSlowIn,

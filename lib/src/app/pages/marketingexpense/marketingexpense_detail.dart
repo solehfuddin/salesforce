@@ -54,6 +54,7 @@ class _Marketingexpense_DetailState extends State<Marketingexpense_Detail> {
     )
         .then(
       (value) {
+        meController.listMELine.clear();
         meController.listMELine.addAll(value);
         meController.isLoading.value = false;
       },
@@ -369,407 +370,407 @@ class _Marketingexpense_DetailState extends State<Marketingexpense_Detail> {
                         ],
                       ),
                     ),
+                    // SizedBox(
+                    //   height: 15.h,
+                    // ),
+                    // Text(
+                    //   'Data pemilik',
+                    //   style: TextStyle(
+                    //     fontSize: isHorizontal ? 18.sp : 16.sp,
+                    //     fontFamily: 'Segoe Ui',
+                    //     fontWeight: FontWeight.w600,
+                    //     color: Colors.green[600],
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: isHorizontal ? 15.h : 10.h,
+                    // ),
+                    // IntrinsicHeight(
+                    //   child: Row(
+                    //     children: [
+                    //       SizedBox(
+                    //         width: 5.w,
+                    //       ),
+                    //       VerticalDivider(
+                    //         color: Colors.green[600],
+                    //         thickness: isHorizontal ? 5 : 3.5,
+                    //       ),
+                    //       SizedBox(
+                    //         width: 10.w,
+                    //       ),
+                    //       Expanded(
+                    //         child: Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             SizedBox(
+                    //               height: 5.h,
+                    //             ),
+                    //             Text(
+                    //               'Nama pemilik : ',
+                    //               style: TextStyle(
+                    //                 fontFamily: 'Montserrat',
+                    //                 fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                 color: Colors.grey.shade400,
+                    //                 fontWeight: FontWeight.w600,
+                    //               ),
+                    //             ),
+                    //             SizedBox(
+                    //               height: 2.h,
+                    //             ),
+                    //             Text(
+                    //               widget.item.dataName!,
+                    //               style: TextStyle(
+                    //                 fontFamily: 'Segoe ui',
+                    //                 fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                 fontWeight: FontWeight.w600,
+                    //                 color: Colors.black87,
+                    //               ),
+                    //             ),
+                    //             SizedBox(
+                    //               height: 8.h,
+                    //             ),
+                    //             Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceBetween,
+                    //               children: [
+                    //                 Text(
+                    //                   'NIK / Sesuai KTP : ',
+                    //                   style: TextStyle(
+                    //                     fontFamily: 'Montserrat',
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     color: Colors.grey.shade400,
+                    //                     fontWeight: FontWeight.w600,
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   'Nomor NPWP : ',
+                    //                   style: TextStyle(
+                    //                     fontFamily: 'Montserrat',
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     color: Colors.grey.shade400,
+                    //                     fontWeight: FontWeight.w600,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //             SizedBox(
+                    //               height: 2.h,
+                    //             ),
+                    //             Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceBetween,
+                    //               children: [
+                    //                 Text(
+                    //                   widget.item.dataNik!,
+                    //                   style: TextStyle(
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     fontFamily: 'Segoe ui',
+                    //                     fontWeight: FontWeight.w600,
+                    //                     color: Colors.black87,
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   widget.item.dataNpwp!,
+                    //                   style: TextStyle(
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     fontFamily: 'Segoe ui',
+                    //                     fontWeight: FontWeight.w600,
+                    //                     color: Colors.black87,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //             SizedBox(
+                    //               height: 5.h,
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                     SizedBox(
                       height: 15.h,
                     ),
-                    Text(
-                      'Data pemilik',
-                      style: TextStyle(
-                        fontSize: isHorizontal ? 18.sp : 16.sp,
-                        fontFamily: 'Segoe Ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.green[600],
-                      ),
-                    ),
-                    SizedBox(
-                      height: isHorizontal ? 15.h : 10.h,
-                    ),
-                    IntrinsicHeight(
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          VerticalDivider(
-                            color: Colors.green[600],
-                            thickness: isHorizontal ? 5 : 3.5,
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 5.h,
-                                ),
-                                Text(
-                                  'Nama pemilik : ',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: isHorizontal ? 14.sp : 12.sp,
-                                    color: Colors.grey.shade400,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 2.h,
-                                ),
-                                Text(
-                                  widget.item.dataName!,
-                                  style: TextStyle(
-                                    fontFamily: 'Segoe ui',
-                                    fontSize: isHorizontal ? 14.sp : 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 8.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'NIK / Sesuai KTP : ',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        color: Colors.grey.shade400,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Nomor NPWP : ',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        color: Colors.grey.shade400,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 2.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      widget.item.dataNik!,
-                                      style: TextStyle(
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        fontFamily: 'Segoe ui',
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    Text(
-                                      widget.item.dataNpwp!,
-                                      style: TextStyle(
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        fontFamily: 'Segoe ui',
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5.h,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15.h,
-                    ),
-                    Text(
-                      'Data detail',
-                      style: TextStyle(
-                        fontSize: isHorizontal ? 18.sp : 16.sp,
-                        fontFamily: 'Segoe Ui',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blue[600],
-                      ),
-                    ),
-                    SizedBox(
-                      height: isHorizontal ? 15.h : 10.h,
-                    ),
-                    IntrinsicHeight(
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          VerticalDivider(
-                            color: Colors.blue[600],
-                            thickness: isHorizontal ? 5 : 3.5,
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 5.h,
-                                ),
-                                Visibility(
-                                  visible: widget.item.isSpSatuan == "YES"
-                                      ? true
-                                      : false,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Nomor SP : ',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize:
-                                              isHorizontal ? 14.sp : 12.sp,
-                                          color: Colors.grey.shade400,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 2.h,
-                                      ),
-                                      Text(
-                                        widget.item.spNumber!,
-                                        style: TextStyle(
-                                          fontFamily: 'Segoe ui',
-                                          fontSize:
-                                              isHorizontal ? 14.sp : 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  replacement: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Periode kontrak',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize:
-                                              isHorizontal ? 14.sp : 12.sp,
-                                          color: Colors.grey.shade400,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 2.h,
-                                      ),
-                                      Text(
-                                        "Berlaku mulai ${convertDateWithMonth(widget.item.spStartPeriode ?? '2024-01-01')} hingga ${convertDateWithMonth(widget.item.spEndPeriode ?? '2024-01-1')}",
-                                        style: TextStyle(
-                                          fontSize:
-                                              isHorizontal ? 14.sp : 12.sp,
-                                          fontFamily: 'Segoe ui',
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 8.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Nominal ME : ',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        color: Colors.grey.shade400,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Mekanisme ME : ',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        color: Colors.grey.shade400,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 2.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "${widget.item.isSpPercent == 'YES' ? convertPercent(widget.item.totalPercent) : convertToIdr(int.parse(widget.item.totalValue ?? '0'), 0)}",
-                                      style: TextStyle(
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        fontFamily: 'Segoe ui',
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    Text(
-                                      widget.item.paymentMechanism!,
-                                      style: TextStyle(
-                                        fontSize: isHorizontal ? 14.sp : 12.sp,
-                                        fontFamily: 'Segoe ui',
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Visibility(
-                                  visible: widget.item.paymentMechanism ==
-                                          'TRANSFER BANK'
-                                      ? true
-                                      : false,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: 8.h,
-                                      ),
-                                      Text(
-                                        'Informasi rekening',
-                                        style: TextStyle(
-                                          fontFamily: 'Segoe ui',
-                                          fontSize:
-                                              isHorizontal ? 15.sp : 14.sp,
-                                          color: Colors.black45,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 3.h,
-                                      ),
-                                      Card(
-                                        elevation: 2,
-                                        child: Container(
-                                          width: double.infinity,
-                                          height: isHorizontal ? 115.h : 65.h,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal:
-                                                isHorizontal ? 25.r : 15.r,
-                                            vertical:
-                                                isHorizontal ? 20.r : 10.r,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Text(
-                                                      '${widget.item.accountName} (${widget.item.bankName})',
-                                                      style: TextStyle(
-                                                        fontSize: isHorizontal
-                                                            ? 24.sp
-                                                            : 14.sp,
-                                                        fontFamily:
-                                                            'Montserrat',
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Text(
-                                                      'Nomor Rekening : ${widget.item.accountNumber}',
-                                                      style: TextStyle(
-                                                        fontSize: isHorizontal
-                                                            ? 24.sp
-                                                            : 14.sp,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontFamily: 'Segoe ui',
-                                                        color: Colors.black87,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Image.asset(
-                                                'assets/images/success.png',
-                                                width:
-                                                    isHorizontal ? 45.r : 25.r,
-                                                height:
-                                                    isHorizontal ? 45.r : 25.r,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  replacement: SizedBox(
-                                    width: 5.w,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 8.h,
-                                ),
-                                Text(
-                                  'Batas pembayaran ME : ',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: isHorizontal ? 14.sp : 12.sp,
-                                    color: Colors.grey.shade400,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 2.h,
-                                ),
-                                Text(
-                                  convertDateWithMonth(
-                                      widget.item.paymentDate ?? '2024-01-01'),
-                                  style: TextStyle(
-                                    fontFamily: 'Segoe ui',
-                                    fontSize: isHorizontal ? 14.sp : 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5.h,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15.h,
-                    ),
+                    // Text(
+                    //   'Data detail',
+                    //   style: TextStyle(
+                    //     fontSize: isHorizontal ? 18.sp : 16.sp,
+                    //     fontFamily: 'Segoe Ui',
+                    //     fontWeight: FontWeight.w600,
+                    //     color: Colors.blue[600],
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: isHorizontal ? 15.h : 10.h,
+                    // ),
+                    // IntrinsicHeight(
+                    //   child: Row(
+                    //     children: [
+                    //       SizedBox(
+                    //         width: 5.w,
+                    //       ),
+                    //       VerticalDivider(
+                    //         color: Colors.blue[600],
+                    //         thickness: isHorizontal ? 5 : 3.5,
+                    //       ),
+                    //       SizedBox(
+                    //         width: 10.w,
+                    //       ),
+                    //       Expanded(
+                    //         child: Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             SizedBox(
+                    //               height: 5.h,
+                    //             ),
+                    //             Visibility(
+                    //               visible: widget.item.isSpSatuan == "YES"
+                    //                   ? true
+                    //                   : false,
+                    //               child: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   Text(
+                    //                     'Nomor SP : ',
+                    //                     style: TextStyle(
+                    //                       fontFamily: 'Montserrat',
+                    //                       fontSize:
+                    //                           isHorizontal ? 14.sp : 12.sp,
+                    //                       color: Colors.grey.shade400,
+                    //                       fontWeight: FontWeight.w600,
+                    //                     ),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height: 2.h,
+                    //                   ),
+                    //                   Text(
+                    //                     widget.item.spNumber!,
+                    //                     style: TextStyle(
+                    //                       fontFamily: 'Segoe ui',
+                    //                       fontSize:
+                    //                           isHorizontal ? 14.sp : 12.sp,
+                    //                       fontWeight: FontWeight.w600,
+                    //                       color: Colors.black87,
+                    //                     ),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //               replacement: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   Text(
+                    //                     'Periode kontrak',
+                    //                     style: TextStyle(
+                    //                       fontFamily: 'Montserrat',
+                    //                       fontSize:
+                    //                           isHorizontal ? 14.sp : 12.sp,
+                    //                       color: Colors.grey.shade400,
+                    //                       fontWeight: FontWeight.w600,
+                    //                     ),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height: 2.h,
+                    //                   ),
+                    //                   Text(
+                    //                     "Berlaku mulai ${convertDateWithMonth(widget.item.spStartPeriode ?? '2024-01-01')} hingga ${convertDateWithMonth(widget.item.spEndPeriode ?? '2024-01-1')}",
+                    //                     style: TextStyle(
+                    //                       fontSize:
+                    //                           isHorizontal ? 14.sp : 12.sp,
+                    //                       fontFamily: 'Segoe ui',
+                    //                       fontWeight: FontWeight.w600,
+                    //                       color: Colors.black87,
+                    //                     ),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //             SizedBox(
+                    //               height: 8.h,
+                    //             ),
+                    //             Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceBetween,
+                    //               children: [
+                    //                 Text(
+                    //                   'Nominal ME : ',
+                    //                   style: TextStyle(
+                    //                     fontFamily: 'Montserrat',
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     color: Colors.grey.shade400,
+                    //                     fontWeight: FontWeight.w600,
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   'Mekanisme ME : ',
+                    //                   style: TextStyle(
+                    //                     fontFamily: 'Montserrat',
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     color: Colors.grey.shade400,
+                    //                     fontWeight: FontWeight.w600,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //             SizedBox(
+                    //               height: 2.h,
+                    //             ),
+                    //             Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceBetween,
+                    //               children: [
+                    //                 Text(
+                    //                   "${widget.item.isSpPercent == 'YES' ? convertPercent(widget.item.totalPercent) : convertToIdr(int.parse(widget.item.totalValue ?? '0'), 0)}",
+                    //                   style: TextStyle(
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     fontFamily: 'Segoe ui',
+                    //                     fontWeight: FontWeight.w600,
+                    //                     color: Colors.black87,
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   widget.item.paymentMechanism!,
+                    //                   style: TextStyle(
+                    //                     fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                     fontFamily: 'Segoe ui',
+                    //                     fontWeight: FontWeight.w600,
+                    //                     color: Colors.black87,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //             Visibility(
+                    //               visible: widget.item.paymentMechanism ==
+                    //                       'TRANSFER BANK'
+                    //                   ? true
+                    //                   : false,
+                    //               child: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   SizedBox(
+                    //                     height: 8.h,
+                    //                   ),
+                    //                   Text(
+                    //                     'Informasi rekening',
+                    //                     style: TextStyle(
+                    //                       fontFamily: 'Segoe ui',
+                    //                       fontSize:
+                    //                           isHorizontal ? 15.sp : 14.sp,
+                    //                       color: Colors.black45,
+                    //                       fontWeight: FontWeight.w600,
+                    //                     ),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height: 3.h,
+                    //                   ),
+                    //                   Card(
+                    //                     elevation: 2,
+                    //                     child: Container(
+                    //                       width: double.infinity,
+                    //                       height: isHorizontal ? 115.h : 65.h,
+                    //                       padding: EdgeInsets.symmetric(
+                    //                         horizontal:
+                    //                             isHorizontal ? 25.r : 15.r,
+                    //                         vertical:
+                    //                             isHorizontal ? 20.r : 10.r,
+                    //                       ),
+                    //                       child: Row(
+                    //                         mainAxisAlignment:
+                    //                             MainAxisAlignment.spaceBetween,
+                    //                         children: [
+                    //                           Column(
+                    //                             crossAxisAlignment:
+                    //                                 CrossAxisAlignment.start,
+                    //                             children: [
+                    //                               Expanded(
+                    //                                 flex: 1,
+                    //                                 child: Text(
+                    //                                   '${widget.item.accountName} (${widget.item.bankName})',
+                    //                                   style: TextStyle(
+                    //                                     fontSize: isHorizontal
+                    //                                         ? 24.sp
+                    //                                         : 14.sp,
+                    //                                     fontFamily:
+                    //                                         'Montserrat',
+                    //                                     fontWeight:
+                    //                                         FontWeight.w500,
+                    //                                   ),
+                    //                                 ),
+                    //                               ),
+                    //                               Expanded(
+                    //                                 flex: 1,
+                    //                                 child: Text(
+                    //                                   'Nomor Rekening : ${widget.item.accountNumber}',
+                    //                                   style: TextStyle(
+                    //                                     fontSize: isHorizontal
+                    //                                         ? 24.sp
+                    //                                         : 14.sp,
+                    //                                     fontWeight:
+                    //                                         FontWeight.w600,
+                    //                                     fontFamily: 'Segoe ui',
+                    //                                     color: Colors.black87,
+                    //                                   ),
+                    //                                 ),
+                    //                               ),
+                    //                             ],
+                    //                           ),
+                    //                           Image.asset(
+                    //                             'assets/images/success.png',
+                    //                             width:
+                    //                                 isHorizontal ? 45.r : 25.r,
+                    //                             height:
+                    //                                 isHorizontal ? 45.r : 25.r,
+                    //                           ),
+                    //                         ],
+                    //                       ),
+                    //                     ),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //               replacement: SizedBox(
+                    //                 width: 5.w,
+                    //               ),
+                    //             ),
+                    //             SizedBox(
+                    //               height: 8.h,
+                    //             ),
+                    //             Text(
+                    //               'Batas pembayaran ME : ',
+                    //               style: TextStyle(
+                    //                 fontFamily: 'Montserrat',
+                    //                 fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                 color: Colors.grey.shade400,
+                    //                 fontWeight: FontWeight.w600,
+                    //               ),
+                    //             ),
+                    //             SizedBox(
+                    //               height: 2.h,
+                    //             ),
+                    //             Text(
+                    //               convertDateWithMonth(
+                    //                   widget.item.paymentDate ?? '2024-01-01'),
+                    //               style: TextStyle(
+                    //                 fontFamily: 'Segoe ui',
+                    //                 fontSize: isHorizontal ? 14.sp : 12.sp,
+                    //                 fontWeight: FontWeight.w600,
+                    //                 color: Colors.black87,
+                    //               ),
+                    //             ),
+                    //             SizedBox(
+                    //               height: 5.h,
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: 15.h,
+                    // ),
                     Visibility(
                       visible: meController.isLoading.value,
                       child: SizedBox(

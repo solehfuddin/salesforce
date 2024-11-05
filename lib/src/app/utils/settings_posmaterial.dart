@@ -10,9 +10,13 @@ import 'package:sample/src/app/widgets/dialogImage.dart';
 import 'package:sample/src/domain/entities/posmaterial_attachment.dart';
 import 'package:sample/src/domain/entities/posmaterial_header.dart';
 
+import '../../domain/entities/posmaterial_lineposter.dart';
+
 enum PosType { CUSTOM, KEMEJA_LEINZ_HIJAU, MATERIAL_KIT, OTHER, POSTER }
+
 enum PosStatus { PENDING, APPROVE, REJECT }
-enum MarketingFeature { POS_MATERIAL, CASHBACK, MARKETING_EXPENSE }
+
+enum MarketingFeature { POS_MATERIAL, CASHBACK, MARKETING_EXPENSE, TRAINING }
 
 String setMarketingFeature(MarketingFeature enumMarketing) {
   String output = "";
@@ -21,7 +25,10 @@ String setMarketingFeature(MarketingFeature enumMarketing) {
       output = "Cashback";
       break;
     case MarketingFeature.MARKETING_EXPENSE:
-      output = "Marketing Expense";
+      output = "Entertaint";
+      break;
+    case MarketingFeature.TRAINING:
+      output = "Training";
       break;
     default:
       output = "POS Material";
@@ -37,8 +44,11 @@ MarketingFeature getMarketingFeature(String input) {
     case 'Cashback':
       output = MarketingFeature.CASHBACK;
       break;
-    case 'Marketing Expense':
+    case 'Entertaint':
       output = MarketingFeature.MARKETING_EXPENSE;
+      break;
+    case 'Training':
+      output = MarketingFeature.TRAINING;
       break;
     default:
       output = MarketingFeature.POS_MATERIAL;
@@ -917,6 +927,143 @@ Widget detailPosKit({bool isHorizontal = false, PosMaterialHeader? item}) {
         replacement: SizedBox(
           width: 5.w,
         ),
+      ),
+    ],
+  );
+}
+
+Widget detailPosPosterLine({
+  bool isHorizontal = false,
+  PosMaterialLinePoster? item,
+}) {
+  return Column(
+    mainAxisSize: MainAxisSize.max,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(
+        height: isHorizontal ? 10.h : 5.h,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Poster Material :',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: isHorizontal ? 14.sp : 12.sp,
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'Poster Qty :',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: isHorizontal ? 14.sp : 12.sp,
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'Poster Content :',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: isHorizontal ? 14.sp : 12.sp,
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 3.h,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            item?.material ?? '',
+            style: TextStyle(
+              fontFamily: 'Segoe ui',
+              fontSize: isHorizontal ? 16.sp : 14.sp,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            '${item?.qty ?? 0} Pcs',
+            style: TextStyle(
+              fontFamily: 'Segoe ui',
+              fontSize: isHorizontal ? 16.sp : 14.sp,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            item?.content ?? "",
+            style: TextStyle(
+              fontFamily: 'Segoe ui',
+              fontSize: isHorizontal ? 16.sp : 14.sp,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 5.h,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Poster Width :',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: isHorizontal ? 14.sp : 12.sp,
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'Poster Height :',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: isHorizontal ? 14.sp : 12.sp,
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 3.h,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${item?.width!} cm',
+            style: TextStyle(
+              fontFamily: 'Segoe ui',
+              fontSize: isHorizontal ? 16.sp : 14.sp,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            '${item?.height!} cm',
+            style: TextStyle(
+              fontFamily: 'Segoe ui',
+              fontSize: isHorizontal ? 16.sp : 14.sp,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(
+        height: isHorizontal ? 10.h : 5.h,
       ),
     ],
   );

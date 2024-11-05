@@ -644,6 +644,48 @@ class _CashbackManagementState extends State<CashbackManagement> {
                                                         attachmentSign ?? '',
                                                     constructAttachmentOther:
                                                         attachmentOther ?? '',
+                                                    constructNomorSp: otherHeader!
+                                                                .cashback[0]
+                                                                .cashbackType! ==
+                                                            "BY SP"
+                                                        ? otherHeader!
+                                                            .cashback[0]
+                                                            .spNumber!
+                                                        : '',
+                                                    constructPayDate: otherHeader!
+                                                                .cashback[0]
+                                                                .cashbackType ==
+                                                            "BY SP"
+                                                        ? otherHeader!
+                                                            .cashback[0]
+                                                            .paymentDate!
+                                                        : '',
+                                                    constructPercent: otherHeader!
+                                                                    .cashback[0]
+                                                                    .cashbackType ==
+                                                                "BY SP" &&
+                                                            otherHeader!
+                                                                    .cashback[0]
+                                                                    .isSpPercent ==
+                                                                "YES"
+                                                        ? double.parse(otherHeader!
+                                                                .cashback[0]
+                                                                .cashbackPercentage ??
+                                                            '0')
+                                                        : 0,
+                                                    constructValues: otherHeader!
+                                                                    .cashback[0]
+                                                                    .cashbackType ==
+                                                                "BY SP" &&
+                                                            otherHeader!
+                                                                    .cashback[0]
+                                                                    .isSpPercent ==
+                                                                "YES"
+                                                        ? int.parse(otherHeader!
+                                                                .cashback[0]
+                                                                .cashbackValue ??
+                                                            '0')
+                                                        : 0,
                                                   ),
                                                 ),
                                               )

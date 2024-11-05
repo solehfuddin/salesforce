@@ -36,7 +36,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     // compileSdkVersion 28
     compileSdkVersion 34
-
+    ndkVersion "27.1.12297006"
+    
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -81,6 +82,9 @@ android {
             minifyEnabled true
             // useProguard true
             shrinkResources true
+            ndk {
+                debugSymbolLevel 'SYMBOL_TABLE'
+            }
 
             // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -100,8 +104,16 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
-    implementation 'com.google.firebase:firebase-analytics'
+    //implementation 'com.google.firebase:firebase-analytics'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    implementation ('com.google.firebase:firebase-messaging') {
+        exclude group: 'com.google.android.gms', module : 'play-services-ads-identifier'
+    }
+    
+    /*implementation ('com.google.firebase:firebase-analytics') {
+        exclude group: 'com.google.android.gms', module : 'play-services-ads-identifier'
+    }*/
 }

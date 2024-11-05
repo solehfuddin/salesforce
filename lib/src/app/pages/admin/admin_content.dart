@@ -31,6 +31,8 @@ import 'package:sample/src/domain/service/service_marketingexpense.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../domain/service/service_training.dart';
+
 class AdminContent extends StatefulWidget {
   const AdminContent({Key? key}) : super(key: key);
 
@@ -41,6 +43,7 @@ class AdminContent extends StatefulWidget {
 class _AdminContentState extends State<AdminContent> {
   ServicePosMaterial servicePosMaterial = new ServicePosMaterial();
   ServiceMarketingExpense serviceME = new ServiceMarketingExpense();
+  ServiceTraining serviceTraining = new ServiceTraining();
   List<Contract> listContract = List.empty(growable: true);
   List<Contract> listNewContract = List.empty(growable: true);
   List<Monitoring> listMonitoring = List.empty(growable: true);
@@ -80,6 +83,7 @@ class _AdminContentState extends State<AdminContent> {
   int totalOldCustomer = 0;
   int totalPosMaterial = 0;
   int totalMarketingExpense = 0;
+  int totalTraining = 0;
   int totalCashbackWaiting = 0;
   int totalCashbackApprove = 0;
   int totalCashbackReject = 0;
@@ -130,6 +134,7 @@ class _AdminContentState extends State<AdminContent> {
 
       print("Dashboard : $role");
       print("TTD Sales : $ttdPertama");
+      print("Id user : $id");
 
       if (role == 'ADMIN' && divisi == 'SALES') {
         servicePosMaterial
@@ -145,7 +150,20 @@ class _AdminContentState extends State<AdminContent> {
         serviceME
             .getMEDashboard(mounted, context,
                 idManager: int.parse(id!), status: 0)
-            .then((value) => totalMarketingExpense = value.total ?? 0);
+            .then((value) {
+          totalMarketingExpense = value.total!;
+          print("Total Me : $totalMarketingExpense");
+        });
+
+        serviceTraining.getHeader(
+          mounted,
+          context,
+          idManager: int.parse(id!),
+          status: 0,
+        ).then((value) {
+          totalTraining = value.total!;
+          print("Total Training : $totalTraining");
+        });
       }
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
@@ -158,6 +176,11 @@ class _AdminContentState extends State<AdminContent> {
               status: 0,
             )
             .then((value) => totalPosMaterial = value.total!);
+          
+        serviceTraining.getHeaderManager(mounted, context, status: 0).then((value) {
+          totalTraining = value.total!;
+          print("Total Training : $totalTraining");
+        });
       }
 
       if (role == 'ADMIN' && divisi == 'GM') {
@@ -174,7 +197,10 @@ class _AdminContentState extends State<AdminContent> {
         serviceME
             .getMEDashboard(mounted, context,
                 idGeneral: int.parse(id!), status: 0)
-            .then((value) => totalMarketingExpense = value.total ?? 0);
+            .then((value) {
+          totalMarketingExpense = value.total!;
+          print("Total Me : $totalMarketingExpense");
+        });
       }
 
       switch (divisi) {
@@ -266,7 +292,7 @@ class _AdminContentState extends State<AdminContent> {
             await [
               Permission.camera,
               Permission.microphone,
-              Permission.mediaLibrary
+              Permission.photos,
             ].request().then((value) => openAppSettings());
           }
         }
@@ -616,7 +642,15 @@ class _AdminContentState extends State<AdminContent> {
         serviceME
             .getMEDashboard(mounted, context,
                 idManager: int.parse(id!), status: 0)
-            .then((value) => totalMarketingExpense = value.total ?? 0);
+            .then((value) {
+          totalMarketingExpense = value.total!;
+          print("Total Me : $totalMarketingExpense");
+        });
+
+        serviceTraining.getHeader(mounted, context, idManager: int.parse(id!), status: 0).then((value) {
+          totalTraining = value.total!;
+          print("Total Training : $totalTraining");
+        });
       }
 
       if (role == 'ADMIN' && divisi == 'MARKETING') {
@@ -629,6 +663,11 @@ class _AdminContentState extends State<AdminContent> {
               status: 0,
             )
             .then((value) => totalPosMaterial = value.total!);
+
+        serviceTraining.getHeaderManager(mounted, context, status: 0).then((value) {
+          totalTraining = value.total!;
+          print("Total Training : $totalTraining");
+        });
       }
 
       if (role == 'ADMIN' && divisi == 'GM') {
@@ -734,6 +773,7 @@ class _AdminContentState extends State<AdminContent> {
             context,
             totalPosMaterial,
             totalMarketingExpense,
+            totalTraining,
             showAreaMarketing,
             divisi ?? '',
           ),
@@ -983,6 +1023,7 @@ class _AdminContentState extends State<AdminContent> {
             context,
             totalPosMaterial,
             totalMarketingExpense,
+            totalTraining,
             showAreaMarketing,
             divisi ?? '',
           ),

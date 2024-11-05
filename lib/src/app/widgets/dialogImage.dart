@@ -7,8 +7,13 @@ import 'package:zoom_pinch_overlay/zoom_pinch_overlay.dart';
 // ignore: must_be_immutable
 class DialogImage extends StatefulWidget {
   dynamic text, path;
+  bool isFromNetwork;
 
-  DialogImage(this.text, this.path);
+  DialogImage(
+    this.text,
+    this.path, {
+    this.isFromNetwork = false,
+  });
 
   @override
   State<DialogImage> createState() => _DialogImageState();
@@ -77,10 +82,12 @@ class _DialogImageState extends State<DialogImage> {
                 minScale: 0.5, // Optional
                 maxScale: 3.0, // Optional
                 twoTouchOnly: true, // Defaults to false
-                child: Image.memory(
-                  base64Decode(widget.path),
-                  fit: BoxFit.cover,
-                ),
+                child: widget.isFromNetwork
+                    ? Image.network(widget.path)
+                    : Image.memory(
+                        base64Decode(widget.path),
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
           ),

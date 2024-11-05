@@ -450,7 +450,7 @@ class _DetailPencairanInkaroApprovalState
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;

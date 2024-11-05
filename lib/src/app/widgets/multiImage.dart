@@ -35,6 +35,18 @@ class _MultiImageState extends State<MultiImage> {
   List<XFile>? listImage = List.empty(growable: true);
 
   @override
+  void initState() {
+    super.initState();
+    listImage?.clear();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listImage?.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DottedBorder(
       borderType: BorderType.RRect,

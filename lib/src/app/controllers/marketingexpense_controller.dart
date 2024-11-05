@@ -56,7 +56,7 @@ class MarketingExpenseController extends GetxController {
   var nominalValues = "".obs;
   var trainingMechanism = "OFFLINE KUNJUNGAN".obs;
   var trainingMateri = "PENGENALAN LENSA".obs;
-  var selectedPayment = "DEPOSIT".obs;
+  var selectedPayment = "TRANSFER BANK".obs;
   var selectedDate = "".obs;
   var selectedHour = "09.00 WIB".obs;
   var selectedTrainer = "".obs;
@@ -155,8 +155,8 @@ class MarketingExpenseController extends GetxController {
     });
   }
 
-  Future<List<Trainer>> getAllTrainer(bool mounted, BuildContext context) {
-    return serviceMe.getTrainer(mounted, context);
+  Future<List<Trainer>> getAllTrainer(bool mounted, BuildContext context, {String key = ''}) {
+    return serviceMe.getTrainer(mounted, context, key: key);
   }
 
   void handleValidation(
@@ -174,84 +174,19 @@ class MarketingExpenseController extends GetxController {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
-    } else if (!validateDataName.value || !validateDataNik.value) {
-      handleStatus(
-        Get.context!,
-        'Lengkapi data pemilik terlebih dahulu',
-        false,
-        isHorizontal: isHorizontal,
-        isLogout: false,
-      );
-    } else if (payDate.value.isEmpty) {
-      handleStatus(
-        Get.context!,
-        'Lengkapi data pembayaran terlebih dahulu',
-        false,
-        isHorizontal: isHorizontal,
-        isLogout: false,
-      );
-    } else {
+    } 
+    else {
       print('Prepare insert ME');
 
       bool handleIsSp = false;
-      bool handleIsPersen = false;
 
       if (isSpSatuan.value) {
-        if (!validateNomorSp.value) {
-          handleStatus(
-            Get.context!,
-            'Lengkapi nomor sp terlebih dahulu',
-            false,
-            isHorizontal: isHorizontal,
-            isLogout: false,
-          );
-        } else {
           handleIsSp = true;
-        }
       } else {
-        if (!validateStartDate.value || !validateEndDate.value) {
-          handleStatus(
-            Get.context!,
-            'Lengkapi periode kontrak terlebih dahulu',
-            false,
-            isHorizontal: isHorizontal,
-            isLogout: false,
-          );
-        } else {
           handleIsSp = true;
-        }
       }
 
       if (handleIsSp) {
-        if (isMePercent.value) {
-          if (!validatePercent.value) {
-            handleStatus(
-              Get.context!,
-              'Lengkapi persentase marketing expense terlebih dahulu',
-              false,
-              isHorizontal: isHorizontal,
-              isLogout: false,
-            );
-
-          } else {
-            handleIsPersen = true;
-          }
-        } else {
-          if (!validateValues.value) {
-            handleStatus(
-              Get.context!,
-              'Lengkapi nominal marketing expense terlebih dahulu',
-              false,
-              isHorizontal: isHorizontal,
-              isLogout: false,
-            );
-          } else {
-            handleIsPersen = true;
-          }
-        }
-      }
-
-      if (handleIsPersen && handleIsSp) {
         print('Eksekusi header ME');
         // String _idMe = '';
 
@@ -261,26 +196,6 @@ class MarketingExpenseController extends GetxController {
         header.opticName = selectedOptic.value.namaUsaha;
         header.opticAddress = selectedOptic.value.alamatUsaha;
         header.opticType = selectedOptic.value.typeAccount;
-        header.dataName = dataName.value;
-        header.dataNik = dataNik.value;
-        header.dataNpwp = dataNpwp.value;
-        header.isSpSatuan = isSpSatuan.value ? 'YES' : 'NO';
-        header.spNumber = nomorSp.value;
-        header.isSpPercent = isMePercent.value ? 'YES' : 'NO';
-        header.spStartPeriode = startDate.value;
-        header.spEndPeriode = endDate.value;
-        header.totalValue = nominalValues.value.replaceAll('.', "");
-        header.totalPercent = percentValues.value;
-        header.paymentMechanism = selectedPayment.value;
-        header.paymentDate = payDate.value;
-        header.idRekening = selectedRekening.value.idRekening ?? '';
-        header.notes = '';
-        header.isTraining = isTraining.value ? 'YES' : 'NO';
-        header.trainingMekanisme = '';
-        header.trainingMateri = '';
-        header.trainingDate = '';
-        header.trainingTime = '';
-        header.trainingDuration = '';
         header.createdBy = salesId;
 
         serviceMe
@@ -450,7 +365,7 @@ class MarketingExpenseController extends GetxController {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;

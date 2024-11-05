@@ -151,16 +151,28 @@ class Posmaterial_itemlist extends StatelessWidget {
                                   height: 4.r,
                                 ),
                                 Container(
-                                  child: Text(
-                                    this.itemList.header[position].status!,
-                                    style: TextStyle(
-                                      fontSize: isHorizontal ? 13.sp : 11.sp,
-                                      fontFamily: 'Segoe ui',
-                                      fontWeight: FontWeight.w600,
-                                      color: setStatusColor(this
-                                          .itemList
-                                          .header[position]
-                                          .status!),
+                                  child: Visibility(
+                                    visible: itemList.header[position].isFinish == "0",
+                                    child: Text(
+                                      this.itemList.header[position].status!,
+                                      style: TextStyle(
+                                        fontSize: isHorizontal ? 13.sp : 11.sp,
+                                        fontFamily: 'Segoe ui',
+                                        fontWeight: FontWeight.w600,
+                                        color: setStatusColor(this
+                                            .itemList
+                                            .header[position]
+                                            .status!),
+                                      ),
+                                    ),
+                                    replacement: Text(
+                                      'DONE',
+                                      style: TextStyle(
+                                        fontSize: isHorizontal ? 13.sp : 11.sp,
+                                        fontFamily: 'Segoe ui',
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.green.shade600,
+                                      ),
                                     ),
                                   ),
                                 ),

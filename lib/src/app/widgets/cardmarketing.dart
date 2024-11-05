@@ -4,6 +4,8 @@ import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/settings_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../domain/service/service_marketingexpense.dart';
+
 // ignore: must_be_immutable
 class CardMarketing extends StatefulWidget {
   bool isHorizontal = false;
@@ -11,7 +13,7 @@ class CardMarketing extends StatefulWidget {
   String cardTitle, cardSubtitle;
   dynamic navigateTo;
   int totalPos = 0;
-  int totalCashback = 0;
+  int totalTraining = 0;
   int totalExpense = 0;
 
   CardMarketing({
@@ -22,7 +24,7 @@ class CardMarketing extends StatefulWidget {
     required this.cardSubtitle,
     required this.navigateTo,
     this.totalPos = 0,
-    this.totalCashback = 0,
+    this.totalTraining = 0,
     this.totalExpense = 0,
   }) : super(key: key);
 
@@ -31,6 +33,7 @@ class CardMarketing extends StatefulWidget {
 }
 
 class _CardMarketingState extends State<CardMarketing> {
+  ServiceMarketingExpense serviceME = new ServiceMarketingExpense();
   late MarketingFeature enumMarketing;
 
   bool showBadge = false;
@@ -43,6 +46,8 @@ class _CardMarketingState extends State<CardMarketing> {
   void initState() {
     super.initState();
     enumMarketing = getMarketingFeature(widget.cardTitle);
+    print("Total Me widget : ${widget.totalExpense}");
+
     getRole();
   }
 
@@ -135,10 +140,10 @@ class _CardMarketingState extends State<CardMarketing> {
                               width: 5.w,
                             ),
                           )
-                        : enumMarketing == MarketingFeature.CASHBACK
+                        : enumMarketing == MarketingFeature.TRAINING
                             ? Visibility(
                                 visible:
-                                    widget.totalCashback > 0 ? true : false,
+                                    widget.totalTraining > 0 ? true : false,
                                 child: SizedBox(
                                   height: 15,
                                   width: 15,

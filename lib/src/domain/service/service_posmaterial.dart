@@ -17,6 +17,9 @@ import 'package:sample/src/domain/entities/posmaterial_poster.dart';
 import 'package:sample/src/domain/entities/posmaterial_resheader.dart';
 import 'package:sample/src/domain/entities/posmaterial_review.dart';
 
+import '../entities/omzet_optic.dart';
+import '../entities/posmaterial_lineposter.dart';
+
 class ServicePosMaterial {
   Future<PosMaterialResHeader> getPosMaterialHeader(
     bool mounted,
@@ -322,6 +325,66 @@ class ServicePosMaterial {
     return contentList;
   }
 
+  Future<OmzetOptic> getOmzetOptic(
+    BuildContext context,
+    bool mounted,
+    String shipNumber,
+  ) async {
+    late OmzetOptic _omzetOptic;
+    var url = '$API_URL/PosMaterial/tolerancePos?ship_number=$shipNumber';
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      print('Pos material omzet : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool status = data['status'];
+        var rest = data['data'];
+
+        print('Data omzet : $data');
+
+        if (status) {
+          _omzetOptic = new OmzetOptic(
+            leinzRx: rest['leinzrx'],
+            leinzStock: rest['leinzstock'],
+            oriRx: rest['orirx'],
+            oriStock: rest['orist'],
+            totalPenjualan: rest['total_penjualan'],
+            maxPos: rest['max_pos'],
+          );
+        }
+        else {
+          _omzetOptic = new OmzetOptic(
+            leinzRx: '',
+            leinzStock: '',
+            oriRx: '',
+            oriStock: '',
+            totalPenjualan: '',
+            maxPos: '',
+          );
+        }
+
+        print('Return omzet : ${_omzetOptic.maxPos}');
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+    }
+
+    return _omzetOptic;
+  }
+
   Future<PosMaterialAttachment> getPosMaterialAttachment(
     BuildContext context,
     bool mounted,
@@ -376,6 +439,47 @@ class ServicePosMaterial {
     }
 
     return attachment;
+  }
+
+   Future<List<PosMaterialLinePoster>> getPosMaterialLine(
+    BuildContext context,
+    bool mounted,
+    String idPos,
+  ) async {
+    List<PosMaterialLinePoster> itemList = List.empty(growable: true);
+    var url = "$API_URL/posMaterial/getLine?id_pos_material=$idPos";
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      print('Pos line : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool status = data['status'];
+
+        if (status) {
+          var rest = data['data'];
+          itemList = rest
+              .map<PosMaterialLinePoster>((json) => PosMaterialLinePoster.fromJson(json))
+              .toList();
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+    }
+
+    return itemList;
   }
 
   Future<List<OpticWithAddress>> findAllCustWithAddress(
@@ -580,6 +684,7 @@ class ServicePosMaterial {
     bool mounted = false,
     required BuildContext context,
     required PosMaterialInsert item,
+    List<PosMaterialLinePoster>? line,
     required salesname,
     required opticname,
     required idSm,
@@ -594,7 +699,7 @@ class ServicePosMaterial {
             'optic_type' : ${item.getOpticType},
             'product_id' : ${item.getProductId},
             'product_name' : ${item.getProductName},
-            'product_qty' : ${item.getProductQty.replaceAll('.', '')},
+            'product_qty' : ${item.getPosType != "POSTER" ? item.getProductQty.replaceAll('.', '') : "0"},
             'price_estimate' : ${item.getPriceEstimate.replaceAll('.', '')},
             'product_size_s' : ${item.getProductSizeS},
             'product_size_m' : ${item.getProductSizeM},
@@ -603,12 +708,12 @@ class ServicePosMaterial {
             'product_size_xxl' : ${item.getProductSizeXXL},
             'product_size_xxxl' : ${item.getProductSizeXXXL},
             'poster_design_only' : ${item.getPosterDesignOnly},
-            'poster_material_id' : ${item.getPosterMaterialId},
-            'poster_material' : ${item.getPosterMaterial},
-            'poster_width' : ${item.getPosterWidth},
-            'poster_height' : ${item.getPosterHeight},
-            'poster_content_id' : ${item.getPosterContentId},
-            'poster_content' : ${item.getPosterContent},
+            'poster_material_id' : ${item.getPosType != "POSTER" ? item.getPosterMaterialId : ""},
+            'poster_material' : ${item.getPosType != "POSTER" ? item.getPosterMaterial : ""},
+            'poster_width' : ${item.getPosType != "POSTER" ? item.getPosterWidth : "0"},
+            'poster_height' : ${item.getPosType != "POSTER" ? item.getPosterHeight : "0"},
+            'poster_content_id' : ${ item.getPosType != "POSTER" ? item.getPosterContentId : ""},
+            'poster_content' : ${item.getPosType != "POSTER" ? item.getPosterContent : ""},
             'notes' : ${item.getNotes},
             'delivery_method' : ${item.getDeliveryMethod},
             'attachment_desain_paraf' : ${item.getAttachmentDesainParaf},
@@ -632,7 +737,7 @@ class ServicePosMaterial {
         'optic_type': item.getOpticType,
         'product_id': item.getProductId,
         'product_name': item.getProductName,
-        'product_qty': item.getProductQty.replaceAll('.', ''),
+        'product_qty': item.getPosType != "POSTER" ? item.getProductQty.replaceAll('.', '') : "0",
         'price_estimate': item.getPriceEstimate.replaceAll('.', ''),
         'product_size_s': item.getProductSizeS,
         'product_size_m': item.getProductSizeM,
@@ -640,13 +745,13 @@ class ServicePosMaterial {
         'product_size_xl': item.getProductSizeXL,
         'product_size_xxl': item.getProductSizeXXL,
         'product_size_xxxl': item.getProductSizeXXXL,
-        'poster_design_only' : item.getPosterDesignOnly,
-        'poster_material_id': item.getPosterMaterialId,
-        'poster_material': item.getPosterMaterial,
-        'poster_width': item.getPosterWidth,
-        'poster_height': item.getPosterHeight,
-        'poster_content_id': item.getPosterContentId,
-        'poster_content': item.getPosterContent,
+        'poster_design_only': item.getPosterDesignOnly,
+        'poster_material_id': item.getPosType != "POSTER" ? item.getPosterMaterialId : "",
+        'poster_material': item.getPosType != "POSTER" ? item.getPosterMaterial : "",
+        'poster_width': item.getPosType != "POSTER" ? item.getPosterWidth : "0",
+        'poster_height': item.getPosType != "POSTER" ? item.getPosterHeight : "0",
+        'poster_content_id': item.getPosType != "POSTER" ? item.getPosterContentId : "",
+        'poster_content': item.getPosType != "POSTER" ? item.getPosterContent : "",
         'notes': item.getNotes,
         'delivery_method': item.getDeliveryMethod,
         'attachment_desain_paraf': item.getAttachmentDesainParaf,
@@ -656,6 +761,103 @@ class ServicePosMaterial {
         'attachment_rencana_lokasi': item.getAttachmentRencanaLokasi,
         'created_by': item.getCreatedBy,
       }).timeout(Duration(seconds: timeout));
+
+      print('Response status : ${response.statusCode}');
+      print('Response body : ${response.body}');
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        final String msg = res['message'];
+        final String idPos = res['idpos'];
+
+        if (mounted) {
+          if (item.getPosType == "POSTER") {
+            insertLinePosMaterial(
+              isHorizontal: isHorizontal,
+              context: context,
+              mounted: mounted,
+              item: line!,
+              idPos: idPos,
+              salesname: salesname,
+              opticname: opticname,
+              idSm: idSm,
+              tokenSm: tokenSm,
+            );
+          } else {
+            handleStatus(
+              context,
+              capitalize(msg),
+              sts,
+              isHorizontal: isHorizontal,
+              isLogout: false,
+              isNewCust: false,
+            );
+
+            pushNotif(
+              17,
+              3,
+              salesName: salesname,
+              idUser: idSm,
+              rcptToken: tokenSm,
+              opticName: opticname,
+            );
+          }
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+  }
+
+  insertLinePosMaterial({
+    bool isHorizontal = false,
+    bool mounted = false,
+    required BuildContext context,
+    required List<PosMaterialLinePoster> item,
+    required idPos,
+    required salesname,
+    required opticname,
+    required idSm,
+    required tokenSm,
+  }) async {
+    item.forEach((element) {
+      element.setIdPosMaterial = idPos;
+    });
+
+    var url = '$API_URL/PosMaterial/line';
+    const timeout = 15;
+
+    try {
+      var body = json.encode(item);
+      var response = await http
+          .post(
+            Uri.parse(url),
+            headers: {"Content-Type": "application/json"},
+            body: body,
+          )
+          .timeout(Duration(seconds: timeout));
 
       print('Response status : ${response.statusCode}');
       print('Response body : ${response.body}');
@@ -709,6 +911,71 @@ class ServicePosMaterial {
         );
       }
     }
+  }
+
+  Future<String> estimasiLinePosMaterial({
+    bool isHorizontal = false,
+    bool mounted = false,
+    required BuildContext context,
+    required List<PosMaterialLinePoster> item,
+    // required idPos,
+  }) async {
+    // item.forEach((element) {
+    //   element.setIdPosMaterial = idPos;
+    // });
+
+    late String estimatedPrice;
+    var url = '$API_URL/PosMaterial/estimatedPos';
+    const timeout = 15;
+
+    try {
+      var body = json.encode(item);
+      var response = await http
+          .post(
+            Uri.parse(url),
+            headers: {"Content-Type": "application/json"},
+            body: body,
+          )
+          .timeout(Duration(seconds: timeout));
+
+      print('Response status : ${response.statusCode}');
+      print('Response body : ${response.body}');
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        // final String msg = res['message'];
+
+        if (sts) {
+          estimatedPrice = res['nominal'].toString();
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+
+    return estimatedPrice;
   }
 
   approvePos({

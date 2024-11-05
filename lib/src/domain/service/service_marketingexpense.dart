@@ -200,10 +200,11 @@ class ServiceMarketingExpense {
   Future<List<Trainer>> getTrainer(
     bool mounted,
     BuildContext context,
+    {String key = ""}
   ) async {
     List<Trainer> list = List.empty(growable: true);
     late var url;
-    url = '$API_URL/users/trainer';
+    url = '$API_URL/users/trainer?trainer_name=$key';
 
     print(url);
 
@@ -258,26 +259,6 @@ class ServiceMarketingExpense {
         'nama_usaha': ${item.opticName},
         'alamat_usaha': ${item.opticAddress},
         'optic_type': ${item.opticType},
-        'data_name' : ${item.dataName},
-        'data_nik' : ${item.dataNik},
-        'data_npwp' : ${item.dataNpwp},
-        'is_sp_satuan' : ${item.isSpSatuan},
-        'sp_number' : ${item.spNumber},
-        'is_sp_percent' : ${item.isSpPercent},
-        'sp_start_period' : ${item.spStartPeriode},
-        'sp_end_period' : ${item.spEndPeriode},
-        'total_value' : ${item.totalValue},
-        'total_percent' : ${item.totalPercent},
-        'payment_mechanism' : ${item.paymentMechanism},
-        'payment_date' : ${item.paymentDate},
-        'id_rekening' : ${item.idRekening},
-        'notes': ${item.notes},
-        'is_training': ${item.isTraining},
-        'training_mekanisme': ${item.trainingMekanisme},
-        'training_materi': ${item.trainingMateri},
-        'training_date': ${item.trainingDate},
-        'training_time': ${item.trainingTime},
-        'training_duration': ${item.trainingDuration},
         'created_by': ${item.createdBy},
     """);
 
@@ -288,26 +269,6 @@ class ServiceMarketingExpense {
         'nama_usaha': item.opticName,
         'alamat_usaha': item.opticAddress,
         'optic_type': item.opticType,
-        'data_name' : item.dataName,
-        'data_nik' : item.dataNik,
-        'data_npwp' : item.dataNpwp,
-        'is_sp_satuan' : item.isSpSatuan,
-        'sp_number' : item.spNumber,
-        'is_sp_percent' : item.isSpPercent,
-        'sp_start_period' : item.spStartPeriode,
-        'sp_end_period' : item.spEndPeriode,
-        'total_value' : item.totalValue,
-        'total_percent' : item.totalPercent,
-        'payment_mechanism' : item.paymentMechanism,
-        'payment_date' : item.paymentDate,
-        'id_rekening' : item.idRekening,
-        'notes': item.notes,
-        'is_training': item.isTraining,
-        'training_mekanisme': item.trainingMekanisme,
-        'training_materi': item.trainingMateri,
-        'training_date': item.trainingDate,
-        'training_time': item.trainingTime,
-        'training_duration': item.trainingDuration,
         'created_by': item.createdBy,
       }).timeout(Duration(seconds: timeout));
 

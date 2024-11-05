@@ -152,7 +152,7 @@ class _CashbackDetailState extends State<CashbackDetail> {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;
@@ -276,11 +276,22 @@ class _CashbackDetailState extends State<CashbackDetail> {
 
   onPressedDownload() async {
     if (_permissionReady) {
-      donwloadPdfCashback(
-        widget.itemHeader?.id ?? '',
-        widget.itemHeader?.opticName ?? 'Optik',
-        _localPath,
-      );
+      if (widget.itemHeader?.cashbackType == "BY SP")
+      {
+        donwloadPdfCashbackSp(
+          widget.itemHeader?.id ?? '',
+          widget.itemHeader?.opticName ?? 'Optik',
+          _localPath,
+        );
+      }
+      else
+      {
+        donwloadPdfCashback(
+          widget.itemHeader?.id ?? '',
+          widget.itemHeader?.opticName ?? 'Optik',
+          _localPath,
+        );
+      }
 
       showStyledToast(
         child: Text('Sedang mengunduh file'),
@@ -544,21 +555,44 @@ class _CashbackDetailState extends State<CashbackDetail> {
                     isHorizontal: isHorizontal,
                     itemHeader: widget.itemHeader,
                   ),
+                  Visibility(
+                    visible: widget.itemHeader!.cashbackType == "BY TARGET",
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 15.h,
+                        ),
+                        cashbackLineTargetWidget(
+                          isHorizontal: isHorizontal,
+                          itemHeader: widget.itemHeader,
+                          selectedTargetProddiv: selectedTargetProddiv,
+                        ),
+                      ],
+                    ),
+                    replacement: SizedBox(
+                      width: 10.w,
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.itemHeader!.cashbackType == "BY PRODUCT",
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 15.h,
+                        ),
+                        cashbackLineProductWidget(
+                          isHorizontal: isHorizontal,
+                          itemHeader: widget.itemHeader,
+                          selectedProductLine: selectedProductLine,
+                        ),
+                      ],
+                    ),
+                    replacement: SizedBox(
+                      width: 10.w,
+                    ),
+                  ),
                   SizedBox(
                     height: 15.h,
-                  ),
-                  cashbackLineTargetWidget(
-                    isHorizontal: isHorizontal,
-                    itemHeader: widget.itemHeader,
-                    selectedTargetProddiv: selectedTargetProddiv,
-                  ),
-                  SizedBox(
-                    height: 15.h,
-                  ),
-                  cashbackLineProductWidget(
-                    isHorizontal: isHorizontal,
-                    itemHeader: widget.itemHeader,
-                    selectedProductLine: selectedProductLine,
                   ),
                   FutureBuilder(
                     future: cashbackAttachment,

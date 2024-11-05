@@ -191,7 +191,7 @@ class _Marketingexpense_DialogstatusState
               ),
               InkWell(
                 child: Text(
-                  'Detail ME',
+                  'Detail',
                   style: TextStyle(
                     fontSize: isHorizontal ? 15.sp : 12.sp,
                     fontFamily: 'Segoe ui',

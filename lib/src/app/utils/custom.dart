@@ -125,6 +125,7 @@ login(String user, String pass, BuildContext context,
           final String divisi = data['data']['divisi'];
           final String ttd = data['data']['ttd'] ?? '';
           final String token = data['data']['gentoken'] ?? '';
+          final String isTrainer = data['data']['is_trainer'] ?? '';
 
           savePref(
             context,
@@ -134,6 +135,7 @@ login(String user, String pass, BuildContext context,
             accstatus,
             role,
             divisi,
+            isTrainer,
             ttd,
             token,
           );
@@ -398,6 +400,24 @@ pushNotif(
           'Maaf, pengajuan Marketing Expense $opticName ditolak oleh $admName. Segera cek data status terbarunya';
       tmplate = '25';
       break;
+    case 26:
+      title = 'Ada Pengajuan Training';
+      body =
+          '$salesName mengajukan Training untuk $opticName. Mohon segera proses permintaan tersebut';
+      tmplate = '26';
+      break;
+    case 27:
+      title = 'Pengajuan Training Disetujui';
+      body =
+          'Hai, pengajuan Training $opticName telah disetujui oleh $admName. Selalu periksa status terbarunya';
+      tmplate = '27';
+      break;
+    case 28:
+      title = 'Pengajuan Training Ditolak';
+      body =
+          'Maaf, pengajuan Training $opticName ditolak oleh $admName. Segera cek data status terbarunya';
+      tmplate = '28';
+      break;
   }
 
   switch (type) {
@@ -518,6 +538,7 @@ savePref(
   String status,
   String role,
   String divisi,
+  String isTrainer,
   String ttdUser,
   String tokenUser,
 ) async {
@@ -529,6 +550,7 @@ savePref(
   await pref.setString("status", status);
   await pref.setString("role", role.toUpperCase());
   await pref.setString("divisi", divisi);
+  await pref.setString("isTrainer", isTrainer);
   await pref.setString("ttduser", ttdUser);
   await pref.setString("tokenuser", tokenUser);
   await pref.setBool("islogin", true);
@@ -549,7 +571,7 @@ savePref(
       print(pref.getString("role"));
       print(pref.getString("ttduser"));
       print(pref.getString("tokenuser"));
-    } else if (role == "STAFF") {
+    } else if (role == "STAFF" || role == "USER") {
       print('Login Ke Staff');
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => StaffScreen()));
@@ -605,7 +627,7 @@ handleComing(BuildContext context, {bool isHorizontal = false}) {
       Center(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            shape: StadiumBorder(), 
+            shape: StadiumBorder(),
             backgroundColor: Colors.indigo[600],
             padding: EdgeInsets.symmetric(
                 horizontal: isHorizontal ? 22.r : 20.r,
@@ -828,7 +850,7 @@ handleCustomStatus(BuildContext context, String msg, bool status,
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(), 
+                shape: StadiumBorder(),
                 backgroundColor: Colors.indigo[600],
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
@@ -907,7 +929,7 @@ handleStatusChangeContract(
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(), 
+                shape: StadiumBorder(),
                 backgroundColor: Colors.indigo[600],
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),

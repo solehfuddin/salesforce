@@ -184,7 +184,7 @@ Widget infoSales({
 // }
 
 SliverPadding areaInfoDonut(
-    {List<SalesPerform>? sales,
+    {required List<SalesPerform> sales,
     dynamic totalSales,
     BuildContext? context,
     String stDate = '',
@@ -199,7 +199,7 @@ SliverPadding areaInfoDonut(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
           return itemInfo(
-            sales!,
+            sales,
             index,
             totalSales,
             context: context,
@@ -208,7 +208,7 @@ SliverPadding areaInfoDonut(
             edDate: edDate,
           );
         },
-        childCount: sales!.length,
+        childCount: sales.length,
       ),
     ),
   );
@@ -325,7 +325,7 @@ detailPerform(BuildContext context,
 }
 
 SliverPadding areaInfoDonutUser(
-    {List<SalesPerform>? sales,
+    {required List<SalesPerform> sales,
     dynamic totalSales,
     BuildContext? context,
     String stDate = '',
@@ -341,7 +341,7 @@ SliverPadding areaInfoDonutUser(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
           return itemInfoUser(
-            sales!,
+            sales,
             index,
             totalSales,
             context: context,
@@ -350,7 +350,7 @@ SliverPadding areaInfoDonutUser(
             edDate: edDate,
           );
         },
-        childCount: sales!.length,
+        childCount: sales.length,
       ),
     ),
   );

@@ -11,6 +11,9 @@ class CashbackHeader {
       dataNama,
 			dataNik,
 		  dataNpwp,
+      isSpSatuan,
+      spNumber,
+      isSpPercent,
 			withdrawDuration,
 			withdrawProcess,
 			idCashbackRekening,
@@ -19,6 +22,8 @@ class CashbackHeader {
 			targetDuration,
 			targetProduct,
 			paymentDuration,
+      paymentMechanism,
+      paymentDate,
 			approvalSm,
 			approverSm,
 			reasonSm,
@@ -180,6 +185,18 @@ class CashbackHeader {
     dataNpwp = _value;
   }
 
+  set setDataIsSpSatuan(String _value) {
+    isSpSatuan = _value;
+  }
+
+  set setDataSpNumber(String _value) {
+    spNumber = _value;
+  }
+
+  set setDataIsSpPercent(String _value) {
+    isSpPercent = _value;
+  }
+
   set setWithdrawDuration(String _value) {
     withdrawDuration = _value;
   }
@@ -220,6 +237,14 @@ class CashbackHeader {
     paymentDuration = _value;
   }
 
+  set setPaymentMechanism(String _value) {
+    paymentMechanism = _value;
+  }
+
+  set setPaymentDate(String _value) {
+    paymentDate = _value;
+  }
+
   set setCreatedBy(String _value) {
     createdBy = _value;
   }
@@ -249,6 +274,9 @@ class CashbackHeader {
       dataNama = json['data_nama'],
 		  dataNik = json['data_nik'],
 		  dataNpwp = json['data_npwp'],
+      isSpSatuan = json['is_sp_satuan'],
+      spNumber = json['sp_number'],
+      isSpPercent = json['is_sp_percent'],
 		  withdrawDuration	= json['withdraw_duration'],
 		  withdrawProcess = json['withdraw_process'],
 			idCashbackRekening = json['id_cashback_rekening'],
@@ -256,9 +284,11 @@ class CashbackHeader {
 		  targetValue	= json['target_value'],
 			targetDuration = json['target_duration'],
 		  targetProduct = json['target_product'],
-			cashbackValue = json['cashback_value'] ?? null,
-		 	cashbackPercentage = json['cashback_percentage'] ?? null,
+			cashbackValue = json['cashback_value'] ?? '0',
+		 	cashbackPercentage = json['cashback_percentage'] ?? '0',
 		  paymentDuration = json['payment_duration'],
+      paymentMechanism = json['payment_mechanism'],
+      paymentDate = json['payment_date'],
 		  approvalSm = json['approval_sm'],
 			approverSm = json['approver_sm'],
 			reasonSm = json['reason_sm'] ?? '',
@@ -292,6 +322,9 @@ class CashbackHeader {
       'data_nama' : dataNama,
 			'data_nik': dataNik,
 			'data_npwp': dataNpwp,
+      'is_sp_satuan' : isSpSatuan,
+      'sp_number' : spNumber,
+      'is_sp_percent' : isSpPercent,
 			'withdraw_duration': withdrawDuration,
 			'withdraw_process': withdrawProcess,
 			'id_cashback_rekening': idCashbackRekening,
@@ -302,6 +335,8 @@ class CashbackHeader {
 			'cashback_value': cashbackValue,
 			'cashback_percentage': cashbackPercentage,
 			'payment_duration': paymentDuration,
+      'payment_mechanism' : paymentMechanism,
+      'payment_date' : paymentDate,
 			'approval_sm': approvalSm,
 			'approver_sm': approverSm,
 			'reason_sm': reasonSm,

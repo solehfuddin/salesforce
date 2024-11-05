@@ -485,7 +485,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;
@@ -1426,7 +1426,7 @@ class _DetailInkaroApprovalState extends State<DetailInkaroApproval> {
               SizedBox(
                 height: isHor ? 20.h : 10.h,
               ),
-              divisi == "SM" ? 
+              role == 'ADMIN' && divisi == 'SALES' ? 
               widget.isPending!
                   ? handleAction(
                       isHorizontal: isHor,

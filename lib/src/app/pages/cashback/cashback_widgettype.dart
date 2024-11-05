@@ -29,8 +29,8 @@ class _CashbackWidgetTypeState extends State<CashbackWidgetType> {
   Widget build(BuildContext context) {
     return Material(
       child: Ink(
-        width: 100.w,
-        height: 100.h,
+        width: 87.w,
+        height: 87.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(
@@ -67,7 +67,7 @@ class _CashbackWidgetTypeState extends State<CashbackWidgetType> {
                 Icon(
                   Icons.check_circle_outline,
                   color: Colors.white,
-                  size: 38.r,
+                  size: 30.r,
                 ),
                 Center(
                   child: Text(
@@ -75,7 +75,7 @@ class _CashbackWidgetTypeState extends State<CashbackWidgetType> {
                     style: TextStyle(
                       fontFamily: 'Segoe Ui',
                       fontWeight: FontWeight.w600,
-                      fontSize: widget.isHorizontal ? 15.sp : 13.sp,
+                      fontSize: widget.isHorizontal ? 14.sp : 12.sp,
                       color: Colors.white,
                     ),
                   ),
@@ -97,8 +97,8 @@ class _CashbackWidgetTypeState extends State<CashbackWidgetType> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Container(
-                    width: 35.w,
-                    height: 35.w,
+                    width: 30.w,
+                    height: 30.w,
                     padding: EdgeInsets.all(
                       5.r,
                     ),
@@ -106,13 +106,13 @@ class _CashbackWidgetTypeState extends State<CashbackWidgetType> {
                       border: Border.all(
                         color: Colors.grey.shade300,
                       ),
-                      borderRadius: BorderRadius.circular(25.r),
+                      borderRadius: BorderRadius.circular(22.r),
                     ),
                     child: Center(
                       child: Image.asset(
                         widget.cardIcon,
-                        width: 25.w,
-                        height: 25.h,
+                        width: 22.w,
+                        height: 22.h,
                       ),
                     ),
                   ),
@@ -125,7 +125,7 @@ class _CashbackWidgetTypeState extends State<CashbackWidgetType> {
                           style: TextStyle(
                             fontFamily: 'Segoe Ui',
                             fontWeight: FontWeight.w600,
-                            fontSize: widget.isHorizontal ? 15.sp : 13.sp,
+                            fontSize: widget.isHorizontal ? 14.sp : 12.sp,
                             color: Colors.black87,
                           ),
                         ),
