@@ -484,7 +484,7 @@ class _ListInkaroScreenState extends State<ListInkaroScreen> {
                 child: ClipPath(
                   child: InkWell(
                     child: Container(
-                      height: isHorizontal ? 120.h : 90.h,
+                      // height: isHorizontal ? 120.h : 90.h,
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(
@@ -538,7 +538,7 @@ class _ListInkaroScreenState extends State<ListInkaroScreen> {
                                         Expanded(
                                           flex: 1,
                                           child: Text(
-                                            'Mulai Periode : ',
+                                            'Periode : ',
                                             style: TextStyle(
                                                 fontSize: isHorizontal
                                                     ? 16.sp
@@ -562,7 +562,13 @@ class _ListInkaroScreenState extends State<ListInkaroScreen> {
                                         Expanded(
                                           flex: 1,
                                           child: Text(
-                                            inkaroHeader[position].startPeriode,
+                                            convertDateWithMonth(
+                                                    inkaroHeader[position]
+                                                        .startPeriode) +
+                                                " s/d " +
+                                                convertDateWithMonth(
+                                                    inkaroHeader[position]
+                                                        .endPeriode),
                                             style: TextStyle(
                                               fontSize:
                                                   isHorizontal ? 17.sp : 12.sp,
@@ -570,6 +576,36 @@ class _ListInkaroScreenState extends State<ListInkaroScreen> {
                                               fontWeight: FontWeight.w600,
                                               overflow: TextOverflow.ellipsis,
                                             ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15.h,
+                                  ),
+                                  SizedBox(
+                                    width: isHorizontal ? 250.w : 200.w,
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Dibuat oleh : ',
+                                          style: TextStyle(
+                                              fontSize:
+                                                  isHorizontal ? 16.sp : 11.sp,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        Text(
+                                          inkaroHeader[position].salesName,
+                                          style: TextStyle(
+                                            fontSize:
+                                                isHorizontal ? 17.sp : 12.sp,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w600,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
@@ -605,16 +641,28 @@ class _ListInkaroScreenState extends State<ListInkaroScreen> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => DetailInkaroScreen(
-                            widget.customerList,
-                            widget.position,
-                            inkaroHeader,
-                            position,
+                      if (inkaroHeader[position].createBy == id) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DetailInkaroScreen(
+                              widget.customerList,
+                              widget.position,
+                              inkaroHeader,
+                              position,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        handleStatus(
+                          context,
+                          'Maaf Anda tidak memiliki akses untuk melihatnya, karena kontrak ini dibuat oleh ' +
+                              inkaroHeader[position].salesName +
+                              '.',
+                          false,
+                          isHorizontal: isHorizontal,
+                          isLogout: true,
+                        );
+                      }
                     },
                   ),
                   clipper: ShapeBorderClipper(

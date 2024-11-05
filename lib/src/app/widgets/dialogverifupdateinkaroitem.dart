@@ -85,16 +85,18 @@ class _DialogVerifUpdateInkaroItemState
       // final String msg = res['message'].toString();
 
       if (sts) {
-        Navigator.of(context, rootNavigator: true)..pop('dialog');
         await getListInkaro();
+        Navigator.of(context, rootNavigator: true)..pop('dialog');
+
         showDialog(
             context: context,
             builder: (BuildContext context) {
               return dialogStatusDeleteItemInkaro(sts);
             });
       } else {
-        Navigator.of(context, rootNavigator: true)..pop('dialog');
         await getListInkaro();
+        Navigator.of(context, rootNavigator: true)..pop('dialog');
+
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -300,16 +302,13 @@ class _DialogVerifUpdateInkaroItemState
   void initState() {
     super.initState();
     getRole();
-    descCatItemDeleted =
-        widget.inkaroDetailUpdate.length > 0 
-        ?  widget.inkaroDetailUpdate[widget.positionDetail].descKategori
+    descCatItemDeleted = widget.inkaroDetailUpdate.length > 0
+        ? widget.inkaroDetailUpdate[widget.positionDetail].descKategori
         : '';
-    descSubCatItemDeleted =
-         widget.inkaroDetailUpdate.length > 0 
+    descSubCatItemDeleted = widget.inkaroDetailUpdate.length > 0
         ? widget.inkaroDetailUpdate[widget.positionDetail].descSubcategory
         : '';
-    typeInkaroDeleted =
-        widget.inkaroDetailUpdate.length > 0 
+    typeInkaroDeleted = widget.inkaroDetailUpdate.length > 0
         ? widget.inkaroDetailUpdate[widget.positionDetail].typeInkaro
         : '';
   }
@@ -346,110 +345,114 @@ class _DialogVerifUpdateInkaroItemState
           textAlign: TextAlign.center,
         ),
       ),
-      content: Container(
-        padding: EdgeInsets.only(
-          top: 10.r,
-        ),
-        height: 200.h,
-        child: Column(
-          children: [
-            (widget.typeUpdate == 'delete'
-                ? Center(
-                    child: Text(
-                      'Inkaro ' +
-                          (typeInkaroDeleted == "reguler"
-                              ? descCatItemDeleted! + " akan dihapus"
-                              : descSubCatItemDeleted! + " akan dihapus"),
-                      style: TextStyle(
-                        fontSize: isHorizontal ? 16.sp : 14.sp,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : SizedBox(
-                    height: 0.h,
-                  )),
-            SizedBox(
-              height: 10.h,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.only(
+              top: 10.r,
             ),
-            Center(
-              child: Text(
-                'Jika Data Kontrak Mengalami Perubahan, maka status kontrak inkaro akan kembali menjadi "PENDING" dan perlu melalui proses approval Sales Manager',
-                style: TextStyle(
-                  fontSize: isHorizontal ? 16.sp : 14.sp,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w400,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: isHorizontal ? 10.h : 20.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)), 
-                          backgroundColor: Colors.indigo[600],
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 15.r, vertical: 10.r),
+                (widget.typeUpdate == 'delete'
+                    ? Center(
+                        child: Text(
+                          'Inkaro ' +
+                              (typeInkaroDeleted == "reguler"
+                                  ? descCatItemDeleted! + " akan dihapus"
+                                  : descSubCatItemDeleted! + " akan dihapus"),
+                          style: TextStyle(
+                            fontSize: isHorizontal ? 16.sp : 14.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : SizedBox(
+                        height: 0.h,
+                      )),
+                SizedBox(
+                  height: 10.h,
+                ),
+                Center(
+                  child: Text(
+                    'Jika Data Kontrak Mengalami Perubahan, maka status kontrak inkaro akan kembali menjadi "PENDING" dan perlu melalui proses approval Sales Manager',
+                    style: TextStyle(
+                      fontSize: isHorizontal ? 16.sp : 14.sp,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w400,
                     ),
-                    child: Text(
-                      'Iya',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Segoe ui',
-                      ),
-                    ),
-                    onPressed: () async {
-                      if (widget.typeUpdate == 'add') {
-                        await simpanData();
-                      } else if (widget.typeUpdate == 'delete') {
-                        await deleteData();
-                      }
-                    },
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 SizedBox(
-                  width: isHorizontal ? 10.h : 20.h,
+                  height: isHorizontal ? 10.h : 20.h,
                 ),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)), 
-                          backgroundColor: Colors.orange[800],
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 15.r, vertical: 10.r),
-                    ),
-                    child: Text(
-                      'Batal',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isHorizontal ? 18.sp : 14.sp,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Segoe ui',
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          backgroundColor: Colors.indigo[600],
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.r, vertical: 10.r),
+                        ),
+                        child: Text(
+                          'Iya',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Segoe ui',
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (widget.typeUpdate == 'add') {
+                            await simpanData();
+                          } else if (widget.typeUpdate == 'delete') {
+                            await deleteData();
+                          }
+                        },
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.of(context)..pop();
-                    },
-                  ),
-                )
+                    SizedBox(
+                      width: isHorizontal ? 10.h : 20.h,
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          backgroundColor: Colors.orange[800],
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.r, vertical: 10.r),
+                        ),
+                        child: Text(
+                          'Batal',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isHorizontal ? 18.sp : 14.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Segoe ui',
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context)..pop();
+                        },
+                      ),
+                    )
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -490,8 +493,8 @@ class _DialogVerifUpdateInkaroItemState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)), 
-                          backgroundColor: Colors.indigo[600],
+                          borderRadius: BorderRadius.circular(10.0)),
+                      backgroundColor: Colors.indigo[600],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),
@@ -553,8 +556,8 @@ class _DialogVerifUpdateInkaroItemState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)), 
-                          backgroundColor: Colors.indigo[600],
+                          borderRadius: BorderRadius.circular(10.0)),
+                      backgroundColor: Colors.indigo[600],
                       padding: EdgeInsets.symmetric(
                           horizontal: 15.r, vertical: 10.r),
                     ),
