@@ -42,6 +42,31 @@ class TrainingController extends GetxController {
 
   var listTrainingAttachment = <XFile>[].obs;
 
+  void clearState() {
+    selectedDate.value = "";
+    trainingTime.value = "00:00";
+    trainingDuration.value = 1;
+    trainingMechanism.value = "OFFLINE KUNJUNGAN";
+    trainingMateri.value = "PENGENALAN LENSA";
+    trainingNotes.value = "";
+    isProspect.value = false;
+    isHorizontal.value = false;
+    validateOpticName.value = false;
+    validateOpticAddress.value = false;
+    search.value = "";
+    selectedOptic.value = OpticWithAddress(
+      namaUsaha: "",
+      alamatUsaha: "",
+      noAccount: "",
+      billNumber: "",
+      typeAccount: "",
+      phone: "",
+      contactPerson: "",
+    );
+
+    listTrainingAttachment.value = <XFile>[];
+  }
+
   void handleValidation(
     bool isHorizontal, {
     String salesId = '',
@@ -123,6 +148,7 @@ class TrainingController extends GetxController {
 
           if (value != '')
           {
+            clearState();
             Get.toNamed('/tabTraining');
 
             handleStatus(

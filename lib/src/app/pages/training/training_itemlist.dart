@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/pages/trainer/trainer_dialogreschedule.dart';
 import 'package:sample/src/app/pages/training/training_dialogstatus.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/domain/entities/training_resheader.dart';
@@ -10,11 +11,13 @@ import 'package:sample/src/domain/entities/training_resheader.dart';
 class Training_itemlist extends StatelessWidget {
   TrainingResHeader itemList;
   bool isHorizontal = false;
+  bool isSales = false;
 
   Training_itemlist({
     Key? key,
     required this.itemList,
     this.isHorizontal = false,
+    this.isSales = false,
   }) : super(key: key);
 
   @override
@@ -25,9 +28,10 @@ class Training_itemlist extends StatelessWidget {
         vertical: isHorizontal ? 12.r : 7.r,
       ),
       child: ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
+        // physics: NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: this.itemList.count,
+        scrollDirection: Axis.vertical,
         itemBuilder: (context, position) {
           return Card(
             elevation: 2,
@@ -89,13 +93,32 @@ class Training_itemlist extends StatelessWidget {
                                   SizedBox(
                                     width: 3.w,
                                   ),
-                                  Text(
-                                    itemList.list[position].agenda ?? 'PENDING',
-                                    style: TextStyle(
-                                      fontFamily: 'Segoe Ui',
-                                      fontSize: isHorizontal ? 14.sp : 11.sp,
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.w600,
+                                  Visibility(
+                                    visible:
+                                        itemList.list[position].agenda!.length >
+                                            0,
+                                    child: Text(
+                                      itemList.list[position].agenda!.length >
+                                              40
+                                          ? itemList.list[position].agenda!
+                                                  .substring(0, 32) +
+                                              '...'
+                                          : itemList.list[position].agenda!,
+                                      style: TextStyle(
+                                        fontFamily: 'Segoe Ui',
+                                        fontSize: isHorizontal ? 14.sp : 11.sp,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    replacement: Text(
+                                      'PENDING',
+                                      style: TextStyle(
+                                        fontFamily: 'Segoe Ui',
+                                        fontSize: isHorizontal ? 14.sp : 11.sp,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -244,7 +267,15 @@ class Training_itemlist extends StatelessWidget {
                                           : itemList.list[position].status ==
                                                   "REJECT"
                                               ? Colors.red.shade700
-                                              : Colors.green.shade700,
+                                              : itemList.list[position]
+                                                          .status ==
+                                                      "RESCHEDULE"
+                                                  ? Colors.orange.shade600
+                                                  : itemList.list[position]
+                                                              .status ==
+                                                          "DONE"
+                                                      ? Colors.indigo.shade600
+                                                      : Colors.green.shade700,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -257,29 +288,53 @@ class Training_itemlist extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  elevation: 2,
-                  enableDrag: true,
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(
-                        15.r,
-                      ),
-                      topRight: Radius.circular(
-                        15.r,
-                      ),
-                    ),
-                  ),
-                  builder: (context) {
-                    return SingleChildScrollView(
-                      child: Training_DialogStatus(
-                        item: itemList.list[position],
-                      ),
-                    );
-                  },
-                );
+                itemList.list[position].status == "RESCHEDULE" && isSales
+                    ? showModalBottomSheet(
+                        context: context,
+                        elevation: 2,
+                        enableDrag: true,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                              15.r,
+                            ),
+                            topRight: Radius.circular(
+                              15.r,
+                            ),
+                          ),
+                        ),
+                        builder: (context) {
+                          return SingleChildScrollView(
+                            child: TrainerDialogReschedule(
+                              item: itemList.list[position],
+                            ),
+                          );
+                        },
+                      )
+                    : showModalBottomSheet(
+                        context: context,
+                        elevation: 2,
+                        enableDrag: true,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                              15.r,
+                            ),
+                            topRight: Radius.circular(
+                              15.r,
+                            ),
+                          ),
+                        ),
+                        builder: (context) {
+                          return SingleChildScrollView(
+                            child: Training_DialogStatus(
+                              item: itemList.list[position],
+                            ),
+                          );
+                        },
+                      );
               },
             ),
           );

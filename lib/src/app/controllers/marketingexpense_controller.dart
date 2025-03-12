@@ -19,6 +19,9 @@ import 'package:sample/src/domain/entities/trainer.dart';
 import 'package:sample/src/domain/service/service_cashback.dart';
 import 'package:sample/src/domain/service/service_marketingexpense.dart';
 
+import '../../domain/entities/offline_trainer.dart';
+import '../../domain/entities/online_trainer.dart';
+
 class MarketingExpenseController extends GetxController {
   ServiceMarketingExpense serviceMe = ServiceMarketingExpense();
   ServiceCashback serviceCashback = ServiceCashback();
@@ -79,6 +82,7 @@ class MarketingExpenseController extends GetxController {
   var listMELine = <MarketingExpenseLine>[].obs;
   var listMEAttachment = <XFile>[].obs;
   var listMeImages = <MarketingExpenseAttachment>[].obs;
+  var listOffline = <OfflineTrainer>[].obs;
 
   void clearState() {
     txtOwner.value.text = "";
@@ -157,6 +161,14 @@ class MarketingExpenseController extends GetxController {
 
   Future<List<Trainer>> getAllTrainer(bool mounted, BuildContext context, {String key = ''}) {
     return serviceMe.getTrainer(mounted, context, key: key);
+  }
+
+  Future<List<OfflineTrainer>> getOfflineTrainer(bool mounted, BuildContext context, {String key = ''}) {
+    return serviceMe.getOfflineTrainer(mounted, context, key : key);
+  }
+
+  Future<List<OnlineTrainer>> getOnlineTrainer(bool mounted, BuildContext context, {String key = ''}) {
+    return serviceMe.getOnlineTrainer(mounted, context, key : key);
   }
 
   void handleValidation(

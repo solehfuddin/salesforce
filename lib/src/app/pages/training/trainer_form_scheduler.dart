@@ -3,8 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:sample/src/app/controllers/training_controller.dart';
+import 'package:sample/src/domain/entities/offline_trainer.dart';
+import 'package:sample/src/domain/entities/online_trainer.dart';
+import 'package:sample/src/domain/service/service_marketingexpense.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:time_pickerr/time_pickerr.dart';
+
+import '../../../domain/entities/holiday_format.dart';
+import '../../../domain/entities/trainer.dart';
 
 // ignore: must_be_immutable
 class TrainerFormScheduler extends StatefulWidget {
@@ -20,6 +26,219 @@ class TrainerFormScheduler extends StatefulWidget {
 
 class _TrainerFormSchedulerState extends State<TrainerFormScheduler> {
   TrainingController controller = Get.find<TrainingController>();
+  ServiceMarketingExpense serviceME = ServiceMarketingExpense();
+  late Trainer trainer;
+  List<OfflineTrainer> listOffline = List.empty(growable: true);
+  List<OnlineTrainer> listOnline = List.empty(growable: true);
+  List<HolidayFormat> listHoliday = List.empty(growable: true);
+  List<HolidayFormat> listEnableHoliday = List.empty(growable: true);
+
+  @override
+  void initState() {
+    super.initState();
+    trainer = controller.trainer.value;
+
+    String format = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    controller.selectedDate.value = format;
+
+    print("""
+    Trainer Id : ${trainer.id}
+    Trainer Name : ${trainer.name}
+    Offline Start : ${trainer.offlineStart}
+    Offline Until : ${trainer.offlineUntil}
+    """);
+
+    serviceME
+        .getOfflineTrainer(mounted, context, key: trainer.id ?? '')
+        .then((value) {
+      listOffline.addAll(value);
+
+      listOffline.forEach((element) {
+        generateDayBetweenTwoDate(
+          element.offlineStart,
+          element.offlineUntil,
+          element.offlineReason,
+        );
+      });
+    });
+
+    serviceME
+        .getOnlineTrainer(mounted, context, key: trainer.id ?? '')
+        .then((value) {
+      listOnline.addAll(value);
+
+      listOnline.forEach((element) {
+        generateDayBetweenTwoDateEnable(
+            element.onlineStart, element.onlineUntil);
+      });
+    });
+  }
+
+  void generateDayBetweenTwoDate(
+    String? startDate,
+    String? endDate,
+    String? reason,
+  ) {
+    DateTime stDate = DateTime.parse(startDate!);
+    DateTime edDate = DateTime.parse(endDate!);
+
+    print("""
+    Int Start : ${stDate.day}
+    Mon Start : ${stDate.month}
+    Int End : ${edDate.day}
+    Mon End : ${edDate.month}
+    """);
+
+    if (stDate.day == 31 && stDate.month == 12) {
+      for (int st = stDate.day; st <= edDate.day + stDate.day; st++) {
+        if (st > DateTime(stDate.year, stDate.month + 1, 0).day) {
+          listHoliday.add(HolidayFormat(
+            day: st - stDate.day,
+            month: 01,
+            year: stDate.year + 1,
+            reason: reason,
+          ));
+
+          print("""
+              Offline
+              Int Day  = ${st - stDate.day}
+              Int Month = 01
+              Int Year = ${stDate.year + 1}
+            """);
+        } else {
+          listHoliday.add(HolidayFormat(
+            day: st,
+            month: stDate.month,
+            year: stDate.year,
+            reason: reason,
+          ));
+
+          print("""
+              Offline
+              Int Day  = $st
+              Int Month = ${stDate.month}
+              Int Year = ${stDate.year}
+              """);
+        }
+      }
+    } else {
+      if (stDate.day > edDate.day) {
+        for (int st = stDate.day; st <= edDate.day + stDate.day; st++) {
+          if (st > DateTime(stDate.year, stDate.month + 1, 0).day) {
+            listHoliday.add(HolidayFormat(
+              day: st - stDate.day,
+              month: stDate.month + 1,
+              year: stDate.year,
+              reason: reason,
+            ));
+
+            print("""
+          Offline
+          Int Day  = ${st - stDate.day}
+          Int Month = ${stDate.month + 1}
+          Int Year = ${stDate.year}
+          """);
+          } else {
+            listHoliday.add(HolidayFormat(
+              day: st,
+              month: stDate.month,
+              year: stDate.year,
+              reason: reason,
+            ));
+
+            print("""
+          Offline
+          Int Day  = $st
+          Int Month = ${stDate.month}
+          Int Year = ${stDate.year}
+          """);
+          }
+        }
+      } else {
+        for (int st = stDate.day; st <= edDate.day; st++) {
+          listHoliday.add(HolidayFormat(
+            day: st,
+            month: stDate.month,
+            year: stDate.year,
+            reason: reason,
+          ));
+
+          print("""
+              Offline
+              Int Day  = $st
+              Int Month = ${stDate.month}
+              Int Year = ${stDate.year}
+              """);
+        }
+      }
+    }
+  }
+
+  void generateDayBetweenTwoDateEnable(String? startDate, String? endDate) {
+    DateTime stDate1 = DateTime.parse(startDate!);
+    DateTime edDate1 = DateTime.parse(endDate!);
+
+    print("""
+    Int Start : ${stDate1.day}
+    Int End : ${edDate1.day}
+    """);
+
+    if (stDate1.day > edDate1.day) {
+      for (int st = stDate1.day; st <= edDate1.day + stDate1.day; st++) {
+        if (st > DateTime(stDate1.year, stDate1.month + 1, 0).day) {
+          listEnableHoliday.add(HolidayFormat(
+              day: st - stDate1.day,
+              month: stDate1.month + 1,
+              year: stDate1.year));
+
+          print("""
+          Online
+          Int Day  = ${st - stDate1.day}
+          Int Month = ${stDate1.month + 1}
+          Int Year = ${stDate1.year}
+          """);
+        } else {
+          listEnableHoliday.add(
+              HolidayFormat(day: st, month: stDate1.month, year: stDate1.year));
+
+          print("""
+          Online
+          Int Day  = $st
+          Int Month = ${stDate1.month}
+          Int Year = ${stDate1.year}
+          """);
+        }
+      }
+    }
+    // else if (stDate1.day == 31 && stDate1.month == 12) {
+    //   for (int st = stDate1.day; st <= edDate1.day; st++) {
+    //     listEnableHoliday.add(HolidayFormat(
+    //         day: st - stDate1.day,
+    //         month: stDate1.month + 1,
+    //         year: stDate1.year + 1));
+
+    //     print("""
+    //           Online
+    //           Int Day  = $st
+    //           Int Month = ${stDate1.month}
+    //           Int Year = ${stDate1.year}
+    //           """);
+    //   }
+    // }
+    else {
+      for (int st = stDate1.day; st <= edDate1.day; st++) {
+        listEnableHoliday.add(
+            HolidayFormat(day: st, month: stDate1.month, year: stDate1.year));
+
+        print("""
+              Online
+              Int Day  = $st
+              Int Month = ${stDate1.month}
+              Int Year = ${stDate1.year}
+              """);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +260,7 @@ class _TrainerFormSchedulerState extends State<TrainerFormScheduler> {
               focusedDay: controller.dateSelection.value,
               firstDay: controller.dateNow.value,
               lastDay: controller.dateNow.value.add(
-                Duration(days: 90),
+                Duration(days: 365),
               ),
               selectedDayPredicate: (day) =>
                   isSameDay(controller.dateSelection.value, day),
@@ -104,10 +323,45 @@ class _TrainerFormSchedulerState extends State<TrainerFormScheduler> {
               locale: "id_ID",
               onDaySelected: (selectedDay, focusedDay) {
                 if (selectedDay.weekday == 6 || selectedDay.weekday == 7) {
-                  print('Tanggal tersebut libur');
+                  if (listEnableHoliday.any((e) =>
+                      e.day == selectedDay.day &&
+                      e.month == selectedDay.month &&
+                      e.year == selectedDay.year)) {
+                    String format =
+                        DateFormat('yyyy-MM-dd').format(selectedDay);
+                    controller.selectedDate.value = format;
+                    controller.dateSelection.value = focusedDay;
+
+                    print(
+                        'Date Selected : ${DateFormat('yyy-MM-dd').format(controller.dateSelection.value)}');
+                  } else {
+                    print('Tanggal tersebut libur');
+                    Get.snackbar(
+                      'Informasi',
+                      'Hari libur tidak dapat dipilih',
+                      colorText: Colors.white,
+                      backgroundColor: Colors.red.shade500,
+                      animationDuration: Duration(seconds: 1),
+                      duration: Duration(seconds: 2),
+                    );
+                  }
+                } else if (listHoliday.any((e) =>
+                    e.day == selectedDay.day &&
+                    e.month == selectedDay.month &&
+                    e.year == selectedDay.year)) {
+                  
+                  String? reason = '';
+                  listHoliday.forEach((e) {
+                    if (e.day == selectedDay.day &&
+                    e.month == selectedDay.month &&
+                    e.year == selectedDay.year) {
+                      reason = e.reason;
+                    }
+                  });
+                  print('Tanggal trainer berhalangan');
                   Get.snackbar(
                     'Informasi',
-                    'Hari libur tidak dapat dipilih',
+                    'Trainer berhalangan karena ${reason?.toLowerCase()}',
                     backgroundColor: Colors.amber.shade500,
                     animationDuration: Duration(seconds: 1),
                     duration: Duration(seconds: 2),
@@ -235,9 +489,9 @@ class _TrainerFormSchedulerState extends State<TrainerFormScheduler> {
                           fontWeight: FontWeight.w600,
                         ),
                         onChanged: (value) {
-                          if (value.length > 0)
-                          {
-                            controller.trainingDuration.value = int.parse(value);
+                          if (value.length > 0) {
+                            controller.trainingDuration.value =
+                                int.parse(value);
                           }
                         },
                       ),

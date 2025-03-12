@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:sample/src/domain/entities/agenda_training.dart';
 
 import '../../app/utils/config.dart';
 import '../../app/utils/custom.dart';
@@ -330,6 +331,101 @@ class ServiceTraining {
       handleSocket(context);
     } on Error catch (e) {
       print('General Error : ${e.stackTrace}');
+    }
+
+    return list;
+  }
+
+  Future<TrainingResHeader> getRescheduleTraining(
+    bool mounted,
+    BuildContext context, {
+    String idSales = '',
+    String search = '',
+  }) async {
+    late TrainingResHeader list;
+    var url = '$API_URL/training/trainingReschedule?id_sales=$idSales';
+
+    print(url);
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      print('Training Status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool status = data['status'];
+
+        if (status) {
+          list = new TrainingResHeader(
+              status: data['status'],
+              message: data['message'],
+              count: data['count'],
+              total: data['total'],
+              list: data['data']
+                  .map<TrainingHeader>(
+                      (json) => TrainingHeader.fromJson(json))
+                  .toList());
+        } else {
+          list = new TrainingResHeader(
+            status: data['status'],
+            message: data['message'],
+            count: 0,
+            total: 0,
+            list: [],
+          );
+        }
+      } on FormatException catch (e) {
+        print('Format Exception : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+    }
+
+    return list;
+  }
+
+  Future<List<AgendaTraining>> getSearchAgenda(BuildContext context, {String input = ''}) async {
+    List<AgendaTraining> list = List.empty(growable: true);
+
+    const timeout = 15;
+    var url = '$API_URL/training/agenda?search=$input';
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<AgendaTraining>((json) => AgendaTraining.fromJson(json))
+              .toList();
+
+          print("List Size: ${list.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
     }
 
     return list;

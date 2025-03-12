@@ -1391,7 +1391,6 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = true;
 
@@ -1403,6 +1402,19 @@ SliverToBoxAdapter areaMenu(
                                     );
                                   } else {
                                     print('Access camera tidak diizinkan');
+                                    await Permission.camera.request();
+                                    await Permission.microphone.request();
+
+                                    if (await Permission.camera.isGranted) {
+                                      Get.find<MyController>().isCekIn = true;
+
+                                      Get.to(
+                                        () => AttendanceScreen(
+                                          isCekin:
+                                              Get.find<MyController>().isCekIn,
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                               ),
@@ -1438,7 +1450,6 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = false;
 
@@ -1450,6 +1461,19 @@ SliverToBoxAdapter areaMenu(
                                     );
                                   } else {
                                     print('Access camera tidak diizinkan');
+                                    await Permission.camera.request();
+                                    await Permission.microphone.request();
+
+                                    if (await Permission.camera.isGranted) {
+                                      Get.find<MyController>().isCekIn = false;
+
+                                      Get.to(
+                                        () => AttendanceScreen(
+                                          isCekin:
+                                              Get.find<MyController>().isCekIn,
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                               ),

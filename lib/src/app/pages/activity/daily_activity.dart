@@ -278,13 +278,14 @@ class _DailyActivityState extends State<DailyActivity> {
               firstDay: widget.isAdmin
                   ? firstDayInit
                   : now.add(
-                      Duration(
-                        days: widget.dailyInt,
-                      ),
+                      Duration(days: 0),
                     ),
               // : now.add(
-              //     Duration(days: -2),
+              //     Duration(
+              //       days: widget.dailyInt,
+              //     ),
               //   ),
+
               lastDay: now,
               selectedDayPredicate: (day) => isSameDay(selDateTime, day),
               startingDayOfWeek: StartingDayOfWeek.monday,
@@ -523,7 +524,7 @@ class _DailyActivityState extends State<DailyActivity> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: Column( 
+                  child: Column(
                     children: [
                       SizedBox(
                         height: isHorizontal ? 14.h : 19.h,

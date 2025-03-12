@@ -669,7 +669,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
                           if (snapshot.data!.isNotEmpty) {
                             double noteHeight = widget.item.notes!.isNotEmpty ? 70.h : 0.h;
                             return SizedBox(
-                              height: 95.h * snapshot.data!.length + 35.h + noteHeight,
+                              height: 99.h * snapshot.data!.length + 38.h + noteHeight,
                               child: Row(
                                 children: [
                                   SizedBox(

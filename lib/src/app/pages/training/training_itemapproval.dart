@@ -97,15 +97,31 @@ class _Training_ItemApprovalState extends State<Training_ItemApproval> {
                                   SizedBox(
                                     width: 3.w,
                                   ),
-                                  Text(
-                                    widget.itemList.list[position].agenda ??
-                                        'PENDING',
-                                    style: TextStyle(
-                                      fontFamily: 'Segoe Ui',
-                                      fontSize:
-                                          widget.isHorizontal ? 14.sp : 11.sp,
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.w600,
+                                  Visibility(
+                                    visible:
+                                        widget.itemList.list[position].agenda!.length >
+                                            0,
+                                    child: Text(
+                                      widget.itemList.list[position].agenda!.length >
+                                              40
+                                          ? widget.itemList.list[position].agenda!
+                                              .substring(0, 32) + '...'
+                                          : widget.itemList.list[position].agenda!,
+                                      style: TextStyle(
+                                        fontFamily: 'Segoe Ui',
+                                        fontSize: widget.isHorizontal ? 14.sp : 11.sp,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    replacement: Text(
+                                      'PENDING',
+                                      style: TextStyle(
+                                        fontFamily: 'Segoe Ui',
+                                        fontSize: widget.isHorizontal ? 14.sp : 11.sp,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ],

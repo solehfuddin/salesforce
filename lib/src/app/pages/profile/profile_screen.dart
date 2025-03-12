@@ -3,19 +3,24 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
 
-import 'package:date_field/date_field.dart';
+// import 'package:date_field/date_field.dart';
+// import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:sample/src/app/pages/profile/profile_schedule.dart';
+// import 'package:sample/src/app/pages/profile/profile_schedule.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+// import '../../../domain/entities/offline_trainer.dart';
 import '../../../domain/entities/trainer.dart';
+import '../../../domain/service/service_marketingexpense.dart';
 import '../../controllers/marketingexpense_controller.dart';
 import '../../controllers/training_controller.dart';
 
@@ -27,6 +32,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   MarketingExpenseController meController =
       Get.find<MarketingExpenseController>();
+  ServiceMarketingExpense serviceMe = new ServiceMarketingExpense();
   TrainingController trainingController = Get.find<TrainingController>();
 
   List<Trainer> _list = List.empty(growable: true);
@@ -45,12 +51,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController textNamaLengkap = new TextEditingController();
   TextEditingController textTrainerRole = new TextEditingController();
   TextEditingController textTrainerProfile = new TextEditingController();
+  TextEditingController textOfflineStart = new TextEditingController();
   TextEditingController textOfflineUntil = new TextEditingController();
   bool _isNamaLengkap = false;
   bool _isPassword = false;
   bool _isRePassword = false;
   bool isOfflineMode = false;
   String isTrainer = "";
+  String offlineStart = '';
   String offlineUntil = '';
   String _choosenOfflineReason = 'CUTI';
   late File tmpFile;
@@ -195,8 +203,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
 
           print("Offline Mode : $isOfflineMode");
-          perbaruiDataTrainer(isHorizontal: isHorizontal);
-
           print('Eksekusi dengan password');
         } else {
           handleStatus(
@@ -214,8 +220,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         print("Offline Mode : $isOfflineMode");
-        perbaruiDataTrainer(isHorizontal: isHorizontal);
-
         print('Eksekusi nama saja');
       }
     } else {
@@ -291,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  perbaruiData({
+   perbaruiData({
     bool isChangePassword = false,
     bool isHorizontal = false,
   }) async {
@@ -306,6 +310,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'id': id,
                 'name': textNamaLengkap.text,
                 'password': textPassword.text,
+                'trainer_role' : textTrainerRole.text,
+                'trainer_profile' : textTrainerProfile.text,
               },
             )
           : await http.put(
@@ -313,6 +319,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               body: {
                 'id': id,
                 'name': textNamaLengkap.text,
+                'trainer_role' : textTrainerRole.text,
+                'trainer_profile' : textTrainerProfile.text,
               },
             ).timeout(Duration(seconds: timeout));
 
@@ -367,6 +375,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'id': id,
           'offline_reason': trainingController.trainer.value.isOnlne == "YES"
               ? _choosenOfflineReason
+              : '',
+          'offline_start': trainingController.trainer.value.isOnlne == "YES"
+              ? offlineStart
               : '',
           'offline_until': trainingController.trainer.value.isOnlne == "YES"
               ? offlineUntil
@@ -445,6 +456,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: Colors.black54,
               ),
             ),
+            actions: [
+              Visibility(
+                visible: isTrainer == "YES",
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: 3.r,
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.settings,
+                      color: Colors.black54,
+                      size: meController.isHorizontal.value ? 20.r : 18.r,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProfileSchedule(
+                            isHorizontal: meController.isHorizontal.value,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -565,7 +602,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Visibility(
                                 visible: isTrainer == "YES" ? true : false,
                                 child: Container(
-                                  margin: EdgeInsets.only(left: 5.w,),
+                                  margin: EdgeInsets.only(
+                                    left: 5.w,
+                                  ),
                                   padding: EdgeInsets.symmetric(
                                     vertical: 10.r,
                                     horizontal: 15.r,
@@ -790,6 +829,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.black54,
             ),
           ),
+          actions: [
+            Visibility(
+              visible: isTrainer == "YES",
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: 3.r,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.settings,
+                    color: Colors.black54,
+                    size: meController.isHorizontal.value ? 20.r : 18.r,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProfileSchedule(
+                          isHorizontal: meController.isHorizontal.value,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -907,7 +972,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Visibility(
                               visible: isTrainer == "YES" ? true : false,
                               child: Container(
-                                margin: EdgeInsets.only(left: 5.w,),
+                                margin: EdgeInsets.only(
+                                  left: 5.w,
+                                ),
                                 padding: EdgeInsets.symmetric(
                                   vertical: 5.r,
                                   horizontal: 10.r,
@@ -1130,143 +1197,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         SizedBox(
           height: 10.h,
-        ),
-        Container(
-          height: 15.h,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                'Change Offline Mode',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 12.sp,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Switch(
-                value: isOfflineMode,
-                onChanged: (value) {
-                  setState(() {
-                    isOfflineMode = value;
-                  });
-                },
-                activeTrackColor: Colors.blue.shade400,
-                activeColor: Colors.blue,
-              ),
-            ],
-          ),
-        ),
-        Visibility(
-          visible: isOfflineMode,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Offline Until',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontFamily: 'Segoe ui',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(
-                height: 7.h,
-              ),
-              DateTimeFormField(
-                decoration: InputDecoration(
-                  hintText: trainingController.trainer.value.isOnlne == "NO"
-                      ? convertDateWithMonth(
-                          trainingController.trainer.value.offlineUntil ?? "")
-                      : 'dd mon yyyy',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.r),
-                  ),
-                  // errorText: _isTanggalLahir ? 'Data wajib diisi' : null,
-                  hintStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontFamily: 'Segoe Ui',
-                  ),
-                ),
-                dateFormat: format,
-                mode: DateTimeFieldPickerMode.date,
-                firstDate: DateTime.now(),
-                lastDate: DateTime(2050),
-                initialDate: DateTime.now(),
-                autovalidateMode: AutovalidateMode.always,
-                onDateSelected: (DateTime value) {
-                  print('before date : $value');
-                  offlineUntil = DateFormat('yyyy-MM-dd').format(value);
-                  textOfflineUntil.text = offlineUntil;
-                  print('after date : $offlineUntil');
-                },
-              ),
-              SizedBox(
-                height: 15.h,
-              ),
-              Text(
-                'Offline Reason',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontFamily: 'Segoe ui',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(
-                height: 7.h,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.r, vertical: 7.r),
-                decoration: BoxDecoration(
-                    color: Colors.white70,
-                    border: Border.all(color: Colors.black54),
-                    borderRadius: BorderRadius.circular(5.r)),
-                child: DropdownButton(
-                  underline: SizedBox(),
-                  isExpanded: true,
-                  value: _choosenOfflineReason,
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontFamily: 'Segoe Ui',
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  items: [
-                    'CUTI',
-                    'SAKIT',
-                    'LAINNYA',
-                  ].map((e) {
-                    return DropdownMenuItem(
-                      value: e,
-                      child: Text(e, style: TextStyle(color: Colors.black54)),
-                    );
-                  }).toList(),
-                  hint: Text(
-                    "Select Reason",
-                    style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Segoe Ui'),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _choosenOfflineReason = value.toString();
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          replacement: SizedBox(
-            width: 10.w,
-          ),
-        ),
-        SizedBox(
-          height: 15.h,
         ),
         Text(
           'Trainer Role',

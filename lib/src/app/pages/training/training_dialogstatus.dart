@@ -1,12 +1,9 @@
-// import 'package:easy_loading_button/easy_loading_button.dart';
-// import 'package:appinio_social_share/appinio_social_share.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sample/src/app/pages/trainer/trainer_confirm.dart';
+import 'package:sample/src/app/pages/trainer/trainer_formconfirm.dart';
 import 'package:sample/src/domain/entities/training_header.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:social_sharing_plus/social_sharing_plus.dart';
-// import 'package:social_share/social_share.dart';
-
 import '../../utils/custom.dart';
 import '../../utils/settings_training.dart';
 
@@ -24,7 +21,39 @@ class Training_DialogStatus extends StatefulWidget {
 
 // ignore: camel_case_types
 class _Training_DialogStatusState extends State<Training_DialogStatus> {
-  // AppinioSocialShare appShare = AppinioSocialShare();
+  String? id = '';
+  String? role = '';
+  String? username = '';
+  String? name = '';
+  String search = '';
+  String? divisi = '';
+  String? status = '';
+  String isTrainer = "";
+
+  @override
+  void initState() {
+    super.initState();
+
+    getRole();
+  }
+
+   getRole() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      id = preferences.getString("id");
+      role = preferences.getString("role");
+      username = preferences.getString("username");
+      divisi = preferences.getString("divisi");
+      name = preferences.getString("name") ?? '';
+      status = preferences.getString("status") ?? '';
+      isTrainer = preferences.getString("isTrainer") ?? '';
+
+      print("""
+      User : $name
+      is Trainer  : $isTrainer
+      """);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +165,7 @@ class _Training_DialogStatusState extends State<Training_DialogStatus> {
                   },
                 ),
               ),
-              if (widget.item.status == "APPROVE")
+              if (widget.item.status == "APPROVE" && isTrainer == "YES")
                 InkWell(
                   child: Text(
                     'Confirm Schedule',
@@ -168,7 +197,7 @@ class _Training_DialogStatusState extends State<Training_DialogStatus> {
                       ),
                       builder: (context) {
                         return SingleChildScrollView(
-                          child: TrainerConfirm(
+                          child: TrainerFormConfirm(
                             item: widget.item,
                           ),
                         );

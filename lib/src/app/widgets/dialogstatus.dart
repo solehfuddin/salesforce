@@ -6,7 +6,7 @@ import 'package:sample/src/app/pages/customer/customer_view.dart';
 // import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/home/home_view.dart';
 import 'package:sample/src/app/pages/staff/staff_view.dart';
-import 'package:sample/src/app/utils/custom.dart';
+// import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
@@ -107,10 +107,7 @@ class _DialogStatusState extends State<DialogStatus> {
             widget.isLogout
                 ? InkWell(
                     onTap: () {
-                      signOut(
-                        isChangePassword: true,
-                        context: context,
-                      );
+                      Navigator.of(context, rootNavigator: true).pop(context);
                     },
                     child: Container(
                       padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
@@ -121,7 +118,7 @@ class _DialogStatusState extends State<DialogStatus> {
                             bottomRight: Radius.circular(32.0)),
                       ),
                       child: Text(
-                        'Tutup Aplikasi',
+                        'Kembali',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

@@ -490,7 +490,7 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                     ],
                                   ),
                                   SizedBox(
-                                    height: 5.h,
+                                    height: 8.h,
                                   ),
                                   Row(
                                     crossAxisAlignment:
@@ -509,12 +509,15 @@ class _RejectedScreenState extends State<RejectedScreen> {
                                         width: isHorizontal ? 28.w : 25.w,
                                       ),
                                       Text(
-                                        customer[position].nama,
+                                        customer[position].nama.length > 15
+                                            ? "${customer[position].nama.substring(1, 15)} ..."
+                                            : customer[position].nama,
                                         style: TextStyle(
-                                            fontSize:
-                                                isHorizontal ? 23.sp : 13.sp,
-                                            fontFamily: 'Montserrat',
-                                            fontWeight: FontWeight.w600),
+                                          fontSize:
+                                              isHorizontal ? 23.sp : 13.sp,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ],
                                   ),

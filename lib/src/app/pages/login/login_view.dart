@@ -41,6 +41,7 @@ class _LoginState extends State<Login> {
   generateTokenFCM() async {
     // token = await FirebaseMessaging.instance.getToken();
     // print('Akses token : $token');
+    FirebaseMessaging.instance.requestPermission();
     FirebaseMessaging.instance.getToken().then((value) {
       if (value != null) {
         token = value;
@@ -85,6 +86,47 @@ class _LoginState extends State<Login> {
     }
   }
 
+  getTokenInfo(int id) async {
+    const timeout = 15;
+    var url = '$API_URL/users?id=$id';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          DateTime todayDate = DateTime.now();
+          DateTime tokenDate = DateTime.parse(data['data']['gentoken_updated']);
+
+          if (getTotalDay(tokenDate, todayDate) > 30) {
+            print('Refresh Token FCM Please...');
+
+            updateToken(
+              id.toString(),
+              token!,
+              context,
+            );
+          }
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
   check({bool isHorizontal = false}) {
     textUsername.text.isEmpty ? _isUsername = true : _isUsername = false;
     textPassword.text.isEmpty ? _isPassword = true : _isPassword = false;
@@ -119,7 +161,12 @@ class _LoginState extends State<Login> {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? role = pref.getString("role");
+    String? id = pref.getString("id");
     print('Akses role : $role');
+
+    if (id != null) {
+      getTokenInfo(int.parse(id));
+    }
 
     if (listAppconfig[0].status == "0") {
       if (role != null) {
@@ -348,7 +395,7 @@ class _LoginState extends State<Login> {
                           vertical: 15.r,
                         ),
                         child: Text(
-                          'versi 1.4.7',
+                          'versi 1.5.2',
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
@@ -512,7 +559,7 @@ class _LoginState extends State<Login> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.r),
                       child: Text(
-                        'versi 1.4.7',
+                        'versi 1.5.2',
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,

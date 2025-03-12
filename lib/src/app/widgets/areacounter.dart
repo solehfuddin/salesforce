@@ -7,6 +7,9 @@ import 'package:sample/src/app/pages/approval/rejected_view.dart';
 import 'package:sample/src/app/pages/approval/tab_approval_approve.dart';
 import 'package:sample/src/app/pages/approval/tab_approval_rejected.dart';
 import 'package:sample/src/app/pages/approval/tab_approval_waiting.dart';
+import 'package:sample/src/app/pages/approval/tab_ar_approve.dart';
+import 'package:sample/src/app/pages/approval/tab_ar_rejected.dart';
+import 'package:sample/src/app/pages/approval/tab_ar_waiting.dart';
 import 'package:sample/src/app/pages/approval/waiting_view.dart';
 import 'package:sample/src/app/pages/customer/customer_view.dart';
 // import 'package:sample/src/app/pages/approval/waiting_view.dart';
@@ -27,6 +30,9 @@ SliverPadding areaCounter(
   int totalWaitingCashback = 0,
   int totalApprovedCashback = 0,
   int totalRejectedCashback = 0,
+  int totalWaitingChangeCust = 0,
+  int totalApprovedChangeCust = 0,
+  int totalRejectedChangeCust = 0,
 }) {
   return SliverPadding(
     padding: EdgeInsets.symmetric(
@@ -209,7 +215,9 @@ SliverPadding areaCounter(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${totalWaitingCashback + int.parse(totalWaiting)}',
+                              divisi == "SALES"
+                                  ? '${totalWaitingCashback + int.parse(totalWaiting) + totalWaitingChangeCust}'
+                                  : '${int.parse(totalWaiting) + totalWaitingChangeCust}',
                               style: TextStyle(
                                 fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
@@ -253,11 +261,19 @@ SliverPadding areaCounter(
                             builder: (context) => TabApprovalWaiting(
                               totalDiskon: int.parse(totalWaiting),
                               totalCashback: totalWaitingCashback,
+                              totalChangeCust: totalWaitingChangeCust,
                             ),
                           )
-                        : MaterialPageRoute(
-                            builder: (context) => WaitingApprovalScreen(),
-                          ),
+                        : divisi == "AR"
+                            ? MaterialPageRoute(
+                                builder: (context) => TabArWaiting(
+                                  totalDiskon: int.parse(totalWaiting),
+                                  totalChangeCust: totalWaitingChangeCust,
+                                ),
+                              )
+                            : MaterialPageRoute(
+                                builder: (context) => WaitingApprovalScreen(),
+                              ),
                   ),
                 ),
               ),
@@ -284,7 +300,9 @@ SliverPadding areaCounter(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${totalApprovedCashback + int.parse(totalApproved)}',
+                              divisi == "SALES" 
+                                ? '${totalApprovedCashback + int.parse(totalApproved) + totalApprovedChangeCust}'
+                                : '${int.parse(totalApproved) + totalApprovedChangeCust}',
                               style: TextStyle(
                                 fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
@@ -328,11 +346,19 @@ SliverPadding areaCounter(
                             builder: (context) => TabApprovalApprove(
                               totalDiskon: int.parse(totalApproved),
                               totalCashback: totalApprovedCashback,
+                              totalChangeCust: totalApprovedChangeCust,
                             ),
                           )
-                        : MaterialPageRoute(
-                            builder: (context) => ApprovedScreen(),
-                          ),
+                        : divisi == "AR"
+                            ? MaterialPageRoute(
+                                builder: (context) => TabArApprove(
+                                  totalDiskon: int.parse(totalApproved),
+                                  totalChangeCust: totalApprovedChangeCust,
+                                ),
+                              )
+                            : MaterialPageRoute(
+                                builder: (context) => ApprovedScreen(),
+                              ),
                   ),
                 ),
               ),
@@ -359,7 +385,9 @@ SliverPadding areaCounter(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${totalRejectedCashback + int.parse(totalRejected)}',
+                              divisi == "SALES" 
+                                ? '${totalRejectedCashback + int.parse(totalRejected) + totalRejectedChangeCust}'
+                                : '${int.parse(totalRejected) + totalRejectedChangeCust}',
                               style: TextStyle(
                                 fontSize: isHorizontal ? 20.sp : 18.sp,
                                 fontWeight: FontWeight.bold,
@@ -403,11 +431,19 @@ SliverPadding areaCounter(
                             builder: (context) => TabApprovalRejected(
                               totalDiskon: int.parse(totalRejected),
                               totalCashback: totalRejectedCashback,
+                              totalChangeCust: totalRejectedChangeCust,
                             ),
                           )
-                        : MaterialPageRoute(
-                            builder: (context) => RejectedScreen(),
-                          ),
+                        : divisi == "AR"
+                            ? MaterialPageRoute(
+                                builder: (context) => TabArRejected(
+                                  totalDiskon: int.parse(totalRejected),
+                                  totalChangeCust: totalRejectedChangeCust,
+                                ),
+                              )
+                            : MaterialPageRoute(
+                                builder: (context) => RejectedScreen(),
+                              ),
                   ),
                 ),
               ),

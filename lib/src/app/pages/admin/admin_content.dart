@@ -87,6 +87,7 @@ class _AdminContentState extends State<AdminContent> {
   int totalCashbackWaiting = 0;
   int totalCashbackApprove = 0;
   int totalCashbackReject = 0;
+  int totalChangeCustWaiting = 0, totalChangeCustApprove = 0, totalChangeCustReject = 0;
   bool showAreaMarketing = false;
 
   @override
@@ -335,6 +336,10 @@ class _AdminContentState extends State<AdminContent> {
           totalCashbackReject = divisi == 'GM'
               ? counter['rejectedCashbackGM']
               : counter['rejectedCashbackSM'];
+          
+          totalChangeCustWaiting = isAr ? counter['awaitChangeCustAM'] : counter['awaitChangeCustSM'];
+          totalChangeCustApprove = isAr ? counter['approvedChangeCustAM'] : counter['approvedChangeCustSM'];
+          totalChangeCustReject  = isAr ? counter['rejectedChangeCustAM'] : counter['rejectedChangeCustSM'];
 
           setState(() {});
         }
@@ -767,6 +772,9 @@ class _AdminContentState extends State<AdminContent> {
             totalWaitingCashback: totalCashbackWaiting,
             totalApprovedCashback: totalCashbackApprove,
             totalRejectedCashback: totalCashbackReject,
+            totalWaitingChangeCust: totalChangeCustWaiting,
+            totalApprovedChangeCust: totalChangeCustApprove,
+            totalRejectedChangeCust: totalChangeCustReject
           ),
           areaMarketing(
             true,
@@ -1017,6 +1025,9 @@ class _AdminContentState extends State<AdminContent> {
             totalWaitingCashback: totalCashbackWaiting,
             totalApprovedCashback: totalCashbackApprove,
             totalRejectedCashback: totalCashbackReject,
+            totalWaitingChangeCust: totalChangeCustWaiting,
+            totalApprovedChangeCust: totalChangeCustApprove,
+            totalRejectedChangeCust: totalChangeCustReject
           ),
           areaMarketing(
             true,

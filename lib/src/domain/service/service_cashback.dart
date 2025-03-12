@@ -701,14 +701,14 @@ class ServiceCashback {
         if (sts) {
           idCashback = id;
 
-          pushNotif(
-            20,
-            3,
-            salesName: header.salesName,
-            idUser: header.createdBy,
-            rcptToken: tokenSm,
-            opticName: header.opticName,
-          );
+          // pushNotif(
+          //   20,
+          //   3,
+          //   salesName: header.salesName,
+          //   idUser: header.createdBy,
+          //   rcptToken: tokenSm,
+          //   opticName: header.opticName,
+          // );
         }
       } on FormatException catch (e) {
         print('Format Error : $e');

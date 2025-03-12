@@ -261,10 +261,10 @@ class _Posmaterial_ItemposterState extends State<Posmaterial_Itemposter> {
                             horizontal: 10.w,
                             vertical: 2.h,
                           ),
-                          errorText:
-                              widget.listPosterLine![index].validateProductWidth!
-                                  ? null
-                                  : 'Isi',
+                          errorText: widget
+                                  .listPosterLine![index].validateProductWidth!
+                              ? null
+                              : 'Isi',
                         ),
                         style: TextStyle(
                           color: Colors.black54,
@@ -277,13 +277,26 @@ class _Posmaterial_ItemposterState extends State<Posmaterial_Itemposter> {
                             if (value.isNotEmpty) {
                               widget.listPosterLine![index]
                                   .validateProductWidth = true;
-                              
+
                               widget.listPosterLine![index].width = value;
                             } else {
                               widget.listPosterLine![index]
                                   .validateProductWidth = false;
 
                               widget.listPosterLine![index].width = "";
+                            }
+
+                            if (widget
+                                    .listPosterLine![index].width!.isNotEmpty &&
+                                widget.listPosterLine![index].height!
+                                    .isNotEmpty &&
+                                widget.listPosterLine![index].qty!.isNotEmpty) {
+                              print('Update $index');
+                              widget.notifyParent("updateLine", true);
+                            }
+                            else {
+                              print('Update $index');
+                              widget.notifyParent("updateLine", false);
                             }
                           });
                         },
@@ -330,13 +343,26 @@ class _Posmaterial_ItemposterState extends State<Posmaterial_Itemposter> {
                             if (value.isNotEmpty) {
                               widget.listPosterLine![index]
                                   .validateProductHeight = true;
-                              
+
                               widget.listPosterLine![index].height = value;
                             } else {
                               widget.listPosterLine![index]
                                   .validateProductHeight = false;
 
                               widget.listPosterLine![index].height = "";
+                            }
+
+                            if (widget
+                                    .listPosterLine![index].width!.isNotEmpty &&
+                                widget.listPosterLine![index].height!
+                                    .isNotEmpty &&
+                                widget.listPosterLine![index].qty!.isNotEmpty) {
+                              print('Update $index');
+                              widget.notifyParent("updateLine", true);
+                            }
+                            else {
+                              print('Update $index');
+                              widget.notifyParent("updateLine", false);
                             }
                           });
                         },
@@ -495,13 +521,25 @@ class _Posmaterial_ItemposterState extends State<Posmaterial_Itemposter> {
                               widget.listPosterLine![index].validateQtyItem =
                                   true;
 
-                              
                               widget.listPosterLine![index].qty = value;
                             } else {
                               widget.listPosterLine![index].validateQtyItem =
                                   false;
 
                               widget.listPosterLine![index].qty = "";
+                            }
+
+                            if (widget
+                                    .listPosterLine![index].width!.isNotEmpty &&
+                                widget.listPosterLine![index].height!
+                                    .isNotEmpty &&
+                                widget.listPosterLine![index].qty!.isNotEmpty) {
+                              print('Update $index');
+                              widget.notifyParent("updateLine", true);
+                            }
+                            else {
+                              print('Update $index');
+                              widget.notifyParent("updateLine", false);
                             }
                           });
                         },

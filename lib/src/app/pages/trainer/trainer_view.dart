@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:sample/src/app/controllers/marketingexpense_controller.dart';
 import 'package:sample/src/app/controllers/training_controller.dart';
+// import 'package:sample/src/app/pages/profile/profile_schedule.dart';
 import 'package:sample/src/app/pages/trainer/trainer_terkonfirmasi.dart';
 import 'package:sample/src/app/pages/trainer/trainer_riwayat.dart';
 import 'package:sample/src/app/pages/trainer/trainer_terjadwal.dart';
@@ -17,6 +18,7 @@ import '../../../domain/entities/training_resheader.dart';
 import '../../controllers/my_controller.dart';
 import '../../utils/dbhelper.dart';
 import '../profile/profile_screen.dart';
+// import '../profile/profile_screen.dart';
 
 class TrainerScreen extends StatefulWidget {
   const TrainerScreen({Key? key}) : super(key: key);

@@ -22,6 +22,12 @@ Color setStatusColor(String input) {
     case 'CONFIRMED':
       outColor = Colors.green.shade600;
       break;
+    case 'RESCHEDULE' :
+      outColor = Colors.orange.shade600;
+      break;
+    case 'DONE' :
+      outColor = Colors.indigo.shade600;
+      break;
     default:
       outColor = Colors.red.shade600;
       break;
@@ -41,6 +47,12 @@ String setStatus(String input) {
       break;
     case 'CONFIRMED':
       output = 'Pengajuan training sudah dikonfirmasi trainer';
+      break;
+    case 'RESCHEDULE':
+      output = 'Pengajuan training sedang dijadwalkan ulang';
+      break;
+    case 'DONE' :
+      output = 'Training sudah dinyatakan selesai oleh Trainer';
       break;
     default:
       output = 'Pengajuan training ditolak';

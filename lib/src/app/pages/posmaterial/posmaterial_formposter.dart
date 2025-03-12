@@ -96,6 +96,7 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
   String base64Ktp = '';
   String base64Npwp = '';
   String base64Omzet = '';
+  bool isValidData = false;
 
   @override
   void initState() {
@@ -133,6 +134,7 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
           widget.listPosterLine.removeAt(input);
           break;
         case 'updateLine':
+          isValidData = input;
           break;
       }
     });
@@ -181,44 +183,8 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
       }
     });
   }
-
+  
   onButtonPressed() async {
-    // await Future.delayed(const Duration(milliseconds: 1500), () {
-    //   setState(() async {
-    //     service
-    //         .estimasiLinePosMaterial(
-    //       context: context,
-    //       isHorizontal: widget.isHorizontal,
-    //       mounted: mounted,
-    //       item: widget.listPosterLine,
-    //     )
-    //         .then((value) {
-    //       estimatedPrice = value;
-
-    //       print("""
-    //       Estimated pos : $estimatedPrice
-    //       """);
-    //     });
-    //   });
-    // });
-
-    // setState(() async {
-    // service
-    //     .estimasiLinePosMaterial(
-    //   context: context,
-    //   isHorizontal: widget.isHorizontal,
-    //   mounted: mounted,
-    //   item: widget.listPosterLine,
-    // )
-    //     .then((value) {
-    //   estimatedPrice = value;
-
-    //   print("""
-    //       Estimated pos : $estimatedPrice
-    //       """);
-    // });
-    // });
-
     futureEstimated = service.estimasiLinePosMaterial(
       context: context,
       isHorizontal: widget.isHorizontal,
@@ -746,7 +712,9 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
                       buttonColor: Colors.blue.shade700,
                       elevation: 2.0,
                       contentGap: 6.0,
-                      onPressed: onButtonPressed,
+                      onPressed: isValidData
+                          ? onButtonPressed
+                          : null,
                     ),
                   ),
                   SizedBox(
@@ -838,7 +806,7 @@ class _Posmaterial_FormposterState extends State<Posmaterial_Formposter> {
                         ],
                       ),
                     ),
-                    SizedBox(
+                  SizedBox(
                     height: widget.isHorizontal ? 18.h : 10.h,
                   ),
                   Text(

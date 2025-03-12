@@ -24,6 +24,7 @@ import 'package:sample/src/app/widgets/areapoint.dart';
 import 'package:sample/src/app/widgets/areasyncchart.dart';
 import 'package:sample/src/app/widgets/customAppbar.dart';
 import 'package:sample/src/app/widgets/dialogpassword.dart';
+import 'package:sample/src/app/widgets/dialogreschedule.dart';
 import 'package:sample/src/domain/entities/monitoring.dart';
 import 'package:sample/src/domain/entities/notifikasi.dart';
 import 'package:sample/src/domain/entities/piereport.dart';
@@ -34,6 +35,7 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 
 import '../../../domain/entities/app_config.dart';
+import '../../../domain/entities/training_header.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -65,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _hidePerform = false;
   bool _isBadge = false;
   int dailyInt = 0;
+  List<TrainingHeader> listTrainingReschedule = List.empty(growable: true);
   List<Monitoring> listMonitoring = List.empty(growable: true);
   List<SalesPerform> listPerform = List.empty(growable: true);
   List<PieReport> _samplePie = List.empty(growable: true);
@@ -93,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
       print("TTD Sales : $ttdSales");
 
       getMonitoringSales(int.parse(id!));
+      getRescheduleTraining(int.parse(id!));
       getPerformSales(stDate, edDate);
       checkPassword(int.parse(id!));
       getLocalNotif();
@@ -240,6 +244,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  dialogRescheduleTraining(BuildContext context, TrainingHeader element) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: DialogReschedule(
+            item: element,
+          ),
+        );
+      },
+    );
+  }
+
   dialogLocationService(BuildContext context) {
     return showModalBottomSheet(
       elevation: 2,
@@ -337,9 +356,47 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  getRescheduleTraining(int idSales) async {
+    _isLoading = true;
+
+    await Future.delayed(Duration(seconds: 1));
+    if (listTrainingReschedule.length > 0) listTrainingReschedule.clear();
+
+    var url = '$API_URL/training/trainingReschedule?id_sales=$idSales';
+
+    var response = await http.get(Uri.parse(url));
+    print('Response status: ${response.statusCode}');
+
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+
+      if (sts) {
+        var rest = data['data'];
+        print(rest);
+        listTrainingReschedule =
+            rest.map<TrainingHeader>((json) => TrainingHeader.fromJson(json)).toList();
+        print("List Reschedule : ${listTrainingReschedule.length}");
+
+        if (listTrainingReschedule.isNotEmpty) {
+          dialogRescheduleTraining(context, listTrainingReschedule[0]);
+        }
+      }
+
+      Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+    }
+  }
+
   Future<void> _refreshData() async {
     // setState(() {
     getMonitoringSales(int.parse(id!));
+    getRescheduleTraining(int.parse(id!));
     getPerformSales(stDate, edDate);
 
     checkPassword(int.parse(id!));

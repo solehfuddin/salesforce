@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:sample/src/app/pages/cashback/cashback_management.dart';
+import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/pages/renewcontract/change_contract.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
@@ -17,6 +19,10 @@ import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample/src/domain/entities/opticwithaddress.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../domain/entities/change_customer.dart';
+import '../../../domain/service/service_customer.dart';
+import '../customer/customer_dialogstatus.dart';
 
 // ignore: must_be_immutable
 class HistoryContract extends StatefulWidget {
@@ -39,6 +45,9 @@ class HistoryContract extends StatefulWidget {
 }
 
 class _HistoryContractState extends State<HistoryContract> {
+  ServiceCustomer serviceCustomer = new ServiceCustomer();
+  late ChangeCustomer changeCustomer;
+
   String? id = '';
   String? role = '';
   String? username = '';
@@ -47,6 +56,7 @@ class _HistoryContractState extends State<HistoryContract> {
   String? ttdPertama = '';
   String? noAccount = '';
   bool isDataFound = true;
+  bool isProposedChange = false;
   bool _isHorizontal = false;
   List<Contract> activeContract = List.empty(growable: true);
   Future<List<Contract>>? historyContract;
@@ -81,6 +91,29 @@ class _HistoryContractState extends State<HistoryContract> {
     super.initState();
     getRole();
     getContractActive();
+    checkCustomerChange();
+  }
+
+  checkCustomerChange() {
+    serviceCustomer
+        .getChangeCustomer(
+      mounted,
+      context,
+      idOptic:
+          widget.isNewCust! ? widget.cust!.id : widget.item!.customerShipNumber,
+    )
+        .then((value) {
+      setState(() {
+        if (value.count! > 0) {
+          isProposedChange = true;
+          changeCustomer = value.customer[0];
+        } else {
+          isProposedChange = false;
+        }
+
+        print("Ada pengajuan perubahan data optik : $isProposedChange");
+      });
+    });
   }
 
   getContractActive() async {
@@ -348,19 +381,83 @@ class _HistoryContractState extends State<HistoryContract> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   )
-                                : Text(
-                                    widget.isNewCust!
-                                        ? widget.cust!.namaUsaha
-                                        : widget.item!.customerShipName,
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16.sp,
-                                      fontFamily: 'Montserrat',
-                                    ),
-                                    // maxLines: 1,
-                                    // softWrap: false,
-                                    // overflow: TextOverflow.ellipsis,
+                                : Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          widget.isNewCust!
+                                              ? widget.cust!.namaUsaha
+                                              : widget.item!.customerShipName,
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16.sp,
+                                            fontFamily: 'Montserrat',
+                                          ),
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          isProposedChange
+                                              ? showModalBottomSheet(
+                                                  context: context,
+                                                  elevation: 2,
+                                                  enableDrag: true,
+                                                  backgroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        15.r,
+                                                      ),
+                                                      topRight: Radius.circular(
+                                                        15.r,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  builder: (context) {
+                                                    //Is sales : false agar detail perubahan dapat dicek
+                                                    return CustomerDialogStatus(
+                                                      item: changeCustomer,
+                                                      isSales: false,
+                                                      username: username,
+                                                      divisi: divisi,
+                                                      role: role,
+                                                    );
+                                                  })
+                                              : Get.to(
+                                                  NewcustScreen(
+                                                    isNewCust:
+                                                        widget.isNewCust ??
+                                                            false,
+                                                    isNewEntry: false,
+                                                    newCustomer: widget.cust,
+                                                    oldCustomer: widget.item,
+                                                  ),
+                                                );
+                                        },
+                                        child: Icon(
+                                          isProposedChange
+                                              ? Icons.task_rounded
+                                              : Icons.edit_rounded,
+                                          size: isHorizontal ? 23.r : 13.r,
+                                        ),
+                                        style: ButtonStyle(
+                                          shape: MaterialStateProperty.all(
+                                              CircleBorder()),
+                                          padding: MaterialStateProperty.all(
+                                              EdgeInsets.all(8.r)),
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.transparent),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                             SizedBox(
                               height: isHorizontal ? 20.h : 10.h,

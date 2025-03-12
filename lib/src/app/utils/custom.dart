@@ -85,6 +85,93 @@ dialogLogin(BuildContext context) {
   );
 }
 
+int getTotalDay(DateTime from, DateTime to) {
+  from = DateTime(from.year, from.month, from.day);
+  to = DateTime(to.year, to.month, to.day);
+
+  return (to.difference(from).inHours / 24).round();
+}
+
+updateToken(String id, String token, BuildContext context,
+    {bool isHorizontal = false}) async {
+  // dialogLogin(
+  //   context,
+  // );
+
+  int timeout = 15;
+  var url = '$API_URL/auth/fcmtoken';
+
+  try {
+    var response = await http.put(Uri.parse(url), body: {
+      'id': id,
+      'gentoken': token,
+    }).timeout(Duration(seconds: timeout));
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    try {
+      var data = json.decode(response.body);
+      final bool sts = data['status'];
+      final int code = response.statusCode;
+      String msg = data['message'];
+
+      if (code == 200) {
+        if (sts) {
+          final String token = data['data']['gentoken'] ?? '';
+
+          saveToken(context, token);
+        } else {
+          showStyledToast(
+            child: Text(msg),
+            context: context,
+            backgroundColor: Colors.red,
+            borderRadius: BorderRadius.circular(15.r),
+            duration: Duration(seconds: 2),
+          );
+          Navigator.of(context).pop();
+        }
+      } else {
+        showStyledToast(
+          child: Text(msg),
+          context: context,
+          backgroundColor: Colors.red,
+          borderRadius: BorderRadius.circular(15.r),
+          duration: Duration(seconds: 2),
+        );
+        Navigator.of(context).pop();
+      }
+    } on FormatException catch (e) {
+      print('Format Error : $e');
+      handleStatus(
+        context,
+        e.toString(),
+        false,
+        isHorizontal: isHorizontal,
+        isLogout: false,
+      );
+      Navigator.of(context).pop();
+    }
+  } on TimeoutException catch (e) {
+    print('Timeout Error : $e');
+    handleTimeout(context);
+    Navigator.of(context).pop();
+  } on SocketException catch (e) {
+    print('Socket Error : $e');
+    handleSocket(context);
+    Navigator.of(context).pop();
+  } on Error catch (e) {
+    print('General Error : $e');
+    handleStatus(
+      context,
+      e.toString(),
+      false,
+      isHorizontal: isHorizontal,
+      isLogout: false,
+    );
+    Navigator.of(context).pop();
+  }
+}
+
 login(String user, String pass, BuildContext context,
     {bool isHorizontal = false, var token}) async {
   dialogLogin(
@@ -418,6 +505,17 @@ pushNotif(
           'Maaf, pengajuan Training $opticName ditolak oleh $admName. Segera cek data status terbarunya';
       tmplate = '28';
       break;
+    case 29:
+      title = 'Pengajuan Training Dikonfirmasi';
+      body =
+          'Hai, pengajuan Training $opticName sudah dikonfirmasi oleh $admName. Segera cek data status terbarunya';
+      tmplate = '28';
+      break;
+    case 30:
+      title = 'Pengajuan Training Ditangguhkan';
+      body =
+          'Maaf, pengajuan Training $opticName ditangguhkan oleh $admName mohon segera ajukan penjadwalan ulang.';
+      break;
   }
 
   switch (type) {
@@ -528,6 +626,18 @@ Future<AccountSession> getAccountSession() async {
       session divisi : ${account.divisi}
       """);
   return account;
+}
+
+saveToken(
+  BuildContext context,
+  String tokenUser,
+) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  await pref.setString("tokenuser", tokenUser);
+
+  Future.delayed(Duration(seconds: 2), () {
+    print("Token FCM session : ${pref.getString("tokenuser")}");
+  });
 }
 
 savePref(
@@ -1345,25 +1455,29 @@ convertMonth(String input) {
 }
 
 convertDateWithMonth(String tgl) {
-  DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-  DateTime date = dateFormat.parse(tgl);
+  if (tgl != '') {
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    DateTime date = dateFormat.parse(tgl);
 
-  List<String> months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'Mei',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Des'
-  ];
+    List<String> months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Des'
+    ];
 
-  return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()}";
+    return "${date.day.toString().padLeft(2, '0')} ${months.elementAt(date.month - 1)} ${date.year.toString()}";
+  } else {
+    return "";
+  }
 }
 
 convertDateWithMonthHour(

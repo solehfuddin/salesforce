@@ -461,7 +461,7 @@ class _CashbackFormState extends State<CashbackForm> {
   }
 
   handleValidationForm({bool isHorizontal = false}) {
-    if (!_isActiveRekening) {
+    if (!_isActiveRekening && meController.selectedPayment.value == "TRANSFER BANK") {
       handleStatus(
         context,
         'Harap lengkapi data rekening',
@@ -630,7 +630,7 @@ class _CashbackFormState extends State<CashbackForm> {
 
     // stop();
 
-    /*CashbackHeader cashbackHeader = new CashbackHeader();
+    CashbackHeader cashbackHeader = new CashbackHeader();
     cashbackHeader.setSalesName = username ?? '';
     cashbackHeader.setShipNumber = cashbackRekening.getShipNumber;
     cashbackHeader.setOpticName = controllerOpticName.text;
@@ -721,6 +721,10 @@ class _CashbackFormState extends State<CashbackForm> {
           )
               .then((value) {
             if (value) {
+              print("Cashback dengan line");
+
+              Navigator.of(context).pop();
+
               handleStatus(
                 context,
                 'New cashback has been created',
@@ -729,11 +733,14 @@ class _CashbackFormState extends State<CashbackForm> {
                 isLogout: false,
                 isBack: true,
               );
-
-              Navigator.of(context).pop();
             }
           });
-        } else {
+        } 
+        else {
+          print("Cashback tanpa line");
+
+          Navigator.of(context).pop();
+
           handleStatus(
             context,
             'New cashback has been created',
@@ -742,10 +749,9 @@ class _CashbackFormState extends State<CashbackForm> {
             isLogout: false,
             isBack: true,
           );
-          Navigator.of(context).pop();
         }
       },
-    );*/
+    );
   }
 
   void updateToDb({bool isHorizontal = false, required String idCashback}) {

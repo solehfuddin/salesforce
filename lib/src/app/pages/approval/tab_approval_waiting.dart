@@ -3,16 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/approval/waiting_view.dart';
 import 'package:sample/src/app/pages/cashback/cashback_approvalpending.dart';
+import 'package:sample/src/app/pages/customer/customer_approvalpending.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
 // ignore: must_be_immutable
 class TabApprovalWaiting extends StatefulWidget {
-  int totalDiskon, totalCashback;
+  int totalDiskon, totalCashback, totalChangeCust;
 
   TabApprovalWaiting({
     Key? key,
     this.totalDiskon = 0,
     this.totalCashback = 0,
+    this.totalChangeCust = 0,
   }) : super(key: key);
 
   @override
@@ -22,15 +24,25 @@ class TabApprovalWaiting extends StatefulWidget {
 class _TabApprovalWaitingState extends State<TabApprovalWaiting>
     with TickerProviderStateMixin {
   late TabController tabController;
-  final tabColors = [Colors.white, Colors.green.shade200];
+  final tabColors = [
+    Colors.white,
+    Colors.green.shade200,
+    Colors.deepOrange.shade200
+  ];
   late Color indicatorColor;
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(
-      initialIndex: widget.totalDiskon > widget.totalCashback ? 0 : 1,
-      length: 2,
+      initialIndex: widget.totalDiskon > widget.totalCashback &&
+              widget.totalDiskon > widget.totalChangeCust
+          ? 0
+          : widget.totalCashback > widget.totalDiskon &&
+                  widget.totalCashback > widget.totalChangeCust
+              ? 1
+              : 2,
+      length: 3,
       vsync: this,
     )..addListener(() {
         setState(() {
@@ -108,6 +120,10 @@ class _TabApprovalWaitingState extends State<TabApprovalWaiting>
                 text:
                     'Cashback ${widget.totalCashback > 0 ? '(${widget.totalCashback})' : ''}',
               ),
+              Tab(
+                text:
+                    'Customer ${widget.totalChangeCust > 0 ? '(${widget.totalChangeCust})' : ''}',
+              ),
             ],
           ),
         ),
@@ -118,6 +134,9 @@ class _TabApprovalWaitingState extends State<TabApprovalWaiting>
               isHideAppbar: true,
             ),
             CashbackApprovalPending(
+              defaultColor: Colors.grey.shade50,
+            ),
+            CustomerApprovalPending(
               defaultColor: Colors.grey.shade50,
             ),
           ],

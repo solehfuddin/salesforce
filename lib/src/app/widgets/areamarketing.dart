@@ -54,9 +54,6 @@ SliverPadding areaMarketing(
                     cardSubtitle: '3% dari penjualan',
                     navigateTo: PosMaterialApproval(),
                   ),
-                  SizedBox(
-                    width: 12.w,
-                  ),
                   Visibility(
                     visible: divisi == "GM" || divisi == "SALES",
                     child: Row(

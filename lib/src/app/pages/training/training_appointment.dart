@@ -18,20 +18,12 @@ class TrainingAppointment extends StatefulWidget {
 class _TrainingAppointmentState extends State<TrainingAppointment> {
   MarketingExpenseController meController =
       Get.find<MarketingExpenseController>();
-  List<Trainer> _list = List.empty(growable: true);
 
   TextEditingController txtSearch = new TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    meController.getAllTrainer(mounted, context).then(
-          (value) => setState(
-            () {
-              _list.addAll(value);
-            },
-          ),
-        );
   }
 
   handleSearch(

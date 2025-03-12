@@ -129,6 +129,13 @@ class _CashbackFormContractState extends State<CashbackFormContract> {
 
           widget.updateParent('setSelectedCashbackType', widget.cashbackType);
           break;
+        case 'updateNewRekening':
+          widget.cashbackRekening = returnVal;
+          widget.isActiveRekening = true;
+
+          widget.updateParent('updateNewRekening', widget.cashbackRekening);
+          widget.updateParent('setActiveRekening', true);
+          break;
         default:
       }
     });

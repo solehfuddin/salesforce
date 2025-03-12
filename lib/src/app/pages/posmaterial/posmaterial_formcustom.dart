@@ -401,6 +401,8 @@ class _Posmaterial_formcustomState extends State<Posmaterial_formcustom> {
                       fontWeight: FontWeight.w600,
                     ),
                     onChanged: (value) {
+                      print("Value : $value");
+                      
                       if (value.isNotEmpty) {
                         widget.notifyParent('validateEstimatePrice', true);
                       } else {

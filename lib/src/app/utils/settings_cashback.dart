@@ -104,6 +104,29 @@ String setCashbackStatus(String input) {
   return output;
 }
 
+String setCustomerStatus(String input) {
+  String output;
+  switch (input) {
+    case 'PENDING':
+      output = 'Perubahan data customer sedang diproses';
+      break;
+    case 'ACCEPTED':
+      output = 'Perubahan data customer disetujui';
+      break;
+    case 'INACTIVE':
+      output = 'Perubahan data customer inactive';
+      break;
+    case 'ACTIVE':
+      output = 'Perubahan data customer active';
+      break;
+    default:
+      output = 'Perubahan data customer ditolak';
+      break;
+  }
+
+  return output;
+}
+
 Color setCashbackStatusColor(String input) {
   Color outColor = Colors.black;
 
