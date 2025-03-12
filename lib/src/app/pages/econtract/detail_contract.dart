@@ -235,7 +235,7 @@ class _DetailContractState extends State<DetailContract> {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;
@@ -2137,6 +2137,28 @@ class _DetailContractState extends State<DetailContract> {
                                     SizedBox(
                                       height: isHor ? 15.h : 10.h,
                                     ),
+                                    widget.item.alasanPerubahan.isNotEmpty
+                                        ? Column(
+                                            children: [
+                                              Text(
+                                                'Alasan perubah kontrak : ${widget.item.alasanPerubahan.toLowerCase()}',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize:
+                                                      isHor ? 14.sp : 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black87,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                              SizedBox(
+                                                height: isHor ? 15.h : 10.h,
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox(
+                                            width: 10.h,
+                                          ),
                                     widget.item.isFrame.contains('1')
                                         ? Column(
                                             children: [
@@ -2327,7 +2349,8 @@ class _DetailContractState extends State<DetailContract> {
                                                         flex: 1,
                                                         child: Text(
                                                           itemPromo[0]
-                                                                  .promoName?.toUpperCase() ??
+                                                                  .promoName
+                                                                  ?.toUpperCase() ??
                                                               '',
                                                           style: TextStyle(
                                                             fontSize:
@@ -2955,10 +2978,10 @@ class _DetailContractState extends State<DetailContract> {
                       height: 3.h,
                     ),
                     Text(
-                      cust?.alamatUsaha ?? '-',
+                      "${cust?.alamatUsaha ?? '-'}${cust!.kelurahan.length > 0 ? ', KELURAHAN ${cust?.kelurahan}' : ''}${cust!.kecamatan.length > 0 ? ', KECAMATAN ${cust?.kecamatan}' : ''}${cust!.kota.length > 0 ? ', ${cust?.kota}' : ''}${cust!.provinsi.length > 0 ? ', ${cust?.provinsi}' : ''}",
                       overflow: TextOverflow.fade,
                       style: TextStyle(
-                        fontSize: isHor ? 16.sp : 14.sp,
+                        fontSize: isHor ? 16.sp : 13.sp,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
                       ),

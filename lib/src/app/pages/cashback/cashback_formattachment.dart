@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_formattachment.dart';
 import 'package:sample/src/app/widgets/dialogImage.dart';
+import 'package:signature/signature.dart';
 
 // ignore: must_be_immutable
 class CashbackFormAttachment extends StatefulWidget {
@@ -38,25 +39,37 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
   late String tmpBase64Sign, tmpBase64Other;
   bool validateLampiranOther = false;
 
+  final SignatureController _signController = SignatureController(
+    penStrokeWidth: 3,
+    penColor: Colors.black,
+    exportBackgroundColor: Colors.white,
+  );
+
   @override
   void initState() {
     super.initState();
 
-    if (widget.base64Sign.isNotEmpty)
-    {
+    _signController.addListener(() async {
+      var data = await _signController.toPngBytes();
+      widget.notifyParent('validateLampiranSign', false);
+
+      if (_signController.isNotEmpty) {
+        print("Sign : ${base64Encode(data!)}");
+        updateSelectedAttachment("Lampiran ttd owner", base64Encode(data));
+        widget.notifyParent('Lampiran Sign', base64Encode(data));
+        widget.notifyParent('validateLampiranSign', true);
+      }
+    });
+
+    if (widget.base64Sign.isNotEmpty) {
       tmpBase64Sign = widget.base64Sign;
-    }
-    else
-    {
+    } else {
       tmpBase64Sign = '';
     }
 
-    if (widget.base64Other.isNotEmpty)
-    {
+    if (widget.base64Other.isNotEmpty) {
       tmpBase64Other = widget.base64Other;
-    }
-    else
-    {
+    } else {
       tmpBase64Other = '';
     }
   }
@@ -65,9 +78,10 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
     setState(() {
       switch (varName) {
         case 'Lampiran ttd owner':
-          print('Callback attachment : $input');
           widget.base64Sign = input;
           widget.notifyParent('Lampiran Sign', widget.base64Sign);
+
+          print("Reprint Sign : $input");
           break;
         case 'Lampiran tambahan':
           print('Callback tambahan : $input');
@@ -150,7 +164,7 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Lampiran Dokumen',
+                    'Ttd Pihak Optik',
                     style: TextStyle(
                       color: Colors.black87,
                       fontSize: widget.isHorizontal ? 24.sp : 14.sp,
@@ -160,6 +174,56 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
                   ),
                   SizedBox(
                     height: widget.isHorizontal ? 10.h : 5.h,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Signature(
+                      controller: _signController,
+                      height: widget.isHorizontal ? 180.h : 150.h,
+                      backgroundColor: Colors.blueGrey.shade50,
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.isHorizontal ? 8.h : 5.h,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: StadiumBorder(),
+                        backgroundColor: Colors.red[500],
+                        padding: EdgeInsets.symmetric(
+                          horizontal: widget.isHorizontal ? 30.r : 20.r,
+                          vertical: widget.isHorizontal ? 15.r : 10.r,
+                        ),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: widget.isHorizontal ? 18.sp : 14.sp,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Segoe ui',
+                        ),
+                      ),
+                      onPressed: () {
+                        _signController.clear();
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.isHorizontal ? 20.h : 15.h,
+                  ),
+                  Text(
+                    'Lampiran Dokumen',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: widget.isHorizontal ? 24.sp : 14.sp,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -174,42 +238,42 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
                   children: [
                     Row(
                       children: [
-                        Visibility(
-                          visible: widget.base64Sign != '',
-                          child: InkWell(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                8.r,
-                              ),
-                              child: Image.memory(
-                                base64Decode(tmpBase64Sign),
-                                width: widget.isHorizontal ? 95.w : 75.w,
-                                height: widget.isHorizontal ? 110.h : 75.h,
-                                fit: widget.isHorizontal
-                                    ? BoxFit.cover
-                                    : BoxFit.cover,
-                                filterQuality: FilterQuality.medium,
-                              ),
-                            ),
-                            onTap: () async {
-                              await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return DialogImage(
-                                    attachmentSign,
-                                    widget.base64Sign,
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          replacement: SizedBox(
-                            width: 5,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
+                        // Visibility(
+                        //   visible: widget.base64Sign != '',
+                        //   child: InkWell(
+                        //     child: ClipRRect(
+                        //       borderRadius: BorderRadius.circular(
+                        //         8.r,
+                        //       ),
+                        //       child: Image.memory(
+                        //         base64Decode(tmpBase64Sign),
+                        //         width: widget.isHorizontal ? 95.w : 75.w,
+                        //         height: widget.isHorizontal ? 110.h : 75.h,
+                        //         fit: widget.isHorizontal
+                        //             ? BoxFit.cover
+                        //             : BoxFit.cover,
+                        //         filterQuality: FilterQuality.medium,
+                        //       ),
+                        //     ),
+                        //     onTap: () async {
+                        //       await showDialog(
+                        //         context: context,
+                        //         builder: (BuildContext context) {
+                        //           return DialogImage(
+                        //             attachmentSign,
+                        //             widget.base64Sign,
+                        //           );
+                        //         },
+                        //       );
+                        //     },
+                        //   ),
+                        //   replacement: SizedBox(
+                        //     width: 5,
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   width: 10.w,
+                        // ),
                         Visibility(
                           visible: widget.base64Other != '',
                           child: InkWell(
@@ -245,8 +309,14 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: widget.isHorizontal ? 25.h : 15.h,
+                    Visibility(
+                      visible: widget.base64Other != '',
+                      child: SizedBox(
+                        height: widget.isHorizontal ? 15.h : 8.h,
+                      ),
+                      replacement: SizedBox(
+                        width: 5.w,
+                      ),
                     ),
                   ],
                 ),
@@ -255,30 +325,27 @@ class _CashbackFormAttachmentState extends State<CashbackFormAttachment> {
                 width: 5.w,
               ),
             ),
-            Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: widget.isHorizontal ? 24.w : 12.w,
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.maxFinite,
-                    child: Posmaterial_formattachment(
-                      isHorizontal: widget.isHorizontal,
-                      attachmentTitle: attachmentSign,
-                      notifyParent: updateSelectedAttachment,
-                      flagParent: updateValidatedAttachment,
-                      base64Image: widget.base64Sign,
-                      validateAttachment: widget.validateLampiranSign,
-                      txtPathAttachment: widget.txtAttachmentSign,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: widget.isHorizontal ? 25.h : 15.h,
-            ),
+            // Container(
+            //   margin: EdgeInsets.symmetric(
+            //     horizontal: widget.isHorizontal ? 24.w : 12.w,
+            //   ),
+            //   child: Stack(
+            //     children: [
+            //       Container(
+            //         width: double.maxFinite,
+            //         child: Posmaterial_formattachment(
+            //           isHorizontal: widget.isHorizontal,
+            //           attachmentTitle: attachmentSign,
+            //           notifyParent: updateSelectedAttachment,
+            //           flagParent: updateValidatedAttachment,
+            //           base64Image: widget.base64Sign,
+            //           validateAttachment: widget.validateLampiranSign,
+            //           txtPathAttachment: widget.txtAttachmentSign,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             Container(
               margin: EdgeInsets.symmetric(
                 horizontal: widget.isHorizontal ? 24.w : 12.w,

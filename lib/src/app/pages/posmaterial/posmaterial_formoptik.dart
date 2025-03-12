@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:sample/src/app/utils/colors.dart';
 import 'package:sample/src/domain/entities/opticwithaddress.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
+
+import '../../controllers/posmaterial_controller.dart';
 
 // ignore: camel_case_types, must_be_immutable
 class Posmaterial_Formoptik extends StatefulWidget {
@@ -39,6 +42,7 @@ class Posmaterial_Formoptik extends StatefulWidget {
 // ignore: camel_case_types
 class _Posmaterial_FormoptikState extends State<Posmaterial_Formoptik> {
   ServicePosMaterial service = new ServicePosMaterial();
+  PosmaterialController controller = Get.find<PosmaterialController>();
   late OpticWithAddress selectedOptic;
 
   bool isProspect = false;
@@ -191,16 +195,14 @@ class _Posmaterial_FormoptikState extends State<Posmaterial_Formoptik> {
                                 'validateOpticAddress',
                                 false,
                               );
-                              
+
                               widget.notifyParent(widget.selectedTypePos);
 
-                              if (value)
-                              {
+                              if (value) {
                                 widget.updateParent('isProspectCustomer', true);
-                              }
-                              else
-                              {
-                                widget.updateParent('isProspectCustomer', false);
+                              } else {
+                                widget.updateParent(
+                                    'isProspectCustomer', false);
                               }
                             });
                           },
@@ -378,155 +380,165 @@ class _Posmaterial_FormoptikState extends State<Posmaterial_Formoptik> {
   }
 
   Widget dialogChooseOptic({bool isHorizontal = false}) {
-    String search = '';
+    // String search = '';
 
     return StatefulBuilder(builder: (context, state) {
-      return AlertDialog(
-        scrollable: true,
-        title: Text('Pilih Optik'),
-        content: Container(
-          height: MediaQuery.of(context).size.height / 1.5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                width: 350.w,
-                padding: EdgeInsets.symmetric(
-                  horizontal: isHorizontal ? 10.r : 5.r,
-                  vertical: isHorizontal ? 20.r : 10.r,
-                ),
-                color: Colors.white,
-                height: 80.h,
-                child: TextField(
-                  textInputAction: TextInputAction.search,
-                  autocorrect: true,
-                  decoration: InputDecoration(
-                    hintText: 'Pencarian Data ...',
-                    prefixIcon: Icon(Icons.search),
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 3.r,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(
-                          12.r,
-                        ),
-                      ),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 2.r,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(
-                          10.r,
-                        ),
-                      ),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2.r,
-                      ),
-                    ),
+      return Obx(
+        () => AlertDialog(
+          scrollable: true,
+          title: Text('Pilih Optik'),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 1.5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 350.w,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isHorizontal ? 10.r : 5.r,
+                    vertical: isHorizontal ? 20.r : 10.r,
                   ),
-                  onSubmitted: (value) {
-                    search = value;
-                  },
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 100.h,
-                  child: FutureBuilder(
-                    future: service.findAllCustWithAddress(
-                        context, mounted, search),
-                    builder: (context,
-                        AsyncSnapshot<List<OpticWithAddress>> snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        default:
-                          return snapshot.data!.isEmpty
-                              ? Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Center(
-                                      child: Image.asset(
-                                        'assets/images/not_found.png',
-                                        width: isHorizontal ? 100.w : 180.w,
-                                        height: isHorizontal ? 100.h : 180.h,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Data tidak ditemukan',
-                                      style: TextStyle(
-                                        fontSize: isHorizontal ? 15.sp : 16.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.red[600],
-                                        fontFamily: 'Montserrat',
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : itemDialogChooseOptic(snapshot.data!);
-                      }
+                  color: Colors.white,
+                  height: 80.h,
+                  child: TextField(
+                    textInputAction: TextInputAction.search,
+                    autocorrect: true,
+                    decoration: InputDecoration(
+                      hintText: 'Pencarian Data ...',
+                      prefixIcon: Icon(Icons.search),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white70,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 3.r,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(
+                            12.r,
+                          ),
+                        ),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 2.r,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(
+                            10.r,
+                          ),
+                        ),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                          width: 2.r,
+                        ),
+                      ),
+                    ),
+                    onSubmitted: (value) {
+                      controller.search.value = value;
+                      // setState(() {
+                      //   search = value;
+                      // });
                     },
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20.r,
-                  vertical: 5.r,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade700,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
+                Expanded(
+                  child: SizedBox(
+                    height: 100.h,
+                    child: FutureBuilder(
+                      future: service.findAllCustWithAddress(
+                          context, mounted, controller.search),
+                      builder: (context,
+                          AsyncSnapshot<List<OpticWithAddress>> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          default:
+                            return snapshot.data!.isEmpty
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                        child: Image.asset(
+                                          'assets/images/not_found.png',
+                                          width: isHorizontal ? 100.w : 180.w,
+                                          height: isHorizontal ? 100.h : 180.h,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Data tidak ditemukan',
+                                        style: TextStyle(
+                                          fontSize:
+                                              isHorizontal ? 15.sp : 16.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red[600],
+                                          fontFamily: 'Montserrat',
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : itemDialogChooseOptic(snapshot.data!);
+                        }
                       },
-                      child: Text(
-                        'Batal',
-                      ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      onPressed: () {
-                        widget.controllerOptikName.text =
-                            selectedOptic.namaUsaha!;
-                        widget.controllerOptikAddress.text =
-                            selectedOptic.alamatUsaha!;
-                        widget.accountNo = selectedOptic.noAccount!;
-                        widget.accountType = selectedOptic.typeAccount!;
-
-                        widget.updateParent('validateOpticName', true);
-                        widget.updateParent('validateOpticAddress', true);
-                        widget.updateParent('accountNo', selectedOptic.noAccount!);
-                        widget.updateParent('accountType', selectedOptic.typeAccount!);
-
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Pilih',
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.r,
+                    vertical: 5.r,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade700,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Batal',
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                        ),
+                        onPressed: () {
+                          widget.controllerOptikName.text =
+                              selectedOptic.namaUsaha!;
+                          widget.controllerOptikAddress.text =
+                              selectedOptic.alamatUsaha!;
+                          widget.accountNo = selectedOptic.noAccount!;
+                          widget.accountType = selectedOptic.typeAccount!;
+
+                          widget.updateParent('validateOpticName', true);
+                          widget.updateParent('validateOpticAddress', true);
+                          widget.updateParent(
+                              'accountNo', selectedOptic.noAccount!);
+                          widget.updateParent(
+                              'accountType', selectedOptic.typeAccount!);
+
+                          controller.accountNo.value = selectedOptic.noAccount ?? "";
+
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Pilih',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );

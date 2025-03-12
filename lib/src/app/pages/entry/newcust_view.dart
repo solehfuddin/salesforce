@@ -6,6 +6,7 @@ import 'dart:io' as Io;
 // import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:date_field/date_field.dart';
 import 'package:easy_loading_button/easy_loading_button.dart';
+import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,12 +18,33 @@ import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/thousandformatter.dart';
 import 'package:sample/src/app/widgets/syaratketentuan.dart';
+import 'package:sample/src/domain/entities/customer_noimage.dart';
+import 'package:sample/src/domain/entities/oldcustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
 
+import '../../../domain/entities/contract_duration.dart';
+import '../../../domain/entities/region_city.dart';
+import '../../../domain/entities/region_district.dart';
+import '../../../domain/entities/region_province.dart';
+import '../../../domain/entities/region_subdistrict.dart';
+
+// ignore: must_be_immutable
 class NewcustScreen extends StatefulWidget {
+  bool isNewCust, isNewEntry;
+  OldCustomer? oldCustomer;
+  CustomerNoImage? newCustomer;
+
+  NewcustScreen({
+    Key? key,
+    this.isNewCust = false,
+    this.isNewEntry = true,
+    this.oldCustomer,
+    this.newCustomer,
+  }) : super(key: key);
+
   @override
-  _NewcustScreenState createState() => _NewcustScreenState();
+  State<NewcustScreen> createState() => _NewcustScreenState();
 }
 
 class _NewcustScreenState extends State<NewcustScreen> {
@@ -31,6 +53,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textAlamatOptik = new TextEditingController();
   TextEditingController textKotaOptik = new TextEditingController();
   TextEditingController textJenisUsaha = new TextEditingController();
+  TextEditingController textProvinceOptik = new TextEditingController();
+  TextEditingController textCityOptik = new TextEditingController();
+  TextEditingController textDistrictOptik = new TextEditingController();
+  TextEditingController textSubdistrictOptik = new TextEditingController();
   TextEditingController textTelpOptik = new TextEditingController();
   TextEditingController textFaxOptik = new TextEditingController();
   TextEditingController textEmailOptik = new TextEditingController();
@@ -49,6 +75,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
   TextEditingController textPathSiup = new TextEditingController();
   TextEditingController textPathKartuNama = new TextEditingController();
   TextEditingController textPathPendukung = new TextEditingController();
+  List<ContractDuration> durContract = List.empty(growable: true);
+  List<DropdownMenuItem<String>> durDropdown = [];
   String _chosenValue = 'ISLAM';
   String _choosenUsaha = 'OPTIK';
   String _chosenBilling = 'COD';
@@ -60,6 +88,12 @@ class _NewcustScreenState extends State<NewcustScreen> {
   late File tmpSiupFile;
   late File tmpKartuFile;
   late File tmpPendukungFile;
+  String tmpSelect = '';
+  String tmpIdSelect = '';
+  String tmpIdProvince = '';
+  String tmpIdCity = '';
+  String tmpIdDistrict = '';
+  String tmpIdSubdistrict = '';
   String tmpName = '';
   String tmpNameSiup = '';
   String jenisUsaha = '';
@@ -105,6 +139,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isNamaOptik = false;
   bool _isKota = false;
   bool _isAlamatUsaha = false;
+  bool _isProvinceUsaha = false;
+  bool _isCityUsaha = false;
+  bool _isDistrictUsaha = false;
+  bool _isSubdistrictUsaha = false;
   bool _isTlpUsaha = false;
   bool _isTlpUsahaValid = false;
   bool _isFaxUsahaValid = false;
@@ -115,6 +153,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
   bool _isChecked = false;
   bool _isHorizontal = false;
   late Map<String, TextEditingController> myMap;
+  List<RegionProvince> itemProvince = List.empty(growable: true);
+  List<RegionCity> itemCity = List.empty(growable: true);
+  List<RegionDistrict> itemDistrict = List.empty(growable: true);
+  List<RegionSubdistrict> itemSubdistrict = List.empty(growable: true);
 
   final SignatureController _signController = SignatureController(
     penStrokeWidth: 3,
@@ -127,6 +169,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
     super.initState();
     getRole();
     _signController.addListener(() => print('Value changed'));
+    getDurationContract();
+    selectOptic();
 
     myMap = {'nama': textNamaOptik};
   }
@@ -140,6 +184,341 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
       print("Dashboard : $role");
     });
+  }
+
+  getDurationContract() async {
+    const timeout = 15;
+    var url = '$API_URL/contract/durasi_kontrak';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          durContract = rest
+              .map<ContractDuration>((json) => ContractDuration.fromJson(json))
+              .toList();
+          print("List Size: ${durContract.length}");
+
+          durContract.forEach((element) {
+            var item = DropdownMenuItem(
+              value: element.title,
+              child: Text(
+                element.title ?? '',
+                style: TextStyle(color: Colors.black54),
+              ),
+            );
+            durDropdown.add(item);
+          });
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
+  Future<List<RegionProvince>> getSearchProvince(String input) async {
+    List<RegionProvince> list = List.empty(growable: true);
+
+    const timeout = 15;
+    var url = '$API_URL/region/province?search=$input';
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<RegionProvince>((json) => RegionProvince.fromJson(json))
+              .toList();
+          itemProvince = rest
+              .map<RegionProvince>((json) => RegionProvince.fromJson(json))
+              .toList();
+
+          print("List Size: ${list.length}");
+          print("Product Size: ${itemProvince.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    return list;
+  }
+
+  Future<List<RegionCity>> getSearchCity(
+      String input, String idProvince) async {
+    List<RegionCity> list = List.empty(growable: true);
+
+    const timeout = 15;
+    var url = '$API_URL/region/city?id_province=$idProvince&search=$input';
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<RegionCity>((json) => RegionCity.fromJson(json))
+              .toList();
+          itemCity = rest
+              .map<RegionCity>((json) => RegionCity.fromJson(json))
+              .toList();
+
+          print("List Size: ${list.length}");
+          print("Product Size: ${itemCity.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    return list;
+  }
+
+  Future<List<RegionDistrict>> getSearchDistrict(
+      String input, String idProvince, String idCity) async {
+    List<RegionDistrict> list = List.empty(growable: true);
+
+    const timeout = 15;
+    var url =
+        '$API_URL/region/district?id_city=$idCity&id_province=$idProvince&search=$input';
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<RegionDistrict>((json) => RegionDistrict.fromJson(json))
+              .toList();
+          itemDistrict = rest
+              .map<RegionDistrict>((json) => RegionDistrict.fromJson(json))
+              .toList();
+
+          print("List Size: ${list.length}");
+          print("Product Size: ${itemDistrict.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    return list;
+  }
+
+  Future<List<RegionSubdistrict>> getSearchSubdistrict(
+      String input, String idProvince, String idCity, String idDistrict) async {
+    List<RegionSubdistrict> list = List.empty(growable: true);
+
+    const timeout = 15;
+    var url =
+        '$API_URL/region/subdistrict?id_district=$idDistrict&id_city=$idCity&id_province=$idProvince&search=$input';
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          list = rest
+              .map<RegionSubdistrict>(
+                  (json) => RegionSubdistrict.fromJson(json))
+              .toList();
+          itemSubdistrict = rest
+              .map<RegionSubdistrict>(
+                  (json) => RegionSubdistrict.fromJson(json))
+              .toList();
+
+          print("List Size: ${list.length}");
+          print("Product Size: ${itemSubdistrict.length}");
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      handleTimeout(context);
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+
+    return list;
+  }
+
+  selectOptic() {
+    if (!widget.isNewEntry) {
+      if (widget.isNewCust) {
+        var opticName;
+        if (widget.newCustomer?.namaUsaha.contains("-") == true) {
+          opticName =
+              widget.newCustomer?.namaUsaha.replaceAll("OPTIK", "").split("-");
+        } else {
+          opticName = widget.newCustomer?.namaUsaha ?? '';
+        }
+
+        setCategoryOptic(widget.newCustomer?.namaUsaha.toUpperCase() ?? '');
+        textNamaOptik.text = widget.newCustomer?.namaUsaha.contains("-") == true
+            ? opticName[0].trim()
+            : opticName;
+        setAliasOptic(widget.newCustomer?.namaUsaha ?? '');
+        textProvinceOptik.text = widget.newCustomer?.provinsiUsaha ?? '';
+        textCityOptik.text = widget.newCustomer?.kotaUsaha ?? '';
+        textDistrictOptik.text = widget.newCustomer?.kecamatanUsaha ?? '';
+        textSubdistrictOptik.text = widget.newCustomer?.kelurahanUsaha ?? '';
+        textAlamatOptik.text = widget.newCustomer?.alamatUsaha ?? '';
+        textTelpOptik.text = widget.newCustomer?.tlpUsaha ?? '';
+        textFaxOptik.text = widget.newCustomer?.faxUsaha ?? '';
+        textEmailOptik.text = widget.newCustomer?.emailUsaha ?? '';
+        textPicOptik.text = widget.newCustomer?.namaPj ?? '';
+        textIdentitas.text = widget.newCustomer?.noIdentitas ?? '';
+        textNpwp.text = widget.newCustomer?.noNpwp ?? '';
+        textNamaUser.text = widget.newCustomer?.nama ?? '';
+        _chosenValue = widget.newCustomer?.agama ?? '';
+        textTempatLahir.text = widget.newCustomer?.tempatLahir ?? '';
+        textTanggalLahir.text = widget.newCustomer?.tanggalLahir ?? '';
+        textAlamatUser.text = widget.newCustomer?.alamat ?? '';
+        textTelpUser.text = widget.newCustomer?.noTlp ?? '';
+        textFaxUser.text = widget.newCustomer?.fax ?? '';
+
+        if (widget.newCustomer?.sistemPembayaran.contains("-") == true) {
+          var paymentType = widget.newCustomer?.sistemPembayaran.split("-");
+          print("Sistem pembyaran : $paymentType");
+          _chosenBilling = paymentType?[0].trim() ?? '';
+          _chosenKredit = paymentType?[1].trim() ?? '';
+        } else {
+          _chosenBilling = widget.newCustomer?.sistemPembayaran ?? '';
+        }
+
+        int kreditLimit = int.parse(widget.newCustomer?.kreditLimit ?? '0');
+        int output = kreditLimit ~/ 1000000;
+        textKreditLimit.text = output.toString();
+        textCatatan.text = widget.newCustomer?.note ?? '';
+      } else {
+        var opticName;
+        if (widget.oldCustomer?.customerShipName.contains("-") == true) {
+          opticName = widget.oldCustomer?.customerShipName
+              .replaceAll("OPTIK", "")
+              .split("-");
+        } else {
+          opticName = widget.oldCustomer?.customerShipName ?? '';
+        }
+
+        setCategoryOptic(
+            widget.oldCustomer?.customerShipName.toUpperCase() ?? '');
+        textNamaOptik.text =
+            widget.oldCustomer?.customerShipName.contains("-") == true
+                ? opticName[0]
+                : opticName;
+        setAliasOptic(widget.oldCustomer?.customerShipName ?? '');
+        List<String> address = [
+          widget.oldCustomer?.address2 ?? '',
+          ' ',
+          widget.oldCustomer?.address3 ?? '',
+          ' ',
+          widget.oldCustomer?.address4 ?? '',
+          ' ',
+          widget.oldCustomer?.city ?? '',
+          ' ',
+          widget.oldCustomer?.province ?? ''
+        ];
+        textAlamatOptik.text = address.join();
+        textTelpOptik.text = widget.oldCustomer?.phone ?? '';
+        textPicOptik.text = widget.oldCustomer?.contactPerson ?? '';
+        textNamaUser.text = widget.oldCustomer?.contactPerson ?? '';
+      }
+    }
+  }
+
+  setCategoryOptic(String namaOptik) {
+    if (namaOptik.contains("OPTIC") || namaOptik.contains("OPTIK")) {
+      _choosenUsaha = "OPTIK";
+    } else if (namaOptik.contains("DR")) {
+      _choosenUsaha = "DR";
+    } else if (namaOptik.contains("RS")) {
+      _choosenUsaha = "RS";
+    } else if (namaOptik.contains("KLINIK")) {
+      _choosenUsaha = "KLINIK";
+    } else if (namaOptik.contains("PT")) {
+      _choosenUsaha = "PT";
+    } else {
+      _choosenUsaha = "DLL";
+    }
+  }
+
+  setAliasOptic(String namaOptik) {
+    if (namaOptik.contains("-")) {
+      var data = namaOptik.split("-");
+
+      textAliasOptik.text = "${data[0].trim()} -";
+      textKotaOptik.text = data[1].trim();
+    } else {
+      textAliasOptik.text = "$namaOptik -";
+      textKotaOptik.text = "";
+    }
   }
 
   Future chooseImage() async {
@@ -350,9 +729,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
 
   checkEntry({bool isHorizontal = false}) async {
     textNamaUser.text.isEmpty ? _isNamaUser = true : _isNamaUser = false;
-    textKreditLimit.text.isEmpty
-        ? _isPlafonValid = true
-        : _isPlafonValid = false;
+    if (widget.isNewEntry) {
+      textKreditLimit.text.isEmpty
+          ? _isPlafonValid = true
+          : _isPlafonValid = false;
+    }
     textTempatLahir.text.isEmpty
         ? _isTempatLahir = true
         : _isTempatLahir = false;
@@ -377,20 +758,32 @@ class _NewcustScreenState extends State<NewcustScreen> {
     textAlamatOptik.text.isEmpty
         ? _isAlamatUsaha = true
         : _isAlamatUsaha = false;
+    textProvinceOptik.text.isEmpty
+        ? _isProvinceUsaha = true
+        : _isProvinceUsaha = false;
+    textCityOptik.text.isEmpty
+        ? _isCityUsaha = true
+        : _isCityUsaha = false;
+    textDistrictOptik.text.isEmpty
+        ? _isDistrictUsaha = true
+        : _isDistrictUsaha = false;
+    textSubdistrictOptik.text.isEmpty
+        ? _isSubdistrictUsaha = true
+        : _isSubdistrictUsaha = false;    
     textTelpOptik.text.isEmpty ? _isTlpUsaha = true : _isTlpUsaha = false;
     textTelpOptik.text.length < 10
         ? _isTlpUsahaValid = true
         : _isTlpUsahaValid = false;
-    textFaxOptik.text.isEmpty
-        ? _isFaxUsahaValid = false
-        : textFaxOptik.text.length < 10
-            ? _isFaxUsahaValid = true
-            : _isFaxUsahaValid = false;
-    textFaxUser.text.isEmpty
-        ? _isFaxUserValid = false
-        : textFaxUser.text.length < 10
-            ? _isFaxUserValid = true
-            : _isFaxUserValid = false;
+    // textFaxOptik.text.isEmpty
+    //     ? _isFaxUsahaValid = false
+    //     : textFaxOptik.text.length < 10
+    //         ? _isFaxUsahaValid = true
+    //         : _isFaxUsahaValid = false;
+    // textFaxUser.text.isEmpty
+    //     ? _isFaxUserValid = false
+    //     : textFaxUser.text.length < 10
+    //         ? _isFaxUserValid = true
+    //         : _isFaxUserValid = false;
     textPicOptik.text.isEmpty ? _isNamaPic = true : _isNamaPic = false;
 
     tmpName == '' ? _isFotoKtp = true : _isFotoKtp = false;
@@ -472,55 +865,229 @@ class _NewcustScreenState extends State<NewcustScreen> {
         !_isNamaOptik &&
         !_isKota &&
         !_isAlamatUsaha &&
+        !_isProvinceUsaha &&
+        !_isCityUsaha &&
+        !_isDistrictUsaha &&
+        !_isSubdistrictUsaha &&
         !_isTlpUsaha &&
         !_isTlpUsahaValid &&
         !_isFaxUsahaValid &&
         !_isFaxUserValid &&
         !_isPlafonValid &&
         !_isNamaPic) {
-      if (_isFotoKtp) {
-        handleStatus(
-          context,
-          'Silahkan foto ktp terlebih dahulu',
-          false,
-          isHorizontal: isHorizontal,
-          isLogout: false,
-        );
-      } else if (_isFotoPendukung) {
-        handleStatus(
-          context,
-          'Silahkan foto tampak depan terlebih dahulu',
-          false,
-          isHorizontal: isHorizontal,
-          isLogout: false,
-        );
-      } else if (_signController.isEmpty) {
-        handleStatus(
-          context,
-          'Silahkan tanda tangan dahulu',
-          false,
-          isHorizontal: isHorizontal,
-          isLogout: false,
-        );
-      } else {
-        var data = await _signController.toPngBytes();
-        signedImage = base64Encode(data!);
-        print(signedImage);
+      if (!widget.isNewEntry) {
+        bool isEditOptic = false;
+        bool isEditPerson = false;
+        bool skipEditOptic = false;
+        bool skipEditPerson = false;
 
-        if (base64ImageSiup == '') {
-          base64ImageSiup = kosong;
-        }
+        if (widget.isNewCust) {
+          if (widget.newCustomer?.nama != namaUser.toUpperCase() ||
+              widget.newCustomer?.noIdentitas != noIdentitas) {
+            isEditPerson = true;
+          }
 
-        if (_isChecked) {
-          simpanData(isHorizontal: isHorizontal);
+          if (widget.newCustomer?.namaUsaha !=
+                  '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}' ||
+              widget.newCustomer?.alamatUsaha != alamatUsaha.toUpperCase()) {
+            isEditOptic = true;
+          }
+
+          print("Is edit person : $isEditPerson");
+          print("Is edit optic : $isEditOptic");
+
+          if (isEditOptic) {
+            if (_isFotoPendukung) {
+              handleStatus(
+                context,
+                'Silahkan foto tampak depan terlebih dahulu',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+
+              skipEditOptic = false;
+            } else {
+              skipEditOptic = true;
+            }
+          } else {
+            skipEditOptic = true;
+          }
+
+          if (isEditPerson) {
+            if (_isFotoKtp) {
+              handleStatus(
+                context,
+                'Silahkan foto ktp terlebih dahulu',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+
+              skipEditPerson = false;
+            } else {
+              skipEditPerson = true;
+            }
+          } else {
+            skipEditPerson = true;
+          }
+
+          if (skipEditOptic && skipEditPerson) {
+            if (_signController.isEmpty) {
+              handleStatus(
+                context,
+                'Silahkan tanda tangan dahulu',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+            } else {
+              var data = await _signController.toPngBytes();
+              signedImage = base64Encode(data!);
+              print(signedImage);
+
+              if (base64ImageSiup == '') {
+                base64ImageSiup = kosong;
+              }
+
+              changeData(isHorizontal: isHorizontal);
+            }
+          }
         } else {
+          List<String> address = [
+            widget.oldCustomer?.address2 ?? '',
+            ' ',
+            widget.oldCustomer?.address3 ?? '',
+            ' ',
+            widget.oldCustomer?.address4 ?? '',
+            ' ',
+            widget.oldCustomer?.city ?? '',
+            ' ',
+            widget.oldCustomer?.province ?? ''
+          ];
+
+          var entryName =
+              "${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}";
+
+          if (widget.oldCustomer?.contactPerson.toUpperCase() !=
+              namaUser.toUpperCase()) {
+            isEditPerson = true;
+          }
+
+          if (entryName.toUpperCase() !=
+                  widget.oldCustomer?.customerShipName.toUpperCase() ||
+              address.join() != alamatUsaha.toUpperCase()) {
+            isEditOptic = true;
+          }
+
+          print("Shipname Default : ${widget.oldCustomer?.customerShipName}");
+          print("Shipname Entry : $entryName");
+          print("Is edit person : $isEditPerson");
+          print("Is edit optic : $isEditOptic");
+
+          if (isEditOptic) {
+            if (_isFotoPendukung) {
+              handleStatus(
+                context,
+                'Silahkan foto tampak depan terlebih dahulu',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+
+              skipEditOptic = false;
+            } else {
+              skipEditOptic = true;
+            }
+          } else {
+            skipEditOptic = true;
+          }
+
+          if (isEditPerson) {
+            if (_isFotoKtp) {
+              handleStatus(
+                context,
+                'Silahkan foto ktp terlebih dahulu',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+
+              skipEditPerson = false;
+            } else {
+              skipEditPerson = true;
+            }
+          } else {
+            skipEditPerson = true;
+          }
+
+          if (skipEditOptic && skipEditPerson) {
+            if (_signController.isEmpty) {
+              handleStatus(
+                context,
+                'Silahkan tanda tangan dahulu',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+            } else {
+              var data = await _signController.toPngBytes();
+              signedImage = base64Encode(data!);
+              print(signedImage);
+
+              if (base64ImageSiup == '') {
+                base64ImageSiup = kosong;
+              }
+
+              changeData(isHorizontal: isHorizontal);
+            }
+          }
+        }
+      } else {
+        if (_isFotoKtp) {
           handleStatus(
             context,
-            'Harap ceklist syarat dan ketentuan',
+            'Silahkan foto ktp terlebih dahulu',
             false,
             isHorizontal: isHorizontal,
             isLogout: false,
           );
+        } else if (_isFotoPendukung) {
+          handleStatus(
+            context,
+            'Silahkan foto tampak depan terlebih dahulu',
+            false,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+          );
+        } else if (_signController.isEmpty) {
+          handleStatus(
+            context,
+            'Silahkan tanda tangan dahulu',
+            false,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+          );
+        } else {
+          var data = await _signController.toPngBytes();
+          signedImage = base64Encode(data!);
+          print(signedImage);
+
+          if (base64ImageSiup == '') {
+            base64ImageSiup = kosong;
+          }
+
+          if (_isChecked) {
+            simpanData(isHorizontal: isHorizontal);
+          } else {
+            handleStatus(
+              context,
+              'Harap ceklist syarat dan ketentuan',
+              false,
+              isHorizontal: isHorizontal,
+              isLogout: false,
+            );
+          }
         }
       }
     } else {
@@ -531,6 +1098,8 @@ class _NewcustScreenState extends State<NewcustScreen> {
         isHorizontal: isHorizontal,
         isLogout: false,
       );
+
+      setState(() {});
     }
   }
 
@@ -554,6 +1123,10 @@ class _NewcustScreenState extends State<NewcustScreen> {
           'upload_identitas': base64ImageKtp,
           'nama_usaha':
               '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}',
+          'provinsi_usaha' : textProvinceOptik.text.toUpperCase(),
+          'kota_usaha' : textCityOptik.text.toUpperCase(),
+          'kecamatan_usaha' : textDistrictOptik.text.toUpperCase(),
+          'kelurahan_usaha' : textSubdistrictOptik.text.toUpperCase(),
           'alamat_usaha': alamatUsaha.toUpperCase(),
           'telp_usaha': tlpUsaha,
           'fax_usaha': faxUsaha,
@@ -625,6 +1198,230 @@ class _NewcustScreenState extends State<NewcustScreen> {
     }
   }
 
+  changeData({bool isHorizontal = false}) async {
+    const timeout = 15;
+    var url = '$API_URL/customers/changeCustomer';
+
+    try {
+      List<String> address = [
+        widget.oldCustomer?.address2 ?? '',
+        ' ',
+        widget.oldCustomer?.address3 ?? '',
+        ' ',
+        widget.oldCustomer?.address4 ?? '',
+        ' ',
+        widget.oldCustomer?.city ?? '',
+        ' ',
+        widget.oldCustomer?.province ?? ''
+      ];
+
+      var response = await http.post(
+        Uri.parse(url),
+        body: {
+          'type_customer': widget.isNewCust ? 'NEW' : 'OLD',
+          'no_account': widget.isNewCust
+              ? widget.newCustomer!.noAccount.isNotEmpty
+                  ? widget.newCustomer?.noAccount
+                  : widget.newCustomer?.id
+              : widget.oldCustomer?.customerShipNumber,
+          'nama': widget.isNewCust
+              ? widget.newCustomer?.nama
+              : widget.oldCustomer?.contactPerson,
+          'nama_update': widget.isNewCust
+              ? widget.newCustomer?.nama == namaUser.toUpperCase()
+                  ? ""
+                  : namaUser.toUpperCase()
+              : widget.oldCustomer?.contactPerson == namaUser.toUpperCase()
+                  ? ""
+                  : namaUser.toUpperCase(),
+          'agama': widget.isNewCust ? widget.newCustomer?.agama : '',
+          'agama_update': widget.isNewCust
+              ? widget.newCustomer?.agama == _chosenValue.toUpperCase()
+                  ? ""
+                  : _chosenValue.toUpperCase()
+              : _chosenValue.toUpperCase(),
+          'tempat_lahir':
+              widget.isNewCust ? widget.newCustomer?.tempatLahir : '',
+          'tempat_lahir_update': widget.isNewCust
+              ? widget.newCustomer?.tempatLahir == tempatLahir.toUpperCase()
+                  ? ""
+                  : tempatLahir.toUpperCase()
+              : tempatLahir.toUpperCase(),
+          'tanggal_lahir':
+              widget.isNewCust ? widget.newCustomer?.tanggalLahir : '',
+          'tanggal_lahir_update': widget.isNewCust
+              ? widget.newCustomer?.tanggalLahir == tanggalLahir
+                  ? ''
+                  : tanggalLahir
+              : tanggalLahir,
+          'alamat': widget.isNewCust ? widget.newCustomer?.alamat : '',
+          'alamat_update': widget.isNewCust
+              ? widget.newCustomer?.alamat == alamat.toUpperCase()
+                  ? ""
+                  : alamat.toUpperCase()
+              : alamat.toUpperCase(),
+          'no_telp': widget.isNewCust
+              ? widget.newCustomer?.noTlp
+              : widget.oldCustomer?.phone,
+          'no_telp_update': widget.isNewCust
+              ? widget.newCustomer?.noTlp == tlpHp
+                  ? ""
+                  : tlpHp
+              : tlpHp,
+          'fax': widget.isNewCust ? widget.newCustomer?.fax : '',
+          'fax_update': widget.isNewCust
+              ? widget.newCustomer?.fax == fax
+                  ? ""
+                  : fax
+              : fax,
+          'no_identitas':
+              widget.isNewCust ? widget.newCustomer?.noIdentitas : '',
+          'no_identitas_update': widget.isNewCust
+              ? widget.newCustomer?.noIdentitas == noIdentitas
+                  ? ""
+                  : noIdentitas
+              : noIdentitas,
+          'no_npwp': widget.isNewCust ? widget.newCustomer?.noNpwp : '',
+          'no_npwp_update': widget.isNewCust
+              ? widget.newCustomer?.noNpwp == noNpwp
+                  ? ""
+                  : noNpwp
+              : noNpwp,
+          'nama_usaha': widget.isNewCust
+              ? widget.newCustomer?.namaUsaha
+              : widget.oldCustomer?.customerShipName,
+          'nama_usaha_update': widget.isNewCust
+              ? widget.newCustomer?.namaUsaha ==
+                      '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}'
+                  ? ""
+                  : '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}'
+              : widget.oldCustomer?.customerShipName ==
+                      '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}'
+                  ? ""
+                  : '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}',
+          // 'nama_usaha_update': '${textAliasOptik.text.toUpperCase()} ${kota.toUpperCase()}',
+          'provinsi_usaha' : widget.isNewCust
+              ? widget.newCustomer?.provinsiUsaha
+              : '',
+          'provinsi_usaha_update' : textProvinceOptik.text.toUpperCase(),
+          'kota_usaha' : widget.isNewCust
+              ? widget.newCustomer?.kotaUsaha
+              : '',
+          'kota_usaha_update' : textCityOptik.text.toUpperCase(),
+          'kecamatan_usaha' : widget.isNewCust
+              ? widget.newCustomer?.kecamatanUsaha
+              : '',
+          'kecamatan_usaha_update' : textDistrictOptik.text.toUpperCase(),
+          'kelurahan_usaha' : widget.isNewCust
+              ? widget.newCustomer?.kelurahanUsaha
+              : '',
+          'kelurahan_usaha_update' : textSubdistrictOptik.text.toUpperCase(),  
+          'alamat_usaha': widget.isNewCust
+              ? widget.newCustomer?.alamatUsaha
+              : address.join(),
+          'alamat_usaha_update': widget.isNewCust
+              ? widget.newCustomer?.alamatUsaha == alamatUsaha.toUpperCase()
+                  ? ""
+                  : alamatUsaha.toUpperCase()
+              : address.join() == alamatUsaha.toUpperCase()
+                  ? ""
+                  : alamatUsaha.toUpperCase(),
+          'telp_usaha': widget.isNewCust
+              ? widget.newCustomer?.tlpUsaha
+              : widget.oldCustomer?.phone,
+          'telp_usaha_update': widget.isNewCust
+              ? widget.newCustomer?.tlpUsaha == tlpUsaha
+                  ? ""
+                  : tlpUsaha
+              : widget.oldCustomer?.phone == tlpUsaha
+                  ? ""
+                  : tlpUsaha,
+          'fax_usaha': widget.isNewCust ? widget.newCustomer?.faxUsaha : '',
+          'fax_usaha_update': widget.isNewCust
+              ? widget.newCustomer?.faxUsaha == faxUsaha
+                  ? ""
+                  : faxUsaha
+              : faxUsaha,
+          'email_usaha': widget.isNewCust ? widget.newCustomer?.emailUsaha : '',
+          'email_usaha_update': widget.isNewCust
+              ? widget.newCustomer?.emailUsaha == emailUsaha
+                  ? ""
+                  : emailUsaha
+              : emailUsaha,
+          'nama_pj': widget.isNewCust
+              ? widget.newCustomer?.namaPj
+              : widget.oldCustomer?.contactPerson,
+          'nama_pj_update': widget.isNewCust
+              ? widget.newCustomer?.namaPj == namaPic.toUpperCase()
+                  ? ""
+                  : namaPic.toUpperCase()
+              : widget.oldCustomer?.contactPerson == namaPic.toUpperCase()
+                  ? ""
+                  : namaPic.toUpperCase(),
+          'nama_salesman': username?.toUpperCase(),
+          'ttd_customer': signedImage,
+          'created_by': id,
+          'upload_identitas': base64ImageKtp,
+          'upload_dokumen': base64ImageSiup,
+          'gambar_pendukung': base64ImagePendukung,
+          'gambar_kartu_nama': base64ImageKartuNama,
+        },
+      ).timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        final String msg = res['message'];
+
+        if (mounted) {
+          handleStatus(
+            context,
+            capitalize(msg),
+            sts,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+            isNewCust: false,
+          );
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+        if (mounted) {
+          handleStatus(
+            context,
+            e.toString(),
+            false,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+          );
+        }
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : $e');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -642,7 +1439,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         title: Text(
-          'Entri Kustomer Baru',
+          widget.isNewEntry ? 'Entri Kustomer Baru' : 'Perubahan Data Kustomer',
           style: TextStyle(
             color: Colors.black54,
             fontSize: isHorizontal ? 20.sp : 18.sp,
@@ -765,7 +1562,7 @@ class _NewcustScreenState extends State<NewcustScreen> {
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
           ),
-          _choosenUsaha == "DLL"
+          _choosenUsaha == "DLL" && widget.isNewEntry
               ? _areaDll(
                   isHorizontal: isHorizontal,
                 )
@@ -817,6 +1614,14 @@ class _NewcustScreenState extends State<NewcustScreen> {
               }
 
               textAliasOptik.text = "$value $jenisUsaha -";
+
+              setState(() {
+                if (value.isNotEmpty) {
+                  _isNamaOptik = false;
+                } else {
+                  _isNamaOptik = true;
+                }
+              });
             },
             style: TextStyle(
               fontSize: isHorizontal ? 18.sp : 14.sp,
@@ -878,6 +1683,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     fontSize: isHorizontal ? 24.sp : 14.sp,
                     fontFamily: 'Segoe Ui',
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.isNotEmpty) {
+                        _isNamaOptik = false;
+                      } else {
+                        _isNamaOptik = true;
+                      }
+                    });
+                  },
                 ),
               ),
               SizedBox(
@@ -899,12 +1713,303 @@ class _NewcustScreenState extends State<NewcustScreen> {
                     fontSize: isHorizontal ? 24.sp : 14.sp,
                     fontFamily: 'Segoe Ui',
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.isNotEmpty) {
+                        _isKota = false;
+                      } else {
+                        _isKota = true;
+                      }
+                    });
+                  },
                 ),
               ),
             ],
           ),
           SizedBox(
             height: isHorizontal ? 22.sp : 12.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Provinsi',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 18.h : 8.h,
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Pilih Provinsi',
+              suffixIcon: Icon(Icons.arrow_drop_down_rounded),
+              suffixIconColor: Colors.black54,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+              ),
+              errorText: _isProvinceUsaha ? 'Data wajib diisi' : null,
+            ),
+            readOnly: true,
+            controller: textProvinceOptik,
+            style: TextStyle(
+              fontSize: isHorizontal ? 18.sp : 14.sp,
+              fontFamily: 'Segoe Ui',
+            ),
+            onTap: () {
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return dialogProvince(
+                      isHorizontal: isHorizontal,
+                    );
+                  }).then((value) {
+                setState(() {
+                  print("Close Dialog province");
+                  textProvinceOptik.text.isEmpty
+                      ? _isProvinceUsaha = true
+                      : _isProvinceUsaha = false;
+                });
+              });
+            },
+          ),
+          SizedBox(
+            height: isHorizontal ? 22.sp : 12.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Kota',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 18.h : 8.h,
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Pilih Kota',
+              suffixIcon: Icon(Icons.arrow_drop_down_rounded),
+              suffixIconColor: Colors.black54,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+              ),
+              errorText: _isCityUsaha ? 'Data wajib diisi' : null,
+            ),
+            readOnly: true,
+            controller: textCityOptik,
+            style: TextStyle(
+              fontSize: isHorizontal ? 18.sp : 14.sp,
+              fontFamily: 'Segoe Ui',
+            ),
+            onTap: () {
+              if (textProvinceOptik.text.isNotEmpty && tmpIdProvince.isNotEmpty) {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return dialogCity(
+                        isHorizontal: isHorizontal,
+                      );
+                    }).then((value) {
+                  setState(() {
+                    print("Close Dialog city");
+                    textCityOptik.text.isEmpty
+                        ? _isCityUsaha = true
+                        : _isCityUsaha = false;
+                  });
+                });
+              } else {
+                showStyledToast(
+                  child: Text('Harap lengkapi data provinsi'),
+                  context: context,
+                  backgroundColor: Colors.red.shade400,
+                  borderRadius: BorderRadius.circular(15.r),
+                  duration: Duration(seconds: 3),
+                );
+              }
+            },
+          ),
+          SizedBox(
+            height: isHorizontal ? 22.sp : 12.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Kecamatan',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 18.h : 8.h,
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Pilih Kecamatan',
+              suffixIcon: Icon(Icons.arrow_drop_down_rounded),
+              suffixIconColor: Colors.black54,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+              ),
+              errorText: _isDistrictUsaha ? 'Data wajib diisi' : null,
+            ),
+            readOnly: true,
+            controller: textDistrictOptik,
+            style: TextStyle(
+              fontSize: isHorizontal ? 18.sp : 14.sp,
+              fontFamily: 'Segoe Ui',
+            ),
+            onTap: () {
+              if (textCityOptik.text.isNotEmpty && tmpIdCity.isNotEmpty) {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return dialogDistrict(
+                        isHorizontal: isHorizontal,
+                      );
+                    }).then((value) {
+                  setState(() {
+                    print("Close Dialog district");
+                    textDistrictOptik.text.isEmpty
+                        ? _isDistrictUsaha = true
+                        : _isDistrictUsaha = false;
+                  });
+                });
+              } else {
+                showStyledToast(
+                  child: Text('Harap lengkapi data kota'),
+                  context: context,
+                  backgroundColor: Colors.red.shade400,
+                  borderRadius: BorderRadius.circular(15.r),
+                  duration: Duration(seconds: 3),
+                );
+              }
+            },
+          ),
+          SizedBox(
+            height: isHorizontal ? 22.sp : 12.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Kelurahan',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                '(wajib diisi)',
+                style: TextStyle(
+                  fontSize: isHorizontal ? 18.sp : 12.sp,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red[600],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: isHorizontal ? 18.h : 8.h,
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Pilih Kelurahan',
+              suffixIcon: Icon(Icons.arrow_drop_down_rounded),
+              suffixIconColor: Colors.black54,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+              ),
+              errorText: _isSubdistrictUsaha ? 'Data wajib diisi' : null,
+            ),
+            readOnly: true,
+            controller: textSubdistrictOptik,
+            style: TextStyle(
+              fontSize: isHorizontal ? 18.sp : 14.sp,
+              fontFamily: 'Segoe Ui',
+            ),
+            onTap: () {
+              if (textDistrictOptik.text.isNotEmpty && tmpIdDistrict.isNotEmpty) {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return dialogSubdistrict(
+                        isHorizontal: isHorizontal,
+                      );
+                    }).then((value) {
+                  setState(() {
+                    print("Close Dialog subdistrict");
+                    textSubdistrictOptik.text.isEmpty
+                        ? _isSubdistrictUsaha = true
+                        : _isSubdistrictUsaha = false;
+                  });
+                });
+              } else {
+                showStyledToast(
+                  child: Text('Harap lengkapi data kecamatan'),
+                  context: context,
+                  backgroundColor: Colors.red.shade400,
+                  borderRadius: BorderRadius.circular(15.r),
+                  duration: Duration(seconds: 3),
+                );
+              }
+            },
+          ),
+          SizedBox(
+            height: isHorizontal ? 15.h : 5.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -950,6 +2055,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isNotEmpty) {
+                  _isAlamatUsaha = false;
+                } else {
+                  _isAlamatUsaha = true;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
@@ -992,7 +2106,9 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   ? 'Data wajib diisi'
                   : _isTlpUsahaValid
                       ? 'Nomor telpon salah'
-                      : null,
+                      : textTelpOptik.text.length > 13
+                          ? 'Nomor telpon max 13 karakter'
+                          : null,
             ),
             maxLength: 13,
             controller: textTelpOptik,
@@ -1000,6 +2116,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isNotEmpty) {
+                  _isTlpUsaha = false;
+                  if (value.length < 10) {
+                    _isTlpUsahaValid = true;
+                  } else {
+                    _isTlpUsahaValid = false;
+                  }
+                } else {
+                  _isTlpUsaha = true;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 15.h : 5.h,
@@ -1107,6 +2237,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isNotEmpty) {
+                  _isNamaPic = false;
+                } else {
+                  _isNamaPic = true;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 15.h : 5.h,
@@ -1183,6 +2322,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isNotEmpty) {
+                  _isNoIdentitas = false;
+                  if (value.length < 16) {
+                    _isNoIdentitasValid = true;
+                  } else {
+                    _isNoIdentitasValid = false;
+                  }
+                } else {
+                  _isNoIdentitas = true;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
@@ -1259,11 +2412,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
               errorText: _isNamaUser ? 'Data wajib diisi' : null,
             ),
             maxLength: 50,
-            controller: textNamaUser,
             style: TextStyle(
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            controller: textNamaUser,
+            onChanged: (value) {
+              setState(() {
+                if (value.isEmpty) {
+                  _isNamaUser = true;
+                } else {
+                  _isNamaUser = false;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
@@ -1369,6 +2531,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isEmpty) {
+                  _isTempatLahir = true;
+                } else {
+                  _isTempatLahir = false;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
@@ -1401,7 +2572,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
           DateTimeFormField(
             decoration: InputDecoration(
-              hintText: 'dd mon yyyy',
+              hintText: widget.isNewEntry
+                  ? 'dd mon yyyy'
+                  : widget.isNewCust
+                      ? widget.newCustomer?.tanggalLahir
+                      : 'dd mon yyyy',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
@@ -1415,7 +2590,11 @@ class _NewcustScreenState extends State<NewcustScreen> {
             mode: DateTimeFieldPickerMode.date,
             firstDate: DateTime(1900),
             lastDate: DateTime.now(),
-            initialDate: DateTime.now(),
+            initialDate: widget.isNewEntry
+                ? DateTime.now()
+                : widget.isNewCust
+                    ? DateTime.parse(widget.newCustomer?.tanggalLahir ?? '')
+                    : DateTime.now(),
             autovalidateMode: AutovalidateMode.always,
             // validator: (DateTime? e) =>
             //     (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
@@ -1424,6 +2603,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
               tanggalLahir = DateFormat('yyyy-MM-dd').format(value);
               textTanggalLahir.text = tanggalLahir;
               print('after date : $tanggalLahir');
+
+              setState(() {
+                // ignore: unrelated_type_equality_checks
+                if (value == "") {
+                  _isTanggalLahir = true;
+                } else {
+                  _isTanggalLahir = false;
+                }
+              });
             },
           ),
           SizedBox(
@@ -1474,6 +2662,15 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isEmpty) {
+                  _isAlamat = true;
+                } else {
+                  _isAlamat = false;
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 22.sp : 12.sp,
@@ -1524,6 +2721,20 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isEmpty) {
+                  _isTlpHp = true;
+                } else {
+                  _isTlpHp = false;
+                  if (value.length >= 10) {
+                    _isTlpHpValid = false;
+                  } else {
+                    _isTlpHpValid = true;
+                  }
+                }
+              });
+            },
           ),
           SizedBox(
             height: isHorizontal ? 18.h : 8.h,
@@ -1637,11 +2848,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
                   fontFamily: 'Segoe Ui',
                 ),
               ),
-              onChanged: (String? value) {
-                setState(() {
-                  _chosenBilling = value!;
-                });
-              },
+              onChanged: !widget.isNewEntry
+                  ? null
+                  : (String? value) {
+                      setState(() {
+                        _chosenBilling = value!;
+                      });
+                    },
             ),
           ),
           SizedBox(
@@ -1682,12 +2895,17 @@ class _NewcustScreenState extends State<NewcustScreen> {
           ),
           TextFormField(
             keyboardType: TextInputType.number,
+            enabled: widget.isNewEntry,
             decoration: InputDecoration(
               hintText: 'XXXX',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.r),
               ),
-              errorText: _isPlafonValid ? 'Data wajib diisi' : null,
+              errorText: widget.isNewEntry
+                  ? null
+                  : _isPlafonValid
+                      ? 'Data wajib diisi'
+                      : null,
             ),
             inputFormatters: [ThousandsSeparatorInputFormatter()],
             maxLength: 5,
@@ -1696,6 +2914,13 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontFamily: 'Segoe Ui',
             ),
+            onChanged: (value) {
+              if (value.isEmpty) {
+                _isPlafonValid = false;
+              } else {
+                _isPlafonValid = true;
+              }
+            },
           ),
           SizedBox(
             height: isHorizontal ? 22.h : 12.h,
@@ -1822,22 +3047,23 @@ class _NewcustScreenState extends State<NewcustScreen> {
               fontSize: isHorizontal ? 18.sp : 14.sp,
               fontWeight: FontWeight.w600,
             ),
-            items: [
-              '7 HARI',
-              '14 HARI',
-              '30 HARI',
-              '45 HARI',
-            ].map((e) {
-              return DropdownMenuItem(
-                value: e,
-                child: Text(e,
-                    style: TextStyle(
-                      color: Colors.black54,
-                    )),
-              );
-            }).toList(),
+            // items: [
+            //   '7 HARI',
+            //   '14 HARI',
+            //   '30 HARI',
+            //   '45 HARI',
+            // ].map((e) {
+            //   return DropdownMenuItem(
+            //     value: e,
+            //     child: Text(e,
+            //         style: TextStyle(
+            //           color: Colors.black54,
+            //         )),
+            //   );
+            // }).toList(),
+            items: durDropdown,
             hint: Text(
-              "Pilih Durasi Kredit",
+              _chosenKredit.isNotEmpty ? _chosenKredit : "Pilih Durasi Kredit",
               style: TextStyle(
                 color: Colors.black54,
                 fontSize: isHorizontal ? 18.sp : 14.sp,
@@ -2199,5 +3425,496 @@ class _NewcustScreenState extends State<NewcustScreen> {
         return SyaratKetentuan();
       },
     );
+  }
+
+  Widget dialogProvince({bool isHorizontal = false}) {
+    String search = '';
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        scrollable: true,
+        title: Center(
+          child: Text('Pilih Provinsi'),
+        ),
+        content: Container(
+          height: MediaQuery.of(context).size.height / 1.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 350.w,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 5.r,
+                  vertical: 10.r,
+                ),
+                color: Colors.white,
+                height: 80.h,
+                child: TextField(
+                  textInputAction: TextInputAction.search,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                    hintText: 'Pencarian data ...',
+                    prefixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white70,
+                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
+                    ),
+                  ),
+                  onSubmitted: (value) {
+                    setState(() {
+                      search = value;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 100.h,
+                  child: FutureBuilder(
+                      future: search.isNotEmpty
+                          ? getSearchProvince(search)
+                          : getSearchProvince(''),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Center(child: CircularProgressIndicator());
+                          default:
+                            return snapshot.data != null
+                                ? listParentWidget(itemProvince)
+                                : Center(
+                                    child: Text('Data tidak ditemukan'),
+                                  );
+                        }
+                      }),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.r,
+                  vertical: 5.r,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade700,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("Batal"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          textProvinceOptik.text = tmpSelect;
+                          tmpIdProvince = tmpIdSelect;
+
+                          textCityOptik.text = "";
+                          tmpIdCity = "";
+
+                          textDistrictOptik.text = "";
+                          tmpIdDistrict = "";
+
+                          textSubdistrictOptik.text = "";
+                          tmpIdSubdistrict = "";
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: Text("Pilih"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget dialogCity({bool isHorizontal = false}) {
+    String search = '';
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        scrollable: true,
+        title: Center(
+          child: Text('Pilih Kota'),
+        ),
+        content: Container(
+          height: MediaQuery.of(context).size.height / 1.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 350.w,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 5.r,
+                  vertical: 10.r,
+                ),
+                color: Colors.white,
+                height: 80.h,
+                child: TextField(
+                  textInputAction: TextInputAction.search,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                    hintText: 'Pencarian data ...',
+                    prefixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white70,
+                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
+                    ),
+                  ),
+                  onSubmitted: (value) {
+                    setState(() {
+                      search = value;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 100.h,
+                  child: FutureBuilder(
+                      future: search.isNotEmpty
+                          ? getSearchCity(search, tmpIdProvince)
+                          : getSearchCity('', tmpIdProvince),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Center(child: CircularProgressIndicator());
+                          default:
+                            return snapshot.data != null
+                                ? listParentWidget(itemCity)
+                                : Center(
+                                    child: Text('Data tidak ditemukan'),
+                                  );
+                        }
+                      }),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.r,
+                  vertical: 5.r,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade700,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("Batal"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          textCityOptik.text = tmpSelect;
+                          tmpIdCity = tmpIdSelect;
+
+                          textDistrictOptik.text = "";
+                          tmpIdDistrict = "";
+
+                          textSubdistrictOptik.text = "";
+                          tmpIdSubdistrict = "";
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: Text("Pilih"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget dialogDistrict({bool isHorizontal = false}) {
+    String search = '';
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        scrollable: true,
+        title: Center(
+          child: Text('Pilih Kecamatan'),
+        ),
+        content: Container(
+          height: MediaQuery.of(context).size.height / 1.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 350.w,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 5.r,
+                  vertical: 10.r,
+                ),
+                color: Colors.white,
+                height: 80.h,
+                child: TextField(
+                  textInputAction: TextInputAction.search,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                    hintText: 'Pencarian data ...',
+                    prefixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white70,
+                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
+                    ),
+                  ),
+                  onSubmitted: (value) {
+                    setState(() {
+                      search = value;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 100.h,
+                  child: FutureBuilder(
+                      future: search.isNotEmpty
+                          ? getSearchDistrict(search, tmpIdProvince, tmpIdCity)
+                          : getSearchDistrict('', tmpIdProvince, tmpIdCity),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Center(child: CircularProgressIndicator());
+                          default:
+                            return snapshot.data != null
+                                ? listParentWidget(itemDistrict)
+                                : Center(
+                                    child: Text('Data tidak ditemukan'),
+                                  );
+                        }
+                      }),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.r,
+                  vertical: 5.r,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade700,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("Batal"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          textDistrictOptik.text = tmpSelect;
+                          tmpIdDistrict = tmpIdSelect;
+
+                          textSubdistrictOptik.text = "";
+                          tmpIdSubdistrict = "";
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: Text("Pilih"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget dialogSubdistrict({bool isHorizontal = false}) {
+    String search = '';
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        scrollable: true,
+        title: Center(
+          child: Text('Pilih Kelurahan'),
+        ),
+        content: Container(
+          height: MediaQuery.of(context).size.height / 1.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 350.w,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 5.r,
+                  vertical: 10.r,
+                ),
+                color: Colors.white,
+                height: 80.h,
+                child: TextField(
+                  textInputAction: TextInputAction.search,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                    hintText: 'Pencarian data ...',
+                    prefixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white70,
+                    contentPadding: EdgeInsets.symmetric(vertical: 3.r),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0.r)),
+                      borderSide: BorderSide(color: Colors.grey, width: 2.r),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0.r)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.r),
+                    ),
+                  ),
+                  onSubmitted: (value) {
+                    setState(() {
+                      search = value;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 100.h,
+                  child: FutureBuilder(
+                      future: search.isNotEmpty
+                          ? getSearchSubdistrict(search, tmpIdProvince, tmpIdCity, tmpIdDistrict)
+                          : getSearchSubdistrict('', tmpIdProvince, tmpIdCity, tmpIdDistrict),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Center(child: CircularProgressIndicator());
+                          default:
+                            return snapshot.data != null
+                                ? listParentWidget(itemSubdistrict)
+                                : Center(
+                                    child: Text('Data tidak ditemukan'),
+                                  );
+                        }
+                      }),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.r,
+                  vertical: 5.r,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade700,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("Batal"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          textSubdistrictOptik.text = tmpSelect;
+                          tmpIdSubdistrict = tmpIdSelect;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: Text("Pilih"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget listParentWidget(dynamic item) {
+    return StatefulBuilder(builder: (context, setState) {
+      return Container(
+          width: double.minPositive.w,
+          height: 350.h,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: item.length,
+            itemBuilder: (BuildContext context, int index) {
+              String _key = item[index].desc;
+              return InkWell(
+                onTap: () {
+                  setState(() {
+                    item.forEach((element) {
+                      element.ischecked = false;
+                    });
+                    item[index].ischecked = true;
+                    tmpIdSelect = item[index].id;
+                    tmpSelect = item[index].desc;
+                  });
+                },
+                child: ListTile(
+                  title: Text(_key),
+                  trailing: Visibility(
+                    visible: item[index].ischecked,
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.green.shade600,
+                      size: 22.r,
+                    ),
+                    replacement: SizedBox(
+                      width: 5.w,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ));
+    });
   }
 }

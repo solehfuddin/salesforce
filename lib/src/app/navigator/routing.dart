@@ -9,6 +9,10 @@ import 'package:sample/src/app/pages/marketingexpense/marketingexpense_form.dart
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formtrainer.dart';
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_screen.dart';
 import 'package:sample/src/app/pages/staff/staff_view.dart';
+import 'package:sample/src/app/pages/training/tab_training.dart';
+import 'package:sample/src/app/pages/training/trainer_profile.dart';
+
+import '../pages/trainer/trainer_view.dart';
 
 class RoutingPage {
   List<GetPage<dynamic>>? pages = [
@@ -85,11 +89,35 @@ class RoutingPage {
       ),
     ),
     GetPage(
-      name: '/marketingexpenseformtrainer/:trainer',
+      name: '/marketingexpenseformtrainer/',
       page: () => Marketingexpense_Formtrainer(),
       transition: Transition.fadeIn,
       transitionDuration: Duration(
         milliseconds: 1500,
+      ),
+    ),
+    GetPage(
+      name: '/tabTraining/',
+      page: () => TabTraining(),
+      transition: Transition.fadeIn,
+      transitionDuration: Duration(
+        milliseconds: 1500,
+      ),
+    ),
+    GetPage(
+      name: '/trainerProfile/',
+      page: () => TrainerProfile(),
+      transition: Transition.fadeIn,
+      transitionDuration: Duration(
+        milliseconds: 800,
+      ),
+    ),
+    GetPage(
+      name: '/trainerScreen/',
+      page: () => TrainerScreen(),
+      transition: Transition.fadeIn,
+      transitionDuration: Duration(
+        milliseconds: 800,
       ),
     ),
   ];

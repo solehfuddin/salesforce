@@ -67,7 +67,7 @@ class _Marketingexpense_ApprovalState extends State<Marketingexpense_Approval> w
         appBar: AppBar(
           backgroundColor: MyColors.desciptionColor,
           title: Text(
-            'List Marketing Expense',
+            'List Entertaint',
             style: TextStyle(
               color: Colors.white,
               fontSize: isHorizontal ? 20.sp : 18.sp,

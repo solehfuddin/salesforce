@@ -50,61 +50,61 @@ class Marketingexpense_itemlist extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Visibility(
-                        visible: itemList.list[position].isTraining == "YES"
-                            ? true
-                            : false,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.h,
-                          ),
-                          width: 41.w,
-                          height: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '12',
-                                style: TextStyle(
-                                  fontFamily: 'Segoe Ui',
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 3.h,
-                              ),
-                              Text(
-                                'Wed',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 10.sp,
-                                  color: Colors.black87,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        replacement: Container(
-                          width: 41.w,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Center(
-                            child: Image.asset(
-                              'assets/images/marketing_expense.png',
-                              width: 31.w,
-                              height: 31.h,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Visibility(
+                      //   visible: itemList.list[position].isTraining == "YES"
+                      //       ? true
+                      //       : false,
+                      //   child: Container(
+                      //     padding: EdgeInsets.symmetric(
+                      //       horizontal: 10.h,
+                      //     ),
+                      //     width: 41.w,
+                      //     height: double.infinity,
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.blue.shade50,
+                      //       borderRadius: BorderRadius.circular(12.r),
+                      //     ),
+                      //     child: Column(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         Text(
+                      //           '12',
+                      //           style: TextStyle(
+                      //             fontFamily: 'Segoe Ui',
+                      //             fontSize: 18.sp,
+                      //             fontWeight: FontWeight.w600,
+                      //             color: Colors.black87,
+                      //           ),
+                      //         ),
+                      //         SizedBox(
+                      //           height: 3.h,
+                      //         ),
+                      //         Text(
+                      //           'Wed',
+                      //           style: TextStyle(
+                      //             fontFamily: 'Montserrat',
+                      //             fontSize: 10.sp,
+                      //             color: Colors.black87,
+                      //           ),
+                      //         )
+                      //       ],
+                      //     ),
+                      //   ),
+                      //   replacement: Container(
+                      //     width: 41.w,
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.blue.shade50,
+                      //       borderRadius: BorderRadius.circular(12.r),
+                      //     ),
+                      //     child: Center(
+                      //       child: Image.asset(
+                      //         'assets/images/marketing_expense.png',
+                      //         width: 31.w,
+                      //         height: 31.h,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(
                         width: 10.w,
                       ),

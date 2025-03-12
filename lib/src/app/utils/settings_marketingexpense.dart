@@ -54,13 +54,13 @@ String setMEStatus(String input) {
   String output;
   switch (input) {
     case 'PENDING':
-      output = 'Pengajuan marketing expense sedang diproses';
+      output = 'Pengajuan entertaint sedang diproses';
       break;
     case 'ACCEPTED':
-      output = 'Pengajuan marketing expense disetujui';
+      output = 'Pengajuan entertaint disetujui';
       break;
     default:
-      output = 'Pengajuan marketing expense ditolak';
+      output = 'Pengajuan entertaint ditolak';
       break;
   }
 
@@ -184,7 +184,7 @@ Widget marketingExpenseLineWidget({
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        'Item Marketing Expense',
+        'Item Entertaint',
         style: TextStyle(
           fontFamily: 'Segoe ui',
           fontSize: isHorizontal ? 18.sp : 16.sp,
@@ -208,7 +208,7 @@ Widget marketingExpenseLineWidget({
             ),
           ),
           Text(
-            'Marketing expense',
+            'Biaya',
             style: TextStyle(
               fontFamily: 'Segoe ui',
               fontSize: isHorizontal ? 15.sp : 14.sp,
@@ -586,7 +586,7 @@ donwloadPdfME(
 
   await FlutterDownloader.enqueue(
     url: url,
-    fileName: "ME $custName $genTimer.pdf",
+    fileName: "Entertaint $custName $genTimer.pdf",
     requiresStorageNotLow: true,
     savedDir: locatedFile,
     showNotification: true,

@@ -401,6 +401,8 @@ class _Posmaterial_formcustomState extends State<Posmaterial_formcustom> {
                       fontWeight: FontWeight.w600,
                     ),
                     onChanged: (value) {
+                      print("Value : $value");
+                      
                       if (value.isNotEmpty) {
                         widget.notifyParent('validateEstimatePrice', true);
                       } else {
@@ -597,12 +599,35 @@ class _Posmaterial_formcustomState extends State<Posmaterial_formcustom> {
             SizedBox(
               height: widget.isHorizontal ? 25.h : 15.h,
             ),
-            Visibility(
-              visible: widget.isProspectCustomer,
-              child: SizedBox(
-                width: widget.isHorizontal ? 40.h : 20.h,
-              ),
-              replacement: Container(
+            // Visibility(
+            //   visible: widget.isProspectCustomer,
+            //   child: SizedBox(
+            //     width: widget.isHorizontal ? 40.h : 20.h,
+            //   ),
+            //   replacement: Container(
+            //     margin: EdgeInsets.symmetric(
+            //       horizontal: widget.isHorizontal ? 24.w : 12.w,
+            //     ),
+            //     child: Stack(
+            //       children: [
+            //         Container(
+            //           width: double.maxFinite,
+            //           child: Posmaterial_formattachment(
+            //             isHorizontal: widget.isHorizontal,
+            //             attachmentTitle: attachmentOmzet,
+            //             notifyParent: updateSelectedAttachment,
+            //             flagParent: updateValidatedAttachment,
+            //             // validateAttachment: widget.validateLampiranOmzet,
+            //             validateAttachment: true,
+            //             txtPathAttachment: widget.txtAttachmentOmzet,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            if (widget.isProspectCustomer)
+              Container(
                 margin: EdgeInsets.symmetric(
                   horizontal: widget.isHorizontal ? 24.w : 12.w,
                 ),
@@ -623,7 +648,6 @@ class _Posmaterial_formcustomState extends State<Posmaterial_formcustom> {
                   ],
                 ),
               ),
-            ),
             SizedBox(
               height: widget.isHorizontal ? 40.h : 20.h,
             ),

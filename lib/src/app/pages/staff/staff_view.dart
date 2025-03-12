@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/controllers/my_controller.dart';
@@ -33,6 +34,7 @@ class _StaffScreenState extends State<StaffScreen> {
   String? username = '';
   String? divisi = '';
   String? userUpper = '';
+  String? isTrainer = 'NO';
   bool? isProminentAccess = false;
   bool isPermissionCamera = false;
   bool isLocationService = false;
@@ -49,6 +51,7 @@ class _StaffScreenState extends State<StaffScreen> {
       username = preferences.getString("username");
       userUpper = username?.toUpperCase();
       divisi = preferences.getString("divisi");
+      isTrainer = preferences.getString("isTrainer");
       isProminentAccess = preferences.getBool("check_prominent") ?? false;
       // ttdSales = preferences.getString("ttduser") ?? '';
 
@@ -151,11 +154,9 @@ class _StaffScreenState extends State<StaffScreen> {
               Permission.notification,
             ].request();
           } else {
-            await [
-              Permission.camera,
-              Permission.microphone,
-              Permission.mediaLibrary
-            ].request().then((value) => openAppSettings());
+            await [Permission.camera, Permission.microphone, Permission.photos]
+                .request()
+                .then((value) => openAppSettings());
           }
         }
         // checkService();
@@ -416,6 +417,29 @@ class _StaffScreenState extends State<StaffScreen> {
                 ),
                 onRefresh: _refreshData,
               ),
+              floatingActionButton: Visibility(
+                visible: isTrainer == "YES" ? true : false,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 12.h, right: 3.h),
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.white,
+                    child: Image.asset(
+                      'assets/images/training.png',
+                      width: 34.w,
+                      height: 34.h,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    ),
+                    mini: false,
+                    onPressed: () {
+                      Get.toNamed("/trainerScreen");
+                    },
+                  ),
+                ),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.endDocked,
             );
           },
         ),

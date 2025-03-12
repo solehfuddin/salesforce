@@ -125,7 +125,8 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                                 Text(
                                   'Data tidak ditemukan',
                                   style: TextStyle(
-                                    fontSize: widget.isHorizontal ? 15.sp : 16.sp,
+                                    fontSize:
+                                        widget.isHorizontal ? 15.sp : 16.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.red[600],
                                     fontFamily: 'Montserrat',
@@ -163,7 +164,9 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                     backgroundColor: Colors.blue,
                   ),
                   onPressed: () {
+                    print("Selected Rekening : ${selectedRekening.idRekening}");
                     widget.updateParent("updateNewRekening", selectedRekening);
+
                     Navigator.pop(context);
                   },
                   child: Text(
@@ -187,7 +190,8 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
           shrinkWrap: true,
           itemCount: item.length,
           itemBuilder: (BuildContext context, int index) {
-            String _key = "${capitalize(item[index].namaRekening!)} (${capitalize(item[index].bankName!)})";
+            String _key =
+                "${capitalize(item[index].namaRekening!)} (${capitalize(item[index].bankName!)})";
             String _type = "No Rek : ${item[index].nomorRekening!}";
             return InkWell(
               onTap: () {
@@ -204,7 +208,7 @@ class _CashbackOldRekeningState extends State<CashbackOldRekening> {
                 subtitle: Text(
                   _type,
                   style: TextStyle(
-                    color:Colors.blue,
+                    color: Colors.blue,
                   ),
                 ),
                 trailing: Visibility(

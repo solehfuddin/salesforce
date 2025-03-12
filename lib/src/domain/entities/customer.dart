@@ -1,8 +1,8 @@
 class Customer {
   String noAccount = '';
   String id, nama, agama, tempatLahir, tanggalLahir, alamat, noTlp, fax, noIdentitas, 
-  uploadIdentitas, gambarKartuNama, gambarPendukung,
-  namaUsaha, alamatUsaha, tlpUsaha, faxUsaha, emailUsaha, namaPj, sistemPembayaran, kreditLimit, 
+  uploadIdentitas, gambarKartuNama, gambarPendukung, namaUsaha, provinsi, kota, kelurahan, kecamatan, 
+  alamatUsaha, tlpUsaha, faxUsaha, emailUsaha, namaPj, sistemPembayaran, kreditLimit, 
   uploadDokumen, ttdCustomer, ttdArManager, ttdSalesManager, namaSalesman, namaArManager, note, 
   econtract, status, isRevisi, createdBy, dateAdded;
   String dateSM = '';
@@ -25,6 +25,10 @@ class Customer {
     gambarKartuNama = json['gambar_kartu_nama'] ?? '',
     gambarPendukung = json['gambar_pendukung'] ?? '',
     namaUsaha = json['nama_usaha'] ?? '',
+    provinsi = json['provinsi_usaha'] ?? '',
+    kota = json['kota_usaha'] ?? '',
+    kecamatan = json['kecamatan_usaha'] ?? '',
+    kelurahan = json['kelurahan_usaha'] ?? '',
     alamatUsaha = json['alamat_usaha'],
     tlpUsaha = json['telp_usaha'],
     faxUsaha = json['fax_usaha'],
@@ -64,6 +68,10 @@ class Customer {
       'gambar_kartu_nama' : gambarKartuNama,
       'gambar_pendukung' : gambarPendukung,
       'nama_usaha' : namaUsaha,
+      'provinsi_usaha' : provinsi,
+      'kota_usaha' : kota,
+      'kecamatan_usaha' : kecamatan,
+      'kelurahan_usaha' : kelurahan,
       'alamat_usaha' : alamatUsaha,
       'telp_usaha' : tlpUsaha,
       'fax_usaha' : faxUsaha,

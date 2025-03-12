@@ -36,7 +36,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     // compileSdkVersion 28
     compileSdkVersion 34
-
+    ndkVersion "27.1.12297006"
+    
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -52,6 +53,16 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+
+    // Line for local notification
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     signingConfigs {
@@ -81,6 +92,9 @@ android {
             minifyEnabled true
             // useProguard true
             shrinkResources true
+            ndk {
+                debugSymbolLevel 'SYMBOL_TABLE'
+            }
 
             // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -92,16 +106,28 @@ flutter {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.material:material:1.1.0'
     //implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.google.android.play:app-update:2.1.0'
+    // Line for local notification
+    implementation 'androidx.window:window:1.0.0'
+    implementation 'androidx.window:window-java:1.0.0'
 
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
-    implementation 'com.google.firebase:firebase-analytics'
+    //implementation 'com.google.firebase:firebase-analytics'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    implementation ('com.google.firebase:firebase-messaging') {
+        exclude group: 'com.google.android.gms', module : 'play-services-ads-identifier'
+    }
+    
+    /*implementation ('com.google.firebase:firebase-analytics') {
+        exclude group: 'com.google.android.gms', module : 'play-services-ads-identifier'
+    }*/
 }

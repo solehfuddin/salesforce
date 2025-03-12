@@ -2231,7 +2231,7 @@ class _DetailContractRejectedState extends State<DetailContractRejected> {
                       height: 3.h,
                     ),
                     Text(
-                      cust?.alamatUsaha ?? '-',
+                      "${cust?.alamatUsaha ?? '-'}${cust!.kelurahan.length > 0 ? ', KELURAHAN ${cust?.kelurahan}' : ''}${cust!.kecamatan.length > 0 ? ', KECAMATAN ${cust?.kecamatan}' : ''}${cust!.kota.length > 0 ? ', ${cust?.kota}' : ''}${cust!.provinsi.length > 0 ? ', ${cust?.provinsi}' : ''}",
                       overflow: TextOverflow.fade,
                       style: TextStyle(
                         fontSize: isHor ? 16.sp : 14.sp,

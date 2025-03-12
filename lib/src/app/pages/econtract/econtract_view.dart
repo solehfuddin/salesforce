@@ -33,6 +33,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../domain/entities/contract_duration.dart';
 import '../../../domain/entities/contract_promo.dart';
 import '../../controllers/contractpromo_controller.dart';
 
@@ -69,6 +70,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
   List<Product> itemProduct = List.empty(growable: true);
   List<StbCustomer> itemStbCust = List.empty(growable: true);
   List<Contract> dtContract = List.empty(growable: true);
+  List<ContractDuration> durContract = List.empty(growable: true);
+  List<DropdownMenuItem<String>> durDropdown = [];
   List<String> listPromo = List.empty(growable: true);
   List<Discount> dtDisc = List.empty(growable: true);
   List<Discount> dtCustomDisc = List.empty(growable: true);
@@ -101,14 +104,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
   // String _durasiNikon = '7 HARI';
   // String _chosenNikonSt = '-';
   // String _durasiNikonSt = '7 HARI';
-  String _chosenLeinz = '-';
-  String _durasiLeinz = '7 HARI';
-  String _chosenLeinzSt = '-';
-  String _durasiLeinzSt = '7 HARI';
+  String _chosenLens = '-';
+  String _durasiLens = '7 HARI';
+  // String _chosenLeinz = '-';
+  // String _durasiLeinz = '7 HARI';
+  // String _chosenLeinzSt = '-';
+  // String _durasiLeinzSt = '7 HARI';
   // String _chosenOriental = '-';
   // String _durasiOriental = '7 HARI';
-  String _chosenOrientalSt = '-';
-  String _durasiOrientalSt = '7 HARI';
+  // String _chosenOrientalSt = '-';
+  // String _durasiOrientalSt = '7 HARI';
   // String _chosenMoe = '-';
   // String _durasiMoe = '';
   bool _isEmpty = false;
@@ -205,14 +210,16 @@ class _EcontractScreenState extends State<EcontractScreen> {
         // _durasiNikon = isKredit ? strsplit[1] : '7 HARI';
         // _chosenNikonSt = isKredit ? strsplit[0] : tmpJenis;
         // _durasiNikonSt = isKredit ? strsplit[1] : '7 HARI';
-        _chosenLeinz = isKredit ? strsplit[0] : tmpJenis;
-        _durasiLeinz = isKredit ? strsplit[1] : '7 HARI';
-        _chosenLeinzSt = isKredit ? strsplit[0] : tmpJenis;
-        _durasiLeinzSt = isKredit ? strsplit[1] : '7 HARI';
+        _chosenLens = isKredit ? strsplit[0] : tmpJenis;
+        _durasiLens = isKredit ? strsplit[1] : '7 HARI';
+        // _chosenLeinz = isKredit ? strsplit[0] : tmpJenis;
+        // _durasiLeinz = isKredit ? strsplit[1] : '7 HARI';
+        // _chosenLeinzSt = isKredit ? strsplit[0] : tmpJenis;
+        // _durasiLeinzSt = isKredit ? strsplit[1] : '7 HARI';
         // _chosenOriental = isKredit ? strsplit[0] : tmpJenis;
         // _durasiOriental = isKredit ? strsplit[1] : '7 HARI';
-        _chosenOrientalSt = isKredit ? strsplit[0] : tmpJenis;
-        _durasiOrientalSt = isKredit ? strsplit[1] : '7 HARI';
+        // _chosenOrientalSt = isKredit ? strsplit[0] : tmpJenis;
+        // _durasiOrientalSt = isKredit ? strsplit[1] : '7 HARI';
         // _chosenMoe = isKredit ? strsplit[0] : tmpJenis;
         // _durasiMoe = isKredit ? strsplit[1] : '7 HARI';
 
@@ -251,6 +258,57 @@ class _EcontractScreenState extends State<EcontractScreen> {
           handleTipeKontrakEdit(dtContract);
           handleDivDiscEdit(dtContract[0].idCustomer);
           getActiveContract(dtContract[0].idParent);
+        }
+
+        Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            _isLoading = false;
+          });
+        });
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
+  getDurationContract() async {
+    _isLoading = true;
+    const timeout = 15;
+    var url = '$API_URL/contract/durasi_kontrak';
+
+    try {
+      var response =
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: timeout));
+      print('Response status: ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool sts = data['status'];
+
+        if (sts) {
+          var rest = data['data'];
+          print(rest);
+          durContract = rest
+              .map<ContractDuration>((json) => ContractDuration.fromJson(json))
+              .toList();
+          print("List Size: ${dtContract.length}");
+
+          durContract.forEach((element) {
+            var item = DropdownMenuItem(
+              value: element.title,
+              child: Text(
+                element.title ?? '',
+                style: TextStyle(color: Colors.black54),
+              ),
+            );
+            durDropdown.add(item);
+          });
         }
 
         Future.delayed(Duration(seconds: 1), () {
@@ -317,10 +375,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
   handleJangkaWaktuEdit(List<Contract> _contract) {
     // bool isKreditNikon = handleIsKreditEdit(_contract[0].pembNikon);
     // bool isKreditNikonSt = handleIsKreditEdit(_contract[0].pembNikonSt);
-    bool isKreditLeinz = handleIsKreditEdit(_contract[0].pembLeinz);
-    bool isKreditLeinzSt = handleIsKreditEdit(_contract[0].pembLeinzSt);
+    bool isKreditLens = handleIsKreditEdit(_contract[0].pembLeinz);
+    // bool isKreditLeinz = handleIsKreditEdit(_contract[0].pembLeinz);
+    // bool isKreditLeinzSt = handleIsKreditEdit(_contract[0].pembLeinzSt);
     // bool isKreditOriental = handleIsKreditEdit(_contract[0].pembOriental);
-    bool isKreditOrientalSt = handleIsKreditEdit(_contract[0].pembOrientalSt);
+    // bool isKreditOrientalSt = handleIsKreditEdit(_contract[0].pembOrientalSt);
     // bool isKreditMoe = handleIsKreditEdit(_contract[0].pembMoe);
 
     // _chosenNikon = handleChosenEdit(_contract[0].pembNikon, isKreditNikon);
@@ -329,20 +388,22 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //     handleChosenEdit(_contract[0].pembNikonSt, isKreditNikonSt);
     // _durasiNikonSt =
     //     handleDurasiEdit(_contract[0].pembNikonSt, isKreditNikonSt);
-    _chosenLeinz = handleChosenEdit(_contract[0].pembLeinz, isKreditLeinz);
-    _durasiLeinz = handleDurasiEdit(_contract[0].pembLeinz, isKreditLeinz);
-    _chosenLeinzSt =
-        handleChosenEdit(_contract[0].pembLeinzSt, isKreditLeinzSt);
-    _durasiLeinzSt =
-        handleDurasiEdit(_contract[0].pembLeinzSt, isKreditLeinzSt);
+    _chosenLens = handleChosenEdit(_contract[0].pembLeinz, isKreditLens);
+    _durasiLens = handleDurasiEdit(_contract[0].pembLeinz, isKreditLens);
+    // _chosenLeinz = handleChosenEdit(_contract[0].pembLeinz, isKreditLeinz);
+    // _durasiLeinz = handleDurasiEdit(_contract[0].pembLeinz, isKreditLeinz);
+    // _chosenLeinzSt =
+    //     handleChosenEdit(_contract[0].pembLeinzSt, isKreditLeinzSt);
+    // _durasiLeinzSt =
+    //     handleDurasiEdit(_contract[0].pembLeinzSt, isKreditLeinzSt);
     // _chosenOriental =
     //     handleChosenEdit(_contract[0].pembOriental, isKreditOriental);
     // _durasiOriental =
     //     handleDurasiEdit(_contract[0].pembOriental, isKreditOriental);
-    _chosenOrientalSt =
-        handleChosenEdit(_contract[0].pembOrientalSt, isKreditOrientalSt);
-    _durasiOrientalSt =
-        handleDurasiEdit(_contract[0].pembOrientalSt, isKreditOrientalSt);
+    // _chosenOrientalSt =
+    //     handleChosenEdit(_contract[0].pembOrientalSt, isKreditOrientalSt);
+    // _durasiOrientalSt =
+    //     handleDurasiEdit(_contract[0].pembOrientalSt, isKreditOrientalSt);
     // _chosenMoe = handleChosenEdit(_contract[0].pembMoe, isKreditMoe);
     // _durasiMoe = handleDurasiEdit(_contract[0].pembMoe, isKreditMoe);
   }
@@ -1032,6 +1093,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
   void initState() {
     super.initState();
     getRole();
+    getDurationContract();
+
     if (widget.isRevisi!) {
       getDataContract(widget.customerList[widget.position].id);
     }
@@ -1303,17 +1366,27 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //   outNikonSt = _chosenNikonSt;
     // }
 
-    if (_chosenLeinz == "KREDIT") {
-      outLeinz = _chosenLeinz + '-' + _durasiLeinz;
+    if (_chosenLens == "KREDIT") {
+      outLeinz = _chosenLens + '-' + _durasiLens;
+      outLeinzSt = _chosenLens + '-' + _durasiLens;
+      outOrientalSt = _chosenLens + '-' + _durasiLens;
     } else {
-      outLeinz = _chosenLeinz;
+      outLeinz = _chosenLens;
+      outLeinzSt = _chosenLens;
+      outOrientalSt = _chosenLens;
     }
 
-    if (_chosenLeinzSt == "KREDIT") {
-      outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
-    } else {
-      outLeinzSt = _chosenLeinzSt;
-    }
+    // if (_chosenLeinz == "KREDIT") {
+    //   outLeinz = _chosenLeinz + '-' + _durasiLeinz;
+    // } else {
+    //   outLeinz = _chosenLeinz;
+    // }
+
+    // if (_chosenLeinzSt == "KREDIT") {
+    //   outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
+    // } else {
+    //   outLeinzSt = _chosenLeinzSt;
+    // }
 
     // if (_chosenOriental == "KREDIT") {
     //   outOriental = _chosenOriental + '-' + _durasiOriental;
@@ -1321,11 +1394,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //   outOriental = _chosenOriental;
     // }
 
-    if (_chosenOrientalSt == "KREDIT") {
-      outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
-    } else {
-      outOrientalSt = _chosenOrientalSt;
-    }
+    // if (_chosenOrientalSt == "KREDIT") {
+    //   outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
+    // } else {
+    //   outOrientalSt = _chosenOrientalSt;
+    // }
 
     // if (_chosenMoe == "KREDIT") {
     //   outMoe = _chosenMoe + '-' + _durasiMoe;
@@ -1371,7 +1444,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print('is_ongkir : $_isOngkirContract');
     print('is fixed ongkir : $_isFixedOngkir');
     print('is_facet : $_isFacetContract');
-    print('id_contract_promo : ${_isPromoContract ? controllerPromo.selectedPromo.value.id : null}');
+    print(
+        'id_contract_promo : ${_isPromoContract ? controllerPromo.selectedPromo.value.id : null}');
     print('updated_by : $id');
     print('has_parent : ${_isContractActive ? '1' : '0'}');
     print(
@@ -1486,7 +1560,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   : '0',
           'ongkir': valOngkir.replaceAll('.', ''),
           'is_facet': _isFacetContract ? '1' : '0',
-          'id_promo' : _isPromoContract ? controllerPromo.selectedPromo.value.id : '',
+          'id_promo':
+              _isPromoContract ? controllerPromo.selectedPromo.value.id : '',
           'catatan':
               "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'updated_by': id,
@@ -1638,17 +1713,27 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //   outNikonSt = _chosenNikonSt;
     // }
 
-    if (_chosenLeinz == "KREDIT") {
-      outLeinz = _chosenLeinz + '-' + _durasiLeinz;
+    if (_chosenLens == "KREDIT") {
+      outLeinz = _chosenLens + '-' + _durasiLens;
+      outLeinzSt = _chosenLens + '-' + _durasiLens;
+      outOrientalSt = _chosenLens + '-' + _durasiLens;
     } else {
-      outLeinz = _chosenLeinz;
+      outLeinz = _chosenLens;
+      outLeinzSt = _chosenLens;
+      outOrientalSt = _chosenLens;
     }
 
-    if (_chosenLeinzSt == "KREDIT") {
-      outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
-    } else {
-      outLeinzSt = _chosenLeinzSt;
-    }
+    // if (_chosenLeinz == "KREDIT") {
+    //   outLeinz = _chosenLeinz + '-' + _durasiLeinz;
+    // } else {
+    //   outLeinz = _chosenLeinz;
+    // }
+
+    // if (_chosenLeinzSt == "KREDIT") {
+    //   outLeinzSt = _chosenLeinzSt + '-' + _durasiLeinzSt;
+    // } else {
+    //   outLeinzSt = _chosenLeinzSt;
+    // }
 
     // if (_chosenOriental == "KREDIT") {
     //   outOriental = _chosenOriental + '-' + _durasiOriental;
@@ -1656,11 +1741,11 @@ class _EcontractScreenState extends State<EcontractScreen> {
     //   outOriental = _chosenOriental;
     // }
 
-    if (_chosenOrientalSt == "KREDIT") {
-      outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
-    } else {
-      outOrientalSt = _chosenOrientalSt;
-    }
+    // if (_chosenOrientalSt == "KREDIT") {
+    //   outOrientalSt = _chosenOrientalSt + '-' + _durasiOrientalSt;
+    // } else {
+    //   outOrientalSt = _chosenOrientalSt;
+    // }
 
     // if (_chosenMoe == "KREDIT") {
     //   outMoe = _chosenMoe + '-' + _durasiMoe;
@@ -1709,7 +1794,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
     print(
         'is_ongkir : ${_isOngkirContract ? '1' : _isFixedOngkir ? '2' : '0'}');
     print('is_facet : ${_isFacetContract ? '1' : '0'}');
-    print('id_contract_promo : ${_isPromoContract ? controllerPromo.selectedPromo.value.id : null}');
+    print(
+        'id_contract_promo : ${_isPromoContract ? controllerPromo.selectedPromo.value.id : null}');
     print('ttd_pertama : $ttdPertama');
     print('ttd_kedua : $ttdKedua');
     print(
@@ -1835,7 +1921,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   : '0',
           'ongkir': valOngkir.replaceAll('.', ''),
           'is_facet': _isFacetContract ? '1' : '0',
-          'id_promo' : _isPromoContract ? controllerPromo.selectedPromo.value.id : '',
+          'id_promo':
+              _isPromoContract ? controllerPromo.selectedPromo.value.id : '',
           'catatan':
               "${textCatatan.text} ${_isPrestigeContract ? 'Kontrak Khusus Leinz Prestige (Japan) - Beli 3 gratis 1' : ''}",
           'ttd_pertama': ttdPertama,
@@ -2900,6 +2987,77 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   // SizedBox(
                   //   height: isHorizontal ? 18.h : 8.h,
                   // ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isHorizontal ? 10.r : 5.r,
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //       Container(
+                  //         width: isHorizontal
+                  //             ? MediaQuery.of(context).size.width / 3.5
+                  //             : MediaQuery.of(context).size.width / 3.2,
+                  //         child: Text(
+                  //           'Lensa Leinz RX : ',
+                  //           style: TextStyle(
+                  //             fontSize: isHorizontal ? 18.h : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w500,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Expanded(
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(horizontal: 10.r),
+                  //           decoration: BoxDecoration(
+                  //               color: Colors.white70,
+                  //               border: Border.all(color: Colors.black54),
+                  //               borderRadius: BorderRadius.circular(5.r)),
+                  //           child: DropdownButton(
+                  //             underline: SizedBox(),
+                  //             isExpanded: true,
+                  //             value: _chosenLeinz,
+                  //             style: TextStyle(
+                  //               fontSize: isHorizontal ? 18.sp : 14.sp,
+                  //               fontFamily: 'Segoe Ui',
+                  //               color: Colors.black54,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //             items: [
+                  //               '-',
+                  //               'COD',
+                  //               'TRANSFER',
+                  //               'DEPOSIT',
+                  //               'KREDIT',
+                  //             ].map((e) {
+                  //               return DropdownMenuItem(
+                  //                 value: e,
+                  //                 child: Text(e,
+                  //                     style: TextStyle(color: Colors.black54)),
+                  //               );
+                  //             }).toList(),
+                  //             onChanged: (String? value) {
+                  //               setState(() {
+                  //                 _chosenLeinz = value!;
+                  //               });
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // _chosenLeinz == "KREDIT"
+                  //     ? durasiLeinz(
+                  //         isHorizontal: isHorizontal,
+                  //       )
+                  //     : SizedBox(
+                  //         width: 20.w,
+                  //       ),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: isHorizontal ? 10.r : 5.r,
@@ -2912,7 +3070,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               ? MediaQuery.of(context).size.width / 3.5
                               : MediaQuery.of(context).size.width / 3.2,
                           child: Text(
-                            'Lensa Leinz RX : ',
+                            'All Lens : ',
                             style: TextStyle(
                               fontSize: isHorizontal ? 18.h : 14.sp,
                               fontFamily: 'Montserrat',
@@ -2930,7 +3088,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                             child: DropdownButton(
                               underline: SizedBox(),
                               isExpanded: true,
-                              value: _chosenLeinz,
+                              value: _chosenLens,
                               style: TextStyle(
                                 fontSize: isHorizontal ? 18.sp : 14.sp,
                                 fontFamily: 'Segoe Ui',
@@ -2952,7 +3110,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
                               }).toList(),
                               onChanged: (String? value) {
                                 setState(() {
-                                  _chosenLeinz = value!;
+                                  _chosenLens = value!;
                                 });
                               },
                             ),
@@ -2964,8 +3122,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  _chosenLeinz == "KREDIT"
-                      ? durasiLeinz(
+                  _chosenLens == "KREDIT"
+                      ? durasiLens(
                           isHorizontal: isHorizontal,
                         )
                       : SizedBox(
@@ -2974,77 +3132,77 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   SizedBox(
                     height: isHorizontal ? 18.h : 8.h,
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 10.r : 5.r,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 3.5
-                              : MediaQuery.of(context).size.width / 3.2,
-                          child: Text(
-                            'Lensa Leinz Stock : ',
-                            style: TextStyle(
-                              fontSize: isHorizontal ? 18.h : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.r),
-                            decoration: BoxDecoration(
-                                color: Colors.white70,
-                                border: Border.all(color: Colors.black54),
-                                borderRadius: BorderRadius.circular(5.r)),
-                            child: DropdownButton(
-                              underline: SizedBox(),
-                              isExpanded: true,
-                              value: _chosenLeinzSt,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 18.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              items: [
-                                '-',
-                                'COD',
-                                'TRANSFER',
-                                'DEPOSIT',
-                                'KREDIT',
-                              ].map((e) {
-                                return DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e,
-                                      style: TextStyle(color: Colors.black54)),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _chosenLeinzSt = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  _chosenLeinzSt == "KREDIT"
-                      ? durasiLeinzSt(
-                          isHorizontal: isHorizontal,
-                        )
-                      : SizedBox(
-                          width: 20.w,
-                        ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isHorizontal ? 10.r : 5.r,
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //       Container(
+                  //         width: isHorizontal
+                  //             ? MediaQuery.of(context).size.width / 3.5
+                  //             : MediaQuery.of(context).size.width / 3.2,
+                  //         child: Text(
+                  //           'Lensa Leinz Stock : ',
+                  //           style: TextStyle(
+                  //             fontSize: isHorizontal ? 18.h : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w500,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Expanded(
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(horizontal: 10.r),
+                  //           decoration: BoxDecoration(
+                  //               color: Colors.white70,
+                  //               border: Border.all(color: Colors.black54),
+                  //               borderRadius: BorderRadius.circular(5.r)),
+                  //           child: DropdownButton(
+                  //             underline: SizedBox(),
+                  //             isExpanded: true,
+                  //             value: _chosenLeinzSt,
+                  //             style: TextStyle(
+                  //               fontSize: isHorizontal ? 18.sp : 14.sp,
+                  //               fontFamily: 'Segoe Ui',
+                  //               color: Colors.black54,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //             items: [
+                  //               '-',
+                  //               'COD',
+                  //               'TRANSFER',
+                  //               'DEPOSIT',
+                  //               'KREDIT',
+                  //             ].map((e) {
+                  //               return DropdownMenuItem(
+                  //                 value: e,
+                  //                 child: Text(e,
+                  //                     style: TextStyle(color: Colors.black54)),
+                  //               );
+                  //             }).toList(),
+                  //             onChanged: (String? value) {
+                  //               setState(() {
+                  //                 _chosenLeinzSt = value!;
+                  //               });
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // _chosenLeinzSt == "KREDIT"
+                  //     ? durasiLeinzSt(
+                  //         isHorizontal: isHorizontal,
+                  //       )
+                  //     : SizedBox(
+                  //         width: 20.w,
+                  //       ),
                   // SizedBox(
                   //   height: isHorizontal ? 18.h : 8.h,
                   // ),
@@ -3119,80 +3277,80 @@ class _EcontractScreenState extends State<EcontractScreen> {
                   //     : SizedBox(
                   //         width: 20.w,
                   //       ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 8.h,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isHorizontal ? 10.r : 5.r,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: isHorizontal
-                              ? MediaQuery.of(context).size.width / 3.5
-                              : MediaQuery.of(context).size.width / 3.2,
-                          child: Text(
-                            'Lensa Oriental Stock : ',
-                            style: TextStyle(
-                              fontSize: isHorizontal ? 18.h : 14.sp,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.r),
-                            decoration: BoxDecoration(
-                                color: Colors.white70,
-                                border: Border.all(color: Colors.black54),
-                                borderRadius: BorderRadius.circular(5.r)),
-                            child: DropdownButton(
-                              underline: SizedBox(),
-                              isExpanded: true,
-                              value: _chosenOrientalSt,
-                              style: TextStyle(
-                                fontSize: isHorizontal ? 18.sp : 14.sp,
-                                fontFamily: 'Segoe Ui',
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              items: [
-                                '-',
-                                'COD',
-                                'TRANSFER',
-                                'DEPOSIT',
-                                'KREDIT',
-                              ].map((e) {
-                                return DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e,
-                                      style: TextStyle(color: Colors.black54)),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _chosenOrientalSt = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: isHorizontal ? 18.h : 10.h,
-                  ),
-                  _chosenOrientalSt == "KREDIT"
-                      ? durasiOrientalSt(
-                          isHorizontal: isHorizontal,
-                        )
-                      : SizedBox(
-                          width: 20.w,
-                        ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 8.h,
+                  // ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isHorizontal ? 10.r : 5.r,
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //       Container(
+                  //         width: isHorizontal
+                  //             ? MediaQuery.of(context).size.width / 3.5
+                  //             : MediaQuery.of(context).size.width / 3.2,
+                  //         child: Text(
+                  //           'Lensa Oriental Stock : ',
+                  //           style: TextStyle(
+                  //             fontSize: isHorizontal ? 18.h : 14.sp,
+                  //             fontFamily: 'Montserrat',
+                  //             fontWeight: FontWeight.w500,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Expanded(
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(horizontal: 10.r),
+                  //           decoration: BoxDecoration(
+                  //               color: Colors.white70,
+                  //               border: Border.all(color: Colors.black54),
+                  //               borderRadius: BorderRadius.circular(5.r)),
+                  //           child: DropdownButton(
+                  //             underline: SizedBox(),
+                  //             isExpanded: true,
+                  //             value: _chosenOrientalSt,
+                  //             style: TextStyle(
+                  //               fontSize: isHorizontal ? 18.sp : 14.sp,
+                  //               fontFamily: 'Segoe Ui',
+                  //               color: Colors.black54,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //             items: [
+                  //               '-',
+                  //               'COD',
+                  //               'TRANSFER',
+                  //               'DEPOSIT',
+                  //               'KREDIT',
+                  //             ].map((e) {
+                  //               return DropdownMenuItem(
+                  //                 value: e,
+                  //                 child: Text(e,
+                  //                     style: TextStyle(color: Colors.black54)),
+                  //               );
+                  //             }).toList(),
+                  //             onChanged: (String? value) {
+                  //               setState(() {
+                  //                 _chosenOrientalSt = value!;
+                  //               });
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: isHorizontal ? 18.h : 10.h,
+                  // ),
+                  // _chosenOrientalSt == "KREDIT"
+                  //     ? durasiOrientalSt(
+                  //         isHorizontal: isHorizontal,
+                  //       )
+                  //     : SizedBox(
+                  //         width: 20.w,
+                  //       ),
                   // SizedBox(
                   //   height: isHorizontal ? 18.h : 8.h,
                   // ),
@@ -3702,7 +3860,7 @@ class _EcontractScreenState extends State<EcontractScreen> {
   //   );
   // }
 
-  Widget durasiLeinz({bool isHorizontal = false}) {
+  Widget durasiLens({bool isHorizontal = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isHorizontal ? 10.r : 5.r,
@@ -3734,27 +3892,17 @@ class _EcontractScreenState extends State<EcontractScreen> {
               child: DropdownButton(
                 underline: SizedBox(),
                 isExpanded: true,
-                value: _durasiLeinz,
+                value: _durasiLens,
                 style: TextStyle(
                   fontSize: isHorizontal ? 18.sp : 14.sp,
                   fontFamily: 'Segoe Ui',
                   color: Colors.black54,
                   fontWeight: FontWeight.w600,
                 ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
+                items: durDropdown,
                 onChanged: (String? value) {
                   setState(() {
-                    _durasiLeinz = value!;
+                    _durasiLens = value!;
                   });
                 },
               ),
@@ -3765,68 +3913,131 @@ class _EcontractScreenState extends State<EcontractScreen> {
     );
   }
 
-  Widget durasiLeinzSt({bool isHorizontal = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 10.r : 5.r,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: isHorizontal
-                ? MediaQuery.of(context).size.width / 3.5
-                : MediaQuery.of(context).size.width / 3.2,
-            child: Text(
-              'Durasi : ',
-              style: TextStyle(
-                fontSize: isHorizontal ? 18.h : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.r),
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: DropdownButton(
-                underline: SizedBox(),
-                isExpanded: true,
-                value: _durasiLeinzSt,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 18.sp : 14.sp,
-                  fontFamily: 'Segoe Ui',
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _durasiLeinzSt = value!;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget durasiLeinz({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 3.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 18.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiLeinz,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 18.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiLeinz = value!;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget durasiLeinzSt({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 3.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 18.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiLeinzSt,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 18.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiLeinzSt = value!;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // Widget durasiOriental({bool isHorizontal = false}) {
   //   return Padding(
@@ -3891,68 +4102,68 @@ class _EcontractScreenState extends State<EcontractScreen> {
   //   );
   // }
 
-  Widget durasiOrientalSt({bool isHorizontal = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: isHorizontal ? 10.r : 5.r,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: isHorizontal
-                ? MediaQuery.of(context).size.width / 3.5
-                : MediaQuery.of(context).size.width / 3.2,
-            child: Text(
-              'Durasi : ',
-              style: TextStyle(
-                fontSize: isHorizontal ? 18.h : 14.sp,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.r),
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: DropdownButton(
-                underline: SizedBox(),
-                isExpanded: true,
-                value: _durasiOrientalSt,
-                style: TextStyle(
-                  fontSize: isHorizontal ? 18.sp : 14.sp,
-                  fontFamily: 'Segoe Ui',
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-                items: [
-                  '7 HARI',
-                  '14 HARI',
-                  '30 HARI',
-                  '45 HARI',
-                ].map((e) {
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: TextStyle(color: Colors.black54)),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _durasiOrientalSt = value!;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget durasiOrientalSt({bool isHorizontal = false}) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isHorizontal ? 10.r : 5.r,
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           width: isHorizontal
+  //               ? MediaQuery.of(context).size.width / 3.5
+  //               : MediaQuery.of(context).size.width / 3.2,
+  //           child: Text(
+  //             'Durasi : ',
+  //             style: TextStyle(
+  //               fontSize: isHorizontal ? 18.h : 14.sp,
+  //               fontFamily: 'Montserrat',
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Container(
+  //             padding: EdgeInsets.symmetric(horizontal: 10.r),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white70,
+  //               border: Border.all(color: Colors.black54),
+  //               borderRadius: BorderRadius.circular(5.r),
+  //             ),
+  //             child: DropdownButton(
+  //               underline: SizedBox(),
+  //               isExpanded: true,
+  //               value: _durasiOrientalSt,
+  //               style: TextStyle(
+  //                 fontSize: isHorizontal ? 18.sp : 14.sp,
+  //                 fontFamily: 'Segoe Ui',
+  //                 color: Colors.black54,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //               items: [
+  //                 '7 HARI',
+  //                 '14 HARI',
+  //                 '30 HARI',
+  //                 '45 HARI',
+  //               ].map((e) {
+  //                 return DropdownMenuItem(
+  //                   value: e,
+  //                   child: Text(e, style: TextStyle(color: Colors.black54)),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? value) {
+  //                 setState(() {
+  //                   _durasiOrientalSt = value!;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget selectParent({bool isHorizontal = false}) {
     return StatefulBuilder(builder: (context, setState) {
@@ -4602,7 +4813,8 @@ class _EcontractScreenState extends State<EcontractScreen> {
                                                       controllerPromo
                                                               .selectedPromo
                                                               .value
-                                                              .promoName?.toUpperCase() ??
+                                                              .promoName
+                                                              ?.toUpperCase() ??
                                                           '',
                                                       style: TextStyle(
                                                         fontSize: isHorizontal

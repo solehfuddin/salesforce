@@ -19,8 +19,12 @@ import 'package:table_calendar/table_calendar.dart';
 // ignore: must_be_immutable
 class DailyActivity extends StatefulWidget {
   bool isAdmin = false;
+  int dailyInt = 0;
 
-  DailyActivity({required this.isAdmin});
+  DailyActivity({
+    required this.isAdmin,
+    this.dailyInt = 0,
+  });
 
   @override
   State<DailyActivity> createState() => _DailyActivityState();
@@ -274,8 +278,14 @@ class _DailyActivityState extends State<DailyActivity> {
               firstDay: widget.isAdmin
                   ? firstDayInit
                   : now.add(
-                      Duration(days: -2),
+                      Duration(days: 0),
                     ),
+              // : now.add(
+              //     Duration(
+              //       days: widget.dailyInt,
+              //     ),
+              //   ),
+
               lastDay: now,
               selectedDayPredicate: (day) => isSameDay(selDateTime, day),
               startingDayOfWeek: StartingDayOfWeek.monday,

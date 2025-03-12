@@ -5,13 +5,16 @@ import 'package:sample/src/app/pages/approval/approval_view.dart';
 import 'package:sample/src/app/pages/cashback/cashback_approvalapprove.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
+import '../customer/customer_approvalapprove.dart';
+
 // ignore: must_be_immutable
 class TabApprovalApprove extends StatefulWidget {
-  int totalDiskon, totalCashback;
+  int totalDiskon, totalCashback, totalChangeCust;
   TabApprovalApprove({
     Key? key,
     this.totalDiskon = 0,
     this.totalCashback = 0,
+    this.totalChangeCust = 0,
   }) : super(key: key);
 
   @override
@@ -21,7 +24,7 @@ class TabApprovalApprove extends StatefulWidget {
 class _TabApprovalApproveState extends State<TabApprovalApprove>
     with TickerProviderStateMixin {
   late TabController tabController;
-  final tabColors = [Colors.white, Colors.green.shade300];
+  final tabColors = [Colors.white, Colors.green.shade300, Colors.deepOrange.shade300];
   late Color indicatorColor;
 
   @override
@@ -29,7 +32,7 @@ class _TabApprovalApproveState extends State<TabApprovalApprove>
     super.initState();
     tabController = TabController(
       initialIndex: 0,
-      length: 2,
+      length: 3,
       vsync: this,
     )..addListener(() {
         setState(() {
@@ -105,6 +108,9 @@ class _TabApprovalApproveState extends State<TabApprovalApprove>
               Tab(
                 text: 'Cashback ${widget.totalCashback > 0 ? '(${widget.totalCashback})' : ''}',
               ),
+              Tab(
+                text: 'Customer ${widget.totalChangeCust > 0 ? '(${widget.totalChangeCust})' : ''}',
+              ),
             ],
           ),
         ),
@@ -115,6 +121,9 @@ class _TabApprovalApproveState extends State<TabApprovalApprove>
               isHideAppbar: true,
             ),
             CashbackApprovalApprove(
+              defaultColor: Colors.grey.shade50,
+            ),
+            CustomerApprovalApprove(
               defaultColor: Colors.grey.shade50,
             ),
           ],

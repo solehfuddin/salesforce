@@ -121,7 +121,7 @@ class _CashbackDialogStatusState extends State<CashbackDialogStatus> {
                 ),
                 replacement: InkWell(
                   child: Text(
-                    'Detail POS',
+                    'Detail Cashback',
                     style: TextStyle(
                       fontSize: isHorizontal ? 15.sp : 12.sp,
                       fontFamily: 'Segoe ui',
@@ -172,20 +172,6 @@ class _CashbackDialogStatusState extends State<CashbackDialogStatus> {
               getDetailStatus(
                 isHorizontal,
                 context,
-                pic: 'Sales Manager',
-                picAlias: 'SM',
-                picName: widget.item.smName!,
-                picReason: widget.item.reasonSm!,
-                approvalStatus: widget.item.approvalSm!,
-                dateApproved: widget.item.dateApprovalSm != ''
-                    ? convertDateWithMonthHour(
-                        widget.item.dateApprovalSm!,
-                      )
-                    : '-',
-              ),
-              getDetailStatus(
-                isHorizontal,
-                context,
                 pic: 'General Manager',
                 picAlias: 'GM',
                 picName: widget.item.gmName!,
@@ -194,6 +180,20 @@ class _CashbackDialogStatusState extends State<CashbackDialogStatus> {
                 dateApproved: widget.item.dateApprovalGm != ''
                     ? convertDateWithMonthHour(
                         widget.item.dateApprovalGm!,
+                      )
+                    : '-',
+              ),
+              getDetailStatus(
+                isHorizontal,
+                context,
+                pic: 'Sales Manager',
+                picAlias: 'SM',
+                picName: widget.item.smName!,
+                picReason: widget.item.reasonSm!,
+                approvalStatus: widget.item.approvalSm!,
+                dateApproved: widget.item.dateApprovalSm != ''
+                    ? convertDateWithMonthHour(
+                        widget.item.dateApprovalSm!,
                       )
                     : '-',
               ),

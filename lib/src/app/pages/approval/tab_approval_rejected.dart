@@ -3,15 +3,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sample/src/app/pages/admin/admin_view.dart';
 import 'package:sample/src/app/pages/approval/rejected_view.dart';
 import 'package:sample/src/app/pages/cashback/cashback_approvalreject.dart';
+import 'package:sample/src/app/pages/customer/customer_approvalreject.dart';
 import 'package:sample/src/app/utils/custom.dart';
 
 // ignore: must_be_immutable
 class TabApprovalRejected extends StatefulWidget {
-  int totalDiskon, totalCashback;
+  int totalDiskon, totalCashback, totalChangeCust;
   TabApprovalRejected({
     Key? key,
     this.totalDiskon = 0,
     this.totalCashback = 0,
+    this.totalChangeCust = 0,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,7 @@ class TabApprovalRejected extends StatefulWidget {
 class _TabApprovalRejectedState extends State<TabApprovalRejected>
     with TickerProviderStateMixin {
   late TabController tabController;
-  final tabColors = [Colors.white, Colors.green.shade300];
+  final tabColors = [Colors.white, Colors.green.shade300, Colors.deepOrange.shade300];
   late Color indicatorColor;
 
   @override
@@ -29,7 +31,7 @@ class _TabApprovalRejectedState extends State<TabApprovalRejected>
     super.initState();
     tabController = TabController(
       initialIndex: 0,
-      length: 2,
+      length: 3,
       vsync: this,
     )..addListener(() {
         setState(() {
@@ -105,6 +107,9 @@ class _TabApprovalRejectedState extends State<TabApprovalRejected>
               Tab(
                 text: 'Cashback ${widget.totalCashback > 0 ? '(${widget.totalCashback})' : ''}',
               ),
+              Tab(
+                text: 'Customer ${widget.totalChangeCust > 0 ? '(${widget.totalChangeCust})' : ''}',
+              ),
             ],
           ),
         ),
@@ -115,6 +120,9 @@ class _TabApprovalRejectedState extends State<TabApprovalRejected>
               isHideAppbar: true,
             ),
             CashbackApprovalReject(
+              defaultColor: Colors.grey.shade50,
+            ),
+            CustomerApprovalReject(
               defaultColor: Colors.grey.shade50,
             ),
           ],

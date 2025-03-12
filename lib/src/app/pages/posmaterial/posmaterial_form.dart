@@ -13,6 +13,9 @@ import 'package:sample/src/domain/entities/posmaterial_insert.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../domain/entities/omzet_optic.dart';
+import '../../../domain/entities/posmaterial_lineposter.dart';
+
 // ignore: camel_case_types
 class Posmaterial_Form extends StatefulWidget {
   const Posmaterial_Form({Key? key}) : super(key: key);
@@ -24,6 +27,7 @@ class Posmaterial_Form extends StatefulWidget {
 // ignore: camel_case_types
 class _Posmaterial_FormState extends State<Posmaterial_Form> {
   ServicePosMaterial service = new ServicePosMaterial();
+  List<PosMaterialLinePoster> listPosterLine = List.empty(growable: true);
 
   TextEditingController controllerOptikName = new TextEditingController();
   TextEditingController controllerOptikAddress = new TextEditingController();
@@ -44,6 +48,9 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
   TextEditingController txtAttachmentKtp = new TextEditingController();
   TextEditingController txtAttachmentNpwp = new TextEditingController();
   TextEditingController txtAttachmentOmzet = new TextEditingController();
+
+  Future<OmzetOptic>? futureOmzet;
+  OmzetOptic? _omzetOptic;
 
   String? id, role, username, name;
   String? idSm, nameSm, tokenSm;
@@ -113,6 +120,17 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
     );
 
     return () {};
+  }
+
+  void _getOmzet() async {
+    futureOmzet = service.getOmzetOptic(context, mounted, accountNo);
+    _omzetOptic = await futureOmzet;
+
+    setState(() {
+      print("""
+          Max Pos : ${_omzetOptic?.maxPos}
+        """);
+    });
   }
 
   @override
@@ -334,6 +352,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           break;
         case 'accountNo':
           accountNo = returVal;
+          _getOmzet();
           break;
         case 'accountType':
           accountType = returVal;
@@ -453,13 +472,16 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           isHorizontal: isHorizontal,
           isProspectCustomer: _isProspectCustomer,
           isDesignOnly: _isDesignOnly,
-          controllerProductWidth: controllerProductWidth,
-          controllerProductHeight: controllerProductHeight,
-          controllerProductQty: controllerProductQty,
-          selectedMaterialId: selectedMaterialId,
-          selectedMaterial: selectedMaterial,
-          selectedContentId: selectedContentId,
-          selectedContent: selectedContent,
+          listPosterLine: listPosterLine,
+          // controllerProductWidth: controllerProductWidth,
+          // controllerProductHeight: controllerProductHeight,
+          // controllerProductQty: controllerProductQty,
+          omzetOptik: _omzetOptic?.maxPos ?? "0",
+          controllerNotes: controllerNotes,
+          // selectedMaterialId: selectedMaterialId,
+          // selectedMaterial: selectedMaterial,
+          // selectedContentId: selectedContentId,
+          // selectedContent: selectedContent,
           selectedDeliveryMethod: selectedDeliveryMethod,
           notifyParent: updateSelected,
           validateProductWidth: _validateProductWidth,
@@ -486,6 +508,118 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
     }
 
     return widget;
+  }
+
+  handleValidationPoster({bool isHorizontal = false}) {
+    bool readyExecute = false;
+    bool isShowError = false;
+    if (listPosterLine.isNotEmpty) {
+      listPosterLine.forEach((element) {
+        if (element.width!.isEmpty && isShowError == false) {
+          handleStatus(
+            context,
+            'Harap lengkapi lebar poster',
+            false,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+          );
+
+          isShowError = true;
+        } else if (element.height!.isEmpty && isShowError == false) {
+          handleStatus(
+            context,
+            'Harap lengkapi tinggi poster',
+            false,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+          );
+          isShowError = true;
+        } else if (element.qty!.isEmpty && isShowError == false) {
+          handleStatus(
+            context,
+            'Harap lengkapi qty poster',
+            false,
+            isHorizontal: isHorizontal,
+            isLogout: false,
+          );
+          isShowError = true;
+        } else {
+          if (element.material == 'Duratrans' && isShowError == false) {
+            int width = int.parse(element.width ?? "0");
+            int height = int.parse(element.height ?? "0");
+
+            bool checkWidthMore150 = width > 150;
+            bool checkHeightMore150 = height > 150;
+
+            bool checkWidthMore400 = width > 400;
+            bool checkHeightMore400 = height > 400;
+
+            print("Width ($width) : $checkWidthMore150");
+            print("Height ($height) : $checkHeightMore150");
+            print("Width ($width) : $checkWidthMore400");
+            print("Height ($height) : $checkHeightMore400");
+
+            if (checkWidthMore150 ||
+                checkHeightMore150 ||
+                checkWidthMore400 ||
+                checkHeightMore400) {
+              handleStatus(
+                context,
+                'Ukuran max 150 * 400 / sebaliknya',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+
+              isShowError = true;
+            } else if (!_validateLampiranRencana) {
+              handleStatus(
+                context,
+                'Harap lengkapi lampiran',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+              isShowError = true;
+            } else {
+              readyExecute = true;
+            }
+          } else {
+            if (!_validateLampiranRencana) {
+              handleStatus(
+                context,
+                'Harap lengkapi lampiran',
+                false,
+                isHorizontal: isHorizontal,
+                isLogout: false,
+              );
+              isShowError = true;
+            } else {
+              readyExecute = true;
+            }
+          }
+        }
+      });
+
+      if (readyExecute) {
+        print('Ready Execute');
+
+        processInsert(
+          isHorizontal: isHorizontal,
+        );
+
+        readyExecute = false;
+      }
+    } else {
+      handleStatus(
+        context,
+        'Belum ada data spesifikasi poster',
+        false,
+        isHorizontal: isHorizontal,
+        isLogout: false,
+      );
+      isShowError = true;
+    }
   }
 
   handleValidationForm({bool isHorizontal = false}) {
@@ -671,6 +805,18 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
         break;
 
       case 'POSTER':
+        listPosterLine.forEach((element) {
+          print("""
+          Item Material id : ${element.materialId}
+          Item Material : ${element.material}
+          Item Content id : ${element.contentId}
+          Item Content : ${element.content}
+          Item Qty : ${element.qty}
+          Item Width : ${element.width}
+          Item Height : ${element.height}
+          """);
+        });
+
         setState(() {
           if (controllerOptikName.text.isNotEmpty) {
             _validateOpticName = true;
@@ -678,18 +824,6 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
 
           if (controllerOptikAddress.text.isNotEmpty) {
             _validateOpticAddress = true;
-          }
-
-          if (controllerProductWidth.text.isNotEmpty) {
-            _validateProductWidth = true;
-          }
-
-          if (controllerProductHeight.text.isNotEmpty) {
-            _validateProductHeight = true;
-          }
-
-          if (controllerProductQty.text.isNotEmpty) {
-            _validateQtyItem = true;
           }
 
           if (base64Rencana.isNotEmpty) {
@@ -705,77 +839,11 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
           }
         });
 
-        if (_validateOpticName &&
-            _validateOpticAddress &&
-            _validateProductWidth &&
-            _validateProductHeight &&
-            _validateQtyItem) {
+        if (_validateOpticName && _validateOpticAddress) {
           if (accountNo.isEmpty) {
-            if (selectedMaterial == 'Duratrans') {
-              int width = int.parse(
-                  controllerProductWidth.text.replaceAll('.', '').toString());
-              int height = int.parse(
-                  controllerProductHeight.text.replaceAll('.', '').toString());
-
-              if (width > 150 && height > 400 || height > 150 && width > 400) {
-                handleStatus(
-                  context,
-                  'Ukuran max 150 * 400 / sebaliknya',
-                  false,
-                  isHorizontal: isHorizontal,
-                  isLogout: false,
-                );
-
-                return false;
-              }
-            }
-
-            if (_validateLampiranRencana) {
-              processInsert(
-                isHorizontal: isHorizontal,
-              );
-            } else {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
-            }
+            handleValidationPoster(isHorizontal: _isHorizontal);
           } else {
-            if (selectedMaterial == 'Duratrans') {
-              int width = int.parse(
-                  controllerProductWidth.text.replaceAll('.', '').toString());
-              int height = int.parse(
-                  controllerProductHeight.text.replaceAll('.', '').toString());
-
-              if (width > 150 && height > 400 || height > 150 && width > 400) {
-                handleStatus(
-                  context,
-                  'Ukuran max 150 * 400 / sebaliknya',
-                  false,
-                  isHorizontal: isHorizontal,
-                  isLogout: false,
-                );
-
-                return false;
-              }
-            }
-
-            if (_validateLampiranRencana) {
-              processInsert(
-                isHorizontal: isHorizontal,
-              );
-            } else {
-              handleStatus(
-                context,
-                'Harap lengkapi lampiran',
-                false,
-                isHorizontal: isHorizontal,
-                isLogout: false,
-              );
-            }
+            handleValidationPoster(isHorizontal: _isHorizontal);
           }
         } else {
           handleStatus(
@@ -905,6 +973,7 @@ class _Posmaterial_FormState extends State<Posmaterial_Form> {
       mounted: mounted,
       context: context,
       item: objectInsert,
+      line: listPosterLine,
       salesname: name,
       opticname: controllerOptikName.text,
       idSm: idSm,

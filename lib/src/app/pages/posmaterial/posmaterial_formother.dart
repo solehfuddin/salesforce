@@ -393,12 +393,35 @@ class _Posmaterial_formotherState extends State<Posmaterial_formother> {
             SizedBox(
               height: widget.isHorizontal ? 25.h : 15.h,
             ),
-            Visibility(
-              visible: widget.isCustomerProspect,
-              child: SizedBox(
-                width: widget.isHorizontal ? 40.h : 20.h,
-              ),
-              replacement: Container(
+            // Visibility(
+            //   visible: widget.isCustomerProspect,
+            //   child: SizedBox(
+            //     width: widget.isHorizontal ? 40.h : 20.h,
+            //   ),
+            //   replacement: Container(
+            //     margin: EdgeInsets.symmetric(
+            //       horizontal: widget.isHorizontal ? 24.w : 12.w,
+            //     ),
+            //     child: Stack(
+            //       children: [
+            //         Container(
+            //           width: double.maxFinite,
+            //           child: Posmaterial_formattachment(
+            //             isHorizontal: widget.isHorizontal,
+            //             attachmentTitle: attachmentOmzet,
+            //             notifyParent: updateSelectedAttachment,
+            //             flagParent: updateValidatedAttachment,
+            //             // validateAttachment: widget.validateLampiranOmzet,
+            //             validateAttachment: true,
+            //             txtPathAttachment: txtAttachmentOmzet,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            if (widget.isCustomerProspect)
+              Container(
                 margin: EdgeInsets.symmetric(
                   horizontal: widget.isHorizontal ? 24.w : 12.w,
                 ),
@@ -419,7 +442,6 @@ class _Posmaterial_formotherState extends State<Posmaterial_formother> {
                   ],
                 ),
               ),
-            ),
             SizedBox(
               height: widget.isHorizontal ? 40.h : 20.h,
             ),

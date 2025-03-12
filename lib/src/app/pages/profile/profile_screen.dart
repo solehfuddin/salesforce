@@ -3,14 +3,26 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as Io;
 
+// import 'package:date_field/date_field.dart';
+// import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:sample/src/app/pages/profile/profile_schedule.dart';
+// import 'package:sample/src/app/pages/profile/profile_schedule.dart';
 import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+// import '../../../domain/entities/offline_trainer.dart';
+import '../../../domain/entities/trainer.dart';
+import '../../../domain/service/service_marketingexpense.dart';
+import '../../controllers/marketingexpense_controller.dart';
+import '../../controllers/training_controller.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -18,6 +30,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  MarketingExpenseController meController =
+      Get.find<MarketingExpenseController>();
+  ServiceMarketingExpense serviceMe = new ServiceMarketingExpense();
+  TrainingController trainingController = Get.find<TrainingController>();
+
+  List<Trainer> _list = List.empty(growable: true);
+  final format = DateFormat("dd MMM yyyy");
   String? id = '';
   String? role = '';
   String? username = '';
@@ -30,9 +49,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController textPassword = new TextEditingController();
   TextEditingController textRePassword = new TextEditingController();
   TextEditingController textNamaLengkap = new TextEditingController();
+  TextEditingController textTrainerRole = new TextEditingController();
+  TextEditingController textTrainerProfile = new TextEditingController();
+  TextEditingController textOfflineStart = new TextEditingController();
+  TextEditingController textOfflineUntil = new TextEditingController();
   bool _isNamaLengkap = false;
   bool _isPassword = false;
   bool _isRePassword = false;
+  bool isOfflineMode = false;
+  String isTrainer = "";
+  String offlineStart = '';
+  String offlineUntil = '';
+  String _choosenOfflineReason = 'CUTI';
   late File tmpFile;
   String tmpName = '';
   String base64Imgprofile = '';
@@ -60,6 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       divisi = preferences.getString("divisi");
       name = preferences.getString("name") ?? '';
       status = preferences.getString("status") ?? '';
+      isTrainer = preferences.getString("isTrainer") ?? '';
       textNamaLengkap.text = name!;
 
       print('Nama Lengkap : ${textNamaLengkap.text}');
@@ -68,7 +97,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (id != null) {
         getData(int.parse(id!));
       }
+
+      if (isTrainer == "YES") {
+        getTrainer(name: name);
+      }
     });
+  }
+
+  void getTrainer({String? name = ""}) {
+    meController
+        .getAllTrainer(
+          mounted,
+          context,
+          key: name ?? "",
+        )
+        .then(
+          (value) => setState(
+            () {
+              _list.addAll(value);
+
+              if (_list.length > 0) {
+                trainingController.trainer.value = _list[0];
+
+                isOfflineMode = trainingController.trainer.value.isOnlne == "NO"
+                    ? true
+                    : false;
+                textTrainerRole.text =
+                    trainingController.trainer.value.trainerRole ?? "";
+                textTrainerProfile.text =
+                    trainingController.trainer.value.trainerProfile ?? "";
+              }
+            },
+          ),
+        );
   }
 
   getData(int input) async {
@@ -141,6 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             isHorizontal: isHorizontal,
           );
 
+          print("Offline Mode : $isOfflineMode");
           print('Eksekusi dengan password');
         } else {
           handleStatus(
@@ -157,6 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           isHorizontal: isHorizontal,
         );
 
+        print("Offline Mode : $isOfflineMode");
         print('Eksekusi nama saja');
       }
     } else {
@@ -232,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  perbaruiData({
+   perbaruiData({
     bool isChangePassword = false,
     bool isHorizontal = false,
   }) async {
@@ -247,6 +310,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'id': id,
                 'name': textNamaLengkap.text,
                 'password': textPassword.text,
+                'trainer_role' : textTrainerRole.text,
+                'trainer_profile' : textTrainerProfile.text,
               },
             )
           : await http.put(
@@ -254,8 +319,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
               body: {
                 'id': id,
                 'name': textNamaLengkap.text,
+                'trainer_role' : textTrainerRole.text,
+                'trainer_profile' : textTrainerProfile.text,
               },
             ).timeout(Duration(seconds: timeout));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+        final String msg = res['message'];
+
+        if (sts) {
+          updateNamePref(textNamaLengkap.text);
+          if (mounted) {
+            handleStatus(
+              context,
+              capitalize(msg),
+              sts,
+              isHorizontal: isHorizontal,
+              isLogout: false,
+            );
+          }
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : $e');
+    }
+  }
+
+  perbaruiDataTrainer({
+    bool isHorizontal = false,
+  }) async {
+    const timeout = 15;
+    var url = '$API_URL/users/trainer';
+
+    try {
+      var response = await http.put(
+        Uri.parse(url),
+        body: {
+          'id': id,
+          'offline_reason': trainingController.trainer.value.isOnlne == "YES"
+              ? _choosenOfflineReason
+              : '',
+          'offline_start': trainingController.trainer.value.isOnlne == "YES"
+              ? offlineStart
+              : '',
+          'offline_until': trainingController.trainer.value.isOnlne == "YES"
+              ? offlineUntil
+              : '',
+          'trainer_role': textTrainerRole.text,
+          'trainer_profile': textTrainerProfile.text,
+        },
+      ).timeout(Duration(seconds: timeout));
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -326,6 +456,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: Colors.black54,
               ),
             ),
+            actions: [
+              Visibility(
+                visible: isTrainer == "YES",
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: 3.r,
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.settings,
+                      color: Colors.black54,
+                      size: meController.isHorizontal.value ? 20.r : 18.r,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProfileSchedule(
+                            isHorizontal: meController.isHorizontal.value,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -417,28 +573,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _isLoading
                       ? areaLoading()
                       : Center(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10.r,
-                              horizontal: 15.r,
-                            ),
-                            decoration: BoxDecoration(
-                              color: status == 'ACTIVE'
-                                  ? Colors.green[100]
-                                  : Colors.red[100],
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                            child: Text(
-                              status == 'ACTIVE' ? 'AKTIF' : 'TIDAK AKTIF',
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontFamily: 'Segoe ui',
-                                fontWeight: FontWeight.bold,
-                                color: status == 'ACTIVE'
-                                    ? Colors.green[800]
-                                    : Colors.red[800],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 10.r,
+                                  horizontal: 15.r,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: status == 'ACTIVE'
+                                      ? Colors.green[100]
+                                      : Colors.red[100],
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                                child: Text(
+                                  status == 'ACTIVE' ? 'AKTIF' : 'TIDAK AKTIF',
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    fontFamily: 'Segoe ui',
+                                    fontWeight: FontWeight.bold,
+                                    color: status == 'ACTIVE'
+                                        ? Colors.green[800]
+                                        : Colors.red[800],
+                                  ),
+                                ),
                               ),
-                            ),
+                              Visibility(
+                                visible: isTrainer == "YES" ? true : false,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    left: 5.w,
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 10.r,
+                                    horizontal: 15.r,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: trainingController
+                                                .trainer.value.isOnlne ==
+                                            "YES"
+                                        ? Colors.green[100]
+                                        : Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(7),
+                                  ),
+                                  child: Text(
+                                    trainingController.trainer.value.isOnlne ==
+                                            "YES"
+                                        ? "READY"
+                                        : "OFFLINE",
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      fontFamily: 'Segoe ui',
+                                      fontWeight: FontWeight.bold,
+                                      color: trainingController
+                                                  .trainer.value.isOnlne ==
+                                              "YES"
+                                          ? Colors.green[800]
+                                          : Colors.grey[800],
+                                    ),
+                                  ),
+                                ),
+                                replacement: SizedBox(
+                                  height: 10.h,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                   SizedBox(
@@ -555,6 +755,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     obscureText: _isReHidePass,
                   ),
                   SizedBox(
+                    height: 15.h,
+                  ),
+                  isTrainer == "YES"
+                      ? trainerSettingWidget(
+                          isHorizontal: true,
+                        )
+                      : SizedBox(
+                          width: 5.w,
+                        ),
+                  SizedBox(
                     height: 30.h,
                   ),
                   Row(
@@ -619,6 +829,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.black54,
             ),
           ),
+          actions: [
+            Visibility(
+              visible: isTrainer == "YES",
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: 3.r,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.settings,
+                    color: Colors.black54,
+                    size: meController.isHorizontal.value ? 20.r : 18.r,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProfileSchedule(
+                          isHorizontal: meController.isHorizontal.value,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -707,28 +943,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _isLoading
                     ? areaLoading()
                     : Center(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 5.r,
-                            horizontal: 10.r,
-                          ),
-                          decoration: BoxDecoration(
-                            color: status == 'ACTIVE'
-                                ? Colors.green[100]
-                                : Colors.red[100],
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Text(
-                            status == 'ACTIVE' ? 'AKTIF' : 'TIDAK AKTIF',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontFamily: 'Segoe ui',
-                              fontWeight: FontWeight.bold,
-                              color: status == 'ACTIVE'
-                                  ? Colors.green[800]
-                                  : Colors.red[800],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 5.r,
+                                horizontal: 10.r,
+                              ),
+                              decoration: BoxDecoration(
+                                color: status == 'ACTIVE'
+                                    ? Colors.green[100]
+                                    : Colors.red[100],
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                status == 'ACTIVE' ? 'AKTIF' : 'TIDAK AKTIF',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontFamily: 'Segoe ui',
+                                  fontWeight: FontWeight.bold,
+                                  color: status == 'ACTIVE'
+                                      ? Colors.green[800]
+                                      : Colors.red[800],
+                                ),
+                              ),
                             ),
-                          ),
+                            Visibility(
+                              visible: isTrainer == "YES" ? true : false,
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                  left: 5.w,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 5.r,
+                                  horizontal: 10.r,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: trainingController
+                                              .trainer.value.isOnlne ==
+                                          "YES"
+                                      ? Colors.green[100]
+                                      : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                                child: Text(
+                                  trainingController.trainer.value.isOnlne ==
+                                          "YES"
+                                      ? "READY"
+                                      : "OFFLINE",
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontFamily: 'Segoe ui',
+                                    fontWeight: FontWeight.bold,
+                                    color: trainingController
+                                                .trainer.value.isOnlne ==
+                                            "YES"
+                                        ? Colors.green[800]
+                                        : Colors.grey[800],
+                                  ),
+                                ),
+                              ),
+                              replacement: SizedBox(
+                                height: 10.h,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                 SizedBox(
@@ -843,6 +1123,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   obscureText: _isReHidePass,
                 ),
                 SizedBox(
+                  height: 15.h,
+                ),
+                isTrainer == "YES"
+                    ? trainerSettingWidget(
+                        isHorizontal: true,
+                      )
+                    : SizedBox(
+                        width: 5.w,
+                      ),
+                SizedBox(
                   height: 25.h,
                 ),
                 Row(
@@ -885,6 +1175,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
   areaLoading() {
     return Center(
       child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget trainerSettingWidget({
+    bool isHorizontal = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Text(
+            'Trainer Detail',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontFamily: 'Segoe ui',
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 10.h,
+        ),
+        Text(
+          'Trainer Role',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontFamily: 'Segoe ui',
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        SizedBox(
+          height: 7.h,
+        ),
+        TextFormField(
+          textCapitalization: TextCapitalization.characters,
+          decoration: InputDecoration(
+            hintText: 'Role',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            // errorText: _isTrainerRole ? 'Nama wajib diisi' : null,
+          ),
+          controller: textTrainerRole,
+        ),
+        SizedBox(
+          height: 15.h,
+        ),
+        Text(
+          'Trainer Information',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontFamily: 'Segoe ui',
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        SizedBox(
+          height: 7.h,
+        ),
+        TextFormField(
+          textCapitalization: TextCapitalization.characters,
+          keyboardType: TextInputType.multiline,
+          minLines: 4,
+          maxLines: 7,
+          maxLength: 400,
+          decoration: InputDecoration(
+            hintText: 'Describe here ...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            // errorText: _isTrainerRole ? 'Nama wajib diisi' : null,
+          ),
+          controller: textTrainerProfile,
+        ),
+      ],
     );
   }
 }

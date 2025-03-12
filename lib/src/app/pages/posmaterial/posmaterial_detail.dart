@@ -18,6 +18,8 @@ import 'package:sample/src/domain/entities/posmaterial_review.dart';
 import 'package:sample/src/domain/service/service_posmaterial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../domain/entities/posmaterial_lineposter.dart';
+
 // ignore: must_be_immutable
 class PosMaterialDetail extends StatefulWidget {
   PosMaterialHeader item;
@@ -34,6 +36,7 @@ class PosMaterialDetail extends StatefulWidget {
 }
 
 class _PosMaterialDetailState extends State<PosMaterialDetail> {
+  List<PosMaterialLinePoster> listLinePoster = List.empty(growable: true);
   TextEditingController txtReason = new TextEditingController();
   ServicePosMaterial service = new ServicePosMaterial();
   Future<PosMaterialAttachment>? attachment;
@@ -74,6 +77,16 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
       widget.item.shipNumber!,
       int.parse(widget.item.price!),
     );
+
+    if (widget.item.posType == 'POSTER') {
+      service
+          .getPosMaterialLine(context, mounted, widget.item.id ?? "")
+          .then((value) {
+        setState(() {
+          listLinePoster = value;
+        });
+      });
+    }
   }
 
   @override
@@ -117,7 +130,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;
@@ -456,7 +469,7 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
                           isHorizontal ? 8.r : 4.r,
                         ),
                         child: Text(
-                          widget.item.posType!,
+                          widget.item.posType! == "KEMEJA_LEINZ_HIJAU" ? "KEMEJA_LEINZ": widget.item.posType!,
                           style: TextStyle(
                             fontSize: isHorizontal ? 14.sp : 12.sp,
                             fontFamily: 'Montserrat',
@@ -640,28 +653,234 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
                     ),
                   ),
                   SizedBox(
-                    height: isHorizontal ? 15.h : 10.h,
+                    height: 15.h,
                   ),
-                  IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 5.w,
-                        ),
-                        VerticalDivider(
-                          color: getPosColor(setPosType(widget.item.posType)),
-                          thickness: isHorizontal ? 5 : 3.5,
-                        ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
-                        Expanded(
-                          child: getDetailPos(
-                            isHorizontal: isHorizontal,
-                            item: widget.item,
+                  Visibility(
+                    visible: listLinePoster.isNotEmpty,
+                    child: FutureBuilder(
+                      future: service.getPosMaterialLine(
+                        context,
+                        mounted,
+                        widget.item.id ?? "",
+                      ),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<PosMaterialLinePoster>> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.data!.isNotEmpty) {
+                            double noteHeight = widget.item.notes!.isNotEmpty ? 70.h : 0.h;
+                            return SizedBox(
+                              height: 99.h * snapshot.data!.length + 38.h + noteHeight,
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 5.w,
+                                  ),
+                                  VerticalDivider(
+                                    color: getPosColor(
+                                        setPosType("POSTER")),
+                                    thickness: isHorizontal ? 5 : 3.5,
+                                  ),
+                                  SizedBox(
+                                    width: 10.w,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        ListView.builder(
+                                          shrinkWrap: true,
+                                          padding: EdgeInsets.zero,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemCount: snapshot.data?.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return detailPosPosterLine(
+                                              isHorizontal: isHorizontal,
+                                              item: snapshot.data?[index],
+                                            );
+                                          },
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: isHorizontal ? 10.h : 5.h,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Metode pengiriman :',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Montserrat',
+                                                      fontSize: isHorizontal
+                                                          ? 14.sp
+                                                          : 12.sp,
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Estimasi Harga :',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Montserrat',
+                                                      fontSize: isHorizontal
+                                                          ? 14.sp
+                                                          : 12.sp,
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    widget.item.deliveryMethod!,
+                                                    style: TextStyle(
+                                                      fontFamily: 'Segoe ui',
+                                                      fontSize: isHorizontal
+                                                          ? 16.sp
+                                                          : 14.sp,
+                                                      color: Colors.black54,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    widget.item.posterDesignOnly ==
+                                                            '0'
+                                                        ? widget.item
+                                                                    .priceAdjustment !=
+                                                                '0'
+                                                            ? convertToIdr(
+                                                                int.parse(widget
+                                                                    .item
+                                                                    .priceAdjustment!),
+                                                                0)
+                                                            : convertToIdr(
+                                                                int.parse(widget
+                                                                    .item
+                                                                    .price!),
+                                                                0)
+                                                        : '0',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Segoe ui',
+                                                      fontSize: isHorizontal
+                                                          ? 16.sp
+                                                          : 14.sp,
+                                                      color: Colors.black54,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              Visibility(
+                                                visible: widget
+                                                        .item.notes!.isNotEmpty
+                                                    ? true
+                                                    : false,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Catatan :',
+                                                      style: TextStyle(
+                                                        fontFamily:
+                                                            'Montserrat',
+                                                        fontSize: isHorizontal
+                                                            ? 14.sp
+                                                            : 12.sp,
+                                                        color: Colors
+                                                            .grey.shade400,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 3.h,
+                                                    ),
+                                                    Text(
+                                                      widget.item.notes!,
+                                                      style: TextStyle(
+                                                        fontFamily: 'Segoe ui',
+                                                        fontSize: isHorizontal
+                                                            ? 16.sp
+                                                            : 14.sp,
+                                                        color: Colors.black54,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 5.h,
+                                                    ),
+                                                  ],
+                                                ),
+                                                replacement: SizedBox(
+                                                  width: 5.w,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return SizedBox(
+                              width: 5.w,
+                            );
+                          }
+                        } else {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      },
+                    ),
+                    replacement: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 5.w,
                           ),
-                        ),
-                      ],
+                          VerticalDivider(
+                            color: getPosColor(setPosType(widget.item.posType)),
+                            thickness: isHorizontal ? 5 : 3.5,
+                          ),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          Expanded(
+                            child: getDetailPos(
+                              isHorizontal: isHorizontal,
+                              item: widget.item,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -746,32 +965,35 @@ class _PosMaterialDetailState extends State<PosMaterialDetail> {
                   Visibility(
                     visible: widget.isAdmin!,
                     child: handleAction(),
-                    replacement: Center(
-                      child: EasyButton(
-                        idleStateWidget: Text(
-                          "Unduh Pdf",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: isHorizontal ? 16.sp : 14.sp,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        loadingStateWidget: CircularProgressIndicator(
-                          strokeWidth: 3.0,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                        useEqualLoadingStateWidgetDimension: true,
-                        useWidthAnimation: true,
-                        height: isHorizontal ? 50.h : 40.h,
-                        width: isHorizontal ? 90.w : 150.w,
-                        borderRadius: 30.r,
-                        buttonColor: Colors.blue.shade700,
-                        elevation: 2.0,
-                        contentGap: 6.0,
-                        onPressed: onButtonPressed,
-                      ),
+                    replacement: SizedBox(
+                      width: 5.w,
                     ),
+                    // replacement: Center(
+                    //   child: EasyButton(
+                    //     idleStateWidget: Text(
+                    //       "Unduh Pdf",
+                    //       style: TextStyle(
+                    //           color: Colors.white,
+                    //           fontSize: isHorizontal ? 16.sp : 14.sp,
+                    //           fontWeight: FontWeight.w700),
+                    //     ),
+                    //     loadingStateWidget: CircularProgressIndicator(
+                    //       strokeWidth: 3.0,
+                    //       valueColor: AlwaysStoppedAnimation<Color>(
+                    //         Colors.white,
+                    //       ),
+                    //     ),
+                    //     useEqualLoadingStateWidgetDimension: true,
+                    //     useWidthAnimation: true,
+                    //     height: isHorizontal ? 50.h : 40.h,
+                    //     width: isHorizontal ? 90.w : 150.w,
+                    //     borderRadius: 30.r,
+                    //     buttonColor: Colors.blue.shade700,
+                    //     elevation: 2.0,
+                    //     contentGap: 6.0,
+                    //     onPressed: onButtonPressed,
+                    //   ),
+                    // ),
                   ),
                   SizedBox(
                     height: 10.h,

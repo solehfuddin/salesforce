@@ -14,12 +14,15 @@ import 'package:sample/src/app/pages/inkaro_approval/complete_inkaro_approval.da
 import 'package:sample/src/app/pages/inkaro_approval/pencairan_inkaro_approval.dart';
 // import 'package:sample/src/app/pages/news/product_corner.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_screen.dart';
+// import 'package:sample/src/app/pages/training/tab_training.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:sample/src/app/pages/customer/customer_view.dart';
 import 'package:sample/src/app/pages/econtract/search_contract.dart';
 import 'package:sample/src/app/pages/entry/newcust_view.dart';
 import 'package:sample/src/app/pages/renewcontract/renewal_contract.dart';
+
+// import '../pages/marketingexpense/marketingexpense_formtrainer.dart';
 
 checkSigned(String? id, String? role, BuildContext context,
     {bool isConnected = true}) async {
@@ -50,6 +53,7 @@ SliverToBoxAdapter areaMenu(
   String? divisi, {
   bool isConnected = false,
   bool isHorizontal = false,
+  int dailyInt = 0,
 }) {
   return SliverToBoxAdapter(
     child: Container(
@@ -57,7 +61,7 @@ SliverToBoxAdapter areaMenu(
         vertical: isHorizontal ? 10.r : 10.r,
         horizontal: isHorizontal ? 5.r : 15.r,
       ),
-      child: role == "STAFF"
+      child: role == "STAFF" || role == "USER"
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -436,7 +440,7 @@ SliverToBoxAdapter areaMenu(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
-                                        divisi == 'SM'
+                                        role == 'ADMIN' && divisi == 'SALES'
                                             ? Expanded(
                                                 flex: 1,
                                                 child: Padding(
@@ -1012,7 +1016,7 @@ SliverToBoxAdapter areaMenu(
                                             //     ),
                                             //   ),
                                             // ),
-                                            divisi == 'SM'
+                                            role == 'ADMIN' && divisi == 'SALES'
                                                 ? Expanded(
                                                     flex: 1,
                                                     child: Padding(
@@ -1348,7 +1352,10 @@ SliverToBoxAdapter areaMenu(
                                   //   ),
                                   // );
                                   Get.to(
-                                    () => DailyActivity(isAdmin: false),
+                                    () => DailyActivity(
+                                      isAdmin: false,
+                                      dailyInt: dailyInt,
+                                    ),
                                   );
                                 },
                               ),
@@ -1384,7 +1391,6 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = true;
 
@@ -1396,6 +1402,19 @@ SliverToBoxAdapter areaMenu(
                                     );
                                   } else {
                                     print('Access camera tidak diizinkan');
+                                    await Permission.camera.request();
+                                    await Permission.microphone.request();
+
+                                    if (await Permission.camera.isGranted) {
+                                      Get.find<MyController>().isCekIn = true;
+
+                                      Get.to(
+                                        () => AttendanceScreen(
+                                          isCekin:
+                                              Get.find<MyController>().isCekIn,
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                               ),
@@ -1431,7 +1450,6 @@ SliverToBoxAdapter areaMenu(
                                   ),
                                 ),
                                 onTap: () async {
-                                  // await Permission.camera.request();
                                   if (await Permission.camera.isGranted) {
                                     Get.find<MyController>().isCekIn = false;
 
@@ -1443,6 +1461,19 @@ SliverToBoxAdapter areaMenu(
                                     );
                                   } else {
                                     print('Access camera tidak diizinkan');
+                                    await Permission.camera.request();
+                                    await Permission.microphone.request();
+
+                                    if (await Permission.camera.isGranted) {
+                                      Get.find<MyController>().isCekIn = false;
+
+                                      Get.to(
+                                        () => AttendanceScreen(
+                                          isCekin:
+                                              Get.find<MyController>().isCekIn,
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                               ),
@@ -1802,7 +1833,9 @@ SliverToBoxAdapter areaMenu(
                                                     // );
                                                     Get.to(
                                                       () => DailyActivity(
-                                                          isAdmin: false),
+                                                        isAdmin: false,
+                                                        dailyInt: dailyInt,
+                                                      ),
                                                     );
                                                   },
                                                 ),
@@ -2294,7 +2327,7 @@ SliverToBoxAdapter areaMenu(
                                                                     0.015,
                                                           ),
                                                           Text(
-                                                            'Marketing Expense',
+                                                            'Entertaint',
                                                             style: TextStyle(
                                                                 fontSize:
                                                                     isHorizontal
@@ -2317,6 +2350,11 @@ SliverToBoxAdapter areaMenu(
                                                   onTap: () {
                                                     Get.toNamed(
                                                         '/marketingexpense');
+                                                    // handleComing(
+                                                    //   context,
+                                                    //   isHorizontal:
+                                                    //       isHorizontal,
+                                                    // );
                                                   },
                                                 ),
                                               ),
@@ -2325,35 +2363,50 @@ SliverToBoxAdapter areaMenu(
                                                 child: InkWell(
                                                   child: Padding(
                                                     padding: EdgeInsets.all(5),
-                                                    // child: Center(
-                                                    //   child: Column(
-                                                    //     children: [
-                                                    //       Image.asset(
-                                                    //         'assets/images/cashback.png',
-                                                    //         width: isHorizontal ? 55.r : 45.r,
-                                                    //         height: isHorizontal ? 55.r : 45.r,
-                                                    //       ),
-                                                    //       SizedBox(
-                                                    //         height: screenHeight * 0.015,
-                                                    //       ),
-                                                    //       Text(
-                                                    //         'Cashback',
-                                                    //         style: TextStyle(
-                                                    //             fontSize: isHorizontal ? 17.sp : 13.sp,
-                                                    //             fontWeight: FontWeight.w600,
-                                                    //             fontFamily: 'Segoe ui',
-                                                    //             color: Colors.black54),
-                                                    //         textAlign: TextAlign.center,
-                                                    //       ),
-                                                    //     ],
-                                                    //   ),
-                                                    // ),
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          Image.asset(
+                                                            'assets/images/training.png',
+                                                            width: isHorizontal
+                                                                ? 55.r
+                                                                : 45.r,
+                                                            height: isHorizontal
+                                                                ? 55.r
+                                                                : 45.r,
+                                                          ),
+                                                          SizedBox(
+                                                            height:
+                                                                screenHeight *
+                                                                    0.015,
+                                                          ),
+                                                          Text(
+                                                            'Training Optik',
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    isHorizontal
+                                                                        ? 17.sp
+                                                                        : 13.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontFamily:
+                                                                    'Segoe ui',
+                                                                color: Colors
+                                                                    .black54),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
                                                   ),
                                                   onTap: () {
-                                                    // Navigator.of(context).push(
-                                                    //   MaterialPageRoute(
-                                                    //     builder: (context) => CashbackScreen(),
-                                                    //   ),
+                                                    Get.toNamed("tabTraining");
+                                                    // handleComing(
+                                                    //   context,
+                                                    //   isHorizontal:
+                                                    //       isHorizontal,
                                                     // );
                                                   },
                                                 ),

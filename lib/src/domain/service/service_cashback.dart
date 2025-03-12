@@ -701,14 +701,14 @@ class ServiceCashback {
         if (sts) {
           idCashback = id;
 
-          pushNotif(
-            20,
-            3,
-            salesName: header.salesName,
-            idUser: header.createdBy,
-            rcptToken: tokenSm,
-            opticName: header.opticName,
-          );
+          // pushNotif(
+          //   20,
+          //   3,
+          //   salesName: header.salesName,
+          //   idUser: header.createdBy,
+          //   rcptToken: tokenSm,
+          //   opticName: header.opticName,
+          // );
         }
       } on FormatException catch (e) {
         print('Format Error : $e');
@@ -761,6 +761,9 @@ class ServiceCashback {
         'data_name': header.dataNama,
         'data_nik': header.dataNik,
         'data_npwp': header.dataNpwp,
+        'is_sp_satuan' : header.isSpSatuan,
+        'sp_number' : header.spNumber,
+        'is_sp_percent' : header.isSpPercent,
         'withdraw_duration': header.withdrawDuration,
         'withdraw_process': header.withdrawProcess,
         'id_cashback_rekening': header.idCashbackRekening,
@@ -771,6 +774,8 @@ class ServiceCashback {
         'cashback_value': header.cashbackValue,
         'cashback_percentage': header.cashbackPercentage,
         'payment_duration': header.paymentDuration,
+        'payment_mechanism' : header.paymentMechanism,
+        'payment_date' : header.paymentDate,
         'created_by': header.createdBy,
         'attachment_sign': header.attachmentSign,
         'attachment_other': header.attachmentOther,

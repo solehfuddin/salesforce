@@ -58,7 +58,7 @@ class _Marketingexpense_widgethourState
               meController.selectedTrainer.value = widget.trainer.name ?? '';
               print(meController.selectedTrainer.value);
 
-              Get.toNamed('/marketingexpenseformtrainer/${widget.trainer}');
+              // Get.toNamed('/marketingexpenseformtrainer/${widget.trainer}');
             } else {
               if (widget.trainer.offlineReason == "SAKIT") {
                 Get.snackbar(

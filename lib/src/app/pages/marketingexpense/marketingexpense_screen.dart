@@ -111,7 +111,7 @@ class _Marketingexpense_ScreenState extends State<Marketingexpense_Screen> {
       appBar: AppBar(
         backgroundColor: MyColors.desciptionColor,
         title: Text(
-          'Marketing Expense',
+          'Entertaint',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18.sp,

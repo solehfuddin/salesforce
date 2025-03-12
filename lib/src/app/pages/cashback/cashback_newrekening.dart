@@ -85,6 +85,7 @@ class _CashbackNewRekeningState extends State<CashbackNewRekening> {
           .then((value) {
         print("Id Rekening : $value");
         item.setIdRekening = value;
+
         widget.updateParent("updateNewRekening", item);
 
         Navigator.pop(context);

@@ -14,6 +14,9 @@ import 'package:sample/src/domain/entities/marketingexpense_paramapprove.dart';
 import 'package:sample/src/domain/entities/marketingexpense_resheader.dart';
 import 'package:sample/src/domain/entities/trainer.dart';
 
+import '../entities/offline_trainer.dart';
+import '../entities/online_trainer.dart';
+
 class ServiceMarketingExpense {
   Future<MarketingExpenseResHeader> getHeader(
     bool mounted,
@@ -197,13 +200,11 @@ class ServiceMarketingExpense {
     return list;
   }
 
-  Future<List<Trainer>> getTrainer(
-    bool mounted,
-    BuildContext context,
-  ) async {
+  Future<List<Trainer>> getTrainer(bool mounted, BuildContext context,
+      {String key = ""}) async {
     List<Trainer> list = List.empty(growable: true);
     late var url;
-    url = '$API_URL/users/trainer';
+    url = '$API_URL/users/trainer?trainer_name=$key';
 
     print(url);
 
@@ -218,6 +219,86 @@ class ServiceMarketingExpense {
         if (status) {
           list = data['data']
               .map<Trainer>((json) => Trainer.fromJson(json))
+              .toList();
+        }
+      } on FormatException catch (e) {
+        print('Format Exception : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+    }
+
+    return list;
+  }
+
+  Future<List<OfflineTrainer>> getOfflineTrainer(
+      bool mounted, BuildContext context,
+      {String key = ""}) async {
+    List<OfflineTrainer> list = List.empty(growable: true);
+    late var url;
+    url = '$API_URL/users/offlineTrainer?id_trainer=$key';
+
+    print(url);
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      print('Offline Trainer : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool status = data['status'];
+
+        if (status) {
+          list = data['data']
+              .map<OfflineTrainer>((json) => OfflineTrainer.fromJson(json))
+              .toList();
+        }
+      } on FormatException catch (e) {
+        print('Format Exception : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      handleSocket(context);
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+    }
+
+    return list;
+  }
+
+  Future<List<OnlineTrainer>> getOnlineTrainer(
+      bool mounted, BuildContext context,
+      {String key = ""}) async {
+    List<OnlineTrainer> list = List.empty(growable: true);
+    late var url;
+    url = '$API_URL/users/onlineTrainer?id_trainer=$key';
+
+    print(url);
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      print('Online Trainer : ${response.statusCode}');
+
+      try {
+        var data = json.decode(response.body);
+        final bool status = data['status'];
+
+        if (status) {
+          list = data['data']
+              .map<OnlineTrainer>((json) => OnlineTrainer.fromJson(json))
               .toList();
         }
       } on FormatException catch (e) {
@@ -258,26 +339,6 @@ class ServiceMarketingExpense {
         'nama_usaha': ${item.opticName},
         'alamat_usaha': ${item.opticAddress},
         'optic_type': ${item.opticType},
-        'data_name' : ${item.dataName},
-        'data_nik' : ${item.dataNik},
-        'data_npwp' : ${item.dataNpwp},
-        'is_sp_satuan' : ${item.isSpSatuan},
-        'sp_number' : ${item.spNumber},
-        'is_sp_percent' : ${item.isSpPercent},
-        'sp_start_period' : ${item.spStartPeriode},
-        'sp_end_period' : ${item.spEndPeriode},
-        'total_value' : ${item.totalValue},
-        'total_percent' : ${item.totalPercent},
-        'payment_mechanism' : ${item.paymentMechanism},
-        'payment_date' : ${item.paymentDate},
-        'id_rekening' : ${item.idRekening},
-        'notes': ${item.notes},
-        'is_training': ${item.isTraining},
-        'training_mekanisme': ${item.trainingMekanisme},
-        'training_materi': ${item.trainingMateri},
-        'training_date': ${item.trainingDate},
-        'training_time': ${item.trainingTime},
-        'training_duration': ${item.trainingDuration},
         'created_by': ${item.createdBy},
     """);
 
@@ -288,26 +349,6 @@ class ServiceMarketingExpense {
         'nama_usaha': item.opticName,
         'alamat_usaha': item.opticAddress,
         'optic_type': item.opticType,
-        'data_name' : item.dataName,
-        'data_nik' : item.dataNik,
-        'data_npwp' : item.dataNpwp,
-        'is_sp_satuan' : item.isSpSatuan,
-        'sp_number' : item.spNumber,
-        'is_sp_percent' : item.isSpPercent,
-        'sp_start_period' : item.spStartPeriode,
-        'sp_end_period' : item.spEndPeriode,
-        'total_value' : item.totalValue,
-        'total_percent' : item.totalPercent,
-        'payment_mechanism' : item.paymentMechanism,
-        'payment_date' : item.paymentDate,
-        'id_rekening' : item.idRekening,
-        'notes': item.notes,
-        'is_training': item.isTraining,
-        'training_mekanisme': item.trainingMekanisme,
-        'training_materi': item.trainingMateri,
-        'training_date': item.trainingDate,
-        'training_time': item.trainingTime,
-        'training_duration': item.trainingDuration,
         'created_by': item.createdBy,
       }).timeout(Duration(seconds: timeout));
 
@@ -503,6 +544,254 @@ class ServiceMarketingExpense {
     }
 
     return itemList;
+  }
+
+  Future<bool> insertOfflineTrainer({
+    bool isHorizontal = false,
+    bool mounted = false,
+    bool isInsert = true,
+    required BuildContext context,
+    required List<OfflineTrainer> item,
+  }) async {
+    bool output = false;
+    var url = '$API_URL/users/offlineTrainer';
+
+    item.forEach((e) {
+      print("""
+        'id ' : ${e.idOffline},
+        'id Trainer': ${e.idTrainer},
+        'Date Start': ${e.offlineStart},
+        'Date Until': ${e.offlineUntil},
+        'Reason': ${e.offlineReason},
+    """);
+    });
+
+    try {
+      var body = json.encode(item);
+      var response = isInsert
+          ? await http.post(
+              Uri.parse(url),
+              headers: {"Content-Type": "application/json"},
+              body: body,
+            )
+          : await http.put(
+              Uri.parse(url),
+              headers: {"Content-Type": "application/json"},
+              body: body,
+            );
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+
+        if (sts) {
+          output = true;
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+
+    return output;
+  }
+
+  Future<bool> insertOnlineTrainer({
+    bool isHorizontal = false,
+    bool mounted = false,
+    bool isInsert = true,
+    required BuildContext context,
+    required List<OnlineTrainer> item,
+  }) async {
+    bool output = false;
+    var url = '$API_URL/users/onlineTrainer';
+
+    item.forEach((e) {
+      print("""
+        'url' : $url,
+        'id' : ${e.idOnline},
+        'id Trainer': ${e.idTrainer},
+        'Date Start': ${e.onlineStart},
+        'Date Until': ${e.onlineUntil},
+    """);
+    });
+
+    try {
+      var body = json.encode(item);
+      print(body);
+      
+      var response = isInsert
+          ? await http.post(
+              Uri.parse(url),
+              headers: {"Content-Type": "application/json"},
+              body: body,
+            )
+          : await http.put(
+              Uri.parse(url),
+              headers: {"Content-Type": "application/json"},
+              body: body,
+            );
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+
+        if (sts) {
+          output = true;
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+
+    return output;
+  }
+
+  Future<bool> deleteOfflineTrainer({
+    bool isHorizontal = false,
+    bool mounted = false,
+    required BuildContext context,
+    required OfflineTrainer item,
+  }) async {
+    bool output = false;
+    var url = '$API_URL/users/offlineTrainer';
+
+    try {
+      var response = await http.delete(
+        Uri.parse(url),
+        body: {
+          'id': item.idOffline,
+        },
+      );
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+
+        if (sts) {
+          output = sts;
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+
+    return output;
+  }
+
+  Future<bool> deleteOnlineTrainer({
+    bool isHorizontal = false,
+    bool mounted = false,
+    required BuildContext context,
+    required OnlineTrainer item,
+  }) async {
+    bool output = false;
+    var url = '$API_URL/users/onlineTrainer';
+
+    try {
+      var response = await http.delete(
+        Uri.parse(url),
+        body: {
+          'id': item.idOnline,
+        },
+      );
+
+      try {
+        var res = json.decode(response.body);
+        final bool sts = res['status'];
+
+        if (sts) {
+          output = sts;
+        }
+      } on FormatException catch (e) {
+        print('Format Error : $e');
+      }
+    } on TimeoutException catch (e) {
+      print('Timeout Error : $e');
+      if (mounted) {
+        handleTimeout(context);
+      }
+    } on SocketException catch (e) {
+      print('Socket Error : $e');
+      if (mounted) {
+        handleSocket(context);
+      }
+    } on Error catch (e) {
+      print('General Error : ${e.stackTrace}');
+      if (mounted) {
+        handleStatus(
+          context,
+          e.toString(),
+          false,
+          isHorizontal: isHorizontal,
+          isLogout: false,
+        );
+      }
+    }
+
+    return output;
   }
 
   Future<List<MarketingExpenseAttachment>> getAttachment(

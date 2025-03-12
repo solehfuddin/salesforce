@@ -4,10 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:sample/src/app/controllers/marketingexpense_controller.dart';
 import 'package:sample/src/app/controllers/my_controller.dart';
-import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formdetail.dart';
+// import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formdetail.dart';
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formentertaint.dart';
 import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formheader.dart';
-import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formpemilik.dart';
+// import 'package:sample/src/app/pages/marketingexpense/marketingexpense_formpemilik.dart';
 import 'package:sample/src/app/utils/colors.dart';
 
 // ignore: camel_case_types
@@ -66,7 +66,7 @@ class _Marketingexpense_FormState extends State<Marketingexpense_Form> {
       appBar: AppBar(
         backgroundColor: MyColors.desciptionColor,
         title: Text(
-          'Entri Marketing Expense',
+          'Entri Entertaint',
           style: TextStyle(
             color: Colors.white,
             fontSize: isHorizontal ? 20.sp : 18.sp,
@@ -95,8 +95,8 @@ class _Marketingexpense_FormState extends State<Marketingexpense_Form> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Marketingexpense_Formheader(),
-            Marketingexpense_Formpemilik(),
-            Marketingexpense_Formdetail(),
+            // Marketingexpense_Formpemilik(),
+            // Marketingexpense_Formdetail(),
             Marketingexpense_Formentertaint(),
             Padding(
               padding: EdgeInsets.symmetric(

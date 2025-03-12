@@ -3,7 +3,7 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:easy_loading_button/easy_loading_button.dart';
+// import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -11,9 +11,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sample/src/app/pages/posmaterial/posmaterial_detail.dart';
+import 'package:sample/src/app/utils/config.dart';
 import 'package:sample/src/app/utils/custom.dart';
 import 'package:sample/src/app/utils/settings_posmaterial.dart';
 import 'package:sample/src/domain/entities/posmaterial_header.dart';
+
+import '../../widgets/dialogImage.dart';
 
 // ignore: must_be_immutable
 class PosMaterialDialogStatus extends StatefulWidget {
@@ -97,7 +100,7 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
         statusess = await [Permission.storage].request();
       } else {
         statusess =
-            await [Permission.notification, Permission.mediaLibrary].request();
+            await [Permission.notification, Permission.photos].request();
       }
 
       var allAccepted = true;
@@ -214,12 +217,16 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                   horizontal: isHorizontal ? 15.r : 10.r,
                 ),
                 decoration: BoxDecoration(
-                  color: setStatusColor(widget.item.status ?? 'PENDING'),
+                  color: widget.item.isFinish == "0"
+                      ? setStatusColor(widget.item.status ?? 'PENDING')
+                      : Colors.green.shade600,
                   borderRadius:
                       BorderRadius.circular(isHorizontal ? 15.r : 10.r),
                 ),
                 child: Text(
-                  widget.item.status ?? 'PENDING',
+                  widget.item.isFinish == "0"
+                      ? widget.item.status ?? 'PENDING'
+                      : 'DONE',
                   style: TextStyle(
                     fontSize: isHorizontal ? 15.sp : 12.sp,
                     fontFamily: 'Segoe ui',
@@ -233,15 +240,27 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
           SizedBox(
             height: 8.h,
           ),
-          Text(
-            setPosStatus(
-              widget.item.status ?? 'PENDING',
+          Visibility(
+            visible: widget.item.isFinish == "0",
+            child: Text(
+              setPosStatus(
+                widget.item.status ?? 'PENDING',
+              ),
+              style: TextStyle(
+                fontFamily: 'Monserrat',
+                fontSize: isHorizontal ? 15.sp : 13.sp,
+                fontWeight: FontWeight.w500,
+                color: setStatusColor(widget.item.status ?? 'PENDING'),
+              ),
             ),
-            style: TextStyle(
-              fontFamily: 'Monserrat',
-              fontSize: isHorizontal ? 15.sp : 13.sp,
-              fontWeight: FontWeight.w500,
-              color: setStatusColor(widget.item.status ?? 'PENDING'),
+            replacement: Text(
+              'Pengajuan pos material sudah selesai diproses',
+              style: TextStyle(
+                fontFamily: 'Monserrat',
+                fontSize: isHorizontal ? 15.sp : 13.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.green.shade600,
+              ),
             ),
           ),
           SizedBox(
@@ -310,6 +329,18 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
               getDetailStatus(
                 isHorizontal,
                 context,
+                pic: 'General Manager',
+                picAlias: 'GM',
+                picName: widget.item.gmName!,
+                picReason: widget.item.reasonGm!,
+                approvalStatus: widget.item.approvalGm!,
+                dateApproved: convertDateWithMonthHour(
+                  widget.item.dateApprovelGm!,
+                ),
+              ),
+              getDetailStatus(
+                isHorizontal,
+                context,
                 pic: 'Sales Manager',
                 picAlias: 'SM',
                 picName: widget.item.smName!,
@@ -329,18 +360,6 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
                 approvalStatus: widget.item.approvalAdm!,
                 dateApproved: convertDateWithMonthHour(
                   widget.item.dateApprovelAdm!,
-                ),
-              ),
-              getDetailStatus(
-                isHorizontal,
-                context,
-                pic: 'General Manager',
-                picAlias: 'GM',
-                picName: widget.item.gmName!,
-                picReason: widget.item.reasonGm!,
-                approvalStatus: widget.item.approvalGm!,
-                dateApproved: convertDateWithMonthHour(
-                  widget.item.dateApprovelGm!,
                 ),
               ),
             ],
@@ -413,38 +432,136 @@ class _PosMaterialDialogStatusState extends State<PosMaterialDialogStatus> {
           SizedBox(
             height: 5.h,
           ),
-          Divider(
-            color: Colors.black54,
-          ),
-          SizedBox(
-            height: 7.h,
-          ),
-          Center(
-            child: EasyButton(
-              idleStateWidget: Text(
-                "Unduh Pdf",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: isHorizontal ? 16.sp : 14.sp,
-                    fontWeight: FontWeight.w700),
-              ),
-              loadingStateWidget: CircularProgressIndicator(
-                strokeWidth: 3.0,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.white,
+          Visibility(
+            visible: widget.item.fileTtb!.isNotEmpty,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  color: Colors.black38,
                 ),
-              ),
-              useEqualLoadingStateWidgetDimension: true,
-              useWidthAnimation: true,
-              height: isHorizontal ? 40.h : 40.h,
-              width: isHorizontal ? 90.w : 120.w,
-              borderRadius: isHorizontal ? 50.r : 30.r,
-              buttonColor: Colors.blue.shade700,
-              elevation: 2.0,
-              contentGap: 6.0,
-              onPressed: onButtonPressed,
+                SizedBox(
+                  height: 7.h,
+                ),
+                Text(
+                  'Bukti TTB',
+                  style: TextStyle(
+                    fontSize: isHorizontal ? 18.sp : 14.sp,
+                    fontFamily: 'Segoe ui',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                // Image.network(
+                //     "$WEBADMIN/uploads/ttb_pos/${widget.item.fileTtb}",
+                //     width: 180.w,
+                //     height: 150.h,
+                // loadingBuilder: (BuildContext context, Widget child,
+                //     ImageChunkEvent? loadingProgress) {
+                //   if (loadingProgress == null) {
+                //     return child;
+                //   }
+                //   return Center(
+                //     child: CircularProgressIndicator(
+                //       value: loadingProgress.expectedTotalBytes != null
+                //           ? loadingProgress.cumulativeBytesLoaded /
+                //               loadingProgress.expectedTotalBytes!
+                //           : null,
+                //     ),
+                //   );
+                // },
+                // errorBuilder: (BuildContext context, Object exception,
+                //     StackTrace? stackTrace) {
+                //   return Image.asset(
+                //     'assets/images/not_found.png',
+                //     width: 130.w,
+                //     height: 130.h,
+                //   );
+                // },
+                Center(
+                  child: InkWell(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        8.r,
+                      ),
+                      child: Image.network(
+                        "$WEBADMIN/uploads/ttb_pos/${widget.item.fileTtb}",
+                        width: isHorizontal ? 120.w : 80.w,
+                        height: isHorizontal ? 120.h : 80.h,
+                        fit: isHorizontal ? BoxFit.cover : BoxFit.cover,
+                        filterQuality: FilterQuality.medium,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          }
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/not_found.png',
+                            width: 130.w,
+                            height: 130.h,
+                          );
+                        },
+                      ),
+                    ),
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogImage(
+                            'Bukti TTB Pengiriman',
+                            "$WEBADMIN/uploads/ttb_pos/${widget.item.fileTtb}",
+                            isFromNetwork: true,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            replacement: SizedBox(
+              width: 10.w,
             ),
           ),
+          // Center(
+          //   child: EasyButton(
+          //     idleStateWidget: Text(
+          //       "Unduh Pdf",
+          //       style: TextStyle(
+          //           color: Colors.white,
+          //           fontSize: isHorizontal ? 16.sp : 14.sp,
+          //           fontWeight: FontWeight.w700),
+          //     ),
+          //     loadingStateWidget: CircularProgressIndicator(
+          //       strokeWidth: 3.0,
+          //       valueColor: AlwaysStoppedAnimation<Color>(
+          //         Colors.white,
+          //       ),
+          //     ),
+          //     useEqualLoadingStateWidgetDimension: true,
+          //     useWidthAnimation: true,
+          //     height: isHorizontal ? 40.h : 40.h,
+          //     width: isHorizontal ? 90.w : 120.w,
+          //     borderRadius: isHorizontal ? 50.r : 30.r,
+          //     buttonColor: Colors.blue.shade700,
+          //     elevation: 2.0,
+          //     contentGap: 6.0,
+          //     onPressed: onButtonPressed,
+          //   ),
+          // ),
         ],
       ),
     );
