@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     checkIntro();
     if (Platform.isAndroid) {
-      //  checkUpdate(context);
+       checkUpdate(context);
     }
   }
 
