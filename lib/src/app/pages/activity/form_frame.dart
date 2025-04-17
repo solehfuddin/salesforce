@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sample/src/domain/entities/frame.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sample/src/app/utils/thousandformatter.dart';
 
 // ignore: must_be_immutable
 class FormFrame extends StatefulWidget {
@@ -57,7 +58,7 @@ class _FormFrameState extends State<FormFrame> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            flex: isHorizontal ? 4 : 3,
+            flex: isHorizontal ? 5 : 4,
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: isHorizontal ? 10.r : 5.r,
@@ -93,7 +94,7 @@ class _FormFrameState extends State<FormFrame> {
             ),
           ),
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: isHorizontal ? 25.r : 7.r,
@@ -104,6 +105,7 @@ class _FormFrameState extends State<FormFrame> {
                 enabled: _isDisabled,
                 keyboardType: TextInputType.number,
                 maxLength: widget.itemLength,
+                inputFormatters: [ThousandsSeparatorInputFormatter()],
                 decoration: InputDecoration(
                   hintText: '0',
                   counterText: "",

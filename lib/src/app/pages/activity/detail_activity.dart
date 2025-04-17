@@ -45,8 +45,10 @@ class _DetailActivityState extends State<DetailActivity> {
   List<Jenisact> itemJenisAct = List.empty(growable: true);
 
   List<String> tmpProductAct = List.empty(growable: true);
-  List<FormItemProduct> formProductAct = List.empty(growable: true);
-  List<FormItemProduct> fixedProductAct = List.empty(growable: true);
+  // List<FormItemProduct> formProductAct = List.empty(growable: true);
+  // List<FormItemProduct> fixedProductAct = List.empty(growable: true);
+  List<FormFrame> formProductAct = List.empty(growable: true);
+  List<FormFrame> fixedProductAct = List.empty(growable: true);
   List<Product> itemProductAct = List.empty(growable: true);
 
   List<String> tmpFrameAct = List.empty(growable: true);
@@ -385,10 +387,20 @@ class _DetailActivityState extends State<DetailActivity> {
             });
 
             setState(() {
-              formProductAct.add(FormItemProduct(
+              // formProductAct.add(FormItemProduct(
+              //   index: formProductAct.length,
+              //   product: itemProductAct[i],
+              //   itemLength: 4,
+              // ));
+              formProductAct.add(FormFrame(
                 index: formProductAct.length,
-                product: itemProductAct[i],
-                itemLength: 4,
+                frame: Frame(
+                  itemProductAct[i].categoryid,
+                  itemProductAct[i].proddesc,
+                  itemProductAct[i].status,
+                  "0",
+                ),
+                itemLength: 7,
               ));
             });
           }
@@ -402,7 +414,8 @@ class _DetailActivityState extends State<DetailActivity> {
             setState(() {
               if (formProductAct.length > 0) {
                 formProductAct.removeWhere((element) =>
-                    element.product!.proddesc == itemProductAct[i].proddesc);
+                    // element.product!.proddesc == itemProductAct[i].proddesc
+                    element.frame!.frameName == itemProductAct[i].proddesc);
               }
             });
           }
@@ -425,7 +438,7 @@ class _DetailActivityState extends State<DetailActivity> {
               formFrameAct.add(FormFrame(
                 index: formProductAct.length,
                 frame: itemFrameAct[i],
-                itemLength: 3,
+                itemLength: 7,
               ));
             });
           }
@@ -491,21 +504,37 @@ class _DetailActivityState extends State<DetailActivity> {
       }
 
       if (formProductAct.length > 0) {
+        // for (int i = 0; i < formProductAct.length; i++) {
+        //   if (formProductAct[i].product!.ischecked) {
+        //     if (!tmpProductAct.contains(formProductAct[i].product!.proddesc)) {
+        //       tmpProductAct.add(formProductAct[i].product!.proddesc);
+        //       fixedProductAct.add(formProductAct[i]);
+        //     } else {
+        //       fixedProductAct.removeWhere((element) =>
+        //           element.product!.proddesc ==
+        //           formProductAct[i].product!.proddesc);
+        //       fixedProductAct.add(formProductAct[i]);
+        //     }
+        //   } else {
+        //     fixedProductAct.removeWhere((element) =>
+        //         element.product!.proddesc ==
+        //         formProductAct[i].product!.proddesc);
+        //   }
+        // }
         for (int i = 0; i < formProductAct.length; i++) {
-          if (formProductAct[i].product!.ischecked) {
-            if (!tmpProductAct.contains(formProductAct[i].product!.proddesc)) {
-              tmpProductAct.add(formProductAct[i].product!.proddesc);
+          if (formProductAct[i].frame!.ischecked) {
+            if (!tmpProductAct.contains(formProductAct[i].frame!.frameName)) {
+              tmpProductAct.add(formProductAct[i].frame!.frameName ?? "");
               fixedProductAct.add(formProductAct[i]);
             } else {
               fixedProductAct.removeWhere((element) =>
-                  element.product!.proddesc ==
-                  formProductAct[i].product!.proddesc);
+                  element.frame!.frameName ==
+                  formProductAct[i].frame!.frameName);
               fixedProductAct.add(formProductAct[i]);
             }
           } else {
             fixedProductAct.removeWhere((element) =>
-                element.product!.proddesc ==
-                formProductAct[i].product!.proddesc);
+                element.frame!.frameName == formProductAct[i].frame!.frameName);
           }
         }
       }
@@ -540,9 +569,12 @@ class _DetailActivityState extends State<DetailActivity> {
 
     print('Total Data Product =  ${fixedProductAct.length}');
     fixedProductAct.forEach((element) {
-      print(element.product!.proddesc);
-      print(element.product!.diskon);
-      print(element.product!.ischecked);
+      // print(element.product!.proddesc);
+      // print(element.product!.diskon);
+      // print(element.product!.ischecked);
+      print(element.frame!.frameName);
+      print(element.frame!.qty);
+      print(element.frame!.ischecked);
     });
 
     print('Total Data Frame =  ${fixedFrameAct.length}');
@@ -684,8 +716,33 @@ class _DetailActivityState extends State<DetailActivity> {
   multipleInputSP({bool isHorizontal = false}) async {
     if (fixedProductAct.length > 0) {
       for (int i = 0; i < fixedProductAct.length; i++) {
-        FormItemProduct item = fixedProductAct[i];
-        if (item.product!.ischecked) {
+        // FormItemProduct item = fixedProductAct[i];
+        // if (item.product!.ischecked) {
+        //   debugPrint("Category Id: ${item.product!.categoryid}");
+        //   debugPrint("Proddiv: ${item.product!.proddiv}");
+        //   debugPrint("Prodcat: ${item.product!.prodcat}");
+        //   debugPrint("Proddesc: ${item.product!.proddesc}");
+        //   debugPrint("Diskon: ${item.product!.diskon}");
+
+        //   postMultiSp(
+        //     id!,
+        //     item.product!.proddesc,
+        //     item.product!.diskon,
+        //     'L',
+        //     isHorizontal: isHorizontal,
+        //   );
+        // }
+
+        FormItemProduct item = FormItemProduct(
+            product: Product(
+                fixedProductAct[i].frame?.frameid ?? '',
+                "",
+                "",
+                fixedProductAct[i].frame?.frameName ?? '',
+                fixedProductAct[i].frame?.qty ?? '0',
+                "",),);
+                
+        if (fixedProductAct[i].frame!.ischecked) {
           debugPrint("Category Id: ${item.product!.categoryid}");
           debugPrint("Proddiv: ${item.product!.proddiv}");
           debugPrint("Prodcat: ${item.product!.prodcat}");
@@ -695,7 +752,7 @@ class _DetailActivityState extends State<DetailActivity> {
           postMultiSp(
             id!,
             item.product!.proddesc,
-            item.product!.diskon,
+            item.product!.diskon.replaceAll(".", ""),
             'L',
             isHorizontal: isHorizontal,
           );
@@ -716,7 +773,7 @@ class _DetailActivityState extends State<DetailActivity> {
           postMultiSp(
             id!,
             item.frame!.frameName!,
-            item.frame!.qty!,
+            item.frame!.qty!.replaceAll(".", ""),
             'F',
             isHorizontal: isHorizontal,
           );
@@ -1483,7 +1540,7 @@ class _DetailActivityState extends State<DetailActivity> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              flex: isHorizontal ? 4 : 3,
+              flex: isHorizontal ? 5 : 4,
               child: Padding(
                 padding: EdgeInsets.only(
                   left: isHorizontal ? 10.r : 5.r,
@@ -1513,7 +1570,7 @@ class _DetailActivityState extends State<DetailActivity> {
               )),
             ),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Center(
                 child: Text(
                   'Qty',
@@ -1714,7 +1771,7 @@ class _DetailActivityState extends State<DetailActivity> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              flex: isHorizontal ? 4 : 3,
+              flex: isHorizontal ? 5 : 4,
               child: Padding(
                 padding: EdgeInsets.only(
                   left: isHorizontal ? 10.r : 5.r,
@@ -1744,7 +1801,7 @@ class _DetailActivityState extends State<DetailActivity> {
               )),
             ),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Center(
                 child: Text(
                   'Qty',
